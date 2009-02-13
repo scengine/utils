@@ -1,0 +1,65 @@
+
+See the file ./doc/html/todo.html
+
++ :
+
+- Flipper l'image lors d'une conversion de format -> DXTC (à l'envers sinon).
+- Ajouter une fonction de flip d'images (flip et... euh, dans l'autre sens).
+- Corriger les bugs du support du Cg.
+- Ajouter le support des extensions aux fonctions de sauvegarde du
+  gestionnaire de médias.
+- Animations squelettales.
+- Gérer 'type' dans la fonction SCE_Texture_Load().
+- Améliorer la gestion des ressources dans le gestionnaire de shaders côté
+  interface (notamment lorsqu'on ajoute des sources).
+- Implémenter la détection d'ID d'attributs dans le gestionnaire de shaders Cg.
+- Corriger le bug au niveau des niveaux de mipmap sur les images DDS.
+- Rajouter une structure de données par état, càd un paramètre à fourguer aux
+  callbacks (genre type de HDR, pour varier l'état en fonction de ça).
+- Implémenter un système de compression de plusieurs maps, avec possibilité
+  de choisir où iront combien de bits de chaque map, etc...
+- Ajouter une fonction de tri des indices de vertex d'après le tuto :
+  http://bakura.developpez.com/tutoriel/cpp/vertexcache/
+- Définir une constante pour un index de paramète de shader invalide.
+- Gérer le frustum culling sur les meshs de particules... :/
+- Rassemblement de toutes les mises a jour des vertex buffer pour une seule
+  synchronisation CPU/GPU par frame. (__à tester__)
+- Système de "plans" pour le gestionnaire de scène, afin d'augmenter la
+  profondeur des scènes en définissant plusieurs plans qui seront dessines
+  l'un après l'autre du plus éloigné au plus proche, en remettant le tampon
+  de profondeur à 1 à chaque fois (on suppose qu'aucun plan ne se "croise").
+
+- Pour le SCEditor : prévoir une partie "code source" lors de l'export d'une
+  scène, à inclure ensuite au code pour un support complet de la scène. (nul..?)
+- Pour le SCEditor : prévoir les animations de textures... genre animations
+  de visages. 
+
+- Prévoir des séquences de matrices de modification des coordonnées de texture.
+- Mipmapping manuel... ?
+- Geometry shaders.
+- Is glLinkProgram() a fast function? Can be called many times on each frame?
+- FBOs Multisampling.
+- Différents calculs pour la gestion du LOD (basés directement sur la distance
+  ou pas).
+- Ajouter une fonction reload() au gestionnaire de médias/ressources.
+- Ajouter une fonction qui permet de mettre à jour certaines parties de la scène
+  via des flags SCE_Scene_Update (scene, a | b | c | d).
+- Gestion des terrains.
+- Virer un max d'appels à glEnable/glDisable si c'est pour ne rien changer.
+- Textures atlases manager.
+- Mode de sélection rigoureux pour les instances d'entités pour les differents
+  modes de culling.
+- Créer une fonction de mise en état d'un mode propice au "double-speed z-pass".
+- Permettre de transformer dynamiquement les types des données de vertices
+  via le gestionnaire de meshs (float -> short).
+- Regrouper plusieurs meshs en un seul via le gestionnaire de meshs
+  (ou de batchs...) + plusieurs instances uniquement via indices OpenGL...
+- Instaurer d'autres règles pour le changement d'entité d'une instance en plus
+  du LOD (?).
+- Restaurer la possibilité de spécifier des options de rendu différentes pour
+  chaque instance (depth test, cull face, etc...).
+- API de shaders intégrée au moteur (noms similaires, uniforms définis, etc...).
+- Calculer le niveau de LOD en se basant sur une bounding sphere plutôt qu'une
+  bounding box (plus rapide).
+
+- 37
