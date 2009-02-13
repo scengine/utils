@@ -17,10 +17,11 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 14/01/2009 */
+   updated: 13/02/2009 */
 
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/interface/SCECollide.h>
 #include <SCE/interface/SCEFrustum.h>
 
 void SCE_Frustum_Init (SCE_SFrustum *f)
