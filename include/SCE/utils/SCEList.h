@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 15/11/2008 */
+   updated: 13/02/2009 */
 
 #ifndef SCELIST_H
 #define SCELIST_H
@@ -78,6 +78,9 @@ SCE_SListIterator* SCE_List_RemoveLast (SCE_SList*);
 void SCE_List_Erase (SCE_SList*, SCE_SListIterator*);
 void SCE_List_EraseFirst (SCE_SList*);
 void SCE_List_EraseLast (SCE_SList*);
+
+void SCE_List_RemoveFromData (SCE_SList*, void*);
+void SCE_List_EraseFromData (SCE_SList*, void*);
 
 void* SCE_List_SetData (SCE_SListIterator*, void*);
 #if 0

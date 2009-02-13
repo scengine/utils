@@ -360,6 +360,23 @@ void SCE_List_EraseLast (SCE_SList *l)
         SCE_List_DeleteIt (it);
 }
 
+/**
+ * \brief Removes an element of a list
+ */
+void SCE_List_RemoveFromData (SCE_SList *l, void *data)
+{
+    SCE_SListIterator *it = SCE_List_LocateIterator (l, data, NULL);
+    if (it)
+        SCE_List_Remove (l, it);
+}
+
+void SCE_List_EraseFromData (SCE_SList *l, void *data)
+{
+    SCE_SListIterator *it = SCE_List_LocateIterator (l, data, NULL);
+    if (it)
+        SCE_List_Erase (l, it);
+}
+
 
 /**
  * \brief Sets data of an iterator
