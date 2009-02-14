@@ -17,18 +17,41 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 06/11/2008 */
+   updated: 14/02/2009 */
 
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEList.h>
 
+/**
+ * \file SCEList.c
+ * \copydoc list
+ * \brief Linked lists managment
+ * 
+ * \file SCEList.h
+ * \copydoc list
+ * \brief Linked lists managment
+ */
+
+/**
+ * \defgroup list Linked lists managment
+ * \ingroup utils
+ */
+
+/** @{ */
+
+/**
+ * \brief Initializes an iterator
+ */
 void SCE_List_InitIt (SCE_SListIterator *it)
 {
     it->next = it->prev = NULL;
     it->data = NULL;
 }
 
+/**
+ * \brief Creates an iterator
+ */
 SCE_SListIterator* SCE_List_CreateIt (void)
 {
     SCE_SListIterator *it = SCE_malloc (sizeof *it);
@@ -39,6 +62,9 @@ SCE_SListIterator* SCE_List_CreateIt (void)
     return it;
 }
 
+/**
+ * \brief Deletes an iterator
+ */
 void SCE_List_DeleteIt (SCE_SListIterator *it)
 {
     SCE_free (it);
@@ -46,10 +72,11 @@ void SCE_List_DeleteIt (SCE_SListIterator *it)
 
 
 /**
- * \brief Initialize a SCE_SList
- * \param l the SCE_SList to initialize
+ * \brief Initializes a list
+ * \param l the list to initialize
  * 
  * This function initializes a SCE_SList structure.
+ * \sa SCE_List_Create(), SCE_SList
  */
 void SCE_List_Init (SCE_SList *l)
 {
@@ -59,7 +86,7 @@ void SCE_List_Init (SCE_SList *l)
 }
 
 /**
- * \brief Creates a SCE_SList
+ * \brief Creates a new list
  * \param f a SCE_FListFreeFunc function to free the list's data at deletion
  * \returns a newly allocated SCE_SList, or NULL on error
  * 
@@ -83,7 +110,7 @@ SCE_SList* SCE_List_Create (SCE_FListFreeFunc f)
 }
 
 /**
- * \brief Clear a SCE_SList
+ * \brief Clears a list
  * \param l the SCE_SList to clear
  * 
  * This function clears any data in a SCE_SList by using the registered free
@@ -91,8 +118,7 @@ SCE_SList* SCE_List_Create (SCE_FListFreeFunc f)
  * any reallocation.
  * Use this function if you would change all data in the list.
  * If you just want to free the list, use SCE_List_Delete() instead.
- *
- * \sa SCE_List_Delete() SCE_List_Create()
+ * \sa SCE_List_Delete(), SCE_List_Create()
  */
 void SCE_List_Clear (SCE_SList *l)
 {
@@ -113,13 +139,12 @@ void SCE_List_Clear (SCE_SList *l)
 }
 
 /**
- * \brief Delete a SCE_SList
- * \param l the SCE_SList to delete
+ * \brief Deletes a list
+ * \param l the list to delete
  * 
  * This function deletes a SCE_SList and all it's data by calling
  * SCE_List_Clear().
  * After a call of this function, the list is fully deleted and can't be reused.
- *
  * \sa SCE_List_Clear()
  */
 void SCE_List_Delete (SCE_SList *l)
@@ -142,6 +167,9 @@ void SCE_List_CanDeleteIterators (SCE_SList *l, int canfree)
 }
 
 
+/**
+ * \brief
+ */
 void SCE_List_Prepend (SCE_SListIterator *it, SCE_SListIterator *new)
 {
     if (it->prev)
@@ -150,6 +178,9 @@ void SCE_List_Prepend (SCE_SListIterator *it, SCE_SListIterator *new)
     new->next = it;
     it->prev = new;
 }
+/**
+ * \brief
+ */
 void SCE_List_Append (SCE_SListIterator *it, SCE_SListIterator *new)
 {
     if (it->next)
@@ -159,6 +190,9 @@ void SCE_List_Append (SCE_SListIterator *it, SCE_SListIterator *new)
     it->next = new;
 }
 
+/**
+ * \brief
+ */
 void SCE_List_Prependl (SCE_SList *l, SCE_SListIterator *it)
 {
     if (!l->first)
@@ -172,6 +206,9 @@ void SCE_List_Prependl (SCE_SList *l, SCE_SListIterator *it)
         l->first = it;
     }
 }
+/**
+ * \brief
+ */
 void SCE_List_Appendl (SCE_SList *l, SCE_SListIterator *it)
 {
     if (!l->first)
@@ -190,7 +227,7 @@ void SCE_List_Appendl (SCE_SList *l, SCE_SListIterator *it)
  * \returns SCE_ERROR on error, SCE_OK otherwise
  * 
  * This function prepends data to a SCE_SListIterator.
- * \sa SCE_List_InsertFront()
+ * \sa SCE_List_Prepend(), SCE_List_Prependl()
  */
 int SCE_List_PrependNew (SCE_SListIterator *i, void *d)
 {
@@ -211,7 +248,7 @@ int SCE_List_PrependNew (SCE_SListIterator *i, void *d)
  * \returns SCE_ERROR on error, SCE_OK otherwise
  * 
  * This function appends data to a SCE_SListIterator.
- * \sa SCE_List_InsertBack()
+ * \sa SCE_List_Append(), SCE_List_Appendl()
  */
 int SCE_List_AppendNew (SCE_SListIterator *i, void *d)
 {
@@ -323,7 +360,7 @@ SCE_SListIterator* SCE_List_RemoveLast (SCE_SList *l)
  * \brief Fully remove an element of a list
  * \param l the SCE_SList from where remove element
  * \param it the iterator of the element to be removed
- * \sa SCE_List_Remove() SCE_List_EraseFirst() SCE_List_EraseLast()
+ * \sa SCE_List_Remove(), SCE_List_EraseFirst(), SCE_List_EraseLast()
  */
 void SCE_List_Erase (SCE_SList *l, SCE_SListIterator *it)
 {
@@ -336,7 +373,7 @@ void SCE_List_Erase (SCE_SList *l, SCE_SListIterator *it)
 /**
  * \brief Fully remove the first element of a list
  * \param l the SCE_SList from where detach data
- * \sa SCE_List_Erase() SCE_List_EraseLast() SCE_List_RemoveFirst()
+ * \sa SCE_List_Erase(), SCE_List_EraseLast(), SCE_List_RemoveFirst()
  */
 void SCE_List_EraseFirst (SCE_SList *l)
 {
@@ -349,7 +386,7 @@ void SCE_List_EraseFirst (SCE_SList *l)
 /**
  * \brief Fully remove the last element of a list
  * \param l the SCE_SList from where detach data
- * \sa SCE_List_Erase() SCE_List_EraseFirst() SCE_List_RemoveLast()
+ * \sa SCE_List_Erase(), SCE_List_EraseFirst(), SCE_List_RemoveLast()
  */
 void SCE_List_EraseLast (SCE_SList *l)
 {
@@ -362,6 +399,12 @@ void SCE_List_EraseLast (SCE_SList *l)
 
 /**
  * \brief Removes an element of a list
+ * \param data the data assigned to the iterator to detach
+ * 
+ * This function calls SCE_List_Remove() on the iterator returned by
+ * SCE_List_LocateIterator() if it is not NULL.
+ * \sa SCE_List_EraseFromData(), SCE_List_Erase(), SCE_List_Remove(),
+ * SCE_List_LocateIterator()
  */
 void SCE_List_RemoveFromData (SCE_SList *l, void *data)
 {
@@ -370,13 +413,21 @@ void SCE_List_RemoveFromData (SCE_SList *l, void *data)
         SCE_List_Remove (l, it);
 }
 
+/**
+ * \brief Fully remove an element of a list
+ * \param data the data assigned to the iterator to remove
+ *
+ * This function calls SCE_List_Erase() on the iterator returned by
+ * SCE_List_LocateIterator() if it is not NULL.
+ * \sa SCE_List_RemoveFromData(), SCE_List_Remove(), SCE_List_Erase(),
+ * SCE_List_LocateIterator()
+ */
 void SCE_List_EraseFromData (SCE_SList *l, void *data)
 {
     SCE_SListIterator *it = SCE_List_LocateIterator (l, data, NULL);
     if (it)
         SCE_List_Erase (l, it);
 }
-
 
 /**
  * \brief Sets data of an iterator
@@ -665,3 +716,5 @@ void SCE_List_Sortl (SCE_SList *l, SCE_FListCompareData change)
         l->first = l->first->prev;
 }
 #endif
+
+/** @} */

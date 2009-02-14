@@ -27,6 +27,12 @@ extern "C"
 {
 #endif
 
+/**
+ * \ingroup memory
+ * @{
+ */
+
+/** \copydoc sce_slist */
 typedef struct sce_slist SCE_SList;
 typedef struct sce_slistiterator SCE_SListIterator;
 
@@ -41,13 +47,17 @@ struct sce_slistiterator
 typedef void (*SCE_FListFreeFunc)(void*);
 typedef int (*SCE_FListCompareData)(void*, void*);
 
+/**
+ * \brief A list structure
+ */
 struct sce_slist
 {
-    SCE_SListIterator *first;
-    SCE_FListFreeFunc f;
-    int canfree;                /* can delete iterators */
+    SCE_SListIterator *first; /**< First iterator of the list */
+    SCE_FListFreeFunc f;      /**< Free function */
+    int canfree;              /**< Does the list can delete iterators? */
 };
 
+/** @} */
 
 void SCE_List_InitIt (SCE_SListIterator*);
 
