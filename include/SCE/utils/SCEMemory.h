@@ -65,11 +65,14 @@ extern "C"
 /**
  * \brief Main free wrapper
  * \see SCE_Mem_Free()
+ * \note This macro is guaranteed to expand to a function. It means that it is
+ *       possible to use it exactly as a function, including passing it as
+ *       argument of another function taking a function pointer and so on.
  */
 #ifdef SCE_DEBUG
-#define SCE_free(ptr) SCE_Mem_Free(ptr)
+#define SCE_free SCE_Mem_Free
 #else
-#define SCE_free(ptr) free(ptr)
+#define SCE_free free
 #endif
 
 /** @} */

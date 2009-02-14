@@ -140,10 +140,10 @@ doc:
 
 # Generate scengine.pc from scengine.pc.in
 scengine.pc: scengine.pc.in
-	cat $< | \
-		sed 's#%PREFIX%#/usr/local#g' | \
-		sed 's#%VERSION%#$(VERSION)#g' | \
-		sed 's#%DEBUG_CFLAGS%#$(EXPORT_DEBUG)#g' \
+	cat $< \
+		| sed 's#%PREFIX%#/usr/local#g' \
+		| sed 's#%VERSION%#$(VERSION)#g' \
+		| sed 's#%DEBUG_CFLAGS%#$(EXPORT_DEBUG)#g' \
 	> $@
 
 # installation
