@@ -1,0 +1,10 @@
+prefix=%PREFIX%
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: SCEngine
+Description: Simple C 3D Engine
+Version: %VERSION%
+Libs: -L${libdir} -lSCE
+Cflags: -I${includedir} %DEBUG_CFLAGS%

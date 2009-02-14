@@ -47,6 +47,9 @@ export CFLAGS = -Wall -O2 -DSCE_VERSION_STRING=\"$(VERSION)\" \
 # debug mode
 ifeq ($(DYNAMIC_DBG), 1)
 	export CFLAGS += -DSCE_DEBUG -g
+	EXPORT_DEBUG = -DSCE_DEBUG
+else
+	EXPORT_DEBUG =
 endif
 
 # using Cg shaders -> define SCE_USE_CG
@@ -107,6 +110,8 @@ DESTDIR = $(prefix)
 INSTALL_LIBDIR = $(DESTDIR)/lib
 # directory for installation of headers files
 INSTALL_HDDIR = $(DESTDIR)/include/SCE
+# pkgconfig lib dir
+INSTALL_PCDIR = $(DESTDIR)/lib/pkgconfig
 
 
 # engine's modules directories
@@ -120,7 +125,7 @@ E_CORE = $(ENGINE)/$(CORE)
 E_INTERFACE = $(ENGINE)/$(INTERFACE)
 
 
-all: staticlib sharedlib
+all: staticlib sharedlib scengine.pc
 	
 # static library (.a)
 staticlib: $(ENGINE)
@@ -132,6 +137,14 @@ sharedlib: $(ENGINE)
 # Generate doc
 doc:
 	doxygen Doxyfile
+
+# Generate scengine.pc from scengine.pc.in
+scengine.pc: scengine.pc.in
+	cat $< | \
+		sed 's#%PREFIX%#/usr/local#g' | \
+		sed 's#%VERSION%#$(VERSION)#g' | \
+		sed 's#%DEBUG_CFLAGS%#$(EXPORT_DEBUG)#g' \
+	> $@
 
 # installation
 install: install-createdirs
@@ -151,6 +164,9 @@ install: install-createdirs
 	
 	# update the libraries manager...
 	ldconfig -n $(INSTALL_LIBDIR)
+	
+	# install .pc file
+	install -m 644 scengine.pc $(INSTALL_PCDIR)
 
 install-createdirs:
 	# verifying existence of installation directories
@@ -159,6 +175,7 @@ install-createdirs:
 	test -d $(INSTALL_HDDIR)/$(CORE) || mkdir -p $(INSTALL_HDDIR)/$(CORE)
 	test -d $(INSTALL_HDDIR)/$(INTERFACE) || mkdir -p $(INSTALL_HDDIR)/$(INTERFACE)
 	test -d $(INSTALL_LIBDIR) || mkdir -p $(INSTALL_LIBDIR)
+	test -d $(INSTALL_PCDIR) || mkdir -p $(INSTALL_PCDIR)
 
 
 uninstall:
@@ -167,16 +184,19 @@ uninstall:
 	&& test -h !$(SHARED_LIB) || rm -f $(SHARED_LIB) \
 	&& test -e !$(SHARED_LIB).$(VERSION) || rm -f $(SHARED_LIB).$(VERSION)
 	ldconfig -n $(INSTALL_LIBDIR)
+	test ! -e $(INSTALL_PCDIR)/scengine.pc || rm -f $(INSTALL_PCDIR)/scengine.pc
+	test ! -d $(INSTALL_PCDIR) || rmdir --ignore-fail-on-non-empty $(INSTALL_PCDIR)
 
 # build modules
 $(ENGINE):
 	cd $@ && $(MAKE)
 
 clean:
+	rm -f scengine.pc
 	rm -f $(SHARED_LIB).$(VERSION)
 	rm -f $(STATIC_LIB)
 	cd $(ENGINE) && $(MAKE) $@
 
 distclean: clean
 
-.PHONY: all clean distclean staticlib sharedlib install $(ENGINE) doc
+.PHONY: all clean distclean staticlib sharedlib install $(ENGINE) doc scengine.pc
