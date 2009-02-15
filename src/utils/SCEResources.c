@@ -145,7 +145,7 @@ static SCE_SResource* SCE_Resource_LocateFromName (const char *name)
     SCE_List_ForEach (i, resources)
     {
         res = SCE_List_GetData (i);
-        if (SCE_String_Cmp (name, res->name, 1))
+        if (SCE_String_Cmp (name, res->name, SCE_TRUE) == 0)
             return res;
     }
 

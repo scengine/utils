@@ -493,7 +493,7 @@ static void SCE_Shader_SearchTypes (const char *ext, int *type)
 {
     SCE_btstart ();
     #define SCE_SHADER_FOR(str, val, val2)\
-    if (SCE_String_Cmp (str, ext, 0))\
+    if (SCE_String_Cmp (str, ext, SCE_FALSE) == 0)\
     {\
         type[0] = val;\
         type[1] = val2;\
@@ -554,7 +554,7 @@ static int SCE_Shader_SetPosFile (FILE *fp, const char *str, int at_end)
             }
         }
 
-        if (SCE_String_Cmp (str, buf, 0))
+        if (SCE_String_Cmp (str, buf, SCE_FALSE) == 0)
         {
             if (!at_end)
                 fseek (fp, -lenstr, SEEK_CUR);

@@ -27,6 +27,7 @@
  * en-tete de gestion des chaines de caracteres
  */
 #include <string.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -53,6 +54,8 @@ int SCE_String_Cmp (const char*, const char*, int);
 char* SCE_String_Dup (const char*);
 
 char* SCE_String_CatDup (const char*, const char*);
+
+char* SCE_String_CatDupMulti (const char* str, ...);
 
 #ifdef __cplusplus
 } /* extern "C" */

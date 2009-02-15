@@ -22,6 +22,11 @@
 #ifndef SCEUTILS_H
 #define SCEUTILS_H
 
+#include <SCE/utils/SCEBacktracer.h>
+#include <SCE/utils/SCEError.h>
+#include <SCE/utils/SCEMemory.h>
+#include <SCE/utils/SCETime.h>
+
 #include <SCE/utils/SCEMath.h>
 #include <SCE/utils/SCEVector.h>
 #include <SCE/utils/SCEQuaternion.h>
@@ -35,6 +40,7 @@
 #include <SCE/utils/SCEResources.h>
 #include <SCE/utils/SCEList.h>
 #include <SCE/utils/SCEListFastForeach.h>
+#include <SCE/utils/SCEString.h>
 
 #ifdef __cplusplus
 extern "C"

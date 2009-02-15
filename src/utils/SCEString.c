@@ -283,9 +283,9 @@ const char* SCE_String_Strof (double arg, unsigned int nd)
 
 /** 
  * \brief Finds out how many times a character is in a string
- * \param str first String to be scanned
- * \param c second Character sought
- * \returns a string containing the double number
+ * \param str String to be scanned
+ * \param c   Character sought
+ * \returns the number of occurrences of \p c in \p str
  */
 unsigned int SCE_String_NChrInStr(const char *str, char c)
 {
@@ -302,7 +302,7 @@ unsigned int SCE_String_NChrInStr(const char *str, char c)
 }
 
 /**
- * \brief Get the extension part of a filename
+ * \brief Gets the extension part of a filename
  * \param str the filename from where search extension
  * \returns a pointer to the extension part of \p str or NULL if \p str has no
  * extension
@@ -320,60 +320,11 @@ char* SCE_String_GetExt (char *str)
     return &str[i];
 }
 
-
-#ifndef BAN_IMPL
-/** 
- * \brief Compares two strings
- * \param str1 first string to compare
- * \param str2 second string to compare with first
- * \param cmp_case 1 for sensitive comparison, 0 else
- * \returns 0 if both strings are the same, 1 otherwise
- */
-int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
-{
-    size_t i;
-    size_t len;
-    int equal = 1;
-
-    /* on recupere la plus petite taille */
-    len = strlen (str1);
-
-    if (len != strlen (str2))
-        return 0;
-
-    if (cmp_case)
-    {
-        for (i=0; i<len; i++)
-        {
-            if (str1[i] != str2[i])
-            {
-                equal = 0;
-                break;
-            }
-        }
-    }
-    else
-    {
-        for (i=0; i<len; i++)
-        {
-            if (tolower (str1[i]) != tolower (str2[i]))
-            {
-                equal = 0;
-                break;
-            }
-        }
-    }
-
-    return equal;
-}
-
-#else /* BAN_IMPL */
-
 /** 
  * \brief Compares two strings
  * \param str1 first string to compare
  * \param str2 second string to compare
- * \param cmp_case 1 for case sensitive comparison, 0 else
+ * \param cmp_case 1 for case sensitive comparison, 0 otherwise
  * \returns an integer. 0 if the strings are the same, a number greater than 0
  * if the first string is greater than the second, and a number below 0
  * otherwise
@@ -393,7 +344,9 @@ int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
     }
     else
     {
-        for (rv = 0; (rv = tolower (*str1) - tolower (*str2)) == 0; str1++, str2++)
+        for (rv = 0;
+             (rv = tolower (*str1) - tolower (*str2)) == 0;
+             str1++, str2++)
         {
             if (*str1 == 0)
                 break;
@@ -402,14 +355,14 @@ int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
 
     return rv;
 }
-#endif /* BAN_IMPL */
 
 /* ajoute le 18/10/2007 */
 /* revise le 19/10/2007 */
 /**
  * \brief Duplicates a string
  * \param src the string to copy
- * \returns a newly allocated duplication of \p src or NULL on error
+ * \returns a newly allocated duplication of \p src or NULL on error or if
+ *          \p str is NULL
  */
 char* SCE_String_Dup (const char *src)
 {
@@ -467,8 +420,8 @@ char* SCE_String_CatDup (const char *a, const char *b)
 char* SCE_String_CatDupMulti (const char* str, ...)
 {
     size_t size = 1;
-    char *new = NULL;
-    char* tmp;
+    char *new;
+    char *tmp;
     va_list ap;
     
     size += strlen (str);
@@ -478,12 +431,11 @@ char* SCE_String_CatDupMulti (const char* str, ...)
     va_end (ap);
     
     new = SCE_malloc (size);
-    if (!new)
+    if (! new)
         Logger_LogSrc ();
     else
     {
-        /*memset (new, '\0', size);*/
-        strcat (new, str);
+        strcpy (new, str);
         
         va_start (ap, str);
         while ((tmp = va_arg (ap, char*)) != NULL)
