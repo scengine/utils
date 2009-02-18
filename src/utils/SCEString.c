@@ -329,27 +329,41 @@ char* SCE_String_GetExt (char *str)
  * if the first string is greater than the second, and a number below 0
  * otherwise
  * \see string.h's strcmp()
+ * \note This function is safe with NULL string comparaison.
  */
 int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
 {
     int rv;
-
-    if (cmp_case)
+    
+    /* NULL-safety */
+    if (! str1 || ! str2)
     {
-        for (rv = 0; (rv = str1 - str2) == 0; str1++, str2++)
-        {
-            if (*str1 == 0)
-                break;
-        }
+        if (str1)
+            rv = 1;
+        else if (str2)
+            rv = -1;
+        else
+            rv = 0;
     }
     else
     {
-        for (rv = 0;
-             (rv = tolower (*str1) - tolower (*str2)) == 0;
-             str1++, str2++)
+        if (cmp_case)
         {
-            if (*str1 == 0)
-                break;
+            for (rv = 0; (rv = str1 - str2) == 0; str1++, str2++)
+            {
+                if (*str1 == 0)
+                    break;
+            }
+        }
+        else
+        {
+            for (rv = 0;
+                 (rv = tolower (*str1) - tolower (*str2)) == 0;
+                 str1++, str2++)
+            {
+                if (*str1 == 0)
+                    break;
+            }
         }
     }
 
