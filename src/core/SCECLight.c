@@ -167,10 +167,10 @@ float SCE_CGetLightQuadraticAtt (SCE_CLight *light)
 }
 
 
-void SCE_CActivateLighting (int actived)
+void SCE_CActivateLighting (int activated)
 {
-    use_lighting = actived;
-    SCE_CSetState (GL_LIGHTING, actived);
+    use_lighting = activated;
+    SCE_CSetState (GL_LIGHTING, activated);
 }
 
 void SCE_CUseLight (SCE_CLight *light)

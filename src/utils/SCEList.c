@@ -540,7 +540,6 @@ SCE_SListIterator* SCE_List_GetIterator (SCE_SList *l, unsigned int n)
             return it;
         i++;
     }
-    Logger_Log (/*SCE_STACK_OVERFLOW*/SCE_INVALID_ARG);
     return NULL;
 }
 

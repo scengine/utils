@@ -227,7 +227,7 @@ void SCE_SceneEntity_SelectInFrustumInstances (SCE_SSceneEntityGroup*,
                                                SCE_SCamera*);
 
 #if 0
-void SCE_SceneEntity_ApplyProperties (SCE_SSceneEntityInstance*);
+void SCE_SceneEntity_ApplyProperties (SCE_SSceneEntity*);
 #endif
 
 void SCE_SceneEntity_UseResources (SCE_SSceneEntity*);

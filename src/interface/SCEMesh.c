@@ -490,7 +490,7 @@ void SCE_Mesh_EraseVB (SCE_SMesh *mesh, unsigned int id)
 /**
  * \brief Activates a vertex buffer of a mesh
  * \param id I suggest you to see SCE_Mesh_RemoveVB() (good luck)
- * \param activate is vertex buffer actived ?
+ * \param activate is vertex buffer activated ?
  * \note Is \p mesh is NULL, this function acts on the mesh binded by
  * SCE_Mesh_Use(), if no mesh is binded, this function maybe segfault
  */
@@ -504,9 +504,7 @@ void SCE_Mesh_ActivateVB (SCE_SMesh *mesh, unsigned int id, int activate)
         mesh = m;
 
     i = SCE_List_GetIterator (mesh->vertices, id);
-    if (!i)
-        Logger_Clear (); /* c'est juste un mauvais 'id' ... */
-    else
+    if (i)
     {
         vb = SCE_List_GetData (i);
         vb->active = activate;
@@ -1677,6 +1675,7 @@ int SCE_Mesh_GenerateBoundingSphere (SCE_SMesh *mesh, SCE_SBoundingSphere *s)
 void SCE_Mesh_GenerateCubeVertices (SCEvertices v[72], SCE_TVector3 o,
                                     float w, float h, float d)
 {
+#if 1
     /* far */
     v[0]  = o[0];     v[1]  = o[1];     v[2]  = o[2];
     v[3]  = o[0] + w; v[4]  = o[1];     v[5]  = o[2];
@@ -1707,6 +1706,45 @@ void SCE_Mesh_GenerateCubeVertices (SCEvertices v[72], SCE_TVector3 o,
     v[63] = o[0] + w; v[64] = o[1];     v[65] = o[2] + d;
     v[66] = o[0];     v[67] = o[1];     v[68] = o[2] + d;
     v[69] = o[0];     v[70] = o[1] + h; v[71] = o[2] + d;
+#else
+    unsigned int i = 0;
+    /* near */
+    v[i]    = o[0] + w; v[i+1]  = o[1] + h; v[i+2]  = o[2] + d;
+    v[i+3]  = o[0] + w; v[i+4]  = o[1];     v[i+5]  = o[2] + d;
+    v[i+6]  = o[0];     v[i+7]  = o[1];     v[i+8]  = o[2] + d;
+    v[i+9]  = o[0];     v[i+10] = o[1] + h; v[i+11] = o[2] + d;
+    i += 12;
+    /* bottom */
+    v[i]    = o[0];     v[i+1]  = o[1]; v[i+2]  = o[2];
+    v[i+3]  = o[0] + w; v[i+4]  = o[1]; v[i+5]  = o[2];
+    v[i+6]  = o[0] + w; v[i+7]  = o[1]; v[i+8]  = o[2] + d;
+    v[i+9]  = o[0];     v[i+10] = o[1]; v[i+11] = o[2] + d;
+    i += 12;
+    /* right */
+    v[i]    = o[0] + w; v[i+1]  = o[1];     v[i+2]  = o[2];
+    v[i+3]  = o[0] + w; v[i+4]  = o[1] + h; v[i+5]  = o[2];
+    v[i+6]  = o[0] + w; v[i+7]  = o[1] + h; v[i+8]  = o[2] + d;
+    v[i+9]  = o[0] + w; v[i+10] = o[1];     v[i+11] = o[2] + d;
+    i += 12;
+    /* far */
+    v[i]    = o[0];     v[i+1]  = o[1];     v[i+2]  = o[2];
+    v[i+3]  = o[0] + w; v[i+4]  = o[1];     v[i+5]  = o[2];
+    v[i+6]  = o[0] + w; v[i+7]  = o[1] + h; v[i+8]  = o[2];
+    v[i+9]  = o[0];     v[i+10] = o[1] + h; v[i+11] = o[2];
+    i += 12;
+    /* left */
+    v[i]    = o[0]; v[i+1]  = o[1];     v[i+2]  = o[2];
+    v[i+3]  = o[0]; v[i+4]  = o[1] + h; v[i+5]  = o[2];
+    v[i+6]  = o[0]; v[i+7]  = o[1] + h; v[i+8]  = o[2] + d;
+    v[i+9]  = o[0]; v[i+10] = o[1];     v[i+11] = o[2] + d;
+    i += 12;
+    /* top */
+    v[i]    = o[0] + w; v[i+1]  = o[1] + h; v[i+2]  = o[2];
+    v[i+3]  = o[0] + w; v[i+4]  = o[1] + h; v[i+5]  = o[2] + d;
+    v[i+6]  = o[0];     v[i+7]  = o[1] + h; v[i+8]  = o[2] + d;
+    v[i+9]  = o[0];     v[i+10] = o[1] + h; v[i+11] = o[2];
+    i += 12;
+#endif
 }
 
 

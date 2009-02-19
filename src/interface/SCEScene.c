@@ -538,10 +538,10 @@ static void SCE_Scene_RenderSkybox (SCE_SScene *scene, SCE_SCamera *cam)
 {
     SCE_TVector3 pos;
     float *matcam = NULL;
+    SCE_SSceneEntity *entity = SCE_Skybox_GetEntity (scene->skybox);
     SCE_SSceneEntityInstance *einst = SCE_Skybox_GetInstance (scene->skybox);
     SCE_SNode *node = SCE_SceneEntity_GetInstanceNode (einst);
 
-#if 1
     matcam = SCE_Node_GetFinalMatrix (SCE_Camera_GetNode (cam));
     SCE_Matrix4_GetTranslation (matcam, pos);
     matcam = SCE_Node_GetMatrix (node);
@@ -550,24 +550,15 @@ static void SCE_Scene_RenderSkybox (SCE_SScene *scene, SCE_SCamera *cam)
     matcam[11] = pos[2];
     SCE_Node_HasMoved (node);
     SCE_Node_UpdateRootRecursive (node);
-#else
-    SCE_Node_Attach (SCE_Camera_GetNode (cam), node);
-    SCE_Node_HasMoved (node);
-    SCE_Node_UpdateRootRecursive (SCE_Camera_GetNode (cam));
-    SCE_Node_Detach (node);
-#endif
-    SCE_CSetState2 (GL_DEPTH_TEST, GL_CULL_FACE, SCE_FALSE);/*TODO: kick that */
-    glDisable (GL_LIGHTING);
-    SCE_SceneEntity_UseResources (SCE_Skybox_GetEntity (scene->skybox));
-    /*glEnable (GL_LIGHTING);
-    glDisable (GL_LIGHT0);
-    glDisable (GL_LIGHT1);
-    glDisable (GL_LIGHT2);*/
-    glDisable (GL_LIGHTING);
-    glFlush ();
-    glDisable (GL_LIGHTING);
-    SCE_SceneEntity_Render (SCE_Skybox_GetEntity (scene->skybox));
-    SCE_CSetState2 (GL_DEPTH_TEST, GL_CULL_FACE, SCE_TRUE);
+    /* TODO: WHAT THE FUUUUCK */
+    /*SCE_CSetState (GL_DEPTH_TEST, SCE_FALSE);
+    SCE_CActivateDepthBuffer (GL_FALSE);*/
+    SCE_CSetState (GL_CULL_FACE, SCE_FALSE);
+    SCE_SceneEntity_UseResources (entity);
+    SCE_SceneEntity_Render (entity);
+    /*SCE_CSetState (GL_DEPTH_TEST, SCE_TRUE);
+    SCE_CActivateDepthBuffer (GL_TRUE);*/
+    SCE_CSetState (GL_CULL_FACE, SCE_TRUE);
     SCE_Texture_Flush ();
     SCE_Shader_Use (NULL);
 }
@@ -599,7 +590,10 @@ void SCE_Scene_Render (SCE_SScene *scene, SCE_SCamera *cam,
 
     /* preparation des tampons */
     if (scene->skybox)
+    {
         scene->states.clearcolor = SCE_FALSE;
+        scene->states.cleardepth = SCE_TRUE;
+    }
     SCE_Scene_ClearBuffers (scene);
 
     /* activation de la camera et mise en place des matrices */

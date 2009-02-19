@@ -120,10 +120,7 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
     int code = SCE_OK, type;
     SCEvertices v[72];
     SCE_TVector3 origin = {-0.5, -0.5, -0.5};
-    SCEvertices color[72];
-    unsigned int k;
 
-        unsigned int i;
     SCE_btstart ();
     /* remove the previous one */
     if (skybox->tex)
@@ -131,14 +128,11 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
     SCE_SceneEntity_AddTexture (skybox->entity, tex);
     skybox->tex = tex;
 
-    for (k = 0; k < 72; k++)
-        color[k] = 1.0;
-
     type = SCE_Texture_GetType (SCE_SceneResource_GetResource (tex));
     if (type == SCE_TEX_CUBE || type == SCE_RENDER_COLOR_CUBE ||
         type == SCE_RENDER_DEPTH_CUBE)
     {
-        /*unsigned int i;*/
+        unsigned int i;
         SCEindices *indices;
         if (type == skybox->textype)
             goto success;
@@ -147,23 +141,17 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
         if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_POSITION,
                                      SCE_VERTICES_TYPE, 3, 8, v) < 0)
             goto failure;
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_COLOR,
-                                     SCE_VERTICES_TYPE, 3, 8, color) < 0)
-            goto failure;
         /* normalize the vectors */
         for (i = 0; i < 8; i++)
             SCE_Vector3_Normalize (&v[i*3]);
         if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_TEXCOORD0,
                                      SCE_VERTICES_TYPE, 3, 8, v) < 0)
-            goto failure;
         if (SCE_Mesh_SetIndicesDup (skybox->mesh, 0, SCE_INDICES_TYPE,
-                                    8, indices) < 0)
-            goto failure;
-        if (SCE_Mesh_Build (skybox->mesh) < 0)
+                                    24, indices) < 0)
             goto failure;
         SCE_Mesh_ActivateIB (skybox->mesh, SCE_TRUE);
     }
-    if (mode)
+    else if (mode)
     {
         SCEvertices texcoord[] =
         {
@@ -172,6 +160,7 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
             0., 0.,  1., 0.,  1., 1.,  0., 1.,
             0., 0.,  1., 0.,  1., 1.,  0., 1.,
             0., 0.,  1., 0.,  1., 1.,  0., 1.,
+
             0., 0.,  1., 0.,  1., 1.,  0., 1.,
             0., 0.,  1., 0.,  1., 1.,  0., 1.
         };
@@ -179,19 +168,8 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
         if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_POSITION,
                                      SCE_VERTICES_TYPE, 3, 24, v) < 0)
             goto failure;
-        /* normalize the vectors */
-        for (i = 0; i < 24; i++)
-            SCE_Vector3_Normalize (&v[i*3]);
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_NORMAL,
-                                     SCE_VERTICES_TYPE, 3, 24, v) < 0)
-            goto failure;
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_COLOR,
-                                     SCE_VERTICES_TYPE, 3, 24, color) < 0)
-            goto failure;
         if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_TEXCOORD0,
                                      SCE_VERTICES_TYPE, 2, 24, texcoord) < 0)
-            goto failure;
-        if (SCE_Mesh_Build (skybox->mesh) < 0)
             goto failure;
         SCE_Mesh_ActivateIB (skybox->mesh, SCE_FALSE);
     }
@@ -210,30 +188,21 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
         if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_POSITION,
                                      SCE_VERTICES_TYPE, 3, 24, v) < 0)
             goto failure;
-        /* normalize the vectors */
-        for (i = 0; i < 24; i++)
-        {
-            /*SCE_Vector3_Operator1v (&v[i*3], = -, &v[i*3]);*/
-            SCE_Vector3_Normalize (&v[i*3]);
-        }
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_NORMAL,
-                                     SCE_VERTICES_TYPE, 3, 24, v) < 0)
-            goto failure;
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_COLOR,
-                                     SCE_VERTICES_TYPE, 3, 24, color) < 0)
-            goto failure;
         if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_TEXCOORD0,
                                      SCE_VERTICES_TYPE, 2, 24, texcoord) < 0)
-            goto failure;
-        if (SCE_Mesh_Build (skybox->mesh) < 0)
             goto failure;
         SCE_Mesh_ActivateIB (skybox->mesh, SCE_FALSE);
     }
     SCE_Mesh_ActivateVB (skybox->mesh, 0, SCE_TRUE);
+    /*SCE_Mesh_ActivateIB (skybox->mesh, SCE_TRUE);*/
     SCE_Mesh_SetRenderMode (skybox->mesh, SCE_QUADS);
+    if (SCE_Mesh_Build (skybox->mesh) < 0)
+        goto failure;
     SCE_SceneEntity_SetMesh (skybox->entity, skybox->mesh);
     SCE_SceneEntity_AddInstanceToEntity (skybox->entity, skybox->instance);
     SCE_SceneEntity_SelectInstance (skybox->instance, SCE_TRUE);
+    skybox->mode = mode;
+    skybox->textype = type;
     goto success;
 failure:
     Logger_LogSrc ();
