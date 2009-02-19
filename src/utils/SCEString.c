@@ -349,7 +349,7 @@ int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
     {
         if (cmp_case)
         {
-            for (rv = 0; (rv = str1 - str2) == 0; str1++, str2++)
+            for (rv = 0; (rv = *str1 - *str2) == 0; str1++, str2++)
             {
                 if (*str1 == 0)
                     break;
