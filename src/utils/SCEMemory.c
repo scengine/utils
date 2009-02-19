@@ -417,7 +417,7 @@ void SCE_Mem_Free (void *p)
 }
 
 
-void* SCE_Mem_Dup (void *p, size_t size)
+void* SCE_Mem_Dup (const void *p, size_t size)
 {
     void *new = SCE_malloc (size);
     if (new)
@@ -427,7 +427,7 @@ void* SCE_Mem_Dup (void *p, size_t size)
     return new;
 }
 
-void SCE_Mem_Convert (int tdest, void *dest, int tsrc, void *src, size_t n)
+void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
 {
     union SCE_UMemType
     {
@@ -453,7 +453,7 @@ void SCE_Mem_Convert (int tdest, void *dest, int tsrc, void *src, size_t n)
 
 #define SCE_MEM_SWITCH(type, namesrc)\
     case type:\
-        tin.namesrc = src;\
+        tin.namesrc = (void*)src;\
         switch (tdest)\
         {\
         SCE_MEM_FOR (SCE_UNSIGNED_BYTE,  ub, namesrc)\
@@ -480,7 +480,7 @@ void SCE_Mem_Convert (int tdest, void *dest, int tsrc, void *src, size_t n)
     }
 }
 
-void* SCE_Mem_ConvertDup (int tdest, int tsrc, void *src, size_t n)
+void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
 {
     size_t size;
     void *dest = NULL;

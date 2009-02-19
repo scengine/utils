@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/05/2008
-   updated: 31/01/2009 */
+   updated: 18/02/2009 */
 
 #ifndef SCEOCTREE_H
 #define SCEOCTREE_H
@@ -122,6 +122,7 @@ SCE_SBoundingSphere* SCE_Octree_GetElementBoundingSphere (SCE_SOctreeElement*);
 
 int SCE_Octree_InsertElement (SCE_SOctree*, SCE_SOctreeElement*, int);
 int SCE_Octree_ReinsertElement (SCE_SOctreeElement*);
+void SCE_Octree_RemoveElement (SCE_SOctreeElement*);
 
 void SCE_Octree_MarkVisibles (SCE_SOctree*, SCE_SCamera*);
 

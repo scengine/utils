@@ -41,7 +41,6 @@
 /**
  * \defgroup scene Scene managment
  * \ingroup interface
- * \brief Scene managment
  * \internal
  */
 
@@ -70,7 +69,6 @@ static void SCE_Scene_InitStates (SCE_SSceneStates *states)
 {
     states->clearcolor = states->cleardepth = SCE_TRUE;
     states->frustum_culling = SCE_FALSE;
-    states->use_skybox = SCE_FALSE;
     states->lighting = SCE_TRUE;
     states->lod = SCE_FALSE;
 }
@@ -87,6 +85,7 @@ static void SCE_Scene_Init (SCE_SScene *scene)
     scene->egroups = NULL;
     scene->entities = NULL;
     scene->lights = NULL;
+    scene->skybox = NULL;
     scene->rclear = scene->gclear = scene->bclear = scene->aclear = 0.5;
     scene->dclear = 1.0;
     scene->rendertarget = NULL;
@@ -197,6 +196,17 @@ void SCE_Scene_AddNode (SCE_SScene *scene, SCE_SNode *node)
     SCE_Node_Attach (scene->rootnode, node);
     scene->n_nodes++;
 }
+/**
+ * \brief Removes a node from a scene
+ * \param node the node to remove
+ * \warning the node \p node HAVE to be previously added to the scene \p scene,
+ * an undefined comportement can happen otherwise.
+ */
+void SCE_Scene_RemoveNode (SCE_SScene *scene, SCE_SNode *node)
+{
+    scene->n_nodes--;
+    SCE_Node_Detach (node);
+}
 
 /**
  * \brief Adds an instance to a scene
@@ -206,7 +216,7 @@ void SCE_Scene_AddNode (SCE_SScene *scene, SCE_SNode *node)
  *
  * Adds an instance to a scene, adds its node by calling SCE_Scene_AddNode()
  * and inserts its octree element by calling SCE_Octree_InsertElement().
- * \sa SCE_Scene_AddNode(), SCE_Scene_MakeOctree()
+ * \sa SCE_Scene_RemoveInstance(), SCE_Scene_AddNode(), SCE_Scene_MakeOctree()
  */
 int SCE_Scene_AddInstance (SCE_SScene *scene, SCE_SSceneEntityInstance *einst)
 {
@@ -225,6 +235,19 @@ int SCE_Scene_AddInstance (SCE_SScene *scene, SCE_SSceneEntityInstance *einst)
     SCE_Scene_AddNode (scene, node);
     return SCE_OK;
 }
+/**
+ * \brief Removes an instance from a scene
+ * \param einst the instance to remove
+ * \sa SCE_Scene_AddInstance()
+ */
+void SCE_Scene_RemoveInstance (SCE_SScene *scene,
+                               SCE_SSceneEntityInstance *einst)
+{
+    SCE_SNode *node = SCE_SceneEntity_GetInstanceNode (einst);
+    SCE_SOctreeElement *element=SCE_SceneEntity_GetInstanceOctreeElement(einst);
+    SCE_Scene_RemoveNode (scene, node);
+    SCE_Octree_RemoveElement (element);
+}
 
 /**
  * \brief Adds an entity to a scene
@@ -241,6 +264,15 @@ int SCE_Scene_AddEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
     }
     return SCE_OK;
 }
+/**
+ * \brief Removes an entity from a scene
+ * \param entity the entity to remove
+ */
+void SCE_Scene_RemoveEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
+{
+    SCE_List_EraseFromData (scene->entities, entity);
+}
+
 /**
  * \brief Adds an entity group to a scene
  * \param scene a scene
@@ -291,6 +323,18 @@ int SCE_Scene_AddLight (SCE_SScene *scene, SCE_SLight *light)
 void SCE_Scene_AddResource (SCE_SScene *scene, int id, SCE_SSceneResource *res)
 {
     SCE_SceneResource_AddResource (scene->rgroups[id], res);
+}
+
+/**
+ * \brief Defines the skybox of a scene
+ */
+void SCE_Scene_SetSkybox (SCE_SScene *scene, SCE_SSkybox *skybox)
+{
+    if (scene->skybox)
+        SCE_Scene_RemoveEntity (scene, SCE_Skybox_GetEntity (scene->skybox));
+    scene->skybox = skybox;
+    if (skybox)
+        SCE_Scene_AddEntity (scene, SCE_Skybox_GetEntity (skybox));
 }
 
 
@@ -387,32 +431,6 @@ void SCE_Scene_EndFrame (SCE_SScene *scene)
     (void) scene;
 }
 
-#if 0
-/**
- * \internal
- * \deprecated
- */
-void SCE_Scene_RenderSkybox (SCE_SModel *mdl, void *s)
-{
-    SCE_SScene *scene = s;
-    SCE_SCamera *cam = scene->camera;
-    SCE_TVector3 campos = {0., 0., 0.};
-    SCE_TMatrix4 cmat;
-    float *mat = SCE_Node_GetMatrix (SCE_Model_GetNode (mdl));
-
-    SCE_Matrix4_Copy (cmat, SCE_Camera_GetFinalView (cam));
-    SCE_Matrix4_Inverse (cmat);
-    SCE_Matrix4_GetTranslation (cmat, campos);
-    SCE_Matrix4_Copy (cmat, mat); /* sauvegarde de la matrice */
-    SCE_Matrix4_MulTranslatev (mat, campos);
-    /* glPushAttribs */
-    SCE_CSetState (GL_DEPTH_TEST, SCE_FALSE);
-    SCE_Model_Render (mdl);
-    SCE_CSetState (GL_DEPTH_TEST, SCE_TRUE);
-    SCE_Matrix4_Copy (mat, cmat); /* restauration de la matrice */
-}
-#endif
-
 
 static void SCE_Scene_DoFrustumCulling (SCE_SScene *scene)
 {
@@ -459,18 +477,18 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
 
     /* updating scene nodes */
     if (!scene->node_updated)
-        SCE_Node_UpdateRootRecursive (scene->rootnode/*, scene->n_nodes*/);
+        SCE_Node_FastUpdateRootRecursive (scene->rootnode, scene->n_nodes);
     scene->node_updated = SCE_TRUE;
 
     SCE_Camera_Update (scene->camera);
 
     SCE_Octree_MarkVisibles (scene->octree, scene->camera);
 
-    /* --- frustum culling computation --- */
+    /* frustum culling computation */
     if (scene->states.frustum_culling)
         SCE_Scene_DoFrustumCulling (scene);
 
-    /* --- determinating LODs --- */
+    /* determinating LODs */
     if (scene->states.lod)
         SCE_Scene_ComputeLODs (scene);
 }
@@ -486,13 +504,11 @@ void SCE_Scene_ClearBuffers (SCE_SScene *scene)
 
     if (scene->states.cleardepth)
         depthbuffer = GL_DEPTH_BUFFER_BIT;
-    if (!scene->states.use_skybox && scene->states.clearcolor)
+    if (scene->states.clearcolor)
         depthbuffer |= GL_COLOR_BUFFER_BIT;
 
-    /* mise en place des valeurs de vidange */
     SCE_CClearColor (scene->rclear, scene->gclear, scene->bclear,scene->aclear);
     SCE_CClearDepth (scene->dclear);
-    /* vidage des tampons */
     /* what does glClear(0)? */
     if (depthbuffer)
         SCE_CClear (depthbuffer);
@@ -517,6 +533,44 @@ static void SCE_Scene_RenderEntities (SCE_SScene *scene)
     SCE_Shader_Use (NULL);
 }
 
+
+static void SCE_Scene_RenderSkybox (SCE_SScene *scene, SCE_SCamera *cam)
+{
+    SCE_TVector3 pos;
+    float *matcam = NULL;
+    SCE_SSceneEntityInstance *einst = SCE_Skybox_GetInstance (scene->skybox);
+    SCE_SNode *node = SCE_SceneEntity_GetInstanceNode (einst);
+
+#if 1
+    matcam = SCE_Node_GetFinalMatrix (SCE_Camera_GetNode (cam));
+    SCE_Matrix4_GetTranslation (matcam, pos);
+    matcam = SCE_Node_GetMatrix (node);
+    matcam[3]  = pos[0];
+    matcam[7]  = pos[1];
+    matcam[11] = pos[2];
+    SCE_Node_HasMoved (node);
+    SCE_Node_UpdateRootRecursive (node);
+#else
+    SCE_Node_Attach (SCE_Camera_GetNode (cam), node);
+    SCE_Node_HasMoved (node);
+    SCE_Node_UpdateRootRecursive (SCE_Camera_GetNode (cam));
+    SCE_Node_Detach (node);
+#endif
+    SCE_CSetState2 (GL_DEPTH_TEST, GL_CULL_FACE, SCE_FALSE);/*TODO: kick that */
+    glDisable (GL_LIGHTING);
+    SCE_SceneEntity_UseResources (SCE_Skybox_GetEntity (scene->skybox));
+    /*glEnable (GL_LIGHTING);
+    glDisable (GL_LIGHT0);
+    glDisable (GL_LIGHT1);
+    glDisable (GL_LIGHT2);*/
+    glDisable (GL_LIGHTING);
+    glFlush ();
+    glDisable (GL_LIGHTING);
+    SCE_SceneEntity_Render (SCE_Skybox_GetEntity (scene->skybox));
+    SCE_CSetState2 (GL_DEPTH_TEST, GL_CULL_FACE, SCE_TRUE);
+    SCE_Texture_Flush ();
+    SCE_Shader_Use (NULL);
+}
 
 /**
  * \brief Renders a scene into a render target
@@ -544,12 +598,21 @@ void SCE_Scene_Render (SCE_SScene *scene, SCE_SCamera *cam,
     SCE_Texture_RenderTo (rendertarget, cubeface);
 
     /* preparation des tampons */
+    if (scene->skybox)
+        scene->states.clearcolor = SCE_FALSE;
     SCE_Scene_ClearBuffers (scene);
 
     /* activation de la camera et mise en place des matrices */
     SCE_CSetActiveMatrix (SCE_MAT_MODELVIEW);
     SCE_CPushMatrix ();
     SCE_Camera_Use (cam);
+
+    /* render skybox (if any) */
+    if (scene->skybox)
+    {
+        SCE_Light_ActivateLighting (SCE_FALSE);
+        SCE_Scene_RenderSkybox (scene, cam);
+    }
 
     if (!scene->states.lighting)
         SCE_Light_ActivateLighting (SCE_FALSE);

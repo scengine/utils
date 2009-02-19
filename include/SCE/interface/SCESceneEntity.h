@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008 
-   updated: 31/01/2009 */
+   updated: 18/02/2009 */
 
 #ifndef SCESCENEENTITY_H
 #define SCESCENEENTITY_H
@@ -46,6 +46,7 @@ extern "C"
 
 #if 0
 /** \copydoc sce_ssceneentityproperties */
+/** \todo add to SCE_SSceneEntity */
 typedef struct sce_ssceneentityproperties SCE_SSceneEntityProperties;
 struct sce_ssceneentityproperties
 {
@@ -76,7 +77,6 @@ struct sce_ssceneentityinstance
     SCE_SNode *truenode;             /**< The node allocated by the instance */
     SCE_SOctreeElement *element;     /**< Instance's octree element */
     SCE_SGeometryInstance *instance; /**< Geometry instance */
-    /*SCE_SSceneEntityProperties props;/**< Instance's properties (GL states) */
     SCE_SLevelOfDetail *lod;         /**< LOD managment structure */
     SCE_SSceneEntity *entity;        /**< Entity used by the instance */
     int selected;                    /**< Is it selected for rendering? */

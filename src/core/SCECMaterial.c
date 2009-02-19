@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 31 mai 2007
-   derniere modification : 21/10/2007 */
+/* created: 31/05/2007
+   updated: 21/10/2007 */
 
 #include <string.h>
 
@@ -26,7 +26,6 @@
 #include <SCE/core/SCECMaterial.h>
 
 
-/* ajoute le 21/02/2008 */
 void SCE_CInitMaterial (SCE_CMaterial *mat)
 {
     mat->colors[0][0] = mat->colors[0][1] =
@@ -44,7 +43,6 @@ void SCE_CInitMaterial (SCE_CMaterial *mat)
     mat->dst = GL_ONE;
 }
 
-/* revise le 21/02/2008 */
 SCE_CMaterial* SCE_CCreateMaterial (void)
 {
     SCE_CMaterial *mat = SCE_malloc (sizeof *mat);
@@ -69,24 +67,20 @@ void SCE_CSetMaterialColor (SCE_CMaterial *mat, SCEenum type,
     mat->colors[type][2] = b;
     mat->colors[type][3] = a;
 }
-/* revise le 21/02/2008 */
 void SCE_CSetMaterialColorv (SCE_CMaterial *mat, SCEenum type, float *color)
 {
     memcpy (mat->colors[type], color, 4 * sizeof *color);
 }
 
-/* ajoute le 21/02/2008 */
 float* SCE_CGetMaterialColor (SCE_CMaterial *mat, SCEenum type)
 {
     return mat->colors[type];
 }
-/* ajoute le 21/02/2008 */
 void SCE_CGetMaterialColorv (SCE_CMaterial *mat, SCEenum type, float *color)
 {
     memcpy (color, mat->colors[type], 4 * sizeof *color);
 }
 
-/* ajoute le 21/02/2008 */
 void SCE_CActiveMaterialBlending (SCE_CMaterial *mat, int use)
 {
     mat->use_blending = use;
@@ -100,14 +94,12 @@ void SCE_CDisableMaterialBlending (SCE_CMaterial *mat)
     mat->use_blending = SCE_FALSE;
 }
 
-/* ajoute le 21/02/2008 */
 void SCE_CSetMaterialBlending (SCE_CMaterial *mat, SCEenum src, SCEenum dst)
 {
     mat->src = src;
     mat->dst = dst;
 }
 
-/* revise le 17/08/2008 */
 void SCE_CUseMaterial (SCE_CMaterial *mat)
 {
     static int not_defaults = SCE_TRUE;

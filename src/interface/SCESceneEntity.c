@@ -494,7 +494,8 @@ void SCE_SceneEntity_SelectInstance (SCE_SSceneEntityInstance *einst, int sel)
             return;
         einst->selected = SCE_TRUE;
         SCE_SceneEntity_AddInstanceToEntity (NULL, einst);
-        SCE_List_Prependl (einst->group->selected, einst->it2);
+        if (einst->group)
+            SCE_List_Prependl (einst->group->selected, einst->it2);
     }
     else
     {
@@ -502,7 +503,8 @@ void SCE_SceneEntity_SelectInstance (SCE_SSceneEntityInstance *einst, int sel)
             return;
         einst->selected = SCE_FALSE;
         SCE_SceneEntity_RemoveInstanceFromEntity (einst);
-        SCE_List_Remove (einst->group->selected, einst->it2);
+        if (einst->group)
+            SCE_List_Remove (einst->group->selected, einst->it2);
     }
 }
 /**
@@ -903,15 +905,15 @@ void SCE_SceneEntity_UseResources (SCE_SSceneEntity *entity)
 {
     SCE_SListIterator *it = NULL;
 
-    if (entity->shader)
-        SCE_Shader_Use (SCE_SceneResource_GetResource (entity->shader));
-    else
-        SCE_Shader_Use (NULL);
-
     if (entity->material)
         SCE_Material_Use (SCE_SceneResource_GetResource (entity->material));
     else
         SCE_Material_Use (NULL);
+
+    if (entity->shader)
+        SCE_Shader_Use (SCE_SceneResource_GetResource (entity->shader));
+    else
+        SCE_Shader_Use (NULL);
 
     SCE_Texture_BeginLot ();
     SCE_List_ForEach (it, entity->textures)

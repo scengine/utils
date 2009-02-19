@@ -184,10 +184,11 @@ void* SCE_Mesh_GetVerticesNormals (SCE_SMesh*);
 int SCE_Mesh_AddVertices (SCE_SMesh*, unsigned int, int, SCEenum,
                           unsigned int, unsigned int, void*, int);
 int SCE_Mesh_AddVerticesDup (SCE_SMesh*, unsigned int, int, SCEenum,
-                             unsigned int, unsigned int, void*);
+                             unsigned int, unsigned int, const void*);
 
 int SCE_Mesh_SetIndices (SCE_SMesh*, SCEenum,SCEenum, unsigned int, void*, int);
-int SCE_Mesh_SetIndicesDup (SCE_SMesh*, SCEenum, SCEenum, unsigned int, void*);
+int SCE_Mesh_SetIndicesDup (SCE_SMesh*, SCEenum, SCEenum, unsigned int,
+                            const void*);
 
 int SCE_Mesh_GetNumVerticesPerFace (SCE_SMesh*);
 int SCE_Mesh_GetNumFaces (SCE_SMesh*);
@@ -217,8 +218,14 @@ void SCE_Mesh_ComputeBoundingSphere (SCEvertices*, unsigned int,
                                      SCE_TVector3, float*);
 int SCE_Mesh_GenerateBoundingSphere (SCE_SMesh*, SCE_SBoundingSphere*);
 
+void SCE_Mesh_GenerateCubeVertices (SCEvertices[72], SCE_TVector3,
+                                    float, float, float);
 SCE_SMesh* SCE_Mesh_CreateCube (SCE_TVector3, float, float, float);
 SCE_SMesh* SCE_Mesh_CreateCubev (SCE_TVector3, SCE_TVector3);
+
+const SCEindices* SCE_Mesh_GetIndexedCubeIndices (void);
+void SCE_Mesh_GenerateIndexedCubeVertices (SCEvertices[24], SCE_TVector3,
+                                           float, float, float);
 SCE_SMesh* SCE_Mesh_CreateIndexedCube (SCE_TVector3, float, float, float);
 SCE_SMesh* SCE_Mesh_CreateIndexedCubev (SCE_TVector3, SCE_TVector3);
 #if 0

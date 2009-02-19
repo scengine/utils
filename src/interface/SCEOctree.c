@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/05/2008
-   updated: 05/02/2009 */
+   updated: 18/02/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -42,7 +42,7 @@
 #define SCE_OCTREE_HAVE_CHILDREN (1u)
 #define SCE_OCTREE_VISIBLE (SCE_OCTREE_HAVE_CHILDREN << 1)
 #define SCE_OCTREE_PARTIALLY (SCE_OCTREE_VISIBLE << 1)
-#define SCE_OCTREE_LOOSE (SCE_OCTREE_PARTIALLY << 2)
+#define SCE_OCTREE_LOOSE (SCE_OCTREE_PARTIALLY << 1)
 
 static void SCE_Octree_Init (SCE_SOctree *tree)
 {
@@ -494,6 +494,16 @@ int SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
 #endif
 }
 
+/**
+ * \brief Removes an element from its octree
+ */
+void SCE_Octree_RemoveElement (SCE_SOctreeElement *el)
+{
+    if (el->octree)
+        SCE_List_Remove (el->octree->elements, el->it);
+}
+
+
 static void SCE_Octree_RecMark (SCE_SOctree *tree, int mark)
 {
     tree->marks =
@@ -506,6 +516,11 @@ static void SCE_Octree_RecMark (SCE_SOctree *tree, int mark)
             SCE_Octree_RecMark (tree->child[i], mark);
     }
 }
+
+/**
+ * \brief Marks the visible octrees of \p tree from the camera \p cam
+ * \sa SCE_Frustum_BoundingBoxIn()
+ */
 void SCE_Octree_MarkVisibles (SCE_SOctree *tree, SCE_SCamera *cam)
 {
     int state = SCE_Frustum_BoundingBoxIn (SCE_Camera_GetFrustum (cam),

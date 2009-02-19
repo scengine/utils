@@ -61,5 +61,7 @@ See the file ./doc/html/todo.html
 - API de shaders intégrée au moteur (noms similaires, uniforms définis, etc...).
 - Calculer le niveau de LOD en se basant sur une bounding sphere plutôt qu'une
   bounding box (plus rapide).
+- Afficher un message d'erreur lorsque l'utilisateur tente de libérer (SCE_free)
+  de la mémoire qui ne lui appartient pas.
 
-- 37
+- 38

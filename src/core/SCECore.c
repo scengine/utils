@@ -34,9 +34,8 @@
 /**
  * \defgroup core Core functions, make OpenGL API calls
  * \ingroup SCEngine
+ * @{
  */
-
-/** @{ */
 
 int SCE_CInit (SCEflags flags)
 {
@@ -89,7 +88,6 @@ void SCE_CQuit (void)
 }
 
 
-/* ajoute le 25/09/2008 */
 /**
  * \brief Defines the color used for cleared the color buffer
  */
@@ -97,7 +95,6 @@ void SCE_CClearColor (float r, float g, float b, float a)
 {
     glClearColor (r, g, b, a);
 }
-/* ajoute le 25/09/2008 */
 /**
  * \brief Defines the value used for cleared the depth buffer
  */
@@ -116,7 +113,6 @@ void SCE_CClear (const GLbitfield mask)
     glClear (mask);
 }
 
-/* ajoute le 27/03/2008 */
 void SCE_CFlush (void)
 {
     glFlush ();
@@ -224,13 +220,11 @@ void SCE_CSetState6 (SCEenum state, SCEenum state2, SCEenum state3,
     }
 }
 
-/* fonction de blending */
 void SCE_CSetBlending (SCEenum src, SCEenum dst)
 {
     glBlendFunc (src, dst);
 }
 
-/* ajoute le 15/09/2008 */
 /**
  * Enables/Disables color buffer writing
  * \param a can be SCE_TRUE or SCE_FALSE
@@ -239,7 +233,6 @@ void SCE_CActivateColorBuffer (int a)
 {
     glColorMask (a, a, a, a);
 }
-/* ajoute le 15/09/2008 */
 /**
  * Enables/Disables depth buffer writing
  * \param a can be SCE_TRUE or SCE_FALSE
@@ -249,7 +242,6 @@ void SCE_CActivateDepthBuffer (int a)
     glDepthMask (a);
 }
 
-/* ajoute le 25/09/2008 */
 /**
  * \brief Defines which faces will be culled by the backface culling
  * \param mode can be SCE_FRONT or SCE_BACK
@@ -261,7 +253,6 @@ void SCE_CSetCulledFaces (SCEenum mode)
     glCullFace (mode);
 }
 
-/* ajoute le 25/09/2008 */
 /**
  * \brief Defines which faces will be culled by the backface culling
  * \param mode can be SCE_LESS, SCE_LEQUAL, SCE_GREATER or SCE_GEQUAL

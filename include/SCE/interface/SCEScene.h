@@ -31,6 +31,7 @@
 /*#include <SCE/interface/SCEShaders.h>*/
 #include <SCE/interface/SCESceneEntity.h>
 #include <SCE/interface/SCEOctree.h>
+#include <SCE/interface/SCESkybox.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -48,7 +49,7 @@ extern "C"
 #define SCE_SCENE_NUM_RESOURCE_GROUP 3
 
 /* default octree size */
-#define SCE_SCENE_OCTREE_SIZE 65536
+#define SCE_SCENE_OCTREE_SIZE (65536.0)
 
 typedef int (*SCE_FSceneForEachEntityGroupFunc)(SCE_SSceneEntityGroup *g,
                                                 void *p);
@@ -62,7 +63,6 @@ struct sce_sscenestates
 {
     int clearcolor, cleardepth; /**< Do we clear the buffers ? */
     int frustum_culling; /**< Use or not the frustum culling */
-    int use_skybox;      /**< Use or not a skybox */
     int lighting;        /**< Use or not lighting */
     int lod;             /**< Use or not LOD for scene's models */
 };
@@ -88,6 +88,8 @@ struct sce_sscene
     SCE_SList *entities;        /**< Scene's entities */
     SCE_SList *lights;          /**< Scene's lights list */
 
+    SCE_SSkybox *skybox;        /**< Scene skybox */
+
     /** Color buffer clear values */
     float rclear, gclear, bclear, aclear;
     float dclear;               /**< Depth buffer clear value */
@@ -112,11 +114,16 @@ SCE_SNode* SCE_Scene_GetRootNode (SCE_SScene*);
 void SCE_Scene_OnNodeMoved (SCE_SNode*, void*);
 
 void SCE_Scene_AddNode (SCE_SScene*, SCE_SNode*);
+void SCE_Scene_RemoveNode (SCE_SScene*, SCE_SNode*);
 int SCE_Scene_AddInstance (SCE_SScene*, SCE_SSceneEntityInstance*);
+void SCE_Scene_RemoveInstance (SCE_SScene*, SCE_SSceneEntityInstance*);
 int SCE_Scene_AddEntity (SCE_SScene*, SCE_SSceneEntity*);
+void SCE_Scene_RemoveEntity (SCE_SScene*, SCE_SSceneEntity*);
 int SCE_Scene_AddEntityGroup (SCE_SScene*, SCE_SSceneEntityGroup*);
 int SCE_Scene_AddLight (SCE_SScene*, SCE_SLight*);
 void SCE_Scene_AddResource (SCE_SScene*, int, SCE_SSceneResource*);
+
+void SCE_Scene_SetSkybox (SCE_SScene*, SCE_SSkybox*);
 
 void SCE_Scene_ForEachEntity (SCE_SScene*, SCE_FSceneForEachEntityGroupFunc,
                               void*);

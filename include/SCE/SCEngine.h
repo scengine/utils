@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 12/10/2006
-   updated: 13/02/2009 */
+   updated: 18/02/2009 */
 
 #ifndef SCENGINE_H
 #define SCENGINE_H
@@ -41,6 +41,7 @@
 #include <SCE/interface/SCEGeometryInstance.h>
 #include <SCE/interface/SCESceneResource.h>
 #include <SCE/interface/SCESceneEntity.h>
+#include <SCE/interface/SCESkybox.h>
 #include <SCE/interface/SCEScene.h>
 
 /* set up for C function definitions, even when using C++ */

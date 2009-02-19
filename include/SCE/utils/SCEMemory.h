@@ -85,12 +85,12 @@ void* SCE_Mem_Realloc (const char*, unsigned int, void*, size_t);
 void SCE_Mem_Free (void*);
 
 /* duplique des donnees dans une nouvelle zone memoire */
-void* SCE_Mem_Dup (void*, size_t);
+void* SCE_Mem_Dup (const void*, size_t);
 
 /* converti le type d'un groupe de donnees */
-void SCE_Mem_Convert (int, void*, int, void*, size_t);
+void SCE_Mem_Convert (int, void*, int, const void*, size_t);
 /* idem, mais alloue de la memoire pour la destination */
-void* SCE_Mem_ConvertDup (int, int, void*, size_t);
+void* SCE_Mem_ConvertDup (int, int, const void*, size_t);
 
 #ifdef SCE_DEBUG
 int SCE_Mem_IsValid (void*);

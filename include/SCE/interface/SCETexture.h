@@ -17,12 +17,13 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/03/2007
-   updated: 29/01/2009 */
+   updated: 18/02/2009 */
 
 #ifndef SCETEXTURE_H
 #define SCETEXTURE_H
 
 #include <stdarg.h>
+#include <SCE/utils/SCEMatrix.h>
 #include <SCE/utils/SCEList.h>
 #include <SCE/core/SCECTexture.h>
 #include <SCE/core/SCECFramebuffer.h>

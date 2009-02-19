@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 14/01/2009 */
+   updated: 18/02/2009 */
 
 #include <SCE/SCEMinimal.h>
 #include <SCE/interface/lib4fm.h>
@@ -734,7 +734,7 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
  */
 int SCE_Mesh_AddVerticesDup (SCE_SMesh *mesh, unsigned int id, int attrib,
                              SCEenum type, unsigned int size,
-                             unsigned int count, void *data)
+                             unsigned int count, const void *data)
 {
     /* conversion des donnees */
     SCEvertices *new = NULL;
@@ -755,7 +755,8 @@ int SCE_Mesh_AddVerticesDup (SCE_SMesh *mesh, unsigned int id, int attrib,
 
 /**
  * \brief Defines the indices of a mesh
- * \param usage the index buffer's usage, see SCE_SMeshIndexBuffer.usage
+ * \param usage the index buffer's usage, see SCE_SMeshIndexBuffer::usage,
+ * can be 0
  * \param type data type (SCE_UNSIGNED_INT, SCE_UNSIGNED_SHORT, ...)
  * \param count number of vertices that the indices dereference
  * \param data the index data
@@ -806,12 +807,13 @@ int SCE_Mesh_SetIndices (SCE_SMesh *mesh, SCEenum usage, SCEenum type,
 
 /**
  * \brief Defines the indices of a mesh
+ * \returns SCE_ERROR on error, SCE_OK otherwise
  *
  * This function works like SCE_Mesh_SetIndices(), but \p data is duplicated
  * in memory and its new type is SCE_INDICES_TYPE.
  */
 int SCE_Mesh_SetIndicesDup (SCE_SMesh *mesh, SCEenum mode, SCEenum type,
-                            unsigned int count, void *data)
+                            unsigned int count, const void *data)
 {
     SCEenum t;
     void *data_dup = NULL;
@@ -1666,73 +1668,15 @@ int SCE_Mesh_GenerateBoundingSphere (SCE_SMesh *mesh, SCE_SBoundingSphere *s)
 
 
 /**
- * \brief
- * \param
+ * \brief Generates vertices positions for a non-indexed cube
+ * \param v where to store the vertices
+ * \param o the origin of the cube
+ * \param w,h,d the dimensions of the cube
+ * \todo see bounding box module for generate vertices
  */
-SCE_SMesh* SCE_Mesh_CreateIndexedCube(SCE_TVector3 o, float w, float h, float d)
+void SCE_Mesh_GenerateCubeVertices (SCEvertices v[72], SCE_TVector3 o,
+                                    float w, float h, float d)
 {
-    SCEvertices v[24];
-    SCEindices i[] =
-    {
-        0, 1, 2, 6,
-        0, 1, 4, 7,
-        0, 6, 5, 7,
-        1, 2, 3, 4,
-        2, 3, 5, 6,
-        3, 4, 7, 5
-    };
-    SCE_SMesh *mesh = NULL;
-
-    SCE_btstart ();
-    v[0]  = o[0];     v[1]  = o[1];     v[2]  = o[2];
-    v[3]  = o[0] + w; v[4]  = o[1];     v[5]  = o[2];
-    v[6]  = o[0] + w; v[7]  = o[1] + h; v[8]  = o[2];
-    v[9]  = o[0] + w; v[10] = o[1] + h; v[11] = o[2] + d;
-        
-    v[12] = o[0] + w; v[13] = o[1];     v[14] = o[2] + d;
-    v[15] = o[0];     v[16] = o[1] + h; v[17] = o[2] + d;
-    v[18] = o[0];     v[19] = o[1] + h; v[20] = o[2];
-    v[21] = o[0];     v[22] = o[1];     v[23] = o[2] + d;
-
-#define SCE_ASSERT(c)\
-    if (c)\
-    {\
-        SCE_Mesh_Delete (mesh);\
-        Logger_LogSrc ();\
-        SCE_btend ();\
-        return NULL;\
-    }
-    SCE_ASSERT (!(mesh = SCE_Mesh_Create ()))
-    SCE_ASSERT (SCE_Mesh_AddVerticesDup (mesh, 0, SCE_POSITION,
-                                         SCE_VERTICES_TYPE, 3, 8, v) < 0)
-    SCE_ASSERT (SCE_Mesh_SetIndicesDup (mesh, 0, SCE_INDICES_TYPE, 24, i) < 0)
-    SCE_Mesh_ActivateVB (mesh, 0, 1);
-    SCE_Mesh_ActivateIB (mesh, 1);
-    SCE_ASSERT (SCE_Mesh_Build (mesh) < 0)
-    SCE_Mesh_SetRenderMode (mesh, GL_QUADS);
-    SCE_btend ();
-#undef SCE_ASSERT
-    return mesh;
-}
-/**
- * \brief
- * \param
- */
-SCE_SMesh* SCE_Mesh_CreateIndexedCubev (SCE_TVector3 o, SCE_TVector3 d)
-{
-    return SCE_Mesh_CreateIndexedCube (o, d[0], d[1], d[2]);
-}
-
-/**
- * \brief
- * \param
- */
-SCE_SMesh* SCE_Mesh_CreateCube (SCE_TVector3 o, float w, float h, float d)
-{
-    SCEvertices v[72];
-    SCE_SMesh *mesh = NULL;
-
-    SCE_btstart ();
     /* far */
     v[0]  = o[0];     v[1]  = o[1];     v[2]  = o[2];
     v[3]  = o[0] + w; v[4]  = o[1];     v[5]  = o[2];
@@ -1763,6 +1707,23 @@ SCE_SMesh* SCE_Mesh_CreateCube (SCE_TVector3 o, float w, float h, float d)
     v[63] = o[0] + w; v[64] = o[1];     v[65] = o[2] + d;
     v[66] = o[0];     v[67] = o[1];     v[68] = o[2] + d;
     v[69] = o[0];     v[70] = o[1] + h; v[71] = o[2] + d;
+}
+
+
+/**
+ * \brief Creates a cube mesh
+ * \param o the origin of the cube
+ * \param w,h,d dimensions of the cube
+ * \returns a new mesh
+ * \sa SCE_Mesh_CreateCubev(), SCE_Mesh_CreateIndexedCube()
+ */
+SCE_SMesh* SCE_Mesh_CreateCube (SCE_TVector3 o, float w, float h, float d)
+{
+    SCEvertices v[72];
+    SCE_SMesh *mesh = NULL;
+
+    SCE_btstart ();
+    SCE_Mesh_GenerateCubeVertices (v, o, w, h, d);
 
 #define SCE_ASSERT(c)\
     if (c)\
@@ -1775,7 +1736,7 @@ SCE_SMesh* SCE_Mesh_CreateCube (SCE_TVector3 o, float w, float h, float d)
     SCE_ASSERT (!(mesh = SCE_Mesh_Create ()))
     SCE_ASSERT (SCE_Mesh_AddVerticesDup (mesh, 0, SCE_POSITION,
                                          SCE_VERTICES_TYPE, 3, 24, v) < 0)
-    SCE_Mesh_ActivateVB (mesh, 0, 1);
+    SCE_Mesh_ActivateVB (mesh, 0, SCE_TRUE);
     SCE_ASSERT (SCE_Mesh_Build (mesh) < 0)
     SCE_Mesh_SetRenderMode (mesh, GL_QUADS);
     SCE_btend ();
@@ -1783,12 +1744,101 @@ SCE_SMesh* SCE_Mesh_CreateCube (SCE_TVector3 o, float w, float h, float d)
     return mesh;
 }
 /**
- * \brief
- * \param
+ * \brief Creates a cube mesh
+ * \param d dimensions of the cube
+ * \sa SCE_Mesh_CreateCube(), SCE_Mesh_CreateIndexedCube()
  */
 SCE_SMesh* SCE_Mesh_CreateCubev (SCE_TVector3 o, SCE_TVector3 d)
 {
     return SCE_Mesh_CreateCube (o, d[0], d[1], d[2]);
+}
+
+/**
+ * \brief Gets an internal array of indices
+ *
+ * Gets an internal array of indices, to use with the vertices given by
+ * SCE_Mesh_GenerateIndexedCubeVertices(). Do not modify the content of the
+ * returned pointer, or get fucked.
+ */
+const SCEindices* SCE_Mesh_GetIndexedCubeIndices (void)
+{
+    static SCEindices i[] =
+    {
+        0, 1, 2, 6,
+        0, 1, 4, 7,
+        0, 6, 5, 7,
+        1, 2, 3, 4,
+        2, 3, 5, 6,
+        3, 4, 7, 5
+    };
+    return i;
+}
+
+/**
+ * \brief Generates vertices positions for an indexed cube
+ * \param v where to store the vertices positions
+ * \param o the origin of the cube
+ * \param w,h,d the dimensions of the cube
+ */
+void SCE_Mesh_GenerateIndexedCubeVertices (SCEvertices v[24], SCE_TVector3 o,
+                                           float w, float h, float d)
+{
+    v[0]  = o[0];     v[1]  = o[1];     v[2]  = o[2];
+    v[3]  = o[0] + w; v[4]  = o[1];     v[5]  = o[2];
+    v[6]  = o[0] + w; v[7]  = o[1] + h; v[8]  = o[2];
+    v[9]  = o[0] + w; v[10] = o[1] + h; v[11] = o[2] + d;
+        
+    v[12] = o[0] + w; v[13] = o[1];     v[14] = o[2] + d;
+    v[15] = o[0];     v[16] = o[1] + h; v[17] = o[2] + d;
+    v[18] = o[0];     v[19] = o[1] + h; v[20] = o[2];
+    v[21] = o[0];     v[22] = o[1];     v[23] = o[2] + d;
+}
+
+/**
+ * \brief Creates a mesh of an indexed cube
+ * \param o the origin of the cube
+ * \param w,h,d the dimensions of the cube
+ * \returns a new mesh
+ * \sa SCE_Mesh_CreateIndexedCubev(), SCE_Mesh_CreateCube(),
+ * SCE_Mesh_GenerateIndexedCubeVertices(), SCE_Mesh_GetIndexedCubeIndices()
+ */
+SCE_SMesh* SCE_Mesh_CreateIndexedCube(SCE_TVector3 o, float w, float h, float d)
+{
+    SCEvertices v[24];
+    SCE_SMesh *mesh = NULL;
+    const SCEindices *i = SCE_Mesh_GetIndexedCubeIndices ();
+
+    SCE_btstart ();
+    SCE_Mesh_GenerateIndexedCubeVertices (v, o, w, h, d);
+
+#define SCE_ASSERT(c)\
+    if (c)\
+    {\
+        SCE_Mesh_Delete (mesh);\
+        Logger_LogSrc ();\
+        SCE_btend ();\
+        return NULL;\
+    }
+    SCE_ASSERT (!(mesh = SCE_Mesh_Create ()))
+    SCE_ASSERT (SCE_Mesh_AddVerticesDup (mesh, 0, SCE_POSITION,
+                                         SCE_VERTICES_TYPE, 3, 8, v) < 0)
+    SCE_ASSERT (SCE_Mesh_SetIndicesDup (mesh, 0, SCE_INDICES_TYPE, 24, i) < 0)
+    SCE_Mesh_ActivateVB (mesh, 0, SCE_TRUE);
+    SCE_Mesh_ActivateIB (mesh, SCE_TRUE);
+    SCE_ASSERT (SCE_Mesh_Build (mesh) < 0)
+    SCE_Mesh_SetRenderMode (mesh, GL_QUADS);
+    SCE_btend ();
+#undef SCE_ASSERT
+    return mesh;
+}
+/**
+ * \brief Creates a mesh of an indexed cube
+ * \param d dimensions of the cube
+ * \sa SCE_Mesh_CreateIndexedCube(), SCE_Mesh_CreateCube()
+ */
+SCE_SMesh* SCE_Mesh_CreateIndexedCubev (SCE_TVector3 o, SCE_TVector3 d)
+{
+    return SCE_Mesh_CreateIndexedCube (o, d[0], d[1], d[2]);
 }
 
 
@@ -1817,7 +1867,7 @@ SCE_SMesh* SCE_Mesh_CreateFromBoundingBox (SCE_SBoundingBox *box)
 
 
 /**
- * \brief Build a mesh
+ * \brief Builds a mesh
  * \param mesh the mesh to build
  *
  * Builds a mesh by calling SCE_Mesh_BuildVB() for each vertex buffer of \p mesh

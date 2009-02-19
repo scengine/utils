@@ -134,7 +134,6 @@ void SCE_List_Clear (SCE_SList *l)
         if (l->canfree)
             SCE_List_DeleteIt (tmp);
     }
-
     l->first = NULL;
 }
 

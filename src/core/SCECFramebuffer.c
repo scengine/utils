@@ -25,7 +25,7 @@
 #include <SCE/core/SCECTexture.h>
 #include <SCE/core/SCECFramebuffer.h>
 
-/**
+/*
  * \file SCECFramebuffer.c
  * \copydoc coreframebuffer
  * 
@@ -35,10 +35,10 @@
 
 /**
  * \defgroup coreframebuffer Frame Buffer Objects and render to texture
- * managment functions
  * \ingroup core
  * \internal
- * \brief Offers frame buffers' managment functions for render to texture
+ *
+ * Offers frame buffers' managment functions for render to texture
  */
 
 /** @{ */

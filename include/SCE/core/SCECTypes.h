@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 6 mars 2007
-   derniere modification le 01/11/2008 */
+/* created: 06/03/2007
+   updated: 01/11/2008 */
 
 #ifndef SCECTYPES_H
 #define SCECTYPES_H
