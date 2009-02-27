@@ -45,24 +45,10 @@
 
 /** @{ */
 
-#if 0
-void SCE_SceneEntity_InitProperties (SCE_SSceneEntityProperties *props)
-{
-    props->cullface = SCE_TRUE;
-    props->cullmode = SCE_BACK;
-    props->depthtest = SCE_TRUE;
-    props->depthmode = SCE_LESS; /* default GL state */
-    props->alphatest = SCE_TRUE;
-}
-#endif
-
 void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance *einst)
 {
     einst->node = NULL;
     einst->instance = NULL;
-#if 0
-    SCE_SceneEntity_InitProperties (&einst->props);
-#endif
     einst->element = NULL;
     einst->lod = NULL;
     einst->entity = NULL;
@@ -77,14 +63,6 @@ void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance *einst)
 #else
     einst->it = einst->it2 = NULL;
 #endif
-}
-
-static void SCE_SceneEntity_DefaultRenderFunc (SCE_SGeometryInstance *inst)
-{
-#if 0
-    SCE_SceneEntity_ApplyProperties (SCE_Instance_GetData (inst));
-#endif
-    SCE_Mesh_Draw ();
 }
 
 /**
@@ -119,8 +97,6 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void)
     SCE_Node_SetData (einst->node, einst);
     /* see SCE_SceneEntity_ForEachInstanceInGroup() */
     SCE_Instance_SetData (einst->instance, einst);
-    SCE_Instance_SetRenderCallback (einst->instance,
-                                    SCE_SceneEntity_DefaultRenderFunc);
     /* set the matrix pointer for the instance */
     SCE_Instance_SetMatrix (einst->instance,
                             SCE_Node_GetFinalMatrix (einst->node));
@@ -156,6 +132,15 @@ void SCE_SceneEntity_DeleteInstance (SCE_SSceneEntityInstance *einst)
 static int SCE_SceneEntity_IsBSInFrustum (SCE_SSceneEntityInstance*,
                                           SCE_SCamera*);
 
+void SCE_SceneEntity_InitProperties (SCE_SSceneEntityProperties *props)
+{
+    props->cullface = SCE_TRUE;
+    props->cullmode = SCE_BACK;
+    props->depthtest = SCE_TRUE;
+    props->depthmode = SCE_LESS;
+    props->alphatest = SCE_FALSE;
+}
+
 void SCE_SceneEntity_Init (SCE_SSceneEntity *entity)
 {
     entity->igroup = NULL;
@@ -166,6 +151,7 @@ void SCE_SceneEntity_Init (SCE_SSceneEntity *entity)
     entity->textures = NULL;
     entity->shader = NULL;
     entity->material = NULL;
+    SCE_SceneEntity_InitProperties (&entity->props);
 
     entity->group = NULL;
     entity->isinfrustumfunc = SCE_SceneEntity_IsBSInFrustum;
@@ -460,16 +446,14 @@ SCE_SceneEntity_GetInstanceOctreeElement (SCE_SSceneEntityInstance *einst)
 {
     return einst->element;
 }
-#if 0
 /**
  * \brief Gets the properties ofthe given instance
  */
 SCE_SSceneEntityProperties*
-SCE_SceneEntity_GetInstanceProperties (SCE_SSceneEntityInstance *einst)
+SCE_SceneEntity_GetProperties (SCE_SSceneEntity *entity)
 {
-    return &einst->props;
+    return &entity->props;
 }
-#endif
 /**
  * \brief Gets the "level of detail" structure of the given instance
  */
@@ -479,6 +463,7 @@ SCE_SceneEntity_GetInstanceLOD (SCE_SSceneEntityInstance *einst)
     return einst->lod;
 }
 /**
+ * \deprecated
  * \brief Selects an instance for rendering
  * \param einst the instance to select
  *
@@ -508,6 +493,7 @@ void SCE_SceneEntity_SelectInstance (SCE_SSceneEntityInstance *einst, int sel)
     }
 }
 /**
+ * \deprecated
  * \brief Indicates if the given instance is selected for rendering
  */
 int SCE_SceneEntity_IsInstanceSelected (SCE_SSceneEntityInstance *einst)
@@ -874,25 +860,17 @@ void SCE_SceneEntity_SelectInFrustumInstances (SCE_SSceneEntityGroup *group,
     }
 }
 
-#if 0
 /**
- * \brief Applies the properties of an instance by calling SCE_CSetState()
+ * \brief Applies the properties of an entity by calling SCE_CSetState()
  */
-void SCE_SceneEntity_ApplyProperties (SCE_SSceneEntityInstance *einst)
+void SCE_SceneEntity_ApplyProperties (SCE_SSceneEntity *entity)
 {
-    if (einst->props.cullface)
-    {
-        SCE_CSetState (GL_CULL_FACE, SCE_TRUE);
-        SCE_CSetCulledFaces (einst->props.cullmode);
-    }
-    if (einst->props.depthtest)
-    {
-        SCE_CSetState (GL_DEPTH_TEST, SCE_TRUE);
-        SCE_CSetValidPixels (einst->props.depthmode);
-    }
-    SCE_CSetState (GL_ALPHA_TEST, einst->props.alphatest);
+    SCE_CSetState (GL_CULL_FACE, entity->props.cullface);
+    SCE_CSetCulledFaces (entity->props.cullmode);
+    SCE_CSetState (GL_DEPTH_TEST, entity->props.depthtest);
+    SCE_CSetValidPixels (entity->props.depthmode);
+    SCE_CSetState (GL_ALPHA_TEST, entity->props.alphatest);
 }
-#endif
 
 /**
  * \brief Enables the resources that the given entity is using
@@ -904,6 +882,8 @@ void SCE_SceneEntity_ApplyProperties (SCE_SSceneEntityInstance *einst)
 void SCE_SceneEntity_UseResources (SCE_SSceneEntity *entity)
 {
     SCE_SListIterator *it = NULL;
+
+    SCE_SceneEntity_ApplyProperties (entity);
 
     if (entity->material)
         SCE_Material_Use (SCE_SceneResource_GetResource (entity->material));

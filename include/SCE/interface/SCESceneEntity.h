@@ -44,19 +44,16 @@ extern "C"
 #define SCE_BOUNDINGBOX 1
 #define SCE_BOUNDINGSPHERE 2
 
-#if 0
 /** \copydoc sce_ssceneentityproperties */
-/** \todo add to SCE_SSceneEntity */
 typedef struct sce_ssceneentityproperties SCE_SSceneEntityProperties;
 struct sce_ssceneentityproperties
 {
-    int cullface;
-    int cullmode;
-    int depthtest;
-    int depthmode;
-    int alphatest;
+    int cullface:1;
+    int cullmode:1;
+    int depthtest:1;
+    int depthmode:1;
+    int alphatest:1;
 };
-#endif
 
 /** \copydoc sce_ssceneenStityinstance */
 typedef struct sce_ssceneentityinstance SCE_SSceneEntityInstance;
@@ -103,6 +100,7 @@ struct sce_ssceneentity
     SCE_SList *textures;          /**< Textures used by the entity */
     SCE_SSceneResource *shader;   /**< Shader used by the entity */
     SCE_SSceneResource *material; /**< Material used by the entity */
+    SCE_SSceneEntityProperties props;
 
     SCE_SSceneEntityGroup *group; /**< Group of the entity */
     /** Used to determine if the instance is in the given frustum */
@@ -131,14 +129,11 @@ typedef int (*SCE_FForEachSceneEntityInstanceFunc)(SCE_SSceneEntityGroup*,
                                                    SCE_SSceneEntityInstance*,
                                                    void*);
 
-#if 0
-void SCE_SceneEntity_InitProperties (SCE_SSceneEntityProperties*);
-#endif
-
 void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance*);
 SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void);
 void SCE_SceneEntity_DeleteInstance (SCE_SSceneEntityInstance*);
 
+void SCE_SceneEntity_InitProperties (SCE_SSceneEntityProperties*);
 void SCE_SceneEntity_Init (SCE_SSceneEntity*);
 SCE_SSceneEntity* SCE_SceneEntity_Create (void);
 void SCE_SceneEntity_Delete (SCE_SSceneEntity*);
@@ -226,9 +221,7 @@ int SCE_SceneEntity_IsInstanceInFrustum (SCE_SSceneEntityInstance*,
 void SCE_SceneEntity_SelectInFrustumInstances (SCE_SSceneEntityGroup*,
                                                SCE_SCamera*);
 
-#if 0
 void SCE_SceneEntity_ApplyProperties (SCE_SSceneEntity*);
-#endif
 
 void SCE_SceneEntity_UseResources (SCE_SSceneEntity*);
 

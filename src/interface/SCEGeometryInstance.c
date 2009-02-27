@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 25/10/2008
-   updated: 02/12/2008 */
+   updated: 27/02/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -49,12 +49,9 @@ static SCE_FInstanceGroupRenderFunc renderfuncs[3] =
     SCE_Instance_RenderHardware
 };
 
-static void SCE_Instance_DefaultRenderFunc (SCE_SGeometryInstance*);
-
 void SCE_Instance_Init (SCE_SGeometryInstance *inst)
 {
     inst->m = NULL;
-    inst->renderfunc = SCE_Instance_DefaultRenderFunc;
     inst->group = NULL;
     inst->removed = SCE_TRUE;
 #if SCE_LIST_ITERATOR_NO_MALLOC
@@ -165,7 +162,7 @@ void SCE_Instance_SetInstancingType (SCE_SGeometryInstanceGroup *group,
         group->type = SCE_SIMPLE_INSTANCING;
 #ifdef SCE_DEBUG
         Logger_PrintMsg ("hardware instancing is not supported,"
-                         "using simple instancing");
+                         "using simple instancing.\n");
 #endif
     }
     else
@@ -263,18 +260,6 @@ SCE_SGeometryInstanceGroup* SCE_Instance_GetGroup (SCE_SGeometryInstance *inst)
     return inst->group;
 }
 
-/**
- * \brief Defines the render callback function for rendering the given instance
- * \param f the callback function
- *
- * If \p f is NULL the default render function is specified instead.
- */
-void SCE_Instance_SetRenderCallback (SCE_SGeometryInstance *inst,
-                                     SCE_FGeometryInstanceRenderFunc f)
-{
-    inst->renderfunc = (f ? f : SCE_Instance_DefaultRenderFunc);
-}
-
 
 void SCE_Instance_SetData (SCE_SGeometryInstance *inst, void *data)
 {
@@ -285,12 +270,6 @@ void* SCE_Instance_GetData (SCE_SGeometryInstance *inst)
     return inst->data;
 }
 
-
-static void SCE_Instance_DefaultRenderFunc (SCE_SGeometryInstance *inst)
-{
-    (void)inst;
-    SCE_Mesh_Draw ();
-}
 
 static void SCE_Instance_RenderSimple (SCE_SGeometryInstanceGroup *group)
 {
@@ -305,7 +284,7 @@ static void SCE_Instance_RenderSimple (SCE_SGeometryInstanceGroup *group)
         inst = SCE_List_GetData (it);
         SCE_CPushMatrix ();
         SCE_CMultMatrix (inst->m);
-        inst->renderfunc (inst);
+        SCE_Mesh_Draw ();
         SCE_CPopMatrix ();
         ninstances++;
     }
@@ -332,7 +311,7 @@ static void SCE_Instance_RenderPseudo (SCE_SGeometryInstanceGroup *group)
         glVertexAttrib4fv (group->attrib1, &final[0]);
         glVertexAttrib4fv (group->attrib2, &final[4]);
         glVertexAttrib4fv (group->attrib3, &final[8]);
-        inst->renderfunc (inst);
+        SCE_Mesh_Draw ();
     }
 }
 

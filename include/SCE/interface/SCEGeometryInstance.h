@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 25/10/2008
-   updated: 01/12/2008 */
+   updated: 27/02/2009 */
 
 #ifndef SCEGEOMETRYINSTANCE_H
 #define SCEGEOMETRYINSTANCE_H
@@ -40,8 +40,6 @@ typedef struct sce_sgeometryinstance SCE_SGeometryInstance;
 /** \copydoc sce_sgeometryinstancegroup */
 typedef struct sce_sgeometryinstancegroup SCE_SGeometryInstanceGroup;
 
-typedef void (*SCE_FGeometryInstanceRenderFunc)(SCE_SGeometryInstance*);
-
 /**
  * \brief Geometry instance
  *
@@ -52,7 +50,6 @@ typedef void (*SCE_FGeometryInstanceRenderFunc)(SCE_SGeometryInstance*);
 struct sce_sgeometryinstance
 {
     float *m;                          /**< Instance's matrix */
-    SCE_FGeometryInstanceRenderFunc renderfunc; /**< Render function */
     SCE_SGeometryInstanceGroup *group; /**< Group of the instance */
     int removed;                       /**< Is it removed from its group? */
 #if SCE_LIST_ITERATOR_NO_MALLOC
@@ -103,9 +100,6 @@ void SCE_Instance_SetMatrix (SCE_SGeometryInstance*, SCE_TMatrix4);
 float* SCE_Instance_GetMatrix (SCE_SGeometryInstance*);
 
 SCE_SGeometryInstanceGroup* SCE_Instance_GetGroup (SCE_SGeometryInstance*);
-
-void SCE_Instance_SetRenderCallback (SCE_SGeometryInstance*,
-                                     SCE_FGeometryInstanceRenderFunc);
 
 void SCE_Instance_SetData (SCE_SGeometryInstance*, void*);
 void* SCE_Instance_GetData (SCE_SGeometryInstance*);

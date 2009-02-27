@@ -1337,7 +1337,6 @@ int SCE_Mesh_ComputeTBN (SCEenum polygon_type, SCEvertices *vertex,
     return SCE_OK;
 }
 
-/* ajoute le 22/02/2008 */
 /* renvoie les donnees demandees si elles sont conformes aux demandes
    des fonctions de gestion des donnees */
 static SCE_SMeshVertexData* SCE_Mesh_GetVertices (SCE_SMesh *mesh, SCEenum type,
