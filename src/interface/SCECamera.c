@@ -227,7 +227,7 @@ void SCE_Camera_Use (SCE_SCamera *cam)
     SCE_CViewport (cam->viewport.x, cam->viewport.y,
                    cam->viewport.w, cam->viewport.h);
     SCE_CSetActiveMatrix (SCE_MAT_PROJECTION);
-    SCE_CLoadMatrix (cam->proj);  /* Load ou Mult ? */
+    SCE_CLoadMatrix (cam->proj);  /* NOTE: Load ou Mult ? */
     SCE_CSetActiveMatrix (SCE_MAT_MODELVIEW);
     SCE_CLoadMatrix (cam->finalview);  /* Load ou Mult ? */
 }

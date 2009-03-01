@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/03/2007
-   updated: 29/01/2009 */
+   updated: 01/03/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -41,7 +41,7 @@
  */
 
 /**
- * \defgroup texture Textures and render textures managment
+ * \defgroup texture Textures and render textures
  * \ingroup interface
  * \internal
  * \brief Unify all texture's types and render textures in one module to provide
@@ -384,6 +384,18 @@ unsigned int SCE_Texture_GetUnit (SCE_STexture *tex)
 }
 
 /**
+ * \brief Gets the texture matrix of a texture
+ *
+ * The matrix of a texture is sent to OpenGL when the texture is specified
+ * for rendering by calling SCE_Texture_Use().
+ */
+float* SCE_Texture_GetMatrix (SCE_STexture *tex)
+{
+    return tex->matrix;
+}
+
+
+/**
  * \brief Forces the pixel format when calling SCE_CAddTextureTexData()
  * \sa SCE_CForceTexturePixelFormat()
  */
@@ -697,37 +709,38 @@ static void SCE_Texture_RenderQuad (SCE_SFloatRect *r)
 {
     SCE_TMatrix4 mat;
     /* mise en place des matrices */
-    SCE_CSetActiveMatrix (SCE_MAT_TEXTURE);
-    SCE_CPushMatrix ();
     if (r)
     {
+        SCE_CSetActiveMatrix (SCE_MAT_TEXTURE);
+        SCE_CPushMatrix ();
         SCE_Quad_MakeMatrixFromRectanglef (mat, r);
         SCE_CLoadMatrix (mat);
     }
-    else
-        SCE_CLoadIdentityMatrix ();
-    SCE_CSetActiveMatrix (SCE_MAT_PROJECTION);
+    SCE_CSetActiveMatrix (SCE_MAT_MODELVIEW);
     SCE_CPushMatrix ();
     SCE_CLoadIdentityMatrix ();
-    SCE_CSetActiveMatrix (SCE_MAT_MODELVIEW);
+    SCE_CSetActiveMatrix (SCE_MAT_PROJECTION);
     SCE_CPushMatrix ();
     SCE_CLoadIdentityMatrix ();
 
     SCE_Quad_Draw (-1., -1., 2., 2.);
 
     SCE_CPopMatrix ();
-    SCE_CSetActiveMatrix (SCE_MAT_PROJECTION);
-    SCE_CPopMatrix ();
-    SCE_CSetActiveMatrix (SCE_MAT_TEXTURE);
-    SCE_CPopMatrix ();
+    if (r)
+    {
+        SCE_CSetActiveMatrix (SCE_MAT_TEXTURE);
+        SCE_CPopMatrix ();
+    }
     SCE_CSetActiveMatrix (SCE_MAT_MODELVIEW);
+    SCE_CPopMatrix ();
 }
+static void SCE_Texture_Set (SCE_STexture*);
 /**
  * \brief Blit a texture over another texture
  * \param rdst the rectangle which defines the area where blit
  * \param dst the texture where blit
  * \param rsrc the rectangle which defines the area to blit
- * \param src the texture to blit
+ * \param src the texture to blit (can be NULL)
  *
  * If \p dst doesn't have a frame buffer, a frame buffer is created and added to
  * \p dst, the frame buffer created has only one render target that is
@@ -735,6 +748,7 @@ static void SCE_Texture_RenderQuad (SCE_SFloatRect *r)
  * frame buffer. The \p rdst and \p rsrc parameters specifies the texture's
  * coordinates between 0 and 1. \p dst can be NULL then the render is done on
  * the default OpenGL render buffer.
+ * If \p rsrc is not NULL the texture matrix of \p src will be ignored.
  * \sa SCE_Texture_RenderTo(), SCE_Texture_Blit(), SCE_SFloatRect
  * \todo add blit to cube maps (use the 2nd parameter of RenderTo())
  * \todo this function maybe change some states
@@ -769,11 +783,12 @@ void SCE_Texture_Blitf (SCE_SFloatRect *rdst, SCE_STexture *dst,
     /* desactivation du test de profondeur */
     SCE_CSetState2 (GL_DEPTH_TEST, GL_CULL_FACE, SCE_FALSE);
     SCE_CActivateDepthBuffer (SCE_FALSE);
-    SCE_CUseTexture (src->tex, src->unit);
+    if (src)
+        SCE_Texture_Set (src);
 
     SCE_Texture_RenderQuad (rsrc);
 
-    SCE_CUseTexture (NULL, 0);
+    SCE_CUseTexture (NULL, src->unit);
     SCE_CActivateDepthBuffer (SCE_TRUE);
     SCE_CSetState2 (GL_DEPTH_TEST, GL_CULL_FACE, SCE_TRUE);
 

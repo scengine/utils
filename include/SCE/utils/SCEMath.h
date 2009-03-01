@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 22 decembre 2006
-   derniere modification le 27/02/2008 */
+/* created: 22 decembre 2006
+   updated: 27/02/2008 */
 
 #ifndef SCEMATH_H
 #define SCEMATH_H
