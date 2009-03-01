@@ -788,7 +788,8 @@ void SCE_Texture_Blitf (SCE_SFloatRect *rdst, SCE_STexture *dst,
 
     SCE_Texture_RenderQuad (rsrc);
 
-    SCE_CUseTexture (NULL, src->unit);
+    if (src)
+        SCE_CUseTexture (NULL, src->unit);
     SCE_CActivateDepthBuffer (SCE_TRUE);
     SCE_CSetState2 (GL_DEPTH_TEST, GL_CULL_FACE, SCE_TRUE);
 
