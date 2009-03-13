@@ -19,6 +19,7 @@
 /* created: 12/10/2006
    updated: 13/02/2009 */
 
+#include <config.h>
 #include <SCE/SCEngine.h>
 
 /**
