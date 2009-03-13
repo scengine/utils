@@ -1,5 +1,6 @@
 AM_CPPFLAGS = -I$(srcdir)/../include
 lib_LTLIBRARIES = libSCE.la
+libSCE_la_LDFLAGS = -version-info @SCE_LIB_VERSION@
 libSCE_la_SOURCES = SCEngine.c \
                     interface/SCEScene.c \
                     interface/SCEBoundingBox.c \
@@ -58,4 +59,3 @@ libSCE_la_SOURCES = SCEngine.c \
                     utils/SCETime.c \
                     utils/SCEList.c \
                     utils/SCEBacktracer.c
-libSCE_la_LDFLAGS = -version-info 9:0:0

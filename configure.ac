@@ -11,6 +11,9 @@ AC_PROG_LIBTOOL
 AC_PROG_CC
 
 # basic setup
+SCE_LIB_VERSION="9:0:0"
+AC_SUBST([SCE_LIB_VERSION])
+
 pkgconfigdir="$prefix/lib/pkgconfig"
 sce_includedir="$includedir/SCE"
 sce_include_coredir="$sce_includedir/core"
