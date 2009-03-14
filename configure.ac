@@ -11,7 +11,24 @@ AC_PROG_LIBTOOL
 AC_PROG_CC
 
 # basic setup
-SCE_LIB_VERSION="0:1:0"
+
+#
+# revision of the library
+# 
+# CURRENT:REVISION:AGE
+#
+# Please remeber to bump library version before releases
+#   Remeberer:
+# =====================================================================
+# |   If vou have...                              |   Bump version to |
+# =====================================================================
+# | Not changed the interface (bug fixes)         | CURRENT:REV+1:AGE |
+# ---------------------------------------------------------------------
+# | Augmented the interface (new functions)       | CURRENT+1:0:AGE+1 |
+# ---------------------------------------------------------------------
+# | Broken old interface (e.g. removed functions) | CURRENT+1:0:0     |
+# ---------------------------------------------------------------------
+SCE_LIB_VERSION="10:0:0"
 AC_SUBST([SCE_LIB_VERSION])
 
 pkgconfigdir="$prefix/lib/pkgconfig"
@@ -179,7 +196,7 @@ AC_CONFIG_FILES([Makefile
 AC_OUTPUT
 
 echo "----------------------------------------"
-echo "SCE version                    : $VERSION"
+echo "SCE version                    : $VERSION ($SCE_LIB_VERSION)"
 echo "Cg shaders support             : $enable_cg"
 echo "Backtracer enabled             : $enable_bt"
 echo "Debugging enabled              : $enable_debug"
