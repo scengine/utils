@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* created: 02/11/2008 */
+/* created: 02/11/2008
+   updated: 13/03/2009 */
 
 #ifndef SCELEVELOFDETAIL_H
 #define SCELEVELOFDETAIL_H
@@ -36,9 +37,8 @@ typedef struct sce_slevelofdetail SCE_SLevelOfDetail;
 struct sce_slevelofdetail
 {
     int lod;                    /**< LOD level */
-    int minlod, maxlod;         /**< Minimum & maximum values for \c lod */
-    SCE_SBoundingBox *box;      /**< Bounding box of the entity */
-    float size;                 /**< Size of the entity's bounding box */
+    SCE_SBoundingBox *box;      /**< Bounding box used for computations */
+    float size;                 /**< Size of the bounding box in screen space */
     float dist;                 /**< Distance between the entity & the camera */
     SCE_FGetLODFunc getlod;     /**< Get LOD from the size */
 };
@@ -53,6 +53,9 @@ void SCE_Lod_SetGetLODFunc (SCE_SLevelOfDetail*, SCE_FGetLODFunc);
 
 SCE_SBoundingBox* SCE_Lod_GetBoundingBox (SCE_SLevelOfDetail*);
 
+float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBoundingBox*, float,
+                                                 SCE_SCamera*);
+float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBoundingBox*, SCE_SCamera*);
 int SCE_Lod_Compute (SCE_SLevelOfDetail*, SCE_TMatrix4, SCE_SCamera*);
 
 int SCE_Lod_GetLOD (SCE_SLevelOfDetail*);

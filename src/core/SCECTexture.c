@@ -974,7 +974,7 @@ SCE_CTexData* SCE_CRemoveTextureTexData (SCE_CTexture *tex,
                                          int target, int level)
 {
     SCE_CTexData *d = NULL, *data = NULL;
-    SCE_SListIterator tmp, *it = NULL;
+    SCE_SListIterator *pro = NULL, *it = NULL;
     unsigned int i;
 
     SCE_btstart ();
@@ -989,15 +989,13 @@ SCE_CTexData* SCE_CRemoveTextureTexData (SCE_CTexture *tex,
     d->user = SCE_TRUE;
     data = d;
 
-    SCE_List_ForEach (it, tex->data[i])
+    SCE_List_ForEachProtected (pro, it, tex->data[i])
     {
         d = SCE_List_GetData (it);
         if (d == data)
         {
-            tmp = *it; /* hack pour eviter un debordement memoire au ForEach */
-            SCE_List_Remove (tex->data[i], it);
+            SCE_List_Removel (it);
             SCE_List_DeleteIt (it);
-            it = &tmp;
         }
     }
 

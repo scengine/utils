@@ -25,6 +25,7 @@
 #include <SCE/utils/SCEVector.h>
 #include <SCE/utils/SCEMatrix.h>
 #include <SCE/utils/SCEList.h>
+#include <SCE/interface/SCEOctree.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -50,15 +51,17 @@ struct sce_snode
 {
     SCE_SNode *parent;         /**< Parent node */
     SCE_SList *child;          /**< Children */
+    SCE_SOctreeElement *element; /**< Element */
 #if SCE_LIST_ITERATOR_NO_MALLOC
     SCE_SListIterator iterator;
 #endif
     SCE_SListIterator *it;     /**< Own iterator */
-    SCE_TMatrix4 matrix;       /**< Node's matrix */
+    SCE_TMatrix4 matrix;       /**< Node matrix */
     SCE_TMatrix4 fmatrix;      /**< Real node's transformation matrix, with all
                                 *   parent nodes' matrices applyed */
     void *data;                /**< User-defined data */
     int marks;                 /**< Has the node moved since the last update? */
+    /* \deprecated */ /* TODO: kick that */
     SCE_FNodeCallback moved;   /**< Called when the node has moved */
     void *movedparam;          /**< \c moved parameter */
 };
@@ -99,14 +102,16 @@ void SCE_Node_UpdateRootRecursive (SCE_SNode*);
 void SCE_Node_FastUpdateRecursive (SCE_SNode*, unsigned int);
 void SCE_Node_FastUpdateRootRecursive (SCE_SNode*, unsigned int);
 
-int SCE_Node_HaveParent (SCE_SNode*);
+int SCE_Node_HasParent (SCE_SNode*);
 SCE_SNode* SCE_Node_GetParent (SCE_SNode*);
 
-void* SCE_Node_SetData (SCE_SNode*, void*);
+SCE_SOctreeElement* SCE_Node_GetElement (SCE_SNode*);
+
+void SCE_Node_SetData (SCE_SNode*, void*);
 #if 0
 void* SCE_Node_GetData (SCE_SNode*);
 #endif
-#define SCE_Node_GetData(n) (((SCE_SNode*)n)->data)
+#define SCE_Node_GetData(n) (((SCE_SNode*)(n))->data)
 
 void SCE_Node_Use (SCE_SNode*);
 

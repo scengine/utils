@@ -827,7 +827,7 @@ void SCE_Texture_Use (SCE_STexture *tex)
             textmp = unitused[tex->unit];
             if (textmp)
             {
-                SCE_List_Remove (texused, textmp->it);
+                SCE_List_Removel (textmp->it);
                 textmp->used = SCE_FALSE;
             }
             SCE_Texture_Set (tex);

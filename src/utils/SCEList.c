@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 14/02/2009 */
+   updated: 07/03/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -80,9 +80,14 @@ void SCE_List_DeleteIt (SCE_SListIterator *it)
  */
 void SCE_List_Init (SCE_SList *l)
 {
-    l->first = NULL;
+    SCE_List_InitIt (&l->first);
+    SCE_List_InitIt (&l->last);
+    l->first.next = &l->last;
+    l->last.prev = &l->first;
+    l->first.data = l->last.data = l;
     l->f = NULL;
-    l->canfree = SCE_TRUE;
+    /* TODO: kick useless calls of CanDeleteIterators() in the engine */
+    l->canfree = SCE_FALSE;     /* by default, CANT free iterators */
 }
 
 /**
@@ -108,7 +113,21 @@ SCE_SList* SCE_List_Create (SCE_FListFreeFunc f)
     }
     return l;
 }
+/**
+ * \brief Flushs a list by ignoring all its elements
+ * \note do not call this function if \p l is joined to other list(s)
+ */
+void SCE_List_Flush (SCE_SList *l)
+{
+    if (SCE_List_HasElements (l))
+    {
+        l->first.next->prev = NULL;
+        l->last.prev->next = NULL;
 
+        l->first.next = &l->last;
+        l->last.prev = &l->first;
+    }
+}
 /**
  * \brief Clears a list
  * \param l the SCE_SList to clear
@@ -122,19 +141,11 @@ SCE_SList* SCE_List_Create (SCE_FListFreeFunc f)
  */
 void SCE_List_Clear (SCE_SList *l)
 {
-    SCE_SListIterator *it = l->first;
-    SCE_SListIterator *tmp = NULL;
+    SCE_SListIterator *pro = NULL;
+    SCE_SListIterator *it = NULL;
 
-    while (it)
-    {
-        tmp = it;
-        it = it->next;
-        if (l->f)
-            l->f (tmp->data);
-        if (l->canfree)
-            SCE_List_DeleteIt (tmp);
-    }
-    l->first = NULL;
+    SCE_List_ForEachProtected (pro, it, l)
+        SCE_List_Erase (l, it);
 }
 
 /**
@@ -189,35 +200,28 @@ void SCE_List_Append (SCE_SListIterator *it, SCE_SListIterator *new)
     it->next = new;
 }
 
+#if !SCE_LIST_ABUSIVE_MACRO
 /**
  * \brief
  */
 void SCE_List_Prependl (SCE_SList *l, SCE_SListIterator *it)
 {
-    if (!l->first)
-    {
-        l->first = it;
-        it->next = it->prev = NULL;
-    }
-    else
-    {
-        SCE_List_Prepend (l->first, it);
-        l->first = it;
-    }
+    it->prev = l->first.next->prev;
+    it->next = l->first.next;
+    l->first.next->prev = it;
+    l->first.next = it;
 }
 /**
  * \brief
  */
 void SCE_List_Appendl (SCE_SList *l, SCE_SListIterator *it)
 {
-    if (!l->first)
-    {
-        l->first = it;
-        it->next = it->prev = NULL;
-    }
-    else
-        SCE_List_Append (SCE_List_GetLast (l), it);
+    it->next = l->last.prev->next;
+    it->prev = l->last.prev;
+    l->last.prev->next = it;
+    l->last.prev = it;
 }
+#endif
 
 /**
  * \brief Prepends data to a list iterator
@@ -303,6 +307,7 @@ int SCE_List_AppendNewl (SCE_SList *l, void *d)
     return SCE_OK;
 }
 
+#if !SCE_LIST_ABUSIVE_MACRO
 /**
  * \brief Removes an element of a list
  * \param l the SCE_SList from where detach the iterator (can be NULL)
@@ -311,33 +316,30 @@ int SCE_List_AppendNewl (SCE_SList *l, void *d)
  * This function removes the element represented by the iterator from the given
  * list and returns its data. The iterator \p it isn't deleted.
  * If you just want to remove an element and its data, use SCE_List_Erase().
+ * \note This function will not work if the list if \p it is combined to other
+ * lists and \p it is the first or the last iterator of its list.
  * \sa SCE_List_Erase(), SCE_List_RemoveFirst(), SCE_List_RemoveLast()
  */
-void SCE_List_Remove (SCE_SList *l, SCE_SListIterator *it)
-{    
-    if (it->prev)
-        it->prev->next = it->next;
-    else if (l)                 /* l can be NULL */
-        l->first = it->next;
-
-    if (it->next)
-        it->next->prev = it->prev;
-
+void SCE_List_Removel (SCE_SListIterator *it)
+{
+    it->next->prev = it->prev;
+    it->prev->next = it->next;
     it->next = NULL;
     it->prev = NULL;
 }
+#endif
 /**
  * \brief Removes the first element of a list
  * \param l the SCE_SList from where detach data
  * \returns the removed iterator
  * 
  * This function calls SCE_List_Remove (\p l, SCE_List_GetFirst (\p l)).
- * \sa SCE_List_Remove(), SCE_List_RemoveLast(), SCE_List_EraseFirst()
+ * \sa SCE_List_Removel(), SCE_List_RemoveLast(), SCE_List_EraseFirst()
  */
 SCE_SListIterator* SCE_List_RemoveFirst (SCE_SList *l)
 {
-    SCE_SListIterator *it = l->first;
-    SCE_List_Remove (l, it);
+    SCE_SListIterator *it = l->first.next;
+    SCE_List_Removel (it);
     return it;
 }
 /**
@@ -346,12 +348,12 @@ SCE_SListIterator* SCE_List_RemoveFirst (SCE_SList *l)
  * \returns the removed iterator
  * 
  * This function calls SCE_List_Remove (\p l, SCE_List_GetLast (\p l)).
- * \sa SCE_List_Remove(), SCE_List_RemoveFirst(), SCE_List_EraseLast()
+ * \sa SCE_List_Removel(), SCE_List_RemoveFirst(), SCE_List_EraseLast()
  */
 SCE_SListIterator* SCE_List_RemoveLast (SCE_SList *l)
 {
-    SCE_SListIterator *it = SCE_List_GetLast (l);
-    SCE_List_Remove (l, it);
+    SCE_SListIterator *it = l->last.prev;
+    SCE_List_Removel (it);
     return it;
 }
 
@@ -359,11 +361,11 @@ SCE_SListIterator* SCE_List_RemoveLast (SCE_SList *l)
  * \brief Fully remove an element of a list
  * \param l the SCE_SList from where remove element
  * \param it the iterator of the element to be removed
- * \sa SCE_List_Remove(), SCE_List_EraseFirst(), SCE_List_EraseLast()
+ * \sa SCE_List_Removel(), SCE_List_EraseFirst(), SCE_List_EraseLast()
  */
 void SCE_List_Erase (SCE_SList *l, SCE_SListIterator *it)
 {
-    SCE_List_Remove (l, it);
+    SCE_List_Removel (it);
     if (l->f)
         l->f (it->data);
     if (l->canfree)
@@ -409,7 +411,7 @@ void SCE_List_RemoveFromData (SCE_SList *l, void *data)
 {
     SCE_SListIterator *it = SCE_List_LocateIterator (l, data, NULL);
     if (it)
-        SCE_List_Remove (l, it);
+        SCE_List_Removel (it);
 }
 
 /**
@@ -427,6 +429,123 @@ void SCE_List_EraseFromData (SCE_SList *l, void *data)
     if (it)
         SCE_List_Erase (l, it);
 }
+
+
+/**
+ * \brief Attachs \p l2 next to \p l1
+ * \sa SCE_List_Insert(), SCE_List_Extract(), SCE_SList::first
+ */
+void SCE_List_Join (SCE_SList *l1, SCE_SList *l2)
+{
+    l2->first.prev = &l1->last;
+    l2->first.next->prev = l1->last.prev;
+
+    l1->last.next = &l2->first;
+    l1->last.prev->next = l2->first.next;
+}
+
+/**
+ * \brief Inserts \p l2 next to \p l1.
+ *
+ * Inserts \p l2 next to \p l1, the list attached to the end of \p l1 is then
+ * attached to \p l2.
+ * \sa SCE_List_Join(), SCE_List_Extract()
+ */
+void SCE_List_Insert (SCE_SList *l1, SCE_SList *l2)
+{
+    if (!l1->last.next)
+        SCE_List_Join (l1, l2);
+    else
+    {
+        SCE_SList *l3 = l1->last.next->data;
+        SCE_List_BreakEnd (l1);
+        SCE_List_Join (l1, l2);
+        SCE_List_Join (l2, l3);
+    }
+}
+
+static void SCE_List_InitFirst (SCE_SListIterator *it)
+{
+    it->prev = NULL;
+    it->next->prev = it;
+}
+static void SCE_List_InitLast (SCE_SListIterator *it)
+{
+    it->next = NULL;
+    it->prev->next = it;
+}
+
+/**
+ * \brief Breaks a join created by SCE_List_Join()
+ */
+void SCE_List_BreakStart (SCE_SList *l)
+{
+    if (l->first.prev)
+        SCE_List_InitLast (l->first.prev);
+    SCE_List_InitFirst (&l->first);
+}
+/**
+ * \brief Breaks a join created by SCE_List_Join()
+ */
+void SCE_List_BreakEnd (SCE_SList *l)
+{
+    if (l->last.next)
+        SCE_List_InitFirst (l->last.next);
+    SCE_List_InitLast (&l->last);
+}
+
+/**
+ * \brief Breaks a list entirely, removes it from its continuation (if any)
+ * \sa SCE_List_BreakAll(), SCE_List_BreakStart(), SCE_List_BreakEnd()
+ */
+void SCE_List_Break (SCE_SList *l)
+{
+    SCE_List_BreakStart (l);
+    SCE_List_BreakEnd (l);
+}
+/**
+ * \brief Breaks a list continuation
+ * \sa SCE_List_Break(), SCE_List_BreakStart(), SCE_List_BreakEnd()
+ */
+void SCE_List_BreakAll (SCE_SList *l)
+{
+    SCE_SList *lpro = NULL, *list = l;
+    if (l->first.prev)
+        l = l->first.prev->data;
+    SCE_List_ForEachNextListProtected (lpro, list)
+        SCE_List_Break (list);
+    SCE_List_ForEachPrevListProtected (lpro, l)
+        SCE_List_Break (l);
+}
+
+/**
+ * \brief Extracts a list from a continuation of lists
+ * \sa SCE_List_Break(), SCE_List_BreakAll(), SCE_List_Insert()
+ */
+void SCE_List_Extract (SCE_SList *l)
+{
+    SCE_SListIterator *prv, *nxt;
+    prv = l->first.prev;
+    nxt = l->last.next;
+    if (prv)
+    {
+        if (!nxt)
+            SCE_List_InitLast (prv);
+        else
+        {
+            prv->next = nxt;
+            prv->prev->next = nxt->next;
+            nxt->prev = prv;
+            nxt->next->prev = prv->prev;
+        }
+    }
+    else if (nxt)
+        SCE_List_InitFirst (nxt);
+
+    SCE_List_InitFirst (&l->first);
+    SCE_List_InitLast (&l->last);
+}
+
 
 /**
  * \brief Sets data of an iterator
@@ -473,7 +592,7 @@ unsigned int SCE_List_GetSize (SCE_SList *l)
  */
 SCE_SListIterator* SCE_List_GetFirst (SCE_SList *l)
 {
-    return l->first;
+    return l->first.next;
 }
 /**
  * \brief Gets the last iterator of a list
@@ -482,13 +601,15 @@ SCE_SListIterator* SCE_List_GetFirst (SCE_SList *l)
  */
 SCE_SListIterator* SCE_List_GetLast (SCE_SList *l)
 {
-    SCE_SListIterator *it = l->first;
-    if (it)
-    {
-        while (it->next)
-            it = it->next;
-    }
-    return it;
+    return l->last.prev;
+}
+
+/**
+ * \brief Has \p l any element?
+ */
+int SCE_List_HasElements (SCE_SList *l)
+{
+    return (l->first.next != &l->last);
 }
 
 /**
@@ -549,7 +670,7 @@ SCE_SListIterator* SCE_List_GetIterator (SCE_SList *l, unsigned int n)
  * \param data the data to compare to each list's data
  * \param f a function to compares \p data to each list's data, or NULL for a
  * pointer comparison
- * \returns the founded iterator, if any
+ * \returns the iterator found, if any
  * 
  * This function searches for an iterator containing \p data.
  * The comparison is done by calling \p f and/or comparing the pointers.
@@ -589,129 +710,12 @@ unsigned int SCE_List_LocateIndex (SCE_SList *l, void *data,
     return 0;
 }
 
-
 #if 0
-int SCE_List_Switch (SCE_SListIterator *it1, SCE_SListIterator *it2)
+
+void SCE_List_Sort (SCE_SList *l, SCE_FListCompareData comesafter)
 {
-    SCE_SListIterator tmp;
-    tmp = *it1;
-    it1->prev = it2->prev;
-    it1->next = it2->next;
-    it2->prev = tmp.prev;
-    it2->next = tmp.next;
-
-    if (it1->prev)
-        it1->prev->next = it1;
-    if (it1->next)
-        it1->next->prev = it1;
-
-    if (it2->prev)
-        it2->prev->next = it2;
-    if (it2->next)
-        it2->next->prev = it2;
-
-
-
-    SCE_SListIterator *whereadd = NULL;
-    void (*func1)(SCE_SListIterator*, SCE_SListIterator*);
-    void (*func2)(SCE_SListIterator*, SCE_SListIterator*);
-
-    if (it1->next)
-    {
-        whereadd = it1->next;
-        func1 = SCE_List_Prepend;
-    }
-    else if (it1->prev)
-    {
-        whereadd = it1->prev;
-        func1 = SCE_List_Append;
-    }
-    else
-        return SCE_ERROR;
-
-    if (it2->next)
-        func2 = SCE_List_Append;
-    else if (it2->prev)
-        func2 = SCE_List_Prepend;
-    else
-        return SCE_ERROR;
-
-    SCE_List_Remove (NULL, it1);
-    func2 (it2, it1);
-    if (whereadd != it2)
-    {
-        SCE_List_Remove (NULL, it2);
-        func1 (whereadd, it2);
-    }
-}
-
-void SCE_List_Switchl (SCE_SList *l1, SCE_SListIterator *it1,
-                       SCE_SList *l2, SCE_SListIterator *it2)
-{
-    SCE_SListIterator tmp1, tmp2;
-    int init1 = SCE_FALSE, init2 = SCE_FALSE;
-
-    if (!it1->prev)
-    {
-        SCE_List_InitIt (&tmp1);
-        it1->prev = &tmp1;
-        init1 = SCE_TRUE;
-    }
-    if (!it2->prev)
-    {
-        SCE_List_InitIt (&tmp2);
-        it2->prev = &tmp2;
-        init2 = SCE_TRUE;
-    }
-
-    SCE_List_Switch (it1, it2); /* can't fail */
-
-    if (init1)
-    {
-        l1->first = tmp1.next;
-        tmp1.next->prev = NULL;
-    }
-    if (init2)
-    {
-        l2->first = tmp2.next;
-        tmp2.next->prev = NULL;
-    }
-}
-
-void SCE_List_SortNext (SCE_SListIterator *it, SCE_FListCompareData change)
-{
-    SCE_SListIterator *it2, *pro, *pro2;
-    SCE_List_ForEachNextProtected (pro, it)
-    {
-        it2 = it;
-        SCE_List_ForEachPrevProtected (pro2, it2)
-        {
-            if (change (it2, it))
-                SCE_List_Switch (it, it2);
-        }
-    }
-}
-
-void SCE_List_SortPrev (SCE_SListIterator *it, SCE_FListCompareData change)
-{
-    SCE_SListIterator *it2, *pro, *pro2;
-    SCE_List_ForEachPrevProtected (pro, it)
-    {
-        it2 = it;
-        SCE_List_ForEachNextProtected (pro2, it2)
-        {
-            if (change (it, it2))
-                SCE_List_Switch (it2, it);
-        }
-    }
-}
-
-void SCE_List_Sortl (SCE_SList *l, SCE_FListCompareData change)
-{
-    SCE_List_SortNext (l->first, change);
-    /* find the new 'first' */
-    while (l->first->prev)
-        l->first = l->first->prev;
+    SCE_SListIterator *first = l->first.next;
+    SCE_List_Flush (l);
 }
 #endif
 

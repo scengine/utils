@@ -200,7 +200,6 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
         goto failure;
     SCE_SceneEntity_SetMesh (skybox->entity, skybox->mesh);
     SCE_SceneEntity_AddInstanceToEntity (skybox->entity, skybox->instance);
-    SCE_SceneEntity_SelectInstance (skybox->instance, SCE_TRUE);
     skybox->mode = mode;
     skybox->textype = type;
     goto success;

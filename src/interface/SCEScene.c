@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2008
-   updated: 31/01/2009 */
+   updated: 10/03/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -48,6 +48,17 @@
 
 static SCE_SCamera *default_camera = NULL;
 
+/* dat iz omg coef u no??? */
+static float omg_coeffs[2] = {0.1, 0.01};
+
+typedef struct sce_ssceneoctree SCE_SSceneOctree;
+struct sce_ssceneoctree
+{
+    SCE_SList *instances[3];       /* pkeu 3 laiveuls ser coul */
+    SCE_SList *lights;
+    SCE_SList *cameras;
+};
+
 /** \internal */
 int SCE_Init_Scene (void)
 {
@@ -62,6 +73,55 @@ int SCE_Init_Scene (void)
 void SCE_Quit_Scene (void)
 {
     SCE_Camera_Delete (default_camera), default_camera = NULL;
+}
+
+
+static void SCE_Scene_InitOctree (SCE_SSceneOctree *tree)
+{
+    unsigned int i;
+    for (i = 0; i < 3; i++)
+        tree->instances[i] = NULL;
+    tree->lights = NULL;
+    tree->cameras = NULL;
+}
+
+static void SCE_Scene_DeleteOctree (SCE_SSceneOctree*);
+
+static SCE_SSceneOctree* SCE_Scene_CreateOctree (void)
+{
+    unsigned int i;
+    SCE_SSceneOctree *tree = NULL;
+    tree = SCE_malloc (sizeof *tree);
+    if (!tree)
+        goto failure;
+    SCE_Scene_InitOctree (tree);
+    for (i = 0; i < 3; i++)
+    {
+        if (!(tree->instances[i] = SCE_List_Create (NULL)))
+            goto failure;
+    }
+    if (!(tree->lights = SCE_List_Create (NULL)))
+        goto failure;
+    if (!(tree->cameras = SCE_List_Create (NULL)))
+        goto failure;
+    goto success;
+failure:
+    SCE_Scene_DeleteOctree (tree), tree = NULL;
+    Logger_LogSrc ();
+success:
+    return tree;
+}
+
+static void SCE_Scene_DeleteOctree (SCE_SSceneOctree *tree)
+{
+    if (tree)
+    {
+        unsigned int i;
+        for (i = 0; i < 3; i++)
+            SCE_List_Delete (tree->instances[i]);
+        SCE_List_Delete (tree->lights);
+        SCE_List_Delete (tree->cameras);
+    }
 }
 
 
@@ -82,6 +142,9 @@ static void SCE_Scene_Init (SCE_SScene *scene)
     scene->octree = NULL;
     for (i = 0; i < SCE_SCENE_NUM_RESOURCE_GROUP; i++)
         scene->rgroups[i] = NULL;
+    scene->instances = NULL;
+    scene->selected = NULL;
+    scene->selected_join = NULL;
     scene->egroups = NULL;
     scene->entities = NULL;
     scene->lights = NULL;
@@ -117,6 +180,10 @@ SCE_SScene* SCE_Scene_Create (void)
             goto failure;
         SCE_SceneResource_SetGroupType (scene->rgroups[i], i);
     }
+    if (!(scene->instances = SCE_List_Create (NULL)))
+        goto failure;
+    if (!(scene->selected = SCE_List_Create (NULL)))
+        goto failure;
     if (!(scene->egroups = SCE_List_Create (NULL)))
         goto failure;
     if (!(scene->entities = SCE_List_Create (NULL)))
@@ -167,25 +234,63 @@ SCE_SNode* SCE_Scene_GetRootNode (SCE_SScene *scene)
 }
 
 
+/* called when a node has moved */
 void SCE_Scene_OnNodeMoved (SCE_SNode *node, void *param)
 {
     /* TODO: tmp */
-    SCE_SBoundingSphere *bs = SCE_Octree_GetElementBoundingSphere (
-        ((SCE_SSceneEntityInstance*)SCE_Node_GetData (node))->element);
+    SCE_SOctreeElement *el = NULL;
+    SCE_SSceneEntityInstance *einst = NULL;
+    SCE_SBoundingSphere *bs = NULL;
+
+    einst = SCE_Node_GetData (node);
+    el = SCE_Node_GetElement (node);
+    bs = el->sphere;
+
     SCE_BoundingSphere_Push (bs, SCE_Node_GetFinalMatrix (node));
-    /* the data of a node is its instance */
-    SCE_Octree_ReinsertElement (((SCE_SSceneEntityInstance*)
-                                 SCE_Node_GetData (node))->element);
-    /*SCE_Octree_InsertElement (((SCE_SScene*)param)->octree, ((SCE_SSceneEntityInstance*)
-      SCE_Node_GetData (node))->element, 0);*/
+    SCE_Octree_ReinsertElement (el);
     SCE_BoundingSphere_Pop (bs);
 }
 
 
+static unsigned int SCE_Scene_DetermineElementList (SCE_SOctreeElement *el,
+                                                    SCE_SOctree *tree)
+{
+    float d = SCE_BoundingSphere_GetRadius (el->sphere) * 2.0;
+    float c = d / SCE_BoundingBox_GetWidth (SCE_Octree_GetBoundingBox (tree));
+    if (c < omg_coeffs[1])
+        return 2;
+    else if (c < omg_coeffs[0])
+        return 1;
+    return 0;
+}
+/* inserts an instance into an octree */
+static void SCE_Scene_InsertInstance (SCE_SOctree *tree, SCE_SOctreeElement *el)
+{
+    unsigned int id;
+    SCE_SSceneOctree *stree = NULL;
+    stree = SCE_Octree_GetData (tree);
+    id = SCE_Scene_DetermineElementList (el, tree);
+    SCE_List_Prependl (stree->instances[id], &el->it);
+}
+/* inserts a light into an octree */
+static void SCE_Scene_InsertLight (SCE_SOctree *tree, SCE_SOctreeElement *el)
+{
+    SCE_SSceneOctree *stree = NULL;
+    stree = SCE_Octree_GetData (tree);
+    SCE_List_Prependl (stree->lights, &el->it);
+}
+/* inserts a camera into an octree */
+static void SCE_Scene_InsertCamera (SCE_SOctree *tree, SCE_SOctreeElement *el)
+{
+    SCE_SSceneOctree *stree = NULL;
+    stree = SCE_Octree_GetData (tree);
+    SCE_List_Prependl (stree->cameras, &el->it);
+}
+
 /**
  * \brief Adds a node to a scene
  * \param scene a scene
- * \param node the nod you want to attach to \p scene
+ * \param node the node you want to attach to \p scene
  * 
  * This function attach the given note to the root node of the given scene. It
  * is equivalent to SCE_Node_Attach(SCE_Scene_GetRootNode(\p scene), \p node)
@@ -211,29 +316,33 @@ void SCE_Scene_RemoveNode (SCE_SScene *scene, SCE_SNode *node)
 /**
  * \brief Adds an instance to a scene
  * \param einst the instance to add
- * \returns SCE_ERROR if the insertion of the octree element has failed,
- * SCE_OK otherwise
  *
  * Adds an instance to a scene, adds its node by calling SCE_Scene_AddNode()
  * and inserts its octree element by calling SCE_Octree_InsertElement().
  * \sa SCE_Scene_RemoveInstance(), SCE_Scene_AddNode(), SCE_Scene_MakeOctree()
  */
-int SCE_Scene_AddInstance (SCE_SScene *scene, SCE_SSceneEntityInstance *einst)
+void SCE_Scene_AddInstance (SCE_SScene *scene, SCE_SSceneEntityInstance *einst)
 {
-    SCE_SNode *node = SCE_SceneEntity_GetInstanceNode (einst);
-    SCE_SOctreeElement *element=SCE_SceneEntity_GetInstanceOctreeElement(einst);
-    SCE_SBoundingSphere *bs = SCE_Octree_GetElementBoundingSphere (element);
-    /* NOTE: not relative to the (future) parent */
-    SCE_BoundingSphere_Push (bs, SCE_Node_GetFinalMatrix (node));
-    if (SCE_Octree_InsertElement (scene->octree, element, SCE_FALSE) < 0)
-    {
-        Logger_LogSrc ();
-        return SCE_ERROR;
-    }
-    SCE_BoundingSphere_Pop (bs);
+    SCE_SOctreeElement *el = NULL;
+    SCE_SNode *node = NULL;
+    SCE_SBoundingSphere *bs = NULL;
+
+    node = SCE_SceneEntity_GetInstanceNode (einst);
+    el = SCE_SceneEntity_GetInstanceElement (einst);
+    bs = el->sphere;
+
+    el->insert = SCE_Scene_InsertInstance;
+    SCE_Octree_AddElement (scene->octree, el);
+
+    /* NOTE: not relative to the (future) parent (gne?) */
     SCE_Node_SetOnMovedCallback (node, SCE_Scene_OnNodeMoved, scene);
     SCE_Scene_AddNode (scene, node);
-    return SCE_OK;
+    SCE_List_Prependl (scene->instances,
+                       SCE_SceneEntity_GetInstanceIterator1 (einst));
+
+    SCE_BoundingSphere_Push (bs, SCE_Node_GetFinalMatrix (node));
+    SCE_Octree_InsertElement (scene->octree, el);
+    SCE_BoundingSphere_Pop (bs);
 }
 /**
  * \brief Removes an instance from a scene
@@ -243,10 +352,13 @@ int SCE_Scene_AddInstance (SCE_SScene *scene, SCE_SSceneEntityInstance *einst)
 void SCE_Scene_RemoveInstance (SCE_SScene *scene,
                                SCE_SSceneEntityInstance *einst)
 {
+    SCE_SOctreeElement *el = NULL;
     SCE_SNode *node = SCE_SceneEntity_GetInstanceNode (einst);
-    SCE_SOctreeElement *element=SCE_SceneEntity_GetInstanceOctreeElement(einst);
+    el = SCE_SceneEntity_GetInstanceElement (einst);
+
+    SCE_List_Removel (SCE_SceneEntity_GetInstanceIterator1 (einst));
     SCE_Scene_RemoveNode (scene, node);
-    SCE_Octree_RemoveElement (element);
+    SCE_Octree_RemoveElement (el);
 }
 
 /**
@@ -274,6 +386,7 @@ void SCE_Scene_RemoveEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
 }
 
 /**
+ * \deprecated
  * \brief Adds an entity group to a scene
  * \param scene a scene
  * \param group the entity group to add
@@ -306,14 +419,20 @@ int SCE_Scene_AddEntityGroup (SCE_SScene *scene, SCE_SSceneEntityGroup *group)
  * \param scene a scene
  * \param light a light to add to the given scene
  * \returns SCE_ERROR on error, SCE_OK otherwise
+ * \todo lol
  */
 int SCE_Scene_AddLight (SCE_SScene *scene, SCE_SLight *light)
 {
+    SCE_SNode *node = NULL;
     if (SCE_List_PrependNewl (scene->lights, light) < 0)
     {
         Logger_LogSrc ();
         return SCE_ERROR;
     }
+    node = SCE_Light_GetNode (light);
+    SCE_Node_GetElement (node)->insert = SCE_Scene_InsertLight;
+    SCE_Node_HasMoved (node);
+    SCE_Octree_AddElement (scene->octree, SCE_Node_GetElement (node));
     return SCE_OK;
 }
 
@@ -368,6 +487,32 @@ void SCE_Scene_SetOctreeSize (SCE_SScene *scene, float w, float h, float d)
 {
     SCE_Octree_SetSize (scene->octree, w, h, d);
 }
+
+/* builds internal structure for an octree */
+static int SCE_Scene_MakeOctreeInternal (SCE_SOctree *tree)
+{
+    SCE_SSceneOctree *stree = SCE_Scene_CreateOctree ();
+    if (!tree)
+    {
+        Logger_LogSrc ();
+        return SCE_ERROR;
+    }
+    SCE_Octree_SetData (tree, stree);
+    if (SCE_Octree_HasChildren (tree))
+    {
+        unsigned int i;
+        SCE_SOctree **children = SCE_Octree_GetChildren (tree);
+        for (i = 0; i < 8; i++)
+        {
+            if (SCE_Scene_MakeOctreeInternal (children[i]) < 0)
+            {
+                Logger_LogSrc ();
+                return SCE_ERROR;
+            }
+        }
+    }
+    return SCE_OK;
+}
 /**
  * \brief Makes an octree for the given scene
  * \returns SCE_ERROR on error, SCE_OK otherwise
@@ -381,6 +526,12 @@ int SCE_Scene_MakeOctree (SCE_SScene *scene, unsigned int rec,
     SCE_Octree_Clear (scene->octree);
     if (SCE_Octree_RecursiveMake (scene->octree, rec, NULL,
                                   NULL, loose, margin) < 0)
+    {
+        Logger_LogSrc ();
+        return SCE_ERROR;
+    }
+    /* creates the internal structures */
+    if (SCE_Scene_MakeOctreeInternal (scene->octree) < 0)
     {
         Logger_LogSrc ();
         return SCE_ERROR;
@@ -413,8 +564,8 @@ int SCE_Scene_SetupDefaultBatching (SCE_SScene *scene)
 
 
 /**
- * \brief Defines the beginning of a frame
  * \deprecated
+ * \brief Defines the beginning of a frame
  */
 void SCE_Scene_BeginFrame (SCE_SScene *scene)
 {
@@ -422,8 +573,8 @@ void SCE_Scene_BeginFrame (SCE_SScene *scene)
 }
 
 /**
- * \brief Defines the end of a frame
  * \deprecated
+ * \brief Defines the end of a frame
  */
 void SCE_Scene_EndFrame (SCE_SScene *scene)
 {
@@ -432,21 +583,137 @@ void SCE_Scene_EndFrame (SCE_SScene *scene)
 }
 
 
-static void SCE_Scene_DoFrustumCulling (SCE_SScene *scene)
+static float SCE_Scene_GetOctreeSize (SCE_SOctree *tree, SCE_SCamera *cam)
 {
-    SCE_SListIterator *it = NULL;
-    SCE_List_ForEach (it, scene->egroups)
+    return SCE_Lod_ComputeBoundingBoxSurface (SCE_Octree_GetBoundingBox (tree),
+                                              cam);
+}
+
+static void SCE_Scene_AddOctreeInstances (SCE_SScene *scene, SCE_SOctree *tree,
+                                          unsigned int id)
+{
+    SCE_SSceneOctree *stree = SCE_Octree_GetData (tree);
+    SCE_List_Join (scene->selected_join, stree->instances[id]);
+    scene->selected_join = stree->instances[id];
+}
+
+static void SCE_Scene_SelectOctreeInstances (SCE_SScene *scene, SCE_SOctree *tree)
+{
+    unsigned int i;
+    float size;
+    size = SCE_Scene_GetOctreeSize (tree, scene->camera);
+    SCE_Scene_AddOctreeInstances (scene, tree, 0);
+    for (i = 0; i < 2; i++)
     {
-        SCE_SceneEntity_SelectInFrustumInstances (SCE_List_GetData (it),
-                                                  scene->camera);
+        if (omg_coeffs[i] * size < /*scene->contribution_culling_size*/0.01)
+            break;              /* the next are smaller, so stop */
+        else
+            SCE_Scene_AddOctreeInstances (scene, tree, i+1);
     }
 }
 
-static void SCE_Scene_ComputeLODs (SCE_SScene *scene)
+static void SCE_Scene_SelectOctreeInstancesRec (SCE_SScene *scene,
+                                                SCE_SOctree *tree)
+{
+    SCE_Scene_SelectOctreeInstances (scene, tree);
+    if (SCE_Octree_HasChildren (tree))
+    {
+        unsigned int i;
+        SCE_SOctree **children = SCE_Octree_GetChildren (tree);
+        for (i = 0; i < 8; i++)
+            SCE_Scene_SelectOctreeInstancesRec (scene, children[i]);
+    }
+}
+
+static void SCE_Scene_SelectVisibleInstances (SCE_SScene *scene,
+                                              SCE_SSceneOctree *stree,
+                                              unsigned int id)
 {
     SCE_SListIterator *it = NULL;
-    SCE_List_ForEach (it, scene->egroups)
-        SCE_SceneEntity_DetermineLODs (SCE_List_GetData (it), scene->camera);
+    SCE_SSceneEntityInstance *einst = NULL;
+    SCE_List_ForEach (it, stree->instances[id])
+    {
+        einst = SCE_List_GetData (it);
+        if (SCE_SceneEntity_IsInstanceInFrustum (einst, scene->camera))
+        {
+            SCE_List_Prependl (scene->selected,
+                               SCE_SceneEntity_GetInstanceIterator1 (einst));
+        }
+    }
+}
+
+static void SCE_Scene_SelectVisibleOctrees (SCE_SScene *scene,
+                                            SCE_SOctree *tree)
+{
+    if (!SCE_Octree_IsVisible (tree))
+        return;
+    if (!SCE_Octree_IsPartiallyVisible (tree))
+        SCE_Scene_SelectOctreeInstancesRec (scene, tree);
+    else
+    {
+#if 0
+        SCE_Scene_SelectOctreeInstances (scene, tree);
+#else
+        unsigned int i;
+        float size;
+        SCE_SSceneOctree *stree = NULL;
+
+        stree = SCE_Octree_GetData (tree);
+        size = SCE_Scene_GetOctreeSize (tree, scene->camera);
+
+        /* do visibility test for each instance */
+        SCE_Scene_SelectVisibleInstances (scene, stree, 0);
+        for (i = 0; i < 2; i++)
+        {
+            if (omg_coeffs[i] * size < /*scene->contribution_culling_size*/0.01)
+                break;              /* the next are smaller, so stop */
+            else
+                SCE_Scene_SelectVisibleInstances (scene, stree, i+1);
+        }
+#endif
+
+        if (SCE_Octree_HasChildren (tree))
+        {
+            unsigned int i;
+            SCE_SOctree **children = SCE_Octree_GetChildren (tree);
+            for (i = 0; i < 8; i++)
+                SCE_Scene_SelectVisibleOctrees (scene, children[i]);
+        }
+    }
+}
+
+static void SCE_Scene_SelectVisibles (SCE_SScene *scene)
+{
+    SCE_Scene_SelectVisibleOctrees (scene, scene->octree);
+}
+
+
+static void SCE_Scene_DetermineEntitiesUsingLOD (SCE_SScene *scene)
+{
+    SCE_SListIterator *it = NULL;
+    SCE_SList *instances = scene->selected;
+    SCE_List_ForEach (it, instances)
+    {
+        SCE_SceneEntity_DetermineInstanceLOD (SCE_List_GetData (it),
+                                              scene->camera);
+    }
+}
+
+static void SCE_Scene_DetermineEntities (SCE_SScene *scene)
+{
+    SCE_SListIterator *it = NULL;
+    SCE_SList *instances = scene->selected;
+    SCE_List_ForEach (it, instances)
+        SCE_SceneEntity_ReplaceInstanceToEntity (SCE_List_GetData (it));
+}
+
+
+static void SCE_Scene_FlushEntities (SCE_SScene *scene)
+{
+    SCE_SListIterator *it = NULL;
+    SCE_SList *entities = scene->entities;
+    SCE_List_ForEach (it, entities)
+        SCE_SceneEntity_Flush (SCE_List_GetData (it));
 }
 
 /**
@@ -470,27 +737,59 @@ static void SCE_Scene_ComputeLODs (SCE_SScene *scene)
 void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
                        SCE_STexture *rendertarget, SCEuint cubeface)
 {
+    SCE_SBoundingSphere sphere;
+    SCE_SNode *node = NULL;
+    SCE_SOctreeElement *el = NULL;
+
     /* assign */
     scene->rendertarget = rendertarget;
     scene->cubeface = cubeface;
     scene->camera = (camera ? camera : default_camera);
 
+    /* init sphere */
+    SCE_BoundingSphere_Init (&sphere);
+    SCE_BoundingSphere_SetRadius (&sphere, 0.00001); /* oe */
+    /* TODO: what if scene has many cameras? */
+    node = SCE_Camera_GetNode (scene->camera);
+    el = SCE_Node_GetElement (node);
+    el->insert = SCE_Scene_InsertCamera;
+    el->sphere = &sphere;
+    SCE_Octree_AddElement (scene->octree, el);
+    SCE_Octree_InsertElement (scene->octree, el); /* wesh */
+
+    if (scene->states.lod || scene->states.frustum_culling)
+        SCE_Scene_FlushEntities (scene);
+
+    if (scene->states.frustum_culling)
+    {
+        /* do it before FastUpdateRootRecursive(), otherwise the calls of
+           List_Removel() can fail */
+        SCE_List_BreakAll (scene->selected);
+        SCE_List_Flush (scene->selected);
+        scene->selected_join = scene->selected;
+    }
+
     /* updating scene nodes */
     if (!scene->node_updated)
         SCE_Node_FastUpdateRootRecursive (scene->rootnode, scene->n_nodes);
+    /* NOTE: node_updated or do_update_nodes can be a state because its value
+       may change during scene update */
     scene->node_updated = SCE_TRUE;
 
     SCE_Camera_Update (scene->camera);
 
-    SCE_Octree_MarkVisibles (scene->octree, scene->camera);
-
-    /* frustum culling computation */
     if (scene->states.frustum_culling)
-        SCE_Scene_DoFrustumCulling (scene);
+    {
+        SCE_Octree_MarkVisibles (scene->octree,
+                                 SCE_Camera_GetFrustum (scene->camera));
+        SCE_Scene_SelectVisibles (scene);
+    }
 
-    /* determinating LODs */
+    /* determinating entities */
     if (scene->states.lod)
-        SCE_Scene_ComputeLODs (scene);
+        SCE_Scene_DetermineEntitiesUsingLOD (scene);
+    else if (scene->states.frustum_culling)
+        SCE_Scene_DetermineEntities (scene);
 }
 
 
@@ -522,7 +821,7 @@ static void SCE_Scene_RenderEntities (SCE_SScene *scene)
     SCE_List_ForEach (it, scene->entities)
     {
         entity = SCE_List_GetData (it);
-        if (SCE_SceneEntity_HaveInstance (entity))
+        if (SCE_SceneEntity_HasInstance (entity))
         {
             SCE_SceneEntity_UseResources (entity);
             SCE_SceneEntity_Render (entity);

@@ -25,22 +25,11 @@
 #include <SCE/core/SCECSupport.h>
 #include <SCE/interface/SCEGeometryInstance.h>
 
-static unsigned int ninstances = 0;
-
 typedef void (*SCE_FInstanceGroupRenderFunc)(SCE_SGeometryInstanceGroup*);
 
 static void SCE_Instance_RenderSimple (SCE_SGeometryInstanceGroup*);
 static void SCE_Instance_RenderPseudo (SCE_SGeometryInstanceGroup*);
 static void SCE_Instance_RenderHardware (SCE_SGeometryInstanceGroup*);
-
-void SCE_Instance_InitCount (void)
-{
-    ninstances = 0;
-}
-unsigned int SCE_Instance_GetCount (void)
-{
-    return ninstances;
-}
 
 static SCE_FInstanceGroupRenderFunc renderfuncs[3] =
 {
@@ -53,7 +42,6 @@ void SCE_Instance_Init (SCE_SGeometryInstance *inst)
 {
     inst->m = NULL;
     inst->group = NULL;
-    inst->removed = SCE_TRUE;
 #if SCE_LIST_ITERATOR_NO_MALLOC
     SCE_List_InitIt (&inst->iterator);
     inst->it = &inst->iterator;
@@ -102,7 +90,6 @@ void SCE_Instance_Delete (SCE_SGeometryInstance *inst)
 {
     if (inst)
     {
-        SCE_Instance_RemoveInstance (inst);
 #if !SCE_LIST_ITERATOR_NO_MALLOC
         SCE_List_DeleteIt (inst->it);
 #endif
@@ -115,7 +102,6 @@ static void SCE_Instance_YouDontHaveGroup (void *i)
 {
     SCE_SGeometryInstance *inst = i;
     inst->group = NULL;
-    inst->removed = SCE_TRUE;
 }
 
 SCE_SGeometryInstanceGroup* SCE_Instance_CreateGroup (void)
@@ -157,7 +143,9 @@ void SCE_Instance_DeleteGroup (SCE_SGeometryInstanceGroup *group)
 void SCE_Instance_SetInstancingType (SCE_SGeometryInstanceGroup *group,
                                      int type)
 {
-    if (type == SCE_HARDWARE_INSTANCING && !SCE_CHasCap (SCE_HW_INSTANCING))
+    if (type != SCE_HARDWARE_INSTANCING || SCE_CHasCap (SCE_HW_INSTANCING))
+        group->type = type;
+    else
     {
         group->type = SCE_SIMPLE_INSTANCING;
 #ifdef SCE_DEBUG
@@ -165,40 +153,36 @@ void SCE_Instance_SetInstancingType (SCE_SGeometryInstanceGroup *group,
                          "using simple instancing.\n");
 #endif
     }
-    else
-        group->type = type;
 }
-
+/**
+ * \brief Defines the vertex attributes for giving the modelview matrix
+ * \param a1 attribute index of the vector for the matrix row 1
+ * \param a2 attribute index of the vector for the matrix row 2
+ * \param a3 attribute index of the vector for the matrix row 3
+ */
 void SCE_Instance_SetAttribIndices (SCE_SGeometryInstanceGroup *group,
                                     int a1, int a2, int a3)
 {
     group->attrib1 = a1; group->attrib2 = a2; group->attrib3 = a3;
 }
+/**
+ * \brief Gets the list of the instances of \p group
+ * \returns \p group->instances
+ */
+SCE_SList* SCE_Instance_GetInstancesList (SCE_SGeometryInstanceGroup *group)
+{
+    return group->instances;
+}
 
 /**
  * \brief Adds an instance into a group of instances
- * \param group the group where add the instance (can be NULL)
+ * \param group the group where add the instance
  * \param inst the instance to add
- *
- * If \p group is NULL, \p inst is added to the previous group where it was,
- * if \p inst was never added to a group, calling this function with \p group
- * NULL generates a segmentation fault (in the better case).
  */
 void SCE_Instance_AddInstance (SCE_SGeometryInstanceGroup *group,
                                SCE_SGeometryInstance *inst)
 {
-    if (!group || group == inst->group)
-    {
-        if (inst->removed) /* in this case, inst should have a group... */
-            SCE_List_Prependl (inst->group->instances, inst->it);
-    }
-    else
-    {
-        SCE_Instance_RemoveInstance (inst);
-        SCE_List_Prependl (group->instances, inst->it);
-        inst->group = group;
-    }
-    inst->removed = SCE_FALSE;
+    SCE_List_Prependl (group->instances, inst->it);
 }
 /**
  * \brief Removes an instance from its group
@@ -206,11 +190,7 @@ void SCE_Instance_AddInstance (SCE_SGeometryInstanceGroup *group,
  */
 void SCE_Instance_RemoveInstance (SCE_SGeometryInstance *inst)
 {
-    if (!inst->removed)
-    {
-        SCE_List_Remove (inst->group->instances, inst->it);
-        inst->removed = SCE_TRUE;
-    }
+    SCE_List_Removel (inst->it);
 }
 
 /**
@@ -224,9 +204,9 @@ SCE_SList* SCE_Instance_GetGroupInstancesList(SCE_SGeometryInstanceGroup *group)
 /**
  * \brief Indicates if an instances group have any instance
  */
-int SCE_Instance_HaveGroupInstance (SCE_SGeometryInstanceGroup *group)
+int SCE_Instance_HasGroupInstance (SCE_SGeometryInstanceGroup *group)
 {
-    return (SCE_List_GetFirst (group->instances) != NULL);
+    return (SCE_List_HasElements (group->instances));
 }
 
 /**
@@ -286,7 +266,6 @@ static void SCE_Instance_RenderSimple (SCE_SGeometryInstanceGroup *group)
         SCE_CMultMatrix (inst->m);
         SCE_Mesh_Draw ();
         SCE_CPopMatrix ();
-        ninstances++;
     }
 }
 

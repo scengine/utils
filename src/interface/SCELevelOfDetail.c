@@ -17,11 +17,12 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/11/2008
-   last change: 18/11/2008 */
+   updated: 13/03/2009 */
 
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEVector.h>
+#include <SCE/utils/SCERectangle.h>
 #include <SCE/interface/SCELevelOfDetail.h>
 
 static int SCE_Lod_DefaultGetLodFunc (float);
@@ -73,52 +74,107 @@ SCE_SBoundingBox* SCE_Lod_GetBoundingBox (SCE_SLevelOfDetail *lod)
 }
 
 
-static float SCE_Lod_ComputeDistance (SCE_TMatrix4 m, SCE_SCamera *cam)
+float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBoundingBox *box,
+                                                 float dist,
+                                                 SCE_SCamera *cam)
 {
-    SCE_TVector4 v1, v2;
+    SCE_TVector4 v[4];
+    float area;
 
-    /* get camera's position */
-    SCE_Matrix4_GetTranslation (SCE_Camera_GetFinalViewInverse (cam), v1);
-    /* get matrix position */
-    SCE_Matrix4_GetTranslation (m, v2);
-    /* compute distance */
-    return SCE_Vector3_Distance (v1, v2);
+    {
+        /* see SCEBoundingBox.c for infos about the queried points */
+        float *points;
+        points = SCE_BoundingBox_GetPoints (box);
+        SCE_Vector3_Copy (v[0], &points[0]);
+        SCE_Vector3_Copy (v[1], &points[2]);
+        SCE_Vector3_Copy (v[2], &points[4]);
+        SCE_Vector3_Copy (v[3], &points[6]);
+
+        v[0][2] -= dist;
+        v[1][2] -= dist;
+        v[2][2] -= dist;
+        v[3][2] -= dist;
+    }
+    {
+        /* project points */
+        float *proj;
+        proj = SCE_Camera_GetProj (cam);
+        SCE_Matrix4_MulV4 (proj, v[0]);
+        SCE_Matrix4_MulV4 (proj, v[1]);
+        SCE_Matrix4_MulV4 (proj, v[2]);
+        SCE_Matrix4_MulV4 (proj, v[3]);
+    }
+    {
+        /* depth useless */
+        SCE_Vector2_Operator1 (v[0], /=, v[0][3]);
+        SCE_Vector2_Operator1 (v[1], /=, v[1][3]);
+        SCE_Vector2_Operator1 (v[2], /=, v[2][3]);
+        SCE_Vector2_Operator1 (v[3], /=, v[3][3]);
+    }
+    {
+        /* make the rectangle */
+        SCE_SFloatRect r;
+        unsigned int i;
+        r.p1[0] = r.p2[0] = v[0][0];
+        r.p1[1] = r.p2[1] = v[0][1];
+        for (i = 1; i < 4; i++)
+        {
+            if (v[i][0] < r.p1[0])
+                r.p1[0] = v[i][0];
+            if (v[i][0] > r.p2[0])
+                r.p2[0] = v[i][0];
+
+            if (v[i][1] < r.p1[1])
+                r.p1[1] = v[i][1];
+            if (v[i][1] > r.p2[1])
+                r.p2[1] = v[i][1];
+        }
+        area = SCE_Rectangle_GetAreaf (&r);
+    }
+    return area;
 }
 
-static float SCE_Lod_ComputeBoundingBoxSize (SCE_SBoundingBox *box,
-                                             float dist, SCE_SCamera *cam)
+float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBoundingBox *box,
+                                         SCE_SCamera *cam)
 {
-    float *points;
-    SCE_TVector4 v1, v2;
-
-    points = SCE_BoundingBox_GetPoints (box);
-    /* see SCEBoundingBox.c for infos about the points 0 and 2 */
-    SCE_Vector3_Copy (v1, &points[0]);
-    SCE_Vector3_Copy (v2, &points[2]);
-    /* adjust distance */
-    dist += SCE_BoundingBox_GetDepth (box)/2;
-    v1[2] -= dist;
-    v2[2] -= dist;
-    v1[3] = v2[3] = 1.0;
-    /* project points */
-    SCE_Matrix4_MulV4 (SCE_Camera_GetProj (cam), v1);
-    SCE_Matrix4_MulV4 (SCE_Camera_GetProj (cam), v2);
-    /* depth useless */
-    SCE_Vector2_Operator1 (v1, /=, v1[3]);
-    SCE_Vector2_Operator1 (v2, /=, v2[3]);
-    /* distance between the two projected points */
-    return SCE_Vector2_Distance (v1, v2);
+    float area;
+    float dist;
+    SCE_TVector3 t;
+    SCE_BoundingBox_GetCenterv (box, t);
+    {
+        SCE_TVector3 v1;
+        SCE_Camera_GetPositionv (cam, v1);
+        dist = SCE_Vector3_Distance (v1, t);
+    }
+    SCE_BoundingBox_SetCenter (box, 0.0, 0.0, 0.0);
+    area = SCE_Lod_ComputeBoundingBoxSurfaceFromDist (box, dist, cam);
+    SCE_BoundingBox_SetCenterv (box, t);
+    return area;
 }
 
 static int SCE_Lod_DefaultGetLodFunc (float size)
 {
-    return (unsigned int)(/*2.8284*/0.4/size - 1.0);
+    return (unsigned int)(0.4/sqrt (size));
 }
 
 int SCE_Lod_Compute (SCE_SLevelOfDetail *lod, SCE_TMatrix4 m, SCE_SCamera *cam)
 {
-    lod->dist = SCE_Lod_ComputeDistance (m, cam);
-    lod->size = SCE_Lod_ComputeBoundingBoxSize (lod->box, lod->dist, cam);
+    SCE_TVector3 t;
+    {
+        SCE_TVector4 v;
+        SCE_Camera_GetPositionv (cam, v);
+        SCE_Matrix4_GetTranslation (m, t);
+        lod->dist = SCE_Vector3_Distance (v, t);
+    }
+    m[3] = m[7] = m[11] = 0.0;
+    /* do projection! */
+    SCE_BoundingBox_Push (lod->box, m);
+    lod->size = SCE_Lod_ComputeBoundingBoxSurfaceFromDist (lod->box, lod->dist,
+                                                           cam);
+    SCE_BoundingBox_Pop (lod->box);
+    /* restore initial translation */
+    m[3] = t[0]; m[7] = t[1]; m[11] = t[2];
+
     lod->lod = lod->getlod (lod->size);
     return lod->lod;
 }

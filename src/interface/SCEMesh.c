@@ -466,7 +466,7 @@ SCE_SMeshVertexBuffer* SCE_Mesh_RemoveVB (SCE_SMesh *mesh, unsigned int id)
     else
     {
         data = SCE_List_GetData (it);
-        SCE_List_Remove (mesh->vertices, it);
+        SCE_List_Removel (it);
         SCE_List_DeleteIt (it);
     }
     SCE_btend ();
@@ -646,7 +646,7 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
     {
         /* si ces donnees existent, on les supprime dans leur buffer */
         it = SCE_List_LocateIterator (vb->data, d, NULL);
-        SCE_List_Remove (vb->data, it);
+        SCE_List_Removel (it);
         SCE_List_DeleteIt (it);
         it = NULL;
         if (d->canfree)

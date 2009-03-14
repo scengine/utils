@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008 
-   updated: 18/02/2009 */
+   updated: 10/03/2009 */
 
 #ifndef SCESCENEENTITY_H
 #define SCESCENEENTITY_H
@@ -37,9 +37,6 @@ extern "C"
 {
 #endif
 
-/** Maximum number of lights that can affect an instance */
-#define SCE_MAX_LIGHTS_PER_INSTANCE 8
-
 /** Types of volumes that can be used for frustum culling/other operations */
 #define SCE_BOUNDINGBOX 1
 #define SCE_BOUNDINGSPHERE 2
@@ -49,9 +46,9 @@ typedef struct sce_ssceneentityproperties SCE_SSceneEntityProperties;
 struct sce_ssceneentityproperties
 {
     int cullface:1;
-    int cullmode:1;
+    int cullmode;
     int depthtest:1;
-    int depthmode:1;
+    int depthmode;
     int alphatest:1;
 };
 
@@ -62,8 +59,6 @@ typedef struct sce_ssceneentity SCE_SSceneEntity;
 /** \copydoc sce_ssceneentitygroup */
 typedef struct sce_ssceneentitygroup SCE_SSceneEntityGroup;
 
-
-
 /**
  * \brief An instance of a scene entity
  * \sa SCE_SSceneEntity
@@ -72,16 +67,11 @@ struct sce_ssceneentityinstance
 {
     SCE_SNode *node;                 /**< Node */
     SCE_SNode *truenode;             /**< The node allocated by the instance */
-    SCE_SOctreeElement *element;     /**< Instance's octree element */
     SCE_SGeometryInstance *instance; /**< Geometry instance */
     SCE_SLevelOfDetail *lod;         /**< LOD managment structure */
     SCE_SSceneEntity *entity;        /**< Entity used by the instance */
-    int selected;                    /**< Is it selected for rendering? */
     SCE_SSceneEntityGroup *group;    /**< Group that contains the instance */
-    int removed;                     /**< Is it removed from its group? */
-#if SCE_LIST_ITERATOR_NO_MALLOC
     SCE_SListIterator iterator, iterator2;
-#endif
     SCE_SListIterator *it, *it2;     /**< Own iterators for fast add/remove */
 };
 
@@ -117,9 +107,6 @@ struct sce_ssceneentity
  */
 struct sce_ssceneentitygroup
 {
-    SCE_SList *instances;       /**< All the instances of the group */
-    unsigned int n_instances;   /**< Number of instances */
-    SCE_SList *selected;        /**< Selected instances for rendering */
     SCE_SList *entities;
     unsigned int n_entities;
 };
@@ -142,7 +129,6 @@ void SCE_SceneEntity_InitGroup (SCE_SSceneEntityGroup*);
 SCE_SSceneEntityGroup* SCE_SceneEntity_CreateGroup (void);
 void SCE_SceneEntity_DeleteGroup (SCE_SSceneEntityGroup*);
 
-
 void SCE_SceneEntity_AddEntity (SCE_SSceneEntityGroup*, SCE_SSceneEntity*);
 void SCE_SceneEntity_RemoveEntity (SCE_SSceneEntity*);
 #if 0
@@ -151,38 +137,29 @@ void SCE_SceneEntity_SortGroup (SCE_SSceneEntityGroup*);
 unsigned int SCE_SceneEntity_GetGroupNumEntities (SCE_SSceneEntityGroup*);
 SCE_SList* SCE_SceneEntity_GetGroupEntitiesList (SCE_SSceneEntityGroup*);
 
-unsigned int SCE_SceneEntity_GetGroupNumInstances (SCE_SSceneEntityGroup*);
-SCE_SList* SCE_SceneEntity_GetGroupInstancesList (SCE_SSceneEntityGroup*);
-
-unsigned int
-SCE_SceneEntity_GetGroupNumSelectedInstances (SCE_SSceneEntityGroup*);
-SCE_SList*
-SCE_SceneEntity_GetGroupSelectedInstancesList (SCE_SSceneEntityGroup*);
-
-
+void SCE_SceneEntity_SetInstanceDataFromEntity (SCE_SSceneEntityInstance*,
+                                                SCE_SSceneEntity*);
 void SCE_SceneEntity_AddInstance (SCE_SSceneEntityGroup*,
                                   SCE_SSceneEntityInstance*);
-void SCE_SceneEntity_RemoveInstance (SCE_SSceneEntityInstance*);
-
 void SCE_SceneEntity_AddInstanceToEntity (SCE_SSceneEntity*,
                                           SCE_SSceneEntityInstance*);
+void SCE_SceneEntity_ReplaceInstanceToEntity (SCE_SSceneEntityInstance*);
 void SCE_SceneEntity_RemoveInstanceFromEntity (SCE_SSceneEntityInstance*);
+
+void SCE_SceneEntity_Flush (SCE_SSceneEntity*);
 
 
 SCE_SNode* SCE_SceneEntity_GetInstanceNode (SCE_SSceneEntityInstance*);
 SCE_SGeometryInstance*
 SCE_SceneEntity_GetInstanceInstance (SCE_SSceneEntityInstance*);
 SCE_SOctreeElement*
-SCE_SceneEntity_GetInstanceOctreeElement (SCE_SSceneEntityInstance*);
-#if 0
-SCE_SSceneEntityProperties*
-SCE_SceneEntity_GetInstanceProperties (SCE_SSceneEntityInstance*);
-#endif
+SCE_SceneEntity_GetInstanceElement (SCE_SSceneEntityInstance*);
 SCE_SLevelOfDetail*
 SCE_SceneEntity_GetInstanceLOD (SCE_SSceneEntityInstance*);
-
-void SCE_SceneEntity_SelectInstance (SCE_SSceneEntityInstance*, int);
-int SCE_SceneEntity_IsInstanceSelected (SCE_SSceneEntityInstance*);
+SCE_SListIterator*
+SCE_SceneEntity_GetInstanceIterator1 (SCE_SSceneEntityInstance*);
+SCE_SListIterator*
+SCE_SceneEntity_GetInstanceIterator2 (SCE_SSceneEntityInstance*);
 
 
 void SCE_SceneEntity_SetMesh (SCE_SSceneEntity*, SCE_SMesh*);
@@ -198,8 +175,8 @@ SCE_SSceneResource* SCE_SceneEntity_GetShader (SCE_SSceneEntity*);
 int SCE_SceneEntity_SetMaterial (SCE_SSceneEntity*, SCE_SSceneResource*);
 SCE_SSceneResource* SCE_SceneEntity_GetMaterial (SCE_SSceneEntity*);
 
-int SCE_SceneEntity_HaveResourceOfType (SCE_SSceneEntity*, int);
-int SCE_SceneEntity_HaveInstance (SCE_SSceneEntity*);
+int SCE_SceneEntity_HasResourceOfType (SCE_SSceneEntity*, int);
+int SCE_SceneEntity_HasInstance (SCE_SSceneEntity*);
 
 SCE_SGeometryInstanceGroup*
 SCE_SceneEntity_GetInstancesGroup (SCE_SSceneEntity*);
@@ -214,19 +191,14 @@ void SCE_SceneEntity_DetachInstance (SCE_SSceneEntityInstance*);
 
 void SCE_SceneEntity_DetermineInstanceLOD (SCE_SSceneEntityInstance*,
                                          SCE_SCamera*);
-void SCE_SceneEntity_DetermineLODs (SCE_SSceneEntityGroup*, SCE_SCamera*);
-
 int SCE_SceneEntity_IsInstanceInFrustum (SCE_SSceneEntityInstance*,
                                          SCE_SCamera*);
-void SCE_SceneEntity_SelectInFrustumInstances (SCE_SSceneEntityGroup*,
-                                               SCE_SCamera*);
 
 void SCE_SceneEntity_ApplyProperties (SCE_SSceneEntity*);
 
 void SCE_SceneEntity_UseResources (SCE_SSceneEntity*);
 
 void SCE_SceneEntity_Render (SCE_SSceneEntity*);
-void SCE_SceneEntity_RenderGroup (SCE_SSceneEntityGroup*);
 
 #ifdef __cplusplus
 } /* extern "C" */

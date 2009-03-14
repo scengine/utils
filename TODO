@@ -56,12 +56,12 @@ See the file ./doc/html/todo.html
   (ou de batchs...) + plusieurs instances uniquement via indices OpenGL...
 - Instaurer d'autres règles pour le changement d'entité d'une instance en plus
   du LOD (?).
-- Restaurer la possibilité de spécifier des options de rendu différentes pour
-  chaque instance (depth test, cull face, etc...).
 - API de shaders intégrée au moteur (noms similaires, uniforms définis, etc...).
 - Calculer le niveau de LOD en se basant sur une bounding sphere plutôt qu'une
   bounding box (plus rapide).
 - Afficher un message d'erreur lorsque l'utilisateur tente de libérer (SCE_free)
   de la mémoire qui ne lui appartient pas.
+- Paramétrage des entités par le gestionnaire de scènes (doit-on utiliser les
+  textures pour ce rendu ? etc.).
 
 - 38

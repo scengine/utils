@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 22/11/2008 */
+   updated: 13/03/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -141,12 +141,30 @@ float* SCE_Camera_GetProjInverse (SCE_SCamera *cam)
 }
 
 /**
- * \brief Gets the frustum of a camera
- * \sa SCE_SFrustum
+ * \brief Returns the final view projection matrix
+ * \sa SCE_Camera_GetFinalViewProjInverse()
  */
-SCE_SFrustum* SCE_Camera_GetFrustum (SCE_SCamera *cam)
+float* SCE_Camera_GetFinalViewProj (SCE_SCamera *cam)
 {
-    return &cam->frustum;
+    return cam->finalviewproj;
+}
+
+/**
+ * \brief Returns the final inverse view projection matrix
+ * \sa SCE_Camera_GetFinalViewProj()
+ */
+float* SCE_Camera_GetFinalViewProjInverse (SCE_SCamera *cam)
+{
+    return cam->finalviewprojinv;
+}
+
+
+/**
+ * \brief Gets the position of a camera
+ */
+void SCE_Camera_GetPositionv (SCE_SCamera *cam, SCE_TVector3 pos)
+{
+    SCE_Matrix4_GetTranslation (cam->finalviewinv, pos);
 }
 
 /**
@@ -157,6 +175,15 @@ SCE_SFrustum* SCE_Camera_GetFrustum (SCE_SCamera *cam)
 SCE_SNode* SCE_Camera_GetNode (SCE_SCamera *cam)
 {
     return cam->node;
+}
+
+/**
+ * \brief Gets the frustum of a camera
+ * \sa SCE_SFrustum
+ */
+SCE_SFrustum* SCE_Camera_GetFrustum (SCE_SCamera *cam)
+{
+    return &cam->frustum;
 }
 
 /**
@@ -198,6 +225,11 @@ static void SCE_Camera_UpdateFrustum (SCE_SCamera *cam)
     SCE_Frustum_MakeFromMatrices (&cam->frustum, cam->finalview, cam->proj);
 }
 
+static void SCE_Camera_UpdateViewProj (SCE_SCamera *cam)
+{
+    SCE_Matrix4_Mul (cam->proj, cam->finalview, cam->finalviewproj);
+}
+
 /**
  * \internal
  * \brief Updates a camera
@@ -210,12 +242,15 @@ static void SCE_Camera_UpdateFrustum (SCE_SCamera *cam)
 void SCE_Camera_Update (SCE_SCamera *cam)
 {
     SCE_Camera_UpdateFrustum (cam);
+    SCE_Camera_UpdateViewProj (cam);
     SCE_Matrix4_Copy (cam->finalviewinv, cam->finalview);
     SCE_Matrix4_Copy (cam->viewinv, cam->view);
     SCE_Matrix4_Copy (cam->projinv, cam->proj);
+    SCE_Matrix4_Copy (cam->finalviewprojinv, cam->finalviewproj);
     SCE_Matrix4_Inverse (cam->finalviewinv);
     SCE_Matrix4_Inverse (cam->viewinv);
     SCE_Matrix4_Inverse (cam->projinv);
+    SCE_Matrix4_Inverse (cam->finalviewprojinv);
 }
 
 /**

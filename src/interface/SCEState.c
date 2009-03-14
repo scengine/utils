@@ -177,7 +177,7 @@ void SCE_State_RemoveApplicator(SCE_SStateManager *sm, SCE_SStateApplicator *sa)
     SCE_btstart ();
     if ((it = SCE_List_LocateIterator (sm->sa, sa, NULL)))
     {
-        SCE_List_Remove (sm->sa, it);
+        SCE_List_Removel (it);
         SCE_List_DeleteIt (it);
     }
     SCE_btend ();

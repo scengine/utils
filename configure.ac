@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 # prelude
-AC_INIT([SCE], [0.0.9])
+AC_INIT([SCE], [0.1.0])
 AC_CONFIG_SRCDIR([src/SCEngine.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
@@ -11,7 +11,7 @@ AC_PROG_LIBTOOL
 AC_PROG_CC
 
 # basic setup
-SCE_LIB_VERSION="9:0:0"
+SCE_LIB_VERSION="0:1:0"
 AC_SUBST([SCE_LIB_VERSION])
 
 pkgconfigdir="$prefix/lib/pkgconfig"

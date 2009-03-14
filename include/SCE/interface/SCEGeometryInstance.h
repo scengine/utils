@@ -51,7 +51,6 @@ struct sce_sgeometryinstance
 {
     float *m;                          /**< Instance's matrix */
     SCE_SGeometryInstanceGroup *group; /**< Group of the instance */
-    int removed;                       /**< Is it removed from its group? */
 #if SCE_LIST_ITERATOR_NO_MALLOC
     SCE_SListIterator iterator;
 #endif
@@ -85,13 +84,14 @@ void SCE_Instance_DeleteGroup (SCE_SGeometryInstanceGroup*);
 
 void SCE_Instance_SetInstancingType (SCE_SGeometryInstanceGroup*, int);
 void SCE_Instance_SetAttribIndices (SCE_SGeometryInstanceGroup*, int, int, int);
+SCE_SList* SCE_Instance_GetInstancesList (SCE_SGeometryInstanceGroup*);
 
 void SCE_Instance_AddInstance (SCE_SGeometryInstanceGroup*,
                                SCE_SGeometryInstance*);
 void SCE_Instance_RemoveInstance (SCE_SGeometryInstance*);
 
 SCE_SList* SCE_Instance_GetGroupInstancesList (SCE_SGeometryInstanceGroup*);
-int SCE_Instance_HaveGroupInstance (SCE_SGeometryInstanceGroup*);
+int SCE_Instance_HasGroupInstance (SCE_SGeometryInstanceGroup*);
 
 void SCE_Instance_SetGroupMesh (SCE_SGeometryInstanceGroup*, SCE_SMesh*);
 SCE_SMesh* SCE_Instance_GetGroupMesh (SCE_SGeometryInstanceGroup*);

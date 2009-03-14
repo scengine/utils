@@ -53,6 +53,7 @@ static void SCE_Node_Init (SCE_SNode *node)
 {
     node->parent = NULL;
     node->child = NULL;
+    node->element = NULL;
 #if SCE_LIST_ITERATOR_NO_MALLOC
     node->it = &node->iterator;
     SCE_List_InitIt (node->it);
@@ -86,12 +87,14 @@ SCE_SNode* SCE_Node_Create (void)
     SCE_Node_Init (node);
     if (!(node->child = SCE_List_Create (SCE_Node_YouDontHaveParent)))
         goto failure;
+    if (!(node->element = SCE_Octree_CreateElement ()))
+        goto failure;
 #if !SCE_LIST_ITERATOR_NO_MALLOC
     if (!(node->it = SCE_List_CreateIt ()))
         goto failure;
 #endif
-    /* each node manages its own iterator */
-    SCE_List_CanDeleteIterators (node->child, SCE_FALSE);
+    /* by default, the data of the element is the node */
+    SCE_List_SetData (&node->element->it, node);
     goto success;
 failure:
     SCE_Node_Delete (node), node = NULL;
@@ -186,7 +189,7 @@ void SCE_Node_Detach (SCE_SNode *node)
 {
     if (node->parent)
     {
-        SCE_List_Remove (node->parent->child, node->it);
+        SCE_List_Removel (node->it);
         node->parent = NULL;
         SCE_Node_HasMoved (node);
     }
@@ -394,6 +397,7 @@ static void SCE_Node_UpdateRoot (SCE_SNode *node)
     if (node->marks)
     {
         SCE_Matrix4_Copy (node->fmatrix, node->matrix);
+        /* TODO */
         if (node->marks & SCE_NODE_HAS_MOVED)
             node->moved (node, node->movedparam);
         node->marks = 0;
@@ -443,11 +447,11 @@ void SCE_Node_FastUpdateRootRecursive (SCE_SNode *node, unsigned int n)
 
 
 /**
- * \brief Checks if a node have a parent
+ * \brief Checks if a node has a parent
  * \param node a node
  * \returns SCE_TRUE if the \p node node have a parent, SCE_FALSE otherwise.
  */
-int SCE_Node_HaveParent (SCE_SNode *node)
+int SCE_Node_HasParent (SCE_SNode *node)
 {
     return (node->parent ? SCE_TRUE : SCE_FALSE);
 }
@@ -461,17 +465,23 @@ SCE_SNode* SCE_Node_GetParent (SCE_SNode *node)
     return node->parent;
 }
 
+/**
+ * \brief Returns the element of a node
+ * \sa SCE_SNode::element
+ */
+SCE_SOctreeElement* SCE_Node_GetElement (SCE_SNode *node)
+{
+    return node->element;
+}
 
 /**
  * \brief Sets data of a node
  * \param data the data to set to \p node
- * \returns the old data if any
  */
-void* SCE_Node_SetData (SCE_SNode *node, void *data)
+void SCE_Node_SetData (SCE_SNode *node, void *data)
 {
-    void *old_data = node->data;
     node->data = data;
-    return old_data;
+    SCE_List_SetData (&node->element->it, data);
 }
 
 #if 0

@@ -146,9 +146,13 @@ int SCE_Collide_AABBWithPointv (SCE_SBoundingBox *box, SCE_TVector3 p)
 }
 int SCE_Collide_AABBWithBS (SCE_SBoundingBox *b, SCE_SBoundingSphere *s)
 {
-    float r = SCE_BoundingSphere_GetRadius (s);
-    float *c = SCE_BoundingSphere_GetCenter (s);
-    float *p = SCE_BoundingBox_GetPoints (b);
+    float r = 0.0;
+    float *c = NULL;
+    float *p = NULL;
+    r = SCE_BoundingSphere_GetRadius (s);
+    c = SCE_BoundingSphere_GetCenter (s);
+    p = SCE_BoundingBox_GetPoints (b);
+
     if (c[0] >= p[0]-r && c[0] <= p[3]+r &&
         c[1] >= p[1]-r && c[1] <= p[10]+r &&
         c[2] >= p[2]-r && c[2] <= p[23]+r)

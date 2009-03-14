@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 22/11/2008 */
+   updated: 10/03/2009 */
 
 #ifndef SCESCENE_H
 #define SCESCENE_H
@@ -49,7 +49,7 @@ extern "C"
 #define SCE_SCENE_NUM_RESOURCE_GROUP 3
 
 /* default octree size */
-#define SCE_SCENE_OCTREE_SIZE (65536.0)
+#define SCE_SCENE_OCTREE_SIZE (16384.0)
 
 typedef int (*SCE_FSceneForEachEntityGroupFunc)(SCE_SSceneEntityGroup *g,
                                                 void *p);
@@ -61,10 +61,10 @@ typedef struct sce_sscenestates SCE_SSceneStates;
  */
 struct sce_sscenestates
 {
-    int clearcolor, cleardepth; /**< Do we clear the buffers ? */
-    int frustum_culling; /**< Use or not the frustum culling */
-    int lighting;        /**< Use or not lighting */
-    int lod;             /**< Use or not LOD for scene's models */
+    int clearcolor, cleardepth; /**< Clear the buffers? */
+    int frustum_culling; /**< Use frustum culling? */
+    int lighting;        /**< Use lighting? */
+    int lod;             /**< Use LOD? */
 };
 
 /* scene */
@@ -84,6 +84,9 @@ struct sce_sscene
     /** All the resources of the scene */
     SCE_SSceneResourceGroup *rgroups[SCE_SCENE_NUM_RESOURCE_GROUP];
 
+    SCE_SList *instances;       /**< Instances */
+    SCE_SList *selected;        /**< Selected instances */
+    SCE_SList *selected_join;   /**< Where to join lists */
     SCE_SList *egroups;         /**< Scene's entities groups list */
     SCE_SList *entities;        /**< Scene's entities */
     SCE_SList *lights;          /**< Scene's lights list */
@@ -115,7 +118,7 @@ void SCE_Scene_OnNodeMoved (SCE_SNode*, void*);
 
 void SCE_Scene_AddNode (SCE_SScene*, SCE_SNode*);
 void SCE_Scene_RemoveNode (SCE_SScene*, SCE_SNode*);
-int SCE_Scene_AddInstance (SCE_SScene*, SCE_SSceneEntityInstance*);
+void SCE_Scene_AddInstance (SCE_SScene*, SCE_SSceneEntityInstance*);
 void SCE_Scene_RemoveInstance (SCE_SScene*, SCE_SSceneEntityInstance*);
 int SCE_Scene_AddEntity (SCE_SScene*, SCE_SSceneEntity*);
 void SCE_Scene_RemoveEntity (SCE_SScene*, SCE_SSceneEntity*);

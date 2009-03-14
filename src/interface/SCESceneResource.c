@@ -185,7 +185,7 @@ void SCE_SceneResource_RemoveResource (SCE_SSceneResource *res)
 {
     if (!res->removed)
     {
-        SCE_List_Remove (res->group->resources, res->it);
+        SCE_List_Removel (res->it);
         res->removed = SCE_TRUE;
     }
 }
@@ -245,7 +245,7 @@ void SCE_SceneResource_RemoveOwner (SCE_SSceneResource *res, void *owner)
     it = SCE_List_LocateIterator (res->owners, owner, NULL);
     if (it)
     {
-        SCE_List_Remove (res->owners, it);
+        SCE_List_Removel (it);
         SCE_List_DeleteIt (it);
     }
 }

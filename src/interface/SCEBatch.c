@@ -82,7 +82,7 @@ static int SCE_Batch_Sort (SCE_SList *finall, SCE_SList *entities,
         SCE_List_ForEach (it, entities)
         {
             e = SCE_List_GetData (it);
-            if (!SCE_SceneEntity_HaveResourceOfType (e, type))
+            if (!SCE_SceneEntity_HasResourceOfType (e, type))
             {
                 if (SCE_List_PrependNewl (l, e) < 0)
                     goto failure;
@@ -168,7 +168,7 @@ int SCE_Batch_SortEntities (SCE_SList *entities, unsigned int size,
         goto failure;
 
     /* set the entities ordered in 'entities' */
-    /* normally, the two lists have the same size */
+    /* normally, the two lists has the same size */
     it3 = SCE_List_GetFirst (entities);
     SCE_List_ForEach (it, list)
     {

@@ -214,6 +214,7 @@ void SCE_Mesh_ComputeBoundingBox (SCEvertices*, unsigned int,
 void SCE_Mesh_ComputeBoundingBoxv (SCEvertices*, unsigned int,
                                    SCE_TVector3, SCE_TVector3);
 int SCE_Mesh_GenerateBoundingBox (SCE_SMesh*, SCE_SBoundingBox*);
+
 void SCE_Mesh_ComputeBoundingSphere (SCEvertices*, unsigned int,
                                      SCE_TVector3, float*);
 int SCE_Mesh_GenerateBoundingSphere (SCE_SMesh*, SCE_SBoundingSphere*);

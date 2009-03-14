@@ -17,11 +17,12 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 22/11/2008 */
+   updated: 13/03/2009 */
 
 #ifndef SCECAMERA_H
 #define SCECAMERA_H
 
+#include <SCE/utils/SCEVector.h>
 #include <SCE/interface/SCEFrustum.h>
 #include <SCE/interface/SCENode.h>
 
@@ -64,6 +65,8 @@ struct sce_scamera
     SCE_TMatrix4 viewinv;      /* 'view' inversee */
     SCE_TMatrix4 proj;         /* matrice de projection */
     SCE_TMatrix4 projinv;      /* 'proj' inversee */
+    SCE_TMatrix4 finalviewproj;/* final view projection matrix */
+    SCE_TMatrix4 finalviewprojinv; /* final inverse view projection matrix */
     SCE_SViewport viewport;    /* viewport de la camera */
     SCE_SFrustum frustum;      /* frustum de vue de la camera */
     SCE_SNode *node;           /* noeud de la camera */
@@ -82,6 +85,10 @@ float* SCE_Camera_GetView (SCE_SCamera*);
 float* SCE_Camera_GetViewInverse (SCE_SCamera*);
 float* SCE_Camera_GetProj (SCE_SCamera*);
 float* SCE_Camera_GetProjInverse (SCE_SCamera*);
+float* SCE_Camera_GetFinalViewProj (SCE_SCamera*);
+float* SCE_Camera_GetFinalViewProjInverse (SCE_SCamera*);
+
+void SCE_Camera_GetPositionv (SCE_SCamera*, SCE_TVector3);
 
 SCE_SNode* SCE_Camera_GetNode (SCE_SCamera*);
 

@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/05/2008
-   updated: 18/02/2009 */
+   updated: 10/03/2009 */
 
 #ifndef SCEOCTREE_H
 #define SCEOCTREE_H
@@ -26,7 +26,7 @@
 #include <SCE/utils/SCEVector.h>
 #include <SCE/interface/SCEBoundingBox.h>
 #include <SCE/interface/SCEBoundingSphere.h>
-#include <SCE/interface/SCECamera.h>
+#include <SCE/interface/SCEFrustum.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -43,15 +43,17 @@ typedef struct sce_soctreeelement SCE_SOctreeElement;
 /** \copydoc sce_soctree */
 typedef struct sce_soctree SCE_SOctree;
 
+/**
+ * \brief Representing functions used to add an element to an octree
+ */
+typedef void (*SCE_FOctreeInsertFunc)(SCE_SOctree *tree,SCE_SOctreeElement *el);
+
 struct sce_soctreeelement
 {
-#if SCE_LIST_ITERATOR_NO_MALLOC
-    SCE_SListIterator iterator;
-#endif
-    SCE_SListIterator *it;       /**< Own iterator */
-    SCE_SOctree *octree;         /**< Octree where the element is contained */
-    void *owner;                 /**< Object that is the owner of the element */
-    SCE_SBoundingSphere *sphere; /**< Sphere used for collision computations */
+    SCE_SListIterator it;
+    SCE_FOctreeInsertFunc insert;/**< Insert function */
+    SCE_SOctree *octree;         /**< Octree */
+    SCE_SBoundingSphere *sphere; /**< Sphere used for collision detection */
 };
 
 
@@ -76,11 +78,13 @@ typedef int (*SCE_FOctreeLimitFunc)(SCE_SOctree *tree, void *param);
 struct sce_soctree
 {
     SCE_SOctree *child[8];  /**< Array of octree's children */
-    int marks;              /**< 1 - Does octree having children?
-                             * 2 - Is the octree visible? */
-    SCE_SOctree* parent;    /**< Octree's parent */
+    int visible;            /**< Is octree visible? */
+    int partially;          /**< Is octree partially visible? */
+    SCE_FOctreeInsertFunc insert; /**< Insert function */
+    SCE_SOctree *parent;    /**< Octree's parent */
     SCE_SBoundingBox box;   /**< Octree's bounding box */
     SCE_SList *elements;    /**< Elements contained in the octree */
+    void *data;             /**< User defined data */
 };
 
 /** @} */
@@ -90,6 +94,7 @@ void SCE_Octree_Clear (SCE_SOctree*);
 void SCE_Octree_Delete (SCE_SOctree*);
 void SCE_Octree_DeleteRecursive (SCE_SOctree*);
 
+void SCE_Octree_InitElement (SCE_SOctreeElement*);
 SCE_SOctreeElement* SCE_Octree_CreateElement (void);
 void SCE_Octree_DeleteElement (SCE_SOctreeElement*);
 
@@ -101,30 +106,31 @@ float SCE_Octree_GetWidth (SCE_SOctree*);
 float SCE_Octree_GetHeight (SCE_SOctree*);
 float SCE_Octree_GetDepth (SCE_SOctree*);
 
-int SCE_Octree_HaveChildren (SCE_SOctree*);
+SCE_SBoundingBox* SCE_Octree_GetBoundingBox (SCE_SOctree*);
+
+void SCE_Octree_SetData (SCE_SOctree*, void*);
+void* SCE_Octree_GetData (SCE_SOctree*);
+
 int SCE_Octree_IsVisible (SCE_SOctree*);
 int SCE_Octree_IsPartiallyVisible (SCE_SOctree*);
+unsigned int SCE_Octree_GetLevel (SCE_SOctree*);
 
+int SCE_Octree_HasChildren (SCE_SOctree*);
 SCE_SOctree** SCE_Octree_GetChildren (SCE_SOctree*);
 
 int SCE_Octree_MakeChildren (SCE_SOctree*, int, float);
 int SCE_Octree_RecursiveMake (SCE_SOctree*, unsigned int,
                               SCE_FOctreeLimitFunc, void*, int, float);
 
-void SCE_Octree_SetElementOwner (SCE_SOctreeElement*, void*);
-void* SCE_Octree_GetElementOwner (SCE_SOctreeElement*);
-int SCE_Octree_IsElementVisible (SCE_SOctreeElement*);
-int SCE_Octree_IsElementPartiallyVisible (SCE_SOctreeElement*);
+void SCE_Octree_AddElement (SCE_SOctree*, SCE_SOctreeElement*);
 
-void SCE_Octree_SetElementBoundingSphere (SCE_SOctreeElement*,
-                                          SCE_SBoundingSphere*);
-SCE_SBoundingSphere* SCE_Octree_GetElementBoundingSphere (SCE_SOctreeElement*);
+void SCE_Octree_DefaultInsertFunc (SCE_SOctree*, SCE_SOctreeElement*);
 
-int SCE_Octree_InsertElement (SCE_SOctree*, SCE_SOctreeElement*, int);
-int SCE_Octree_ReinsertElement (SCE_SOctreeElement*);
+void SCE_Octree_InsertElement (SCE_SOctree*, SCE_SOctreeElement*);
+void SCE_Octree_ReinsertElement (SCE_SOctreeElement*);
 void SCE_Octree_RemoveElement (SCE_SOctreeElement*);
 
-void SCE_Octree_MarkVisibles (SCE_SOctree*, SCE_SCamera*);
+void SCE_Octree_MarkVisibles (SCE_SOctree*, SCE_SFrustum*);
 
 #ifdef __cplusplus
 } /* extern "C" */

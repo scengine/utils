@@ -219,7 +219,7 @@ void SCE_List_FastForEach (SCE_SList *l, unsigned int size,
 
     SCE_List_MakeNumCalls (size, n);
 
-    it = l->first;
+    it = SCE_List_GetFirst (l);
     for (i = 0; i < SCE_NUM_SIZES; i++)
     {
         for (j = 0; j < n[i]; j++)
@@ -235,7 +235,7 @@ void SCE_List_FastForEach2 (SCE_SList *l, unsigned int size,
 
     SCE_List_MakeNumCalls (size, n);
 
-    it = l->first;
+    it = SCE_List_GetFirst (l);
     for (i = 0; i < SCE_NUM_SIZES; i++)
     {
         for (j = 0; j < n[i]; j++)
@@ -251,7 +251,7 @@ void SCE_List_FastForEach3 (SCE_SList *l, unsigned int size,
 
     SCE_List_MakeNumCalls (size, n);
 
-    it = l->first;
+    it = SCE_List_GetFirst (l);
     for (i = 0; i < SCE_NUM_SIZES; i++)
     {
         for (j = 0; j < n[i]; j++)
@@ -267,7 +267,7 @@ void SCE_List_FastForEach4 (SCE_SList *l, unsigned int size,
 
     SCE_List_MakeNumCalls (size, n);
 
-    it = l->first;
+    it = SCE_List_GetFirst (l);
     for (i = 0; i < SCE_NUM_SIZES; i++)
     {
         for (j = 0; j < n[i]; j++)
