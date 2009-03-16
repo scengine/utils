@@ -81,6 +81,8 @@ struct sce_sscene
 
     SCE_SOctree *octree;        /**< Scene's octree */
 
+    float contribution_size;    /**< Contribution culling size */
+
     /** All the resources of the scene */
     SCE_SSceneResourceGroup *rgroups[SCE_SCENE_NUM_RESOURCE_GROUP];
 
@@ -90,6 +92,7 @@ struct sce_sscene
     SCE_SList *egroups;         /**< Scene's entities groups list */
     SCE_SList *entities;        /**< Scene's entities */
     SCE_SList *lights;          /**< Scene's lights list */
+    SCE_SList *cameras;         /**< Cameras in the scene */
 
     SCE_SSkybox *skybox;        /**< Scene skybox */
 
@@ -124,6 +127,7 @@ int SCE_Scene_AddEntity (SCE_SScene*, SCE_SSceneEntity*);
 void SCE_Scene_RemoveEntity (SCE_SScene*, SCE_SSceneEntity*);
 int SCE_Scene_AddEntityGroup (SCE_SScene*, SCE_SSceneEntityGroup*);
 int SCE_Scene_AddLight (SCE_SScene*, SCE_SLight*);
+int SCE_Scene_AddCamera (SCE_SScene*, SCE_SCamera*);
 void SCE_Scene_AddResource (SCE_SScene*, int, SCE_SSceneResource*);
 
 void SCE_Scene_SetSkybox (SCE_SScene*, SCE_SSkybox*);

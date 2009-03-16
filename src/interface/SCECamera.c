@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 13/03/2009 */
+   updated: 15/03/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -57,6 +57,8 @@ void SCE_Camera_Init (SCE_SCamera *cam)
     cam->viewport.x = cam->viewport.y = 0;
     cam->viewport.w = cam->viewport.h = 512; /* NOTE: dimensions de l'ecran */
     SCE_Frustum_Init (&cam->frustum);
+    SCE_BoundingSphere_Init (&cam->sphere);
+    SCE_BoundingSphere_SetRadius (&cam->sphere, 0.00001 /* epsilon */);
     cam->node = NULL;
 }
 
@@ -69,16 +71,17 @@ SCE_SCamera* SCE_Camera_Create (void)
     SCE_SCamera *cam = NULL;
     SCE_btstart ();
     if (!(cam = SCE_malloc (sizeof *cam)))
-        Logger_LogSrc ();
-    else
-    {
-        SCE_Camera_Init (cam);
-        if (!(cam->node = SCE_Node_Create ()))
-        {
-            Logger_LogSrc ();
-            cam = NULL;
-        }
-    }
+        goto failure;
+    SCE_Camera_Init (cam);
+    if (!(cam->node = SCE_Node_Create ()))
+        goto failure;
+    SCE_Node_SetData (cam->node, cam);
+    SCE_Node_GetElement (cam->node)->sphere = &cam->sphere;
+    goto success;
+failure:
+    SCE_Camera_Delete (cam), cam = NULL;
+    Logger_LogSrc ();
+success:
     SCE_btend ();
     return cam;
 }

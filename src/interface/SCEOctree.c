@@ -407,12 +407,13 @@ int SCE_Octree_RecursiveMake (SCE_SOctree *tree, unsigned int rec,
 
 
 /**
+ * \deprecated
  * \brief Initializes an element, get it ready for insertion and co by adding
  * all the iterators of \p el into \p tree
  */
 void SCE_Octree_AddElement (SCE_SOctree *tree, SCE_SOctreeElement *el)
 {
-    SCE_List_Prependl (tree->elements, &el->it);
+    /*SCE_List_Prependl (tree->elements, &el->it);*/
 }
 
 
@@ -465,7 +466,6 @@ static void SCE_Octree_InsertNormal (SCE_SOctree *tree, SCE_SOctreeElement *el)
 
 static void SCE_Octree_Insert (SCE_SOctree *tree, SCE_SOctreeElement *el)
 {
-    SCE_List_Removel (&el->it);
     el->insert (tree, el);
     el->octree = tree;
 }
@@ -497,20 +497,18 @@ void SCE_Octree_InsertElement (SCE_SOctree *tree, SCE_SOctreeElement *el)
 void SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
 {
     SCE_SOctree *parent = el->octree;
-#if 0
-    while (parent->parent)
-        parent = parent->parent;
-    SCE_Octree_InsertElement (parent, el);
-#else
+    SCE_List_Removel (&el->it);
     do
     {
         if (SCE_Collide_AABBWithBS (&parent->box, el->sphere) ==
             SCE_COLLIDE_IN)
+        {
             SCE_Octree_InsertElement (parent, el);
+            break;
+        }
         parent = parent->parent;
     }
     while (parent);
-#endif
 }
 
 /**
@@ -529,7 +527,7 @@ static void SCE_Octree_RecMark (SCE_SOctree *tree, int visible, int partially)
     tree->visible = visible;
     tree->partially = partially;
     /* useless... ? */
-#if 1
+#if 0
     if (tree->child[0])
     {
         unsigned int i;
@@ -548,11 +546,11 @@ void SCE_Octree_MarkVisibles (SCE_SOctree *tree, SCE_SFrustum *frustum)
     int state = SCE_Frustum_BoundingBoxIn (frustum, &tree->box);
     if (state == SCE_COLLIDE_OUT)
         SCE_Octree_RecMark (tree, SCE_FALSE, SCE_FALSE);
+    else if (state == SCE_COLLIDE_IN)
+        SCE_Octree_RecMark (tree, SCE_TRUE, SCE_FALSE);
     else
     {
-        if (state == SCE_COLLIDE_IN)
-            SCE_Octree_RecMark (tree, SCE_TRUE, SCE_FALSE);
-        else if (tree->child[0])
+        if (tree->child[0])
         {
             unsigned int i;
             for (i = 0; i < 8; i++)

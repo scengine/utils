@@ -17,12 +17,13 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 13/03/2009 */
+   updated: 15/03/2009 */
 
 #ifndef SCECAMERA_H
 #define SCECAMERA_H
 
 #include <SCE/utils/SCEVector.h>
+#include <SCE/interface/SCEBoundingSphere.h>
 #include <SCE/interface/SCEFrustum.h>
 #include <SCE/interface/SCENode.h>
 
@@ -69,6 +70,7 @@ struct sce_scamera
     SCE_TMatrix4 finalviewprojinv; /* final inverse view projection matrix */
     SCE_SViewport viewport;    /* viewport de la camera */
     SCE_SFrustum frustum;      /* frustum de vue de la camera */
+    SCE_SBoundingSphere sphere;/* bounding sphere for the octree element */
     SCE_SNode *node;           /* noeud de la camera */
 };
 
