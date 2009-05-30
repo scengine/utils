@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 12/10/2006
-   updated: 18/02/2009 */
+   updated: 13/05/2009 */
 
 #ifndef SCENGINE_H
 #define SCENGINE_H
@@ -31,8 +31,12 @@
 #include <SCE/interface/SCENode.h>
 #include <SCE/interface/SCEBoundingBox.h>
 #include <SCE/interface/SCEFrustum.h>
-#include <SCE/interface/SCEMesh.h>
 #include <SCE/interface/SCEQuad.h>
+#include <SCE/interface/SCEMesh.h>
+#include <SCE/interface/SCEJoint.h>
+#include <SCE/interface/SCESkeleton.h>
+#include <SCE/interface/SCEAnimatedMesh.h>
+#include <SCE/interface/SCEAnimation.h>
 
 #include <SCE/interface/SCELight.h>
 #include <SCE/interface/SCECamera.h>
@@ -51,7 +55,6 @@ extern "C"
 #endif
 
 int SCE_Init (FILE*, SCEflags);
-
 void SCE_Quit (void);
 
 const char* SCE_GetVersionString (void);

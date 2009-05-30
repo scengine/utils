@@ -47,8 +47,6 @@ See the file ./doc/html/todo.html
 - Gestion des terrains.
 - Virer un max d'appels à glEnable/glDisable si c'est pour ne rien changer.
 - Textures atlases manager.
-- Mode de sélection rigoureux pour les instances d'entités pour les differents
-  modes de culling.
 - Créer une fonction de mise en état d'un mode propice au "double-speed z-pass".
 - Permettre de transformer dynamiquement les types des données de vertices
   via le gestionnaire de meshs (float -> short).
@@ -57,11 +55,13 @@ See the file ./doc/html/todo.html
 - Instaurer d'autres règles pour le changement d'entité d'une instance en plus
   du LOD (?).
 - API de shaders intégrée au moteur (noms similaires, uniforms définis, etc...).
-- Calculer le niveau de LOD en se basant sur une bounding sphere plutôt qu'une
-  bounding box (plus rapide).
 - Afficher un message d'erreur lorsque l'utilisateur tente de libérer (SCE_free)
   de la mémoire qui ne lui appartient pas.
 - Paramétrage des entités par le gestionnaire de scènes (doit-on utiliser les
   textures pour ce rendu ? etc.).
+- Improve MulCopy() functions: DONT duplicate all the matrix.
+- Modifier les attributs d'un octree peu visible après une requête d'occlusion.
+- Déplacer la définition de SCE_TANGENT et SCE_BINORMAL dans SCEMesh.[ch].
+- Vérifier les "media type id" lors des chargements de ressources.
 
-- 38
+- 40

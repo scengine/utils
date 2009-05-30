@@ -209,7 +209,7 @@ static void SCE_Camera_UpdateView (SCE_SCamera *cam)
 {
     SCE_TMatrix4 mat;
     SCE_Node_CopyFinalMatrix (cam->node, mat);
-    SCE_Matrix4_Inverse (mat);
+    SCE_Matrix4_InverseCopy (mat);
     SCE_Matrix4_Mul (cam->view, mat, cam->finalview);
 }
 
@@ -246,14 +246,10 @@ void SCE_Camera_Update (SCE_SCamera *cam)
 {
     SCE_Camera_UpdateFrustum (cam);
     SCE_Camera_UpdateViewProj (cam);
-    SCE_Matrix4_Copy (cam->finalviewinv, cam->finalview);
-    SCE_Matrix4_Copy (cam->viewinv, cam->view);
-    SCE_Matrix4_Copy (cam->projinv, cam->proj);
-    SCE_Matrix4_Copy (cam->finalviewprojinv, cam->finalviewproj);
-    SCE_Matrix4_Inverse (cam->finalviewinv);
-    SCE_Matrix4_Inverse (cam->viewinv);
-    SCE_Matrix4_Inverse (cam->projinv);
-    SCE_Matrix4_Inverse (cam->finalviewprojinv);
+    SCE_Matrix4_Inverse (cam->finalview, cam->finalviewinv);
+    SCE_Matrix4_Inverse (cam->view, cam->viewinv);
+    SCE_Matrix4_Inverse (cam->proj, cam->projinv);
+    SCE_Matrix4_Inverse (cam->finalviewproj, cam->finalviewprojinv);
 }
 
 /**

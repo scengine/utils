@@ -24,6 +24,11 @@ libSCE_la_SOURCES = SCEngine.c \
                     interface/SCESceneResource.c \
                     interface/SCEMaterial.c \
                     interface/SCENode.c \
+                    interface/SCEJoint.c \
+                    interface/SCESkeleton.c \
+                    interface/SCEAnimatedMesh.c \
+                    interface/SCEAnimation.c \
+                    interface/SCEMD5Loader.c \
                     interface/SCEBoundingSphere.c \
                     interface/libwar.c \
                     interface/lib4fm.c \

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-/* updated: 18/02/2008 */
+/* updated: 01/04/2009 */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -301,12 +301,15 @@ static void readinfos (FILE *fp, int *n_objs,
             }
             break;
 
+        case 'g':
         case 'o':
             (*n_objs)++;
         }
         if (c != '\n')
             jumpline (fp);
     } while (c != EOF);
+    if (*n_objs == 0)
+        (*n_objs) = 1;             /* prout */
 }
 
 /* lit la taille du tableau d'indices de l'objet selectionne

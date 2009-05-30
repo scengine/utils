@@ -49,7 +49,7 @@ void SCE_BoundingSphere_Init (SCE_SBoundingSphere *sphere)
     SCE_Vector3_Set (sphere->ocenter, 0.0, 0.0, 0.0);
 
     sphere->radius = sphere->oradius = 1.0;
-#if O
+#if 0
     SCE_Vector3_Set (sphere->x, sphere->radius, 0.0, 0.0);
     SCE_Vector3_Set (sphere->ox, sphere->radius, 0.0, 0.0);
     SCE_Vector3_Set (sphere->y, 0.0, sphere->radius, 0.0);
@@ -117,7 +117,7 @@ void SCE_BoundingSphere_Push (SCE_SBoundingSphere *sphere, SCE_TMatrix4 m)
         /* use it */
         sphere->radius *= highest;
         /* apply the matrix to the center vector */
-        SCE_Matrix4_MulV3 (m, sphere->center);
+        SCE_Matrix4_MulV3Copy (m, sphere->center);
         sphere->pushed = SCE_TRUE;
     }
 }

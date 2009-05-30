@@ -111,7 +111,7 @@ void SCE_Light_GetColorv (SCE_SLight *light, float *c)
 void SCE_Light_GetPositionv (SCE_SLight *light, float *pos)
 {
     SCE_Vector3_Set (pos, 0., 0., 0.);
-    SCE_Matrix4_MulV3 (SCE_Node_GetFinalMatrix (light->node), pos);
+    SCE_Matrix4_MulV3Copy (SCE_Node_GetFinalMatrix (light->node), pos);
 }
 
 void SCE_Light_GetDirectionv (SCE_SLight *light, float *dir)
@@ -119,7 +119,7 @@ void SCE_Light_GetDirectionv (SCE_SLight *light, float *dir)
     SCE_TMatrix3 mat;
     SCE_Vector3_Set (dir, 0., 0., -1.);
     SCE_Matrix3_CopyM4 (mat, SCE_Node_GetFinalMatrix (light->node));
-    SCE_Matrix3_MulV3 (mat, dir);
+    SCE_Matrix3_MulV3Copy (mat, dir);
 }
 
 void SCE_Light_Infinite (SCE_SLight *light, int inf)

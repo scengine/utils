@@ -28,9 +28,9 @@
 
 static int gen_indices = SCE_FALSE;
 
-void SCE_OBJ_ActivateIndicesGeneration (int actived)
+void SCE_OBJ_ActivateIndicesGeneration (int activated)
 {
-    gen_indices = actived;
+    gen_indices = activated;
 }
 
 void* SCE_OBJ_Load (FILE *fp, const char *fname, void *n_objs)
@@ -62,15 +62,15 @@ void* SCE_OBJ_Load (FILE *fp, const char *fname, void *n_objs)
     if (!me)
     {
         Logger_Log (-1);
-        Logger_LogMsg ("libwar can't load '%s' : %s", fname, war_geterror ());
+        Logger_LogMsg ("libwar can't load '%s': %s", fname, war_geterror ());
         SCE_btend ();
         return NULL;
     }
 
     SCE_OBJ_ASSERT (!(m = SCE_malloc ((*n_meshs + 1) * sizeof *m)))
-    m[*n_meshs] = NULL; /* valeur nulle finale */
+    m[*n_meshs] = NULL;
 
-    for (i=0; i<*n_meshs; i++)
+    for (i = 0; i < *n_meshs; i++)
     {
         SCE_OBJ_ASSERT (!(m[i] = SCE_Mesh_Create ()))
         SCE_OBJ_ASSERT (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_POSITION,
@@ -86,8 +86,6 @@ void* SCE_OBJ_Load (FILE *fp, const char *fname, void *n_objs)
                             me[i]->icount, me[i]->indices) < 0)
 
         SCE_Mesh_SetRenderMode (m[i], SCE_TRIANGLES);
-
-        SCE_Mesh_ActivateVB (m[i], 0, SCE_TRUE);
         SCE_OBJ_ASSERT (SCE_Mesh_Build (m[i]) < 0)
     }
 

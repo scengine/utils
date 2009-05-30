@@ -99,10 +99,10 @@ float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBoundingBox *box,
         /* project points */
         float *proj;
         proj = SCE_Camera_GetProj (cam);
-        SCE_Matrix4_MulV4 (proj, v[0]);
-        SCE_Matrix4_MulV4 (proj, v[1]);
-        SCE_Matrix4_MulV4 (proj, v[2]);
-        SCE_Matrix4_MulV4 (proj, v[3]);
+        SCE_Matrix4_MulV4Copy (proj, v[0]);
+        SCE_Matrix4_MulV4Copy (proj, v[1]);
+        SCE_Matrix4_MulV4Copy (proj, v[2]);
+        SCE_Matrix4_MulV4Copy (proj, v[3]);
     }
     {
         /* depth useless */

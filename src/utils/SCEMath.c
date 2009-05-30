@@ -16,11 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 22 decembre 2006
-   derniere modification le 22/09/2007 */
+/* created: 22/12/2006
+   updated: 22/09/2007 */
 
 #include <SCE/utils/SCEMath.h>
-
 
 /**
  * \file SCEMath.c
@@ -42,7 +41,6 @@
  */
 
 /** @{ */
-
 
 /**
  * \brief Computes the square root of the given number
@@ -99,22 +97,21 @@ float SCE_Math_InvSqrt (float number)
 }
 
 
-/* ajoute le 22/09/2007 */
 /**
- * \brief Power
+ * \brief Exponentiation by squaring
  * \param x a number
  * \param n the exposant
  * \returns x^n
  * 
  * This function computes the power of a number. This function do the same as
  * the C standard pow() function except that it works only with integers.
- * With integers, this function as the advantage of speed except with exposant
+ * With integers, this function has the advantage of speed except with exposant
  * 2.
  * 
  * \note For a x^2 computing, prefer use of the C standard pow() function that
  * is about 10 times faster.
  * 
- * \see pow()
+ * \sa pow()
  */
 int SCE_Math_Powi (int x, unsigned int n)
 {

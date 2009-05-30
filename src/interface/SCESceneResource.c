@@ -255,29 +255,3 @@ SCE_SList* SCE_SceneResource_GetOwnersList (SCE_SSceneResource *res)
 {
     return res->owners;
 }
-
-#if 0
-void
-Sound_SetListenerMatrix (SCE_TMatrix4 m)
-{
-    float data[6];              /* final data (sent to alListener()) */
-    SCE_TVector3 pos;           /* listener position */
-
-    /* save translation vector */
-    SCE_Matrix4_GetTranslation (m, pos);
-    /* delete translation */
-    m[3] = m[7] = m[11] = 0.0f;
-    /* initialize directionnal vectors */
-    SCE_Vector3_Set (&data[0], 0.0, 0.0, -1.0); /* & and [0] used for the example */
-    SCE_Vector3_Set (&data[3], 0.0, 1.0, 0.0);
-    /* project vectors into the _rotation_ matrix
-       (because translation was deleted) */
-    SCE_Matrix4_MulV3 (m, &data[0]); /* & and [0] used for the example */
-    SCE_Matrix4_MulV3 (m, &data[3]);
-    /* restores matrix translation */
-    m[3] = pos[0]; m[7] = pos[1]; m[11] = pos[3];
-    /* send data to openal */
-    alListenerfv (AL_ORIENTATION, data);
-    alListenerfv (AL_POSITION, pos);
-}
-#endif

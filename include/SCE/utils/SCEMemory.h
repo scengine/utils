@@ -84,19 +84,14 @@ void* SCE_Mem_Calloc (const char*, unsigned int, size_t, size_t);
 void* SCE_Mem_Realloc (const char*, unsigned int, void*, size_t);
 void SCE_Mem_Free (void*);
 
-/* duplique des donnees dans une nouvelle zone memoire */
 void* SCE_Mem_Dup (const void*, size_t);
 
-/* converti le type d'un groupe de donnees */
 void SCE_Mem_Convert (int, void*, int, const void*, size_t);
-/* idem, mais alloue de la memoire pour la destination */
 void* SCE_Mem_ConvertDup (int, int, const void*, size_t);
 
 #ifdef SCE_DEBUG
 int SCE_Mem_IsValid (void*);
-/* liste et affiche toutes les allocation non liberees */
 void SCE_Mem_List (void);
-/* retourne la taille d'une allocation */
 size_t SCE_Mem_GetSize (void*);
 const char* SCE_Mem_GetFile (void*);
 unsigned int SCE_Mem_GetLine (void*);

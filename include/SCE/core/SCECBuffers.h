@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 10 janvier 2007
-   derniere modification le 24/08/2008 */
+/* created: 10/01/2007
+   updated: 24/08/2008 */
 
 #ifndef SCECBUFFERS_H
 #define SCECBUFFERS_H
@@ -70,11 +70,7 @@ extern "C"
 
 typedef void (*SCE_FSetDeclaration)(void);
 
-/* declaration d'un type de sommet
-   divers information sur l'utilisation d'un tampon */
-/**
- * \copydoc sce_cvertexdeclaration
- */
+/** \copydoc sce_cvertexdeclaration */
 typedef struct sce_cvertexdeclaration SCE_CVertexDeclaration;
 /**
  * \brief A vertex declaration structure
@@ -94,11 +90,7 @@ struct sce_cvertexdeclaration
 };
 
 
-/* donnees tampon
-   enregistre une sequence de donnees pour le remplissage d'un tampon */
-/**
- * \copydoc sce_cbufferdata
- */
+/** \copydoc sce_cbufferdata */
 typedef struct sce_cbufferdata SCE_CBufferData;
 /**
  * \brief A buffer data structure
@@ -114,10 +106,7 @@ struct sce_cbufferdata
 };
 
 
-/* objet tampon de sommets opengl */
-/**
- * \copydoc sce_cvertexbuffer
- */
+/** \copydoc sce_cvertexbuffer */
 typedef struct sce_cvertexbuffer SCE_CVertexBuffer;
 /**
  * \brief A vertex buffer
@@ -135,10 +124,7 @@ struct sce_cvertexbuffer
 };
 
 
-/* objet tampon d'indices opengl */
-/**
- * \copydoc sce_cindexbuffer
- */
+/** \copydoc sce_cindexbuffer */
 typedef struct sce_cindexbuffer SCE_CIndexBuffer;
 /**
  * \brief An index buffer
@@ -152,10 +138,8 @@ struct sce_cindexbuffer
     void *mapptr;    /**< pointer to the mapped buffer's data */
 };
 
-/* initialise le gestionnaire */
 int SCE_CBufferInit (void);
 
-/* defini le buffer actif */
 void SCE_CBindVertexBuffer (SCE_CVertexBuffer*);
 void SCE_CBindIndexBuffer (SCE_CIndexBuffer*);
 
@@ -170,97 +154,61 @@ void SCE_CInitBufferData (SCE_CBufferData*);
 SCE_CBufferData* SCE_CCreateBufferData (void);
 void SCE_CDeleteBufferData (void*);
 
-/* cree un tampon de sommets */
 SCE_CVertexBuffer* SCE_CCreateVertexBuffer (void);
-/* cree un tampon d'indices */
 SCE_CIndexBuffer* SCE_CCreateIndexBuffer (void);
 
-/* supprime un tampon de sommets */
 void SCE_CDeleteVertexBuffer (SCE_CVertexBuffer*);
 void SCE_CDeleteVertexBuffer_ (void);
-/* supprime un tampon d'indices */
 void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer*);
 void SCE_CDeleteIndexBuffer_ (void);
 
-/* vide les buffers de leurs donnees */
 void SCE_CClearVertexBuffer (SCE_CVertexBuffer*);
 void SCE_CClearVertexBuffer_ (void);
 void SCE_CClearIndexBuffer (SCE_CIndexBuffer*);
 void SCE_CClearIndexBuffer_ (void);
 
-/* envoie des donnees a un tampon de sommets */
 int SCE_CAddVertexBufferData (SCE_CVertexBuffer*, size_t, void*);
 int SCE_CAddVertexBufferData_ (size_t, void*);
-/* idem, mais duplique les donnees */
 int SCE_CAddVertexBufferDataDup (SCE_CVertexBuffer*, size_t, void*);
 int SCE_CAddVertexBufferDataDup_ (size_t, void*);
 
-/* envoie des donnees a un tampon d'indices */
 int SCE_CAddIndexBufferData (SCE_CIndexBuffer*, size_t, void*);
 int SCE_CAddIndexBufferData_ (size_t, void*);
-/* idem, mais duplique les donnees */
 int SCE_CAddIndexBufferDataDup (SCE_CIndexBuffer*, size_t, void*);
 int SCE_CAddIndexBufferDataDup_ (size_t, void*);
 
-/* renvoie la taille additionnee de toutes
-   les donnees stockees dans le tampon de sommets.
-   cette taille est egale au premier emplacement
-   disponible pour stocker des donnees dans le tampon */
 size_t SCE_CGetVertexBufferFirst (SCE_CVertexBuffer*);
 
-/* active/desactive un type de buffer */
 void SCE_CActiveBufferType (SCEenum, int);
 void SCE_CEnableBufferType (SCEenum);
 void SCE_CDisableBufferType (SCEenum);
 
-/* assigne le pointeur de fonction a la declaration */
 void SCE_CBuildVertexDeclaration (SCE_CVertexDeclaration*);
 
-/* envoie des declarations de vertex a un tampon de sommets */
 int SCE_CAddVertexDeclaration (SCE_CVertexBuffer*, SCE_CVertexDeclaration*);
 int SCE_CAddVertexDeclaration_ (SCE_CVertexDeclaration*);
-/* idem, mais duplique la structure */
 int SCE_CAddVertexDeclarationDup (SCE_CVertexBuffer*, SCE_CVertexDeclaration*);
 int SCE_CAddVertexDeclarationDup_ (SCE_CVertexDeclaration*);
 
-/* construit un tampon de sommets, envoie les donnees a opengl */
 void SCE_CBuildVertexBuffer (SCE_CVertexBuffer*, SCEenum);
 void SCE_CBuildVertexBuffer_ (SCEenum);
-/* construit un tampon d'indices, envoie les donnees a opengl */
 void SCE_CBuildIndexBuffer (SCE_CIndexBuffer*, SCEenum);
 void SCE_CBuildIndexBuffer_ (SCEenum);
 
 
-/* verouille un tampon de sommets */
 void SCE_CLockVertexBuffer (SCE_CVertexBuffer*, SCEenum);
-/* deverouille un tampon de sommets */
 void SCE_CUnlockVertexBuffer (SCE_CVertexBuffer*);
 
-/* verouille un tampon de d'indices */
 void SCE_CLockIndexBuffer (SCE_CIndexBuffer*, SCEenum);
-/* deverouille un tampon de sommets */
 void SCE_CUnlockIndexBuffer (SCE_CIndexBuffer*);
 
-/* met a jour les donnees contenues dans un tampon de sommets */
 void SCE_CUpdateVertexBuffer (SCE_CVertexBuffer*);
-/* met a jour les donnes contenues dans un tampon d'indices */
 void SCE_CUpdateIndexBuffer (SCE_CIndexBuffer*);
 
-
-/* selectionne un tampon de sommets
-   et le defini comme tampon de sommets actif pour le rendu */
 void SCE_CUseVertexBuffer (SCE_CVertexBuffer*);
-
-/* selectionne un tampon d'indices
-   et le defini comme tampon d'indices actif a utiliser pour le rendu */
 void SCE_CUseIndexBuffer (SCE_CIndexBuffer*);
 
-
-/* dessine le(s) tampon(s) actif(s) selectionnes pour le rendu */
 void SCE_CDrawBuffer (SCEenum, GLint, GLsizei);
-
-/* dessine le(s) tampon(s) actif(s) selectionnes pour le rendu 
-   en utilisant le tampon actif d'indices*/
 void SCE_CDrawIndexedBuffer (SCEenum, SCEenum, size_t, GLsizei);
 
 #ifdef __cplusplus

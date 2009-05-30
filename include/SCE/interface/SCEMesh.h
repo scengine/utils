@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 22/01/2009 */
+   updated: 10/04/2009 */
 
 #ifndef SCEMESH_H
 #define SCEMESH_H
@@ -38,21 +38,22 @@ extern "C"
  * @{
  */
 
-/* types de vertices pouvant etre generes (AddGenVertices()) */
-#define SCE_GEN_TANGENTS 0x00000001
-#define SCE_GEN_BINORMALS 0x00000002
-#define SCE_GEN_NORMALS 0x00000004
+#define SCE_TANGENT SCE_TEXCOORD1
+#define SCE_BINORMAL SCE_TEXCOORD2
 
-/* types de tri */
+#define SCE_GEN_TANGENTS (0x00000001)
+#define SCE_GEN_BINORMALS (0x00000002)
+#define SCE_GEN_NORMALS (0x00000004)
+
 #define SCE_MESH_SORT_NEAR_TO_FAR 1
 #define SCE_MESH_SORT_FAR_TO_NEAR 2
 
 
-/* type des vecteurs des sommets */
+/* vertices type */
 typedef GLfloat SCEvertices;
 #define SCE_VERTICES_TYPE SCE_FLOAT
 
-/* type des indices */
+/* indices type */
 typedef GLushort SCEindices;
 #define SCE_INDICES_TYPE SCE_UNSIGNED_SHORT
 
@@ -82,8 +83,8 @@ struct sce_smeshvertexbuffer
     SCE_CVertexBuffer *buffer;  /**< The vertex buffer */
     SCE_SList *data;            /**< List of the \c buffer data, contains
                                  * SCE_SMeshVertexData structures */
-    int active;                 /**< Is buffer actived? */
-    int builded;                /**< Is buffer builded? */
+    int active;                 /**< Is buffer activated? */
+    int built;                  /**< Is buffer built? */
 };
 
 /** \copydoc sce_smeshindexbuffer */
@@ -100,7 +101,7 @@ struct sce_smeshindexbuffer
     void *data;               /**< Data */
     int canfree;              /**< Do we have right to delete \c data? */
     size_t size;              /**< Size of \c data in bytes */
-    int builded;              /**< Is buffer builded? */
+    int built;                /**< Is buffer built? */
 };
 
 
@@ -122,10 +123,12 @@ struct sce_smesh
 
     SCEenum polygon_type;    /**< Polygons type (triangle, quad, ...) */
 
-    int builded;             /**< Is mesh builded? */
+    int built;               /**< Is mesh built? */
 
-    SCEvertices *pos,        /**< Pointer to the vertices positions */
-                *nor;        /**< Pointer to the vertices normals */
+    SCEvertices *position;   /**< Pointer to the vertices positions */
+    SCEvertices *normal;     /**< Pointer to the vertices normals */
+    SCEvertices *tangent;    /**< Pointer to the vertices normals */
+    SCEvertices *binormal;   /**< Pointer to the vertices normals */
 
     SCE_SList *sortedfaces;  /**< Sorted list that stores all the faces from
                               * its indices */
@@ -178,8 +181,10 @@ void SCE_Mesh_ActivateIB (SCE_SMesh*, int);
 
 SCE_SMeshVertexData* SCE_Mesh_LocateData (SCE_SMesh*, int,
                                           SCE_SMeshVertexBuffer**);
-void* SCE_Mesh_GetVerticesPositions (SCE_SMesh*);
-void* SCE_Mesh_GetVerticesNormals (SCE_SMesh*);
+SCEvertices* SCE_Mesh_GetVerticesPositions (SCE_SMesh*);
+SCEvertices* SCE_Mesh_GetVerticesNormals (SCE_SMesh*);
+SCEvertices* SCE_Mesh_GetVerticesTangents (SCE_SMesh*);
+SCEvertices* SCE_Mesh_GetVerticesBinormals (SCE_SMesh*);
 
 int SCE_Mesh_AddVertices (SCE_SMesh*, unsigned int, int, SCEenum,
                           unsigned int, unsigned int, void*, int);
@@ -207,7 +212,7 @@ int SCE_Mesh_ComputeTBN (SCEenum, SCEvertices*, SCEvertices*, SCEindices*,
 int SCE_Mesh_GenerateTBN (SCE_SMesh*, SCEvertices*, SCEvertices*, SCEvertices*,
                           unsigned int);
 
-int SCE_Mesh_AddGenVertices (SCE_SMesh*, SCEuint, SCEenum, SCEuint, SCEuint);
+int SCE_Mesh_AddGenVertices (SCE_SMesh*, SCEuint, SCEenum, SCEuint);
 
 void SCE_Mesh_ComputeBoundingBox (SCEvertices*, unsigned int,
                                   SCE_TVector3, float*, float*, float*);
@@ -246,7 +251,6 @@ SCE_SMesh** SCE_Mesh_Load (const char*, int*);
 void SCE_Mesh_Use (SCE_SMesh*);
 void SCE_Mesh_Draw (void);
 void SCE_Mesh_Render (SCE_SMesh*);
-void SCE_Mesh_RenderList (SCE_SMesh**, unsigned int, unsigned int);
 
 #ifdef __cplusplus
 } /* extern "C" */

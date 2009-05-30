@@ -17,13 +17,16 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 12/10/2006
-   updated: 13/02/2009 */
+   updated: 13/05/2009 */
 
 #include <config.h>
 #include <SCE/SCEngine.h>
 
 /**
  * \defgroup SCEngine
+ *
+ * SCEngine is a free and open-source 3D real time rendering engine written
+ * in the C language
  */
 
 /** @{ */
@@ -44,6 +47,7 @@
  */
 int SCE_Init (FILE *outlog, SCEflags flags)
 {
+    int code = SCE_OK;
     SCE_btstart ();
     if (SCE_Init_Utils (outlog) < 0)
     {
@@ -54,54 +58,56 @@ int SCE_Init (FILE *outlog, SCEflags flags)
     if (SCE_CInit (flags) < 0)
     {
         Logger_LogFinish ("can't initialize core!");
-        SCE_btend ();
-        return SCE_ERROR;
+        goto failure;
     }
 
     if (SCE_Init_Texture () < 0)
     {
-        SCE_Quit ();
         Logger_LogFinish ("can't initialize textures manager");
-        SCE_btend ();
-        return SCE_ERROR;
+        goto failure;
     }
     if (SCE_Init_Shader () < 0)
     {
-        SCE_Quit ();
         Logger_LogFinish ("can't initialize shaders manager");
-        SCE_btend ();
-        return SCE_ERROR;
+        goto failure;
     }
     if (SCE_Init_Mesh () < 0)
     {
-        SCE_Quit ();
         Logger_LogFinish ("can't initialize meshs manager");
-        SCE_btend ();
-        return SCE_ERROR;
+        goto failure;
+    }
+    if (SCE_Init_AnimMesh () < 0)
+    {
+        Logger_LogFinish ("can't initialize animated meshs manager");
+        goto failure;
+    }
+    if (SCE_Init_Anim () < 0)
+    {
+        Logger_LogFinish ("can't initialize animations manager");
+        goto failure;
     }
     if (SCE_Init_State () < 0)
     {
-        SCE_Quit ();
         Logger_LogFinish ("can't initialize states manager");
-        SCE_btend ();
-        return SCE_ERROR;
+        goto failure;
     }
     if (SCE_Init_Quad () < 0)
     {
-        SCE_Quit ();
         Logger_LogFinish ("can't initialize quads manager");
-        SCE_btend ();
-        return SCE_ERROR;
+        goto failure;
     }
     if (SCE_Init_Scene () < 0)
     {
-        SCE_Quit ();
         Logger_LogFinish ("can't initialize scenes manager");
-        SCE_btend ();
-        return SCE_ERROR;
+        goto failure;
     }
+    goto success;
+failure:
+    SCE_Quit ();
+    code = SCE_ERROR;
+success:
     SCE_btend ();
-    return SCE_OK;
+    return code;
 }
 
 /**
@@ -115,6 +121,8 @@ void SCE_Quit (void)
     SCE_Quit_Scene ();
     SCE_Quit_Quad ();
     SCE_Quit_State ();
+    SCE_Quit_Anim ();
+    SCE_Quit_AnimMesh ();
     SCE_Quit_Mesh ();
     SCE_Quit_Shader ();
     SCE_Quit_Texture ();

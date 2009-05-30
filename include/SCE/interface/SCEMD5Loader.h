@@ -15,21 +15,23 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
- 
-/* created: 08/07/2007
-   updated: 07/03/2008 */
 
-#ifndef SCEOBJLOADER_H
-#define SCEOBJLOADER_H
+/* created: 10/04/2009
+   updated: 13/05/2009 */
+
+#ifndef SCEMD5LOADER_H
+#define SCEMD5LOADER_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-void SCE_OBJ_ActivateIndicesGeneration (int);
+#define SCE_MD5MESH_FILE_EXTENSION "md5mesh"
+#define SCE_MD5ANIM_FILE_EXTENSION "md5anim"
 
-void* SCE_OBJ_Load (FILE*, const char*, void*);
+void* SCE_idTechMD5_LoadMesh (FILE*, const char*, void*);
+void* SCE_idTechMD5_LoadAnim (FILE*, const char*, void*);
 
 #ifdef __cplusplus
 } /* extern "C" */

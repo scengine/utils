@@ -16,10 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 10 janvier 2007
-   derniere modification le 23/08/2008 */
+/* created: 10/01/2007
+   updated: 23/08/2008 */
 
-#include <string.h> /* pas la peine de le prendre de utils... a moins que ? */
+#include <string.h>
 
 #include <SCE/SCEMinimal.h>
 
@@ -35,7 +35,7 @@
  */
 
 /**
- * \defgroup corebuffers VBOs and IBOs managment
+ * \defgroup corebuffers VBOs and IBOs
  * \ingroup core
  * \internal
  * \brief Manage and draw buffers which contains mesh informations
@@ -43,30 +43,19 @@
 
 /** @{ */
 
-
-/* constantes internes */
 #define SCE_BUFFER_OFFSET(p) ((char*)NULL + (p))
 
+static SCE_CVertexBuffer *vb_bound = NULL;
+static SCE_CIndexBuffer *ib_bound = NULL;
 
-/* ajoute le 09/10/2007 */
-static SCE_CVertexBuffer *vb_binded = NULL;
-
-/* ajoute le 09/10/2007 */
-static SCE_CIndexBuffer *ib_binded = NULL;
-
-/* ajoute le 09/10/2007 */
-/* utilise dans UseVertexBuffer */
 static SCE_CVertexDeclaration *dec_ = NULL;
 
-/* ajoute le 01/03/2008 */
-/* types de buffers actives (tous par defaut) */
 static int enabled[SCE_TEXCOORD7 + 32]; /* TODO: on ajoute un peu au pif § */
 
 
-/* ajoute le 01/03/2008 */
 /**
  * \brief Initializes the buffers manager
- * \returns the success of the initialisation (always SCE_OK for now)
+ * \returns always SCE_OK for now
  */
 int SCE_CBufferInit (void)
 {
@@ -76,21 +65,17 @@ int SCE_CBufferInit (void)
     return SCE_OK;
 }
 
-/* ajoute le 09/10/2007 */
 void SCE_CBindVertexBuffer (SCE_CVertexBuffer *vb)
 {
-    vb_binded = vb;
+    vb_bound = vb;
 }
 
-/* ajoute le 09/10/2007 */
 void SCE_CBindIndexBuffer (SCE_CIndexBuffer *ib)
 {
-    ib_binded = ib;
+    ib_bound = ib;
 }
 
 
-/* ajoute le 09/10/2007 */
-/* revise le 28/10/2007 */
 /**
  * \brief Initializes a vertex declaration structure
  */
@@ -105,7 +90,6 @@ void SCE_CInitVertexDeclaration (SCE_CVertexDeclaration *d)
     d->stride = 0;
     d->user = SCE_TRUE;
 }
-/* ajoute le 14/10/2007 */
 /**
  * \brief Creates a new vertex declaration structure
  * \returns a pointer to the newly allocated structure, or NULL on error
@@ -119,7 +103,6 @@ SCE_CVertexDeclaration* SCE_CCreateVertexDeclaration (void)
         Logger_LogSrc ();
     return dec;
 }
-/* ajoute le 16/10/2007 */
 /**
  * \brief Deletes a vertex declaration structure
  */
@@ -129,8 +112,6 @@ void SCE_CDeleteVertexDeclaration (void *d)
         SCE_free (d);
 }
 
-/* ajoute le 09/10/2007 */
-/* revise le 16/10/207 */
 /**
  * \brief Initializes a buffer data structure
  */
@@ -141,7 +122,6 @@ void SCE_CInitBufferData (SCE_CBufferData *d)
     d->first = 0;
     d->user = SCE_TRUE;
 }
-/* ajoute le 16/10/2007 */
 /**
  * \brief Creates a new buffer data structure
  * \returns a pointer to the newly allocated structure, or NULL on error
@@ -155,7 +135,6 @@ SCE_CBufferData* SCE_CCreateBufferData (void)
         SCE_CInitBufferData (d);
     return d;
 }
-/* revise le 16/10/2007 */
 /**
  * \brief Deletes a buffer data structure
  */
@@ -172,8 +151,6 @@ void SCE_CDeleteBufferData (void *d)
     SCE_btend ();
 }
 
-/* ajoute le 09/10/2007 */
-/* revise le 16/10/2007 */
 /**
  * \brief Initializes a vertex buffer structure
  * \param vb structure to initialize
@@ -186,8 +163,6 @@ void SCE_CInitVertexBuffer (SCE_CVertexBuffer *vb)
     vb->decs = NULL;
 }
 
-/* ajoute le 09/10/2007 */
-/* revise le 16/10/2007 */
 /**
  * \brief Initializes an index buffer structure
  * \param ib structure to initialize
@@ -200,7 +175,6 @@ void SCE_CInitIndexBuffer (SCE_CIndexBuffer *ib)
 }
 
 
-/* revise le 16/10/2007 */
 /**
  * \brief Creates a new vertex buffer
  * \returns the pointer to the new vertex buffer
@@ -236,7 +210,6 @@ SCE_CVertexBuffer* SCE_CCreateVertexBuffer (void)
     return vb;
 }
 
-/* revise le 16/10/2007 */
 /**
  * \brief Creates an index buffer
  * \returns the pointer to the new index buffer
@@ -266,28 +239,28 @@ SCE_CIndexBuffer* SCE_CCreateIndexBuffer (void)
 
 
 #define SCE_CDEFAULTVBFUNC(action)\
-SCE_CVertexBuffer *back = vb_binded;\
+SCE_CVertexBuffer *back = vb_bound;\
 SCE_CBindVertexBuffer (vb);\
 action;\
 SCE_CBindVertexBuffer (back);
 
 #define SCE_CDEFAULTVBFUNCR(t, action)\
 t r;\
-SCE_CVertexBuffer *back = vb_binded;\
+SCE_CVertexBuffer *back = vb_bound;\
 SCE_CBindVertexBuffer (vb);\
 r = action;\
 SCE_CBindVertexBuffer (back);\
 return r;
 
 #define SCE_CDEFAULTIBFUNC(action)\
-SCE_CIndexBuffer *back = ib_binded;\
+SCE_CIndexBuffer *back = ib_bound;\
 SCE_CBindIndexBuffer (ib);\
 action;\
 SCE_CBindIndexBuffer (back);
 
 #define SCE_CDEFAULTIBFUNCR(t, action)\
 t r;\
-SCE_CIndexBuffer *back = ib_binded;\
+SCE_CIndexBuffer *back = ib_bound;\
 SCE_CBindIndexBuffer (ib);\
 r = action;\
 SCE_CBindIndexBuffer (back);\
@@ -305,16 +278,16 @@ void SCE_CDeleteVertexBuffer (SCE_CVertexBuffer *vb)
 void SCE_CDeleteVertexBuffer_ (void)
 {
     SCE_btstart ();
-    if (vb_binded)
+    if (vb_bound)
     {
-        glDeleteBuffersARB (1, &vb_binded->id);
+        glDeleteBuffersARB (1, &vb_bound->id);
 
         SCE_CClearVertexBuffer_ ();
-        SCE_List_Delete (vb_binded->decs);
-        SCE_List_Delete (vb_binded->data);
+        SCE_List_Delete (vb_bound->decs);
+        SCE_List_Delete (vb_bound->data);
 
-        SCE_free (vb_binded);
-        vb_binded = NULL;
+        SCE_free (vb_bound);
+        vb_bound = NULL;
     }
     SCE_btend ();
 }
@@ -330,18 +303,17 @@ void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer *ib)
 void SCE_CDeleteIndexBuffer_ (void)
 {
     SCE_btstart ();
-    if (ib_binded)
+    if (ib_bound)
     {
-        glDeleteBuffersARB (1, &ib_binded->id);
-        SCE_List_Delete (ib_binded->data);
-        SCE_free (ib_binded);
-        ib_binded = NULL;
+        glDeleteBuffersARB (1, &ib_bound->id);
+        SCE_List_Delete (ib_bound->data);
+        SCE_free (ib_bound);
+        ib_bound = NULL;
     }
     SCE_btend ();
 }
 
 
-/* ajoute le 06/01/2008 */
 /**
  * \brief Clears a vertex buffer
  * \param vb vertex buffer to clear
@@ -355,27 +327,25 @@ void SCE_CClearVertexBuffer (SCE_CVertexBuffer *vb)
 {
     SCE_CDEFAULTVBFUNC (SCE_CClearVertexBuffer_ ())
 }
-/* ajoute le 06/01/2008 */
 void SCE_CClearVertexBuffer_ (void)
 {
     SCE_CVertexDeclaration *dec = NULL;
     SCE_SListIterator *i = NULL;
 
     SCE_btstart ();
-    vb_binded->size = 0;
-    SCE_List_ForEach (i, vb_binded->decs)
+    vb_bound->size = 0;
+    SCE_List_ForEach (i, vb_bound->decs)
     {
         dec = SCE_List_GetData (i);
         /* si cette declaration n'est pas a l'utilisateur */
         if (!dec->user)
             SCE_CDeleteVertexDeclaration (dec); /* on peut la supprimer */
     }
-    SCE_List_Clear (vb_binded->decs);
-    SCE_List_Clear (vb_binded->data);
+    SCE_List_Clear (vb_bound->decs);
+    SCE_List_Clear (vb_bound->data);
     SCE_btend ();
 }
 
-/* ajoute le 06/01/2008 */
 /**
  * \brief Clears an index buffer
  * \param ib index buffer to clear
@@ -390,17 +360,15 @@ void SCE_CClearIndexBuffer (SCE_CIndexBuffer *ib)
     ib->size = 0;
     SCE_btend ();
 }
-/* ajoute le 06/01/2008 */
 void SCE_CClearIndexBuffer_ (void)
 {
     SCE_btstart ();
-    SCE_List_Clear (ib_binded->data);
-    ib_binded->size = 0;
+    SCE_List_Clear (ib_bound->data);
+    ib_bound->size = 0;
     SCE_btend ();
 }
 
 
-/* ajoute le 09/10/2007 */
 /**
  * \brief Adds new data for the given vertex buffer
  * \param data_size the size of \p data in bytes
@@ -414,7 +382,6 @@ int SCE_CAddVertexBufferData (SCE_CVertexBuffer *vb,
 {
     SCE_CDEFAULTVBFUNCR (int, SCE_CAddVertexBufferData_ (data_size, data))
 }
-/* revise le 16/10/2007 */
 int SCE_CAddVertexBufferData_ (size_t data_size, void *data)
 {
     SCE_btstart ();
@@ -427,7 +394,7 @@ int SCE_CAddVertexBufferData_ (size_t data_size, void *data)
             SCE_btend ();
             return SCE_ERROR;
         }
-        if (SCE_List_PrependNewl (vb_binded->data, d) < 0)
+        if (SCE_List_PrependNewl (vb_bound->data, d) < 0)
         {
             SCE_CDeleteBufferData (d);
             Logger_LogSrc ();
@@ -438,16 +405,15 @@ int SCE_CAddVertexBufferData_ (size_t data_size, void *data)
         /* affectation */
         d->data_size = data_size;
         d->data = data;
-        d->first = vb_binded->size;
+        d->first = vb_bound->size;
 
         /* par addition cumulative, pour empiler les donnees dans le buffer */
-        vb_binded->size += data_size;
+        vb_bound->size += data_size;
     }
 
     SCE_btend ();
     return SCE_OK;
 }
-/* ajoute le 09/10/2007 */
 /**
  * \brief Duplicates and adds new data to a vertex buffer
  * \returns SCE_OK on success or SCE_ERROR otherwise
@@ -458,8 +424,6 @@ int SCE_CAddVertexBufferDataDup (SCE_CVertexBuffer *vb,
 {
     SCE_CDEFAULTVBFUNCR (int, SCE_CAddVertexBufferDataDup_ (data_size, data))
 }
-/* ajoute le 09/10/2007 */
-/* revise le 16/10/2007 */
 int SCE_CAddVertexBufferDataDup_ (size_t data_size, void *data)
 {
     SCE_btstart ();
@@ -480,14 +444,13 @@ int SCE_CAddVertexBufferDataDup_ (size_t data_size, void *data)
             return SCE_ERROR;
         }
         /* les donnees ne sont _pas_ a l'utilisateur */
-        d = SCE_List_GetData (SCE_List_GetLast (vb_binded->data));
+        d = SCE_List_GetData (SCE_List_GetLast (vb_bound->data));
         d->user = SCE_FALSE;
     }
     SCE_btend ();
     return SCE_OK;
 }
 
-/* ajoute le 09/10/2007 */
 /**
  * \brief Adds new data for the given index buffer
  * \param data_size the size of \p data in bytes
@@ -500,7 +463,6 @@ int SCE_CAddIndexBufferData (SCE_CIndexBuffer *ib, size_t data_size, void *data)
 {
     SCE_CDEFAULTIBFUNCR (int, SCE_CAddIndexBufferData_ (data_size, data))
 }
-/* revise le 16/10/2007 */
 int SCE_CAddIndexBufferData_ (size_t data_size, void *data)
 {
     SCE_btstart ();
@@ -513,7 +475,7 @@ int SCE_CAddIndexBufferData_ (size_t data_size, void *data)
             SCE_btend ();
             return SCE_ERROR;
         }
-        if (SCE_List_PrependNewl (ib_binded->data, d) < 0)
+        if (SCE_List_PrependNewl (ib_bound->data, d) < 0)
         {
             SCE_CDeleteBufferData (d);
             Logger_LogSrc ();
@@ -524,16 +486,15 @@ int SCE_CAddIndexBufferData_ (size_t data_size, void *data)
         /* affectation */
         d->data_size = data_size;
         d->data = data;
-        d->first = ib_binded->size;
+        d->first = ib_bound->size;
 
         /* par addition cumulative, pour empiler les donnes dans le buffer */
-        ib_binded->size += data_size;
+        ib_bound->size += data_size;
     }
 
     SCE_btend ();
     return SCE_OK;
 }
-/* ajoute le 09/10/2007 */
 /**
  * \brief Duplicates and adds new data to an index buffer
  * \returns SCE_OK on success or SCE_ERROR otherwise
@@ -544,8 +505,6 @@ int SCE_CAddIndexBufferDataDup (SCE_CIndexBuffer *ib,
 {
     SCE_CDEFAULTIBFUNCR (int, SCE_CAddIndexBufferDataDup_ (data_size, data))
 }
-/* ajoute le 09/10/2007 */
-/* revise le 16/10/2007 */
 int SCE_CAddIndexBufferDataDup_ (size_t data_size, void *data)
 {
     SCE_CBufferData *d = NULL;
@@ -566,7 +525,7 @@ int SCE_CAddIndexBufferDataDup_ (size_t data_size, void *data)
         return SCE_ERROR;
     }
     /* les donnees ne sont _pas_ a l'utilisateur */
-    d = SCE_List_GetData (SCE_List_GetLast (ib_binded->data));
+    d = SCE_List_GetData (SCE_List_GetLast (ib_bound->data));
     d->user = SCE_FALSE;
     SCE_btend ();
     return SCE_OK;
@@ -585,7 +544,6 @@ size_t SCE_CGetVertexBufferFirst (SCE_CVertexBuffer *vb)
     return 0;
 }
 
-/* ajoute le 01/03/2008 */
 void SCE_CActivateBufferType (SCEenum type, int active)
 {
     enabled[type-SCE_COLOR] = active;
@@ -605,14 +563,12 @@ void SCE_CDisableBufferType (SCEenum type)
     enabled[type-SCE_COLOR] = SCE_FALSE;
 }
 
-/* ajoute le 09/10/2007 */
 static void SCE_CPositionBufferFunc (void)
 {
     glEnableClientState (GL_VERTEX_ARRAY);
     glVertexPointer (dec_->size, dec_->type, dec_->stride,
                      SCE_BUFFER_OFFSET (dec_->first));
 }
-/* ajoute le 09/10/2007 */
 static void SCE_CNormalBufferFunc (void)
 {
     if (enabled[SCE_NORMAL-SCE_COLOR])
@@ -622,7 +578,6 @@ static void SCE_CNormalBufferFunc (void)
                          SCE_BUFFER_OFFSET (dec_->first));
     }
 }
-/* ajoute le 09/10/2007 */
 static void SCE_CColorBufferFunc (void)
 {
     if (enabled[0/*SCE_COLOR-SCE_COLOR*/])
@@ -632,7 +587,6 @@ static void SCE_CColorBufferFunc (void)
                         SCE_BUFFER_OFFSET (dec_->first));
     }
 }
-/* ajoute le 09/10/2007 */
 static void SCE_CTexcoordBufferFunc (void)
 {
     if (enabled[SCE_TEXCOORD0+dec_->attrib-SCE_COLOR])
@@ -643,7 +597,6 @@ static void SCE_CTexcoordBufferFunc (void)
                            SCE_BUFFER_OFFSET(dec_->first));
     }
 }
-/* ajoute le 09/10/2007 */
 static void SCE_CAttribBufferFunc (void)
 {
     int attrib = dec_->attrib - SCE_ATTRIB0;
@@ -666,7 +619,6 @@ static void SCE_CAttribBufferFunc (void)
                            SCE_BUFFER_OFFSET (dec_->first));
 }
 
-/* ajoute le 16/10/2007 */
 /**
  * \brief Builds a vertex declaration
  * \param dec the vertex declaration
@@ -690,7 +642,6 @@ void SCE_CBuildVertexDeclaration (SCE_CVertexDeclaration *dec)
     SCE_btend ();
 }
 
-/* ajoute le 10/10/2007 */
 /**
  * \brief Adds a vertex declaration to a vertex buffer
  * \param vb the vertex buffer
@@ -702,13 +653,12 @@ int SCE_CAddVertexDeclaration (SCE_CVertexBuffer *vb,
 {
     SCE_CDEFAULTVBFUNCR (int, SCE_CAddVertexDeclaration_ (dec))
 }
-/* revise le 16/10/2007 */
 int SCE_CAddVertexDeclaration_ (SCE_CVertexDeclaration *dec)
 {
     SCE_btstart ();
     if (dec)
     {
-        if (SCE_List_PrependNewl (vb_binded->decs, dec) < 0)
+        if (SCE_List_PrependNewl (vb_bound->decs, dec) < 0)
         {
             Logger_LogSrc ();
             SCE_btend ();
@@ -720,7 +670,6 @@ int SCE_CAddVertexDeclaration_ (SCE_CVertexDeclaration *dec)
     return SCE_OK;
 }
 
-/* ajoute le 10/10/2007 */
 /**
  * \brief Duplicates and adds a vertex declaration to a vertex buffer
  * \param vb the vertex buffer
@@ -732,7 +681,6 @@ int SCE_CAddVertexDeclarationDup (SCE_CVertexBuffer *vb,
 {
     SCE_CDEFAULTVBFUNCR (int, SCE_CAddVertexDeclarationDup_ (dec))
 }
-/* ajoute le 10/10/2007 */
 int SCE_CAddVertexDeclarationDup_ (SCE_CVertexDeclaration *dec)
 {
     SCE_CVertexDeclaration *new = NULL;
@@ -750,7 +698,6 @@ int SCE_CAddVertexDeclarationDup_ (SCE_CVertexDeclaration *dec)
 }
 
 
-/* ajoute le 09/10/2007 */
 /**
  * \brief Builds a vertex buffer
  * \param vb the vertex buffer to build
@@ -760,17 +707,16 @@ void SCE_CBuildVertexBuffer (SCE_CVertexBuffer *vb, SCEenum usage)
 {
     SCE_CDEFAULTVBFUNC (SCE_CBuildVertexBuffer_ (usage))
 }
-/* revise le 16/10/2007 */
 void SCE_CBuildVertexBuffer_ (SCEenum usage)
 {
     SCE_SListIterator *i = NULL;
     SCE_CBufferData *d = NULL;
 
     SCE_btstart ();
-    glBindBufferARB (GL_ARRAY_BUFFER, vb_binded->id);
-    glBufferDataARB (GL_ARRAY_BUFFER, vb_binded->size, NULL, usage);
+    glBindBufferARB (GL_ARRAY_BUFFER, vb_bound->id);
+    glBufferDataARB (GL_ARRAY_BUFFER, vb_bound->size, NULL, usage);
 
-    SCE_List_ForEach (i, vb_binded->data)
+    SCE_List_ForEach (i, vb_bound->data)
     {
         d = SCE_List_GetData (i);
         glBufferSubDataARB (GL_ARRAY_BUFFER, d->first, d->data_size, d->data);
@@ -779,7 +725,6 @@ void SCE_CBuildVertexBuffer_ (SCEenum usage)
 }
 
 
-/* ajoute le 09/10/2007 */
 /**
  * \brief Builds an index buffer
  * \param vb the index buffer to build
@@ -789,17 +734,16 @@ void SCE_CBuildIndexBuffer (SCE_CIndexBuffer *ib, SCEenum usage)
 {
     SCE_CDEFAULTIBFUNC (SCE_CBuildIndexBuffer_ (usage))
 }
-/* revise le 09/10/2007 */
 void SCE_CBuildIndexBuffer_ (SCEenum usage)
 {
     SCE_SListIterator *i = NULL;
     SCE_CBufferData *d = NULL;
 
     SCE_btstart ();
-    glBindBufferARB (GL_ELEMENT_ARRAY_BUFFER, ib_binded->id);
-    glBufferDataARB (GL_ELEMENT_ARRAY_BUFFER, ib_binded->size, NULL, usage);
+    glBindBufferARB (GL_ELEMENT_ARRAY_BUFFER, ib_bound->id);
+    glBufferDataARB (GL_ELEMENT_ARRAY_BUFFER, ib_bound->size, NULL, usage);
 
-    SCE_List_ForEach (i, ib_binded->data)
+    SCE_List_ForEach (i, ib_bound->data)
     {
         d = SCE_List_GetData (i);
         glBufferSubDataARB (GL_ELEMENT_ARRAY_BUFFER,
@@ -809,8 +753,6 @@ void SCE_CBuildIndexBuffer_ (SCEenum usage)
 }
 
 
-/* ajoute le 09/10/2007 */
-/* revise le 05/05/2008 */
 /**
  * \brief Locks a vertex buffer
  * \param vb the vertex buffer to lock
@@ -826,7 +768,6 @@ void SCE_CLockVertexBuffer (SCE_CVertexBuffer *vb, SCEenum mode)
     glBindBufferARB (GL_ARRAY_BUFFER, vb->id);
     vb->mapptr = glMapBufferARB (GL_ARRAY_BUFFER, mode);
 }
-/* revise le 05/05/2008 */
 /**
  * \brief Unlocks a vertex buffer
  * \param vb the vertex buffer to unlock
@@ -841,8 +782,6 @@ void SCE_CUnlockVertexBuffer (SCE_CVertexBuffer *vb)
     vb->mapptr = NULL;
 }
 
-/* ajoute le 10/10/2007 */
-/* revise le 05/05/2008 */
 /**
  * \brief Locks an index buffer
  * \param ib the index buffer to lock
@@ -858,7 +797,6 @@ void SCE_CLockIndexBuffer (SCE_CIndexBuffer *ib, SCEenum mode)
     glBindBufferARB (GL_ELEMENT_ARRAY_BUFFER, ib->id);
     ib->mapptr = glMapBufferARB (GL_ELEMENT_ARRAY_BUFFER, mode);
 }
-/* revise le 05/05/2008 */
 /**
  * \brief Unlocks a index buffer
  * \param ib the index buffer to unlock
@@ -874,8 +812,6 @@ void SCE_CUnlockIndexBuffer (SCE_CIndexBuffer *ib)
 }
 
 
-/* ajoute le 10/10/2007 */
-/* revise le 05/05/2008 */
 /**
  * \brief Updates a vertex buffer
  * \param vb the vertex buffer to update
@@ -896,8 +832,6 @@ void SCE_CUpdateVertexBuffer (SCE_CVertexBuffer *vb)
         memcpy (((char*)vb->mapptr) + d->first, d->data, d->data_size);
     }
 }
-/* ajoute le 10/10/2007 */
-/* revise le 05/05/2008 */
 /**
  * \brief Updates an index buffer
  * \param vb the index buffer to update
@@ -920,7 +854,6 @@ void SCE_CUpdateIndexBuffer (SCE_CIndexBuffer *ib)
 }
 
 
-/* revise le 28/10/2007 */
 /**
  * \brief Defines the vertex buffer used for the render
  */
@@ -974,7 +907,6 @@ void SCE_CDrawBuffer (SCEenum p_type, GLint first, GLsizei count)
     glDrawArrays (p_type, first, count);
 }
 
-/* revise le 15/10/2007 */
 /**
  * \brief Draws the used vertex buffer with the used index buffer
  * \param p_type type of the polygons, this can be set at SCE_POINTS, SCE_LINES,

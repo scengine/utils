@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 18/02/2009 */
+   updated: 11/04/2009 */
 
 #include <SCE/SCEMinimal.h>
 #include <SCE/interface/lib4fm.h>
@@ -37,7 +37,7 @@
 #include <SCE/interface/SCEOBJLoader.h>
 
 /**
- * \defgroup mesh Meshs managment
+ * \defgroup mesh Mesh
  * \ingroup interface
  * \internal
  * \brief 
@@ -151,8 +151,8 @@ void SCE_Mesh_InitVB (SCE_SMeshVertexBuffer *vb)
     vb->usage = GL_STREAM_DRAW;
     vb->buffer = NULL;
     vb->data = NULL;
-    vb->active = SCE_FALSE;
-    vb->builded = SCE_FALSE;
+    vb->active = SCE_TRUE;
+    vb->built = SCE_FALSE;
 }
 
 /**
@@ -167,7 +167,7 @@ void SCE_Mesh_InitIB (SCE_SMeshIndexBuffer *ib)
     ib->data = NULL;
     ib->canfree = SCE_FALSE;
     ib->size = 0;
-    ib->builded = SCE_FALSE;
+    ib->built = SCE_FALSE;
 }
 
 /**
@@ -242,7 +242,7 @@ int SCE_Mesh_BuildVB (SCE_SMeshVertexBuffer *vb)
 
     SCE_btstart ();
     /* si le buffer est deja construit ou si il ne possede aucune donnee */
-    if (vb->builded || SCE_List_GetSize (vb->data) < 1)
+    if (vb->built || SCE_List_GetSize (vb->data) < 1)
     {
         SCE_btend ();
         return SCE_OK;
@@ -284,7 +284,7 @@ int SCE_Mesh_BuildVB (SCE_SMeshVertexBuffer *vb)
 int SCE_Mesh_BuildIB (SCE_SMeshIndexBuffer *ib)
 {
     SCE_btstart ();
-    if (!ib->builded && ib->data)
+    if (!ib->built && ib->data)
     {
         SCE_CBindIndexBuffer (ib->buffer);
         if (SCE_CAddIndexBufferData_ (ib->size, ib->data) < 0)
@@ -315,18 +315,16 @@ void SCE_Mesh_Init (SCE_SMesh *mesh)
     mesh->vcount = 0;
     mesh->icount = 0;
     mesh->use_indices = SCE_FALSE;
-    mesh->polygon_type = GL_POINTS; /* evitons tout probleme */
-    mesh->builded = SCE_FALSE;
+    mesh->polygon_type = GL_POINTS;
+    mesh->built = SCE_FALSE;
 
-    mesh->pos = mesh->nor = NULL;
+    mesh->position = mesh->normal = mesh->tangent = mesh->binormal = NULL;
 
     mesh->sortedfaces = NULL;
 }
 
 /**
- * \brief Creates a new SCE_SMesh by allocating memory and calling
- * SCE_Mesh_Init(), this allocate too memory for internals structures
- * \returns the new mesh
+ * \brief Creates a new mesh
  */
 SCE_SMesh* SCE_Mesh_Create (void)
 {
@@ -362,8 +360,7 @@ SCE_SMesh* SCE_Mesh_Create (void)
 }
 
 /**
- * \brief Deletes an existing mesh created by SCE_Mesh_Create()
- * \param mesh the mesh to delete
+ * \brief Deletes a mesh
  */
 void SCE_Mesh_Delete (SCE_SMesh *mesh)
 {
@@ -381,8 +378,8 @@ void SCE_Mesh_Delete (SCE_SMesh *mesh)
 }
 /**
  * \brief Deletes a list of SCE_SMesh structures stored in an array, usually
- * this arrays are created by the meshs loader and used for geometry LOD
- * \param meshs an array contains SCE_SMesh pointers to delete by calling
+ * these arrays are created by the meshs loader
+ * \param meshs an array containing SCE_SMesh pointers to delete by calling
  * SCE_Mesh_Delete()
  */
 void SCE_Mesh_DeleteList (SCE_SMesh **meshs)
@@ -420,6 +417,7 @@ int SCE_Mesh_AddVB (SCE_SMesh *mesh, SCE_SMeshVertexBuffer *b)
  * \param mesh the mesh on which add the new vertex buffer
  * \param mode the usage mode of the new vertex buffer, can be 0 to keep
  * the default value: GL_STREAM_DRAW
+ * \returns SCE_ERROR on error, SCE_OK otherwise
  * \sa SCE_SMeshVertexBuffer.usage
  */
 int SCE_Mesh_AddNewVB (SCE_SMesh *mesh, int mode)
@@ -448,11 +446,10 @@ int SCE_Mesh_AddNewVB (SCE_SMesh *mesh, int mode)
     return ret;
 }
 /**
- * \brief Remove a vertex buffer from a mesh and return it
+ * \brief Remove a vertex buffer from a mesh and returns it
  * \param mesh the mesh on which remove the vertex buffer
- * \param id the vertex buffer's identifier, usually the buffer id is its
- * position in the buffer list (SCE_SMesh.vertices) that start at 0
- * (who for improve this documentation ??) (ki pr ameliorer cette doc ??)
+ * \param id the vertex buffer's identifier
+ * \returns the deleted vertex buffer
  */
 SCE_SMeshVertexBuffer* SCE_Mesh_RemoveVB (SCE_SMesh *mesh, unsigned int id)
 {
@@ -461,9 +458,7 @@ SCE_SMeshVertexBuffer* SCE_Mesh_RemoveVB (SCE_SMesh *mesh, unsigned int id)
 
     SCE_btstart ();
     it = SCE_List_GetIterator (mesh->vertices, id);
-    if (!it)
-        Logger_LogSrc ();
-    else
+    if (it)
     {
         data = SCE_List_GetData (it);
         SCE_List_Removel (it);
@@ -565,18 +560,32 @@ SCE_SMeshVertexData* SCE_Mesh_LocateData (SCE_SMesh *mesh, int attrib,
 }
 
 /**
- * \brief Returns SCE_SMesh::pos
+ * \brief Returns SCE_SMesh::position
  */
-void* SCE_Mesh_GetVerticesPositions (SCE_SMesh *mesh)
+SCEvertices* SCE_Mesh_GetVerticesPositions (SCE_SMesh *mesh)
 {
-    return mesh->pos;
+    return mesh->position;
 }
 /**
- * \brief Returns SCE_SMesh::nor
+ * \brief Returns SCE_SMesh::normal
  */
-void* SCE_Mesh_GetVerticesNormals (SCE_SMesh *mesh)
+SCEvertices* SCE_Mesh_GetVerticesNormals (SCE_SMesh *mesh)
 {
-    return mesh->nor;
+    return mesh->normal;
+}
+/**
+ * \brief Returns SCE_SMesh::tangent
+ */
+SCEvertices* SCE_Mesh_GetVerticesTangents (SCE_SMesh *mesh)
+{
+    return mesh->tangent;
+}
+/**
+ * \brief Returns SCE_SMesh::binormal
+ */
+SCEvertices* SCE_Mesh_GetVerticesBinormals (SCE_SMesh *mesh)
+{
+    return mesh->binormal;
 }
 
 /**
@@ -591,17 +600,19 @@ void* SCE_Mesh_GetVerticesNormals (SCE_SMesh *mesh)
  * \param canfree defines if \p mesh has right to delete \p data
  * \returns the new vertex buffer id, SCE_ERROR on error
  *
- * If \p data is NULL, the function will stop and return SCE_OK.
+ * If \p data is NULL, the vertex data memory is allocated and the parameter
+ * \p canfree is ignored.
  * If \p mesh already contains vertices data that have for attribute \p attrib,
- * they will be removed from its vertex buffer. If the previous operation
+ * they will be removed from their vertex buffer. If the previous operation
  * cleared the vertex buffer, it will be removed too. If \p canfree is SCE_TRUE,
  * \p data will be freed when \p mesh is deleted. If \p count is greater than
  * the previous count(s) specified then the vertices in excess are ignored.
- * It is recommanded to use SCE_VERTICES_TYPE for \p type, that gives a full
- * compatibility with functions acts on the mesh's geometry. \p data is a
- * pointer to an array of contigous vectors that  the data to store,
- * each vector represent a vertex. \p size defines the vectors length, usually
- * 3 for the vertex position and vertex normals, 2 for the texture coordinates.
+ * It is recommanded to use SCE_VERTICES_TYPE for \p type (the corresponding
+ * type is SCEvertices), that gives a full compatibility with functions acts on
+ * the mesh's geometry. \p data is a pointer to an array of contigous vectors
+ * that are the data to store, each vector represent a vertex. \p size defines
+ * the vectors length, usually 3 for the vertex position and vertex normals,
+ * 2 for the texture coordinates.
  * To get the maximal and minimal values for \p size for each attribute type,
  * see the documentation of glVertexPointer() and its friends.
  *
@@ -623,14 +634,9 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
     }
 
     SCE_btstart ();
-    if (!data)
-    {
-        SCE_btend ();
-        return SCE_OK;
-    }
 
     /* verification du count (si un count est deja present) */
-    if (!mesh->vcount)
+    if (mesh->vcount == 0)
         mesh->vcount = count;
     else if (count < mesh->vcount)
     {
@@ -641,10 +647,26 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
         return SCE_ERROR;
     }
 
-    /* on verifie si ce type de donnee a deja ete specifie */
-    if ((d = SCE_Mesh_LocateData (mesh, attrib, &vb)))
+    if (!data)
     {
-        /* si ces donnees existent, on les supprime dans leur buffer */
+        canfree = SCE_TRUE;
+        if (!(data = SCE_malloc (count * size * SCE_CSizeofType (type))))
+        {
+            Logger_LogSrc ();
+            SCE_btend ();
+            return SCE_ERROR;
+        }
+    }
+
+    if (!(d = SCE_Mesh_LocateData (mesh, attrib, &vb)))
+    {
+        d = SCE_Mesh_CreateVertexData ();
+        if (!d)
+            SCE_MESH_ERROR ()
+    }
+    else
+    {
+        /* the data already exists, delete from its buffer */
         it = SCE_List_LocateIterator (vb->data, d, NULL);
         SCE_List_Removel (it);
         SCE_List_DeleteIt (it);
@@ -652,75 +674,61 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
         if (d->canfree)
             SCE_free (d->data);
         d->data = NULL;
-        /* et on demande la reconstruction du buffer */
+        /* need build */
         SCE_CClearVertexBuffer (vb->buffer);
-        vb->builded = SCE_FALSE;
-        /* si le buffer est vide et qu'il ne s'agit pas
-           du buffer de destination des donnees */
+        vb->built = SCE_FALSE;
+
         if (SCE_List_GetSize (vb->data) < 1 &&
             SCE_List_LocateIndex (mesh->vertices, vb, NULL) != id)
         {
-            /* on peut le supprimer */
+            /* void and unused buffer, so delete it */
             it = SCE_List_LocateIterator (mesh->vertices, vb, NULL);
             SCE_List_Erase (mesh->vertices, it);
         }
     }
-    else
-    {
-        /* creation d'une donnee de vertex buffer */
-        d = SCE_Mesh_CreateVertexData ();
-        if (!d)
-            SCE_MESH_ERROR ()
-    }
 
-    /* recuperation du vb... */
+    /* get vb */
     it = SCE_List_GetIterator (mesh->vertices, id);
     if (!it)
     {
-        /* ...creation si inexistant */
-        Logger_Clear (); /* suppression de l'erreur loggee par GetIterator */
+        /* create if it doesn't exist */
         if ((id = SCE_Mesh_AddNewVB (mesh, 0)) < 0)
             SCE_MESH_ERROR ()
-        /* ce get ne peut pas echouer */
         it = SCE_List_GetIterator (mesh->vertices, id);
     }
     vb = SCE_List_GetData (it);
 
-    if (vb->builded)
+    if (vb->built)
     {
-        /* la reconstruction du buffer sera requise */
         SCE_CClearVertexBuffer (vb->buffer);
-        vb->builded = SCE_FALSE;
+        vb->built = SCE_FALSE;
     }
 
-    /* ajout des donnees au buffer */
     if (SCE_List_AppendNewl (vb->data, d) < 0)
     {
         SCE_Mesh_DeleteVertexData (d);
         SCE_MESH_ERROR ()
     }
 
-    /* specification des donnes */
     d->dec->attrib = attrib;
     d->dec->type = type;
     d->dec->size = size;
-
     d->size = count * size * SCE_CSizeofType (type);
-    /* aucune duplication des donnees */
     d->data = data;
     d->canfree = canfree;
 
-    if (attrib == SCE_POSITION)
-        mesh->pos = data; /* hopla */
-    else if (attrib == SCE_NORMAL)
-        mesh->nor = data; /* hopli */
+    switch (attrib)
+    {
+    case SCE_POSITION: mesh->position = data; break;
+    case SCE_NORMAL:   mesh->normal = data; break;
+    case SCE_TANGENT:  mesh->tangent = data; break;
+    case SCE_BINORMAL: mesh->binormal = data; break;
+    }
 
-    mesh->builded = SCE_FALSE;
+    mesh->built = SCE_FALSE;
 
     SCE_btend ();
 #undef SCE_MESH_ERROR
-    /* par defaut on retourne l'id du tampon,
-       au cas ou on en aurait cree un nouveau avec un id different */
     return id;
 }
 
@@ -734,7 +742,6 @@ int SCE_Mesh_AddVerticesDup (SCE_SMesh *mesh, unsigned int id, int attrib,
                              SCEenum type, unsigned int size,
                              unsigned int count, const void *data)
 {
-    /* conversion des donnees */
     SCEvertices *new = NULL;
 
     SCE_btstart ();
@@ -773,13 +780,8 @@ int SCE_Mesh_SetIndices (SCE_SMesh *mesh, SCEenum usage, SCEenum type,
                          unsigned int count, void *data, int canfree)
 {
     SCE_btstart ();
-    if (!data)
-    {
-        SCE_btend ();
-        return SCE_OK;
-    }
 
-    if (mesh->ib.builded)
+    if (mesh->ib.built)
     {
         /* suppression du buffer, car une reconstruction sera necessaire */
         SCE_CClearIndexBuffer (mesh->ib.buffer);
@@ -797,7 +799,7 @@ int SCE_Mesh_SetIndices (SCE_SMesh *mesh, SCEenum usage, SCEenum type,
     mesh->use_indices = SCE_TRUE;
     mesh->icount = count;
 
-    mesh->ib.builded = mesh->builded = SCE_FALSE;
+    mesh->ib.built = mesh->built = SCE_FALSE;
 
     SCE_btend ();
     return SCE_OK;
@@ -861,7 +863,6 @@ int SCE_Mesh_GetNumVerticesPerFace (SCE_SMesh *mesh)
     }
     return vpf;
 }
-/* ajoute le 27/03/2008 */
 /**
  * \brief Gets the number of faces of a mesh
  */
@@ -888,8 +889,8 @@ int SCE_Mesh_ForEachFace (SCE_SMesh *mesh, SCE_FMeshFaceFunc func, void *param)
     num_faces = SCE_Mesh_GetNumFaces (mesh);
     vpf = SCE_Mesh_GetNumVerticesPerFace (mesh);
     face.num_vertices = vpf;
-    face.pos = mesh->pos;
-    face.nor = mesh->nor;
+    face.pos = mesh->position;
+    face.nor = mesh->normal;
 
     if (mesh->use_indices)
     {
@@ -1054,6 +1055,7 @@ static void SCE_Mesh_SortSortedList (SCE_SMesh *mesh, int order)
  * \param p the position from which the faces will be sorted
  * \returns SCE_ERROR on error, SCE_OK otherwise
  * \warning \p mesh MUST have indices
+ * \todo add a function to generate fake indices
  */
 int SCE_Mesh_SortFaces (SCE_SMesh *mesh, int order, SCE_TVector3 p)
 {
@@ -1062,7 +1064,7 @@ int SCE_Mesh_SortFaces (SCE_SMesh *mesh, int order, SCE_TVector3 p)
     SCE_SMeshFaceInfo *info = NULL;
     SCE_TVector3 center, vertex[4];
     int vpf;
-    SCEvertices *pos = mesh->pos;
+    SCEvertices *pos = mesh->position;
     SCEindices *indices = mesh->ib.data;
 
 #ifdef SCE_DEBUG
@@ -1169,6 +1171,7 @@ void SCE_Mesh_ComputeTriangleTBN (SCEvertices *vertex, SCEvertices *texcoord,
     {
         SCE_Vector3_Cross (tmpNormal, side0, side1);
         SCE_Vector3_Normalize (tmpNormal);
+/*        SCE_Vector3_Operator1 (tmpNormal, *=, -1.0);*/
         /* affectation */
         SCE_Vector3_Operator1v (&normals[index[0]*3], +=, tmpNormal);
         SCE_Vector3_Operator1v (&normals[index[1]*3], +=, tmpNormal);
@@ -1451,83 +1454,74 @@ int SCE_Mesh_GenerateTBN (SCE_SMesh *mesh, SCEvertices *tangents,
  * SCE_Mesh_RemoveVB() for more informations about this parameter
  * \param gen_type can be set the following flags: SCE_GEN_TANGENTS,
  * SCE_GEN_BINORMALS and SCE_GEN_NORMALS
- * \param attrib_type vertex attribute for the first generated data, is
- * incremented by 1 for each next data generated
  * \param texunit the texture unit where get the texture coordinates
  * \returns SCE_ERROR on error, SCE_OK otherwise
  */
 int SCE_Mesh_AddGenVertices (SCE_SMesh *mesh, SCEuint buf, SCEenum gen_type,
-                             SCEuint attrib_type, SCEuint texunit)
+                             SCEuint texunit)
 {
+    int code = SCE_OK;
     SCEvertices *t = NULL, *b = NULL, *n = NULL;
     unsigned int i;
     size_t nvars;
 
     SCE_btstart ();
-#define SCE_MESH_DEL()\
-    {\
-        SCE_free (n);\
-        SCE_free (b);\
-        SCE_free (t);\
-        Logger_LogSrc ();\
-        SCE_btend ();\
-        return SCE_ERROR;\
-    }
     nvars = mesh->vcount * 3;
     if (gen_type & SCE_GEN_TANGENTS)
     {
-        t = SCE_malloc (nvars * sizeof *t);
-        if (!t)
-            SCE_MESH_DEL ()
+        if (!(t = SCE_malloc (nvars * sizeof *t)))
+            goto failure;
         for (i=0; i<nvars; i++)
             t[i] = 0.0f;
     }
     if (gen_type & SCE_GEN_BINORMALS)
     {
-        b = SCE_malloc (nvars * sizeof *b);
-        if (!b)
-            SCE_MESH_DEL ()
+        if (!(b = SCE_malloc (nvars * sizeof *b)))
+            goto failure;
         for (i=0; i<nvars; i++)
             b[i] = 0.0f;
     }
     if (gen_type & SCE_GEN_NORMALS)
     {
-        n = SCE_malloc (nvars * sizeof *n);
-        if (!n)
-            SCE_MESH_DEL ()
+        ;
+        if (!(n = SCE_malloc (nvars * sizeof *n)))
+            goto failure;
         for (i=0; i<nvars; i++)
             n[i] = 0.0f;
     }
 
     if (SCE_Mesh_GenerateTBN (mesh, t, b, n, texunit) < 0)
-        SCE_MESH_DEL ()
+        goto failure;
 
-    /** TODO: attrib_type peut devenir trop grand */
     if (gen_type & SCE_GEN_TANGENTS)
     {
-        if (SCE_Mesh_AddVertices (mesh, buf, attrib_type, SCE_VERTICES_TYPE,
+        if (SCE_Mesh_AddVertices (mesh, buf, SCE_TANGENT, SCE_VERTICES_TYPE,
                                   3, mesh->vcount, t, SCE_TRUE) < 0)
-            SCE_MESH_DEL ()
-        attrib_type++;
+            goto failure;
     }
     if (gen_type & SCE_GEN_BINORMALS)
     {
-        if (SCE_Mesh_AddVertices (mesh, buf, attrib_type, SCE_VERTICES_TYPE,
+        if (SCE_Mesh_AddVertices (mesh, buf, SCE_BINORMAL, SCE_VERTICES_TYPE,
                                   3, mesh->vcount, b, SCE_TRUE) < 0)
-            SCE_MESH_DEL ()
-        attrib_type++;
+            goto failure;
     }
     if (gen_type & SCE_GEN_NORMALS)
     {
-        if (SCE_Mesh_AddVertices (mesh, buf, attrib_type, SCE_VERTICES_TYPE,
+        if (SCE_Mesh_AddVertices (mesh, buf, SCE_NORMAL, SCE_VERTICES_TYPE,
                                   3, mesh->vcount, n, SCE_TRUE) < 0)
-            SCE_MESH_DEL ()
+            goto failure;
     }
 
-#undef SCE_MESH_DEL
-
+    goto success;
+failure:
+    SCE_free (n);
+    SCE_free (b);
+    SCE_free (t);
+    Logger_LogSrc ();
+    code = SCE_ERROR;
+success:
     SCE_btend ();
-    return SCE_OK;
+    return code;
 }
 
 
@@ -1612,9 +1606,9 @@ int SCE_Mesh_GenerateBoundingBox (SCE_SMesh *mesh, SCE_SBoundingBox *box)
 void SCE_Mesh_ComputeBoundingSphere (SCEvertices *v, unsigned int vcount,
                                      SCE_TVector3 center, float *r)
 {
-    SCE_TVector3 tmp;
-    float d;
-    unsigned int i;
+    SCE_TVector3 tmp = {0.0, 0.0, 0.0};
+    float d = 0.0;
+    unsigned int i = 0;
 
     SCE_btstart ();
     *r = 0.0f;
@@ -1626,7 +1620,7 @@ void SCE_Mesh_ComputeBoundingSphere (SCEvertices *v, unsigned int vcount,
     SCE_Vector3_Operator1 (center, /=, 2.);
 
     /* determination du point le plus eloigne du centre (donnera le rayon) */
-    for (i=0; i<vcount; i++)
+    for (i = 0; i < vcount; i++)
     {
         d = SCE_Vector3_Distance (center, &v[i*3]);
         *r = (*r < d ? d : *r);
@@ -1645,8 +1639,8 @@ void SCE_Mesh_ComputeBoundingSphere (SCEvertices *v, unsigned int vcount,
  */
 int SCE_Mesh_GenerateBoundingSphere (SCE_SMesh *mesh, SCE_SBoundingSphere *s)
 {
-    SCE_TVector3 center;
-    float radius;
+    SCE_TVector3 center = {0.0, 0.0, 0.0};
+    float radius = 0.0;
     SCE_SMeshVertexData *v = NULL;
 
     SCE_btstart ();
@@ -1915,7 +1909,7 @@ int SCE_Mesh_Build (SCE_SMesh *mesh)
     SCE_SListIterator *i = NULL;
 
     SCE_btstart ();
-    if (mesh->builded)
+    if (mesh->built)
     {
         SCE_btend ();
         return SCE_OK;
@@ -1938,7 +1932,7 @@ int SCE_Mesh_Build (SCE_SMesh *mesh)
         return SCE_ERROR;
     }
 
-    mesh->builded = SCE_TRUE;
+    mesh->built = SCE_TRUE;
 
     SCE_btend ();
     return SCE_OK;
@@ -2032,7 +2026,7 @@ void SCE_Mesh_ApplyUpdates (void)
         SCE_CUpdateVertexBuffer (vb);
     }
     /* pour chaque buffer a mettre a jour */
-    SCE_List_ForEachPrev (upit)
+    SCE_List_ForEachNext (upit)
     {
         /* on rend invalide le pointeur */
         buf = SCE_List_GetData (upit);
@@ -2051,6 +2045,7 @@ void SCE_Mesh_ApplyUpdates (void)
  * \returns an array that contains the read meshs
  *
  * This function uses the resources manager to load the meshs.
+ * \todo check media type id
  */
 SCE_SMesh** SCE_Mesh_Load (const char *fname, int *n_meshs)
 {
@@ -2080,7 +2075,7 @@ SCE_SMesh** SCE_Mesh_Load (const char *fname, int *n_meshs)
         return NULL;
     }
 
-    for (i=0; i<*n_meshs; i++)
+    for (i = 0; i < *n_meshs; i++)
     {
         memset (subname, '\0', size);
         strcpy (subname, fname);
@@ -2098,7 +2093,7 @@ SCE_SMesh** SCE_Mesh_Load (const char *fname, int *n_meshs)
 
 /**
  * \brief Defines the binded mesh
- * \sa SCE_Mesh_Draw
+ * \sa SCE_Mesh_Draw()
  */
 void SCE_Mesh_Use (SCE_SMesh *mesh)
 {
@@ -2125,7 +2120,8 @@ void SCE_Mesh_Use (SCE_SMesh *mesh)
 }
 
 /**
- * \brief Render the binded mesh
+ * \brief Render the bound mesh
+ * \sa SCE_Mesh_Use()
  */
 void SCE_Mesh_Draw (void)
 {
@@ -2164,20 +2160,6 @@ void SCE_Mesh_Render (SCE_SMesh *mesh)
     /* on re-utilise le mesh par defaut */
     if (m)
         SCE_Mesh_Use (m);
-}
-
-/**
- * \deprecated
- * \brief Render an array of meshs
- * \param meshs the meshs' array
- * \param start where begin to read in \p meshs
- * \param n the number of meshs to render
- * \warning \p meshs length must be greater or equal to start+n
- */
-void SCE_Mesh_RenderList (SCE_SMesh **meshs, unsigned int start, unsigned int n)
-{
-    while (start < n)
-        SCE_Mesh_Render (meshs[start++]);
 }
 
 /** @} */

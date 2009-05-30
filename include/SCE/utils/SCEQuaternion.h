@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 21/10/2007
-   derniere modification : 21/10/2007 */
+/* created: 21/10/2007
+   updated: 05/04/2009 */
 
 #ifndef SCEQUATERNION_H
 #define SCEQUATERNION_H
@@ -31,24 +31,34 @@ extern "C"
 
 typedef float SCE_TQuaternion[4];
 
-#define SCE_Quaternion_Set(q, x, y, z, w){\
-    (q)[0] = x; (q)[1] = y; (q)[2] = z; (q)[3] = w;}
-#define SCE_Quaternion_Identity(q) SCE_Quaterion_Set (q, 0., 0., 0., 1.)
+#define SCE_Quaternion_Set(q, x, y, z, w)do {\
+        (q)[0] = x; (q)[1] = y; (q)[2] = z; (q)[3] = w;} while (0);
+#define SCE_Quaternion_Identity(q) SCE_Quaternion_Set (q, 0., 0., 0., 1.)
 
 #define SCE_Quaternion_Copy(r, q) memcpy (r, q, 4 * sizeof (*(r)))
 
-/* normalize un quaternion */
-void SCE_Quaterion_Normalize (SCE_TQuaternion);
+void SCE_Quaternion_Normalize (SCE_TQuaternion);
 
-/* calcul le conjuge d'un quaternion */
-void SCE_Quaternion_Conjugate (SCE_TQuaternion);
+void SCE_Quaternion_ComputeW (SCE_TQuaternion);
+void SCE_Quaternion_Conjugate (const SCE_TQuaternion, SCE_TQuaternion);
+void SCE_Quaternion_ConjugateCopy (SCE_TQuaternion);
 
-/* multiplie deux quaternions */
-void SCE_Quaterion_Mul (SCE_TQuaternion, SCE_TQuaternion, SCE_TQuaternion);
+float SCE_Quaternion_Dot (SCE_TQuaternion, SCE_TQuaternion);
 
-/* construit un quaternion a partir d'un axe de rotation et d'un angle */
+void SCE_Quaternion_Mul (SCE_TQuaternion, SCE_TQuaternion, SCE_TQuaternion);
+void SCE_Quaternion_MulCopy (SCE_TQuaternion, SCE_TQuaternion);
+void SCE_Quaternion_MulCopyInv (SCE_TQuaternion, SCE_TQuaternion);
+
+void SCE_Quaternion_MulV3 (SCE_TQuaternion, SCE_TVector3, SCE_TQuaternion);
+void SCE_Quaternion_RotateV3 (SCE_TQuaternion, SCE_TVector3, SCE_TVector3);
+
 void SCE_Quaternion_Rotate (SCE_TQuaternion, float, float, float, float);
 void SCE_Quaternion_Rotatev (SCE_TQuaternion, float, SCE_TVector3);
+
+void SCE_Quaternion_Linear (SCE_TQuaternion, SCE_TQuaternion, float,
+                            SCE_TQuaternion);
+void SCE_Quaternion_SLERP (SCE_TQuaternion, SCE_TQuaternion, float,
+                           SCE_TQuaternion);
 
 #ifdef __cplusplus
 } /* extern "C" */

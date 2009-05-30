@@ -15,21 +15,45 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
- 
-/* created: 08/07/2007
-   updated: 07/03/2008 */
 
-#ifndef SCEOBJLOADER_H
-#define SCEOBJLOADER_H
+/* created: 04/04/2009
+   updated: 15/05/2009 */
+
+#ifndef SCEJOINT_H
+#define SCEJOINT_H
+
+#include <SCE/utils/SCEMatrix.h>
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-void SCE_OBJ_ActivateIndicesGeneration (int);
+typedef struct sce_sjoint SCE_SJoint;
+struct sce_sjoint
+{
+    int parent;
+    SCE_TQuaternion orientation;
+    SCE_TVector3 position;
+};
 
-void* SCE_OBJ_Load (FILE*, const char*, void*);
+void SCE_Joint_Init (SCE_SJoint*);
+SCE_SJoint* SCE_Joint_Create (void);
+void SCE_Joint_Delete (SCE_SJoint*);
+
+int SCE_Joint_GetParentID (SCE_SJoint*);
+void SCE_Joint_SetParentID (SCE_SJoint*, int);
+
+float* SCE_Joint_GetOrientation (SCE_SJoint*);
+float* SCE_Joint_GetPosition (SCE_SJoint*);
+
+void SCE_Joint_Copy (SCE_SJoint*, SCE_SJoint*);
+void SCE_Joint_Exchange (SCE_SJoint*, SCE_SJoint*);
+
+void SCE_Joint_InterpolateSLERP (SCE_SJoint*, SCE_SJoint*, float, SCE_SJoint*);
+void SCE_Joint_InterpolateLinear (SCE_SJoint*, SCE_SJoint*, float, SCE_SJoint*);
+
+void SCE_Joint_ComputeMatrix (SCE_SJoint*, SCE_TMatrix4x3);
 
 #ifdef __cplusplus
 } /* extern "C" */

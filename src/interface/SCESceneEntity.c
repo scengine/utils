@@ -37,10 +37,10 @@
  */
 
 /**
- * \defgroup sceneentity Scene entities managment
+ * \defgroup sceneentity Scene Entity
  * \ingroup interface
- * \brief Scene entities managment
  * \internal
+ * \brief Scene entities managment
  */
 
 /** @{ */
@@ -215,6 +215,7 @@ SCE_SSceneEntityGroup* SCE_SceneEntity_CreateGroup (void)
     SCE_SceneEntity_InitGroup (group);
     if (!(group->entities = SCE_List_Create (SCE_SceneEntity_YouDontHaveGroup)))
         goto failure;
+    SCE_List_CanDeleteIterators (group->entities, SCE_TRUE);
     goto success;
 failure:
     SCE_SceneEntity_DeleteGroup (group), group = NULL;
@@ -739,7 +740,7 @@ int SCE_SceneEntity_IsInstanceInFrustum (SCE_SSceneEntityInstance *einst,
 void SCE_SceneEntity_ApplyProperties (SCE_SSceneEntity *entity)
 {
     SCE_CSetState (GL_CULL_FACE, entity->props.cullface);
-    SCE_CSetCulledFaces (entity->props.cullmode);
+    SCE_CSetCulledFaces (/*entity->props.cullmode*/GL_FRONT);
     SCE_CSetState (GL_DEPTH_TEST, entity->props.depthtest);
     SCE_CSetValidPixels (entity->props.depthmode);
     SCE_CSetState (GL_ALPHA_TEST, entity->props.alphatest);

@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2008
-   updated: 10/03/2009 */
+   updated: 09/05/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -39,9 +39,10 @@
  */
 
 /**
- * \defgroup scene Scene managment
+ * \defgroup scene Scene
  * \ingroup interface
  * \internal
+ * \brief Scene manager
  */
 
 /** @{ */
@@ -54,7 +55,7 @@ static float omg_coeffs[2] = {0.3, 0.02};
 typedef struct sce_ssceneoctree SCE_SSceneOctree;
 struct sce_ssceneoctree
 {
-    SCE_SList *instances[3];       /* pkeu 3 laiveuls ser coul */
+    SCE_SList *instances[3];       /* TODO: pkeu 3 laiveuls ser coul */
     SCE_SList *lights;
     SCE_SList *cameras;
 };
@@ -95,7 +96,7 @@ static SCE_SSceneOctree* SCE_Scene_CreateOctree (void)
     if (!tree)
         goto failure;
     SCE_Scene_InitOctree (tree);
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < 3; i++)     /* TODO: use macro for the value 3 */
     {
         if (!(tree->instances[i] = SCE_List_Create (NULL)))
             goto failure;
@@ -288,7 +289,7 @@ static unsigned int SCE_Scene_DetermineElementList (SCE_SOctreeElement *el,
 /* inserts an instance into an octree */
 static void SCE_Scene_InsertInstance (SCE_SOctree *tree, SCE_SOctreeElement *el)
 {
-    unsigned int id;
+    unsigned int id = 0;
     SCE_SSceneOctree *stree = NULL;
     stree = SCE_Octree_GetData (tree);
     id = SCE_Scene_DetermineElementList (el, tree);
@@ -569,6 +570,8 @@ int SCE_Scene_MakeOctree (SCE_SScene *scene, unsigned int rec,
 {
     SCE_Scene_EraseOctreeInternal (scene->octree);
     SCE_Octree_Clear (scene->octree);
+    if (!loose)                 /* shield! */
+        margin = 0.0;
     if (SCE_Octree_RecursiveMake (scene->octree, rec, NULL,
                                   NULL, loose, margin) < 0)
     {

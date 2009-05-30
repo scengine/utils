@@ -48,6 +48,8 @@ void SCE_BoundingBox_Init (SCE_SBoundingBox *box)
     int i;
     for (i=0; i<8; i++)
         SCE_Vector3_Operator1 (box->p[i], =, 0.);
+    for (i=0; i<8; i++)
+        SCE_Vector3_Operator1 (box->olds[i], =, 0.);
     box->pushed = SCE_FALSE;
 }
 
@@ -287,7 +289,7 @@ void SCE_BoundingBox_Push (SCE_SBoundingBox *box, SCE_TMatrix4 m)
         for (i=0; i<8; i++)
             SCE_Vector3_Copy (box->olds[i], box->p[i]);
         for (i=0; i<8; i++)
-            SCE_Matrix4_MulV3 (m, box->p[i]);
+            SCE_Matrix4_MulV3Copy (m, box->p[i]);
         box->pushed = SCE_TRUE;
     }
 }
