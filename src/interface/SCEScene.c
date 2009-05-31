@@ -318,6 +318,8 @@ static void SCE_Scene_InsertCamera (SCE_SOctree *tree, SCE_SOctreeElement *el)
  * Adds a node to a scene.
  * Inserts the octree element of \p node by calling SCE_Octree_InsertElement().
  * \sa SCE_Scene_RemoveNode(), SCE_Octree_InsertElement()
+ * \warning this function will be marked as internal in a future release,
+ * so do not use it anyway.
  */
 void SCE_Scene_AddNode (SCE_SScene *scene, SCE_SNode *node)
 {
@@ -484,10 +486,17 @@ void SCE_Scene_AddResource (SCE_SScene *scene, int id, SCE_SSceneResource *res)
 void SCE_Scene_SetSkybox (SCE_SScene *scene, SCE_SSkybox *skybox)
 {
     if (scene->skybox)
-        SCE_Scene_RemoveEntity (scene, SCE_Skybox_GetEntity (scene->skybox));
+    {
+/*        SCE_Scene_RemoveEntityGroup (scene, SCE_Skybox_GetEntityGroup
+          (scene->skybox));*/
+/*        SCE_Scene_RemoveInstance (scene, SCE_Skybox_GetInstance(scene->skybox));*/
+    }
     scene->skybox = skybox;
     if (skybox)
-        SCE_Scene_AddEntity (scene, SCE_Skybox_GetEntity (skybox));
+    {
+/*        SCE_Scene_AddEntityGroup (scene, SCE_Skybox_GetEntityGroup (skybox));*/
+/*        SCE_Scene_AddInstance (scene, SCE_Skybox_GetInstance(scene->skybox));*/
+    }
 }
 
 
@@ -886,14 +895,12 @@ static void SCE_Scene_RenderSkybox (SCE_SScene *scene, SCE_SCamera *cam)
     SCE_Node_HasMoved (node);
     SCE_Node_UpdateRootRecursive (node);
     /* TODO: WHAT THE FUUUUCK */
-    /*SCE_CSetState (GL_DEPTH_TEST, SCE_FALSE);
-    SCE_CActivateDepthBuffer (GL_FALSE);*/
-    SCE_CSetState (GL_CULL_FACE, SCE_FALSE);
+/*    SCE_CActivateDepthBuffer (GL_FALSE);*/
+/*    glClear (GL_DEPTH_BUFFER_BIT);*/
     SCE_SceneEntity_UseResources (entity);
     SCE_SceneEntity_Render (entity);
-    /*SCE_CSetState (GL_DEPTH_TEST, SCE_TRUE);
-    SCE_CActivateDepthBuffer (GL_TRUE);*/
-    SCE_CSetState (GL_CULL_FACE, SCE_TRUE);
+    SCE_CActivateDepthBuffer (GL_TRUE);
+
     SCE_Texture_Flush ();
     SCE_Shader_Use (NULL);
 }

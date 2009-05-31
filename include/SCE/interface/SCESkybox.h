@@ -46,6 +46,9 @@ struct sce_sskybox
     int mode;                           /**< Texture mode */
     int textype;
     SCE_SSceneResource *shader;         /**< Shader */
+#if 0
+    SCE_SSceneEntityGroup *group;       /**< Entity group */
+#endif
     SCE_SSceneEntity *entity;           /**< Entity */
     SCE_SSceneEntityInstance *instance; /**< Instance */
 };
@@ -59,6 +62,9 @@ void SCE_Skybox_SetSize (SCE_SSkybox*, float);
 int SCE_Skybox_SetTexture (SCE_SSkybox*, SCE_SSceneResource*, int);
 void SCE_Skybox_SetShader (SCE_SSkybox*, SCE_SSceneResource*);
 
+#if 0
+SCE_SSceneEntityGroup* SCE_Skybox_GetEntityGroup (SCE_SSkybox*);
+#endif
 SCE_SSceneEntity* SCE_Skybox_GetEntity (SCE_SSkybox*);
 SCE_SSceneEntityInstance* SCE_Skybox_GetInstance (SCE_SSkybox*);
 

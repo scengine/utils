@@ -162,6 +162,7 @@ SCE_SListIterator*
 SCE_SceneEntity_GetInstanceIterator2 (SCE_SSceneEntityInstance*);
 
 
+SCE_SSceneEntityProperties* SCE_SceneEntity_GetProperties (SCE_SSceneEntity*);
 void SCE_SceneEntity_SetMesh (SCE_SSceneEntity*, SCE_SMesh*);
 SCE_SMesh* SCE_SceneEntity_GetMesh (SCE_SSceneEntity*);
 

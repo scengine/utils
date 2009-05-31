@@ -315,8 +315,10 @@ void SCE_SceneEntity_SetInstanceDataFromEntity (SCE_SSceneEntityInstance *einst,
  * and \p einst->instance is added to the previous geometry group where it was,
  * if \p einst was never added to a group, calling this function with
  * \p group NULL generates a segmentation fault (in the better case).
+ * Specific data of the first \p group 's entity are assigned to \p einst by
+ * calling SCE_SceneEntity_SetInstanceDataFromEntity().
  * \sa SCE_SceneEntity_RemoveInstance(), SCE_Instance_AddInstance(),
- * SCE_SceneEntity_SelectInstance()
+ * SCE_SceneEntity_SelectInstance(), SCE_SceneEntity_SetInstanceDataFromEntity()
  */
 void SCE_SceneEntity_AddInstance (SCE_SSceneEntityGroup *group,
                                   SCE_SSceneEntityInstance *einst)
@@ -392,14 +394,6 @@ SCE_SceneEntity_GetInstanceElement (SCE_SSceneEntityInstance *einst)
     return SCE_Node_GetElement (einst->node);
 }
 /**
- * \brief Gets the properties ofthe given instance
- */
-SCE_SSceneEntityProperties*
-SCE_SceneEntity_GetProperties (SCE_SSceneEntity *entity)
-{
-    return &entity->props;
-}
-/**
  * \brief Gets the "level of detail" structure of the given instance
  */
 SCE_SLevelOfDetail*
@@ -424,6 +418,16 @@ SCE_SceneEntity_GetInstanceIterator2 (SCE_SSceneEntityInstance *einst)
     return einst->it2;
 }
 
+
+/**
+ * \brief Gets the rendering properties of an entity
+ * \sa SCE_SSceneEntityProperties
+ */
+SCE_SSceneEntityProperties*
+SCE_SceneEntity_GetProperties (SCE_SSceneEntity *entity)
+{
+    return &entity->props;
+}
 /**
  * \brief Defines the mesh of a scene entity
  * \returns SCE_ERROR on error, SCE_OK otherwise
@@ -740,7 +744,7 @@ int SCE_SceneEntity_IsInstanceInFrustum (SCE_SSceneEntityInstance *einst,
 void SCE_SceneEntity_ApplyProperties (SCE_SSceneEntity *entity)
 {
     SCE_CSetState (GL_CULL_FACE, entity->props.cullface);
-    SCE_CSetCulledFaces (/*entity->props.cullmode*/GL_FRONT);
+    SCE_CSetCulledFaces (entity->props.cullmode);
     SCE_CSetState (GL_DEPTH_TEST, entity->props.depthtest);
     SCE_CSetValidPixels (entity->props.depthmode);
     SCE_CSetState (GL_ALPHA_TEST, entity->props.alphatest);

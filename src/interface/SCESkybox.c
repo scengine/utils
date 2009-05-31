@@ -40,6 +40,9 @@ static void SCE_Skybox_Init (SCE_SSkybox *skybox)
     skybox->mode = SCE_FALSE;
     skybox->textype = 0;        /* NOTE: what if SCE_TEX_* is 0 ? */
     skybox->shader = NULL;
+#if 0
+    skybox->group = NULL;
+#endif
     skybox->entity = NULL;
     skybox->instance = NULL;
 }
@@ -49,6 +52,7 @@ static void SCE_Skybox_Init (SCE_SSkybox *skybox)
  */
 SCE_SSkybox* SCE_Skybox_Create (void)
 {
+    SCE_SSceneEntityProperties *props = NULL;
     SCE_SSkybox *skybox = NULL;
     SCE_btstart ();
     if (!(skybox = SCE_malloc (sizeof *skybox)))
@@ -56,10 +60,24 @@ SCE_SSkybox* SCE_Skybox_Create (void)
     SCE_Skybox_Init (skybox);
     if (!(skybox->mesh = SCE_Mesh_Create ()))
         goto failure;
+#if 0
+    if (!(skybox->group = SCE_SceneEntity_CreateGroup ()))
+        goto failure;
+#endif
     if (!(skybox->entity = SCE_SceneEntity_Create ()))
         goto failure;
     if (!(skybox->instance = SCE_SceneEntity_CreateInstance ()))
         goto failure;
+#if 0
+    SCE_SceneEntity_AddEntity (skybox->group, skybox->entity);
+    SCE_SceneEntity_AddInstance (skybox->group, skybox->instance);
+#else
+    SCE_SceneEntity_AddInstanceToEntity (skybox->entity, skybox->instance);
+#endif
+    props = SCE_SceneEntity_GetProperties (skybox->entity);
+    props->cullface = SCE_FALSE;
+    props->depthtest = SCE_FALSE;
+    props->alphatest = SCE_FALSE;
     goto success;
 failure:
     SCE_Skybox_Delete (skybox), skybox = NULL;
@@ -193,13 +211,10 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
             goto failure;
         SCE_Mesh_ActivateIB (skybox->mesh, SCE_FALSE);
     }
-    SCE_Mesh_ActivateVB (skybox->mesh, 0, SCE_TRUE);
-    /*SCE_Mesh_ActivateIB (skybox->mesh, SCE_TRUE);*/
     SCE_Mesh_SetRenderMode (skybox->mesh, SCE_QUADS);
     if (SCE_Mesh_Build (skybox->mesh) < 0)
         goto failure;
     SCE_SceneEntity_SetMesh (skybox->entity, skybox->mesh);
-    SCE_SceneEntity_AddInstanceToEntity (skybox->entity, skybox->instance);
     skybox->mode = mode;
     skybox->textype = type;
     goto success;
@@ -221,9 +236,19 @@ void SCE_Skybox_SetShader (SCE_SSkybox *skybox, SCE_SSceneResource *shader)
     skybox->shader = shader;
 }
 
+#if 0
+/**
+ * \brief Gets the scene entity group of a skybox
+ * \sa SCE_Skybox_GetEntity(), SCE_SSceneEntityGroup
+ */
+SCE_SSceneEntityGroup* SCE_Skybox_GetEntityGroup (SCE_SSkybox *skybox)
+{
+    return skybox->group;
+}
+#endif
 /**
  * \brief Gets the scene entity of a skybox
- * \sa SCE_SSkybox, SCE_SSceneEntity
+ * \sa SCE_Skybox_GetEntityGroup(), SCE_SSceneEntity
  */
 SCE_SSceneEntity* SCE_Skybox_GetEntity (SCE_SSkybox *skybox)
 {
