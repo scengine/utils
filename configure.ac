@@ -31,6 +31,12 @@ AC_PROG_CC
 SCE_LIB_VERSION="10:0:0"
 AC_SUBST([SCE_LIB_VERSION])
 
+# FIXME: hack to have a prefix even if user haven't set it.
+# Why the prefix isn't set by default anymore?
+if test "x$prefix" = "xNONE"; then
+  prefix="/usr/local"
+fi
+
 pkgconfigdir="$prefix/lib/pkgconfig"
 sce_includedir="$includedir/SCE"
 sce_include_coredir="$sce_includedir/core"
