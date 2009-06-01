@@ -45,11 +45,11 @@ extern "C"
 typedef struct sce_ssceneentityproperties SCE_SSceneEntityProperties;
 struct sce_ssceneentityproperties
 {
-    int cullface:1;
+    unsigned int cullface:1;
     int cullmode;
-    int depthtest:1;
+    unsigned int depthtest:1;
     int depthmode;
-    int alphatest:1;
+    unsigned int alphatest:1;
 };
 
 /** \copydoc sce_ssceneenStityinstance */

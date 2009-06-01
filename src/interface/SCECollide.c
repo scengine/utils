@@ -66,8 +66,7 @@ int SCE_Collide_PlanesWithPointv (SCE_SPlane *planes, unsigned int n,
 int SCE_Collide_PlanesWithBB (SCE_SPlane *planes, unsigned int n,
                               SCE_SBoundingBox *box)
 {
-    unsigned int i, j;
-    int k = 0, total = 0;
+    unsigned int i, j, k = 0, total = 0;
     float *points = SCE_BoundingBox_GetPoints (box);
     for (i = 0; i < n; i++)
     {

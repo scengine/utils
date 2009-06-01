@@ -981,7 +981,7 @@ static int SCE_Mesh_MakeSortedList (SCE_SMesh *mesh)
     /* s'il y a plus de faces que ne peut en contenir la sorted list, on l'agrandie */
     if (diff > 0)
     {
-        unsigned int i;
+        int i;
         for (i=0; i<diff; i++)
         {
             SCE_SMeshFaceInfo *fi = SCE_malloc (sizeof *fi);
