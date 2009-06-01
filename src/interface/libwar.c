@@ -102,31 +102,31 @@ void war_free (WarMesh *m)
 
 /*** fonctions outils ***/
 
-static void jumpline (FILE *f)
+static void war_jumpline (FILE *f)
 {
     int c;
     while ((c = fgetc (f)) != '\n' && c != EOF);
 }
 
-static void jumpspaces (FILE *f)
+static void war_jumpspaces (FILE *f)
 {
     while (isspace (fgetc (f)));
     fseek (f, -1, SEEK_CUR);
 }
 
-static long puissance (long x, WAuint n)
+static long war_pow (long x, WAuint n)
 {
     if (n == 0)
         return 1;
     else if (n == 1)
         return x;
     else if (n%2)
-        return x * puissance (x*x, (n-1)/2);
+        return x * war_pow (x*x, (n-1)/2);
     else
-        return puissance (x*x, n/2);
+        return war_pow (x*x, n/2);
 }
 
-static WAfloat4 valof (const char *str)
+static WAfloat4 war_valof (const char *str)
 {
     WAuint i;              /* compteur */
     WAfloat4 res = 0.;   /* valeur de retour */
@@ -154,7 +154,7 @@ static WAfloat4 valof (const char *str)
     if (str[0] == '-' || str[0] == '+')
         val = 1;
 
-    coeff = puissance (10, str_ilen - val);
+    coeff = war_pow (10, str_ilen - val);
 
     /* calcul de la valeur entiere */
     for (i=val; i<str_ilen; i++) {
@@ -191,7 +191,7 @@ static WAfloat4 valof (const char *str)
     return res;
 }
 
-static int readnumber (FILE *fp, WAfloat4 *fres, int *ires, WAint4 *uires)
+static int war_readnumber (FILE *fp, WAfloat4 *fres, int *ires, WAint4 *uires)
 {
     int c;
     char number[16] = {'\0'}; /* nombre sous forme de chaine */
@@ -213,7 +213,7 @@ static int readnumber (FILE *fp, WAfloat4 *fres, int *ires, WAint4 *uires)
         /* on revient au premier caractere invalide */
         fseek (fp, -1, SEEK_CUR);
         if (fres)
-            *fres = valof (number);
+            *fres = war_valof (number);
         if (ires)
             *ires = strtol (number, NULL, 10);
         if (uires)
@@ -222,22 +222,22 @@ static int readnumber (FILE *fp, WAfloat4 *fres, int *ires, WAint4 *uires)
     }
 }
 
-static int readfloat (FILE *fp, WAfloat4 *result)
+static int war_readfloat (FILE *fp, WAfloat4 *result)
 {
-    return readnumber (fp, result, NULL, NULL);
+    return war_readnumber (fp, result, NULL, NULL);
 }
 #if 0
-static int readint (FILE *fp, int *result)
+static int war_readint (FILE *fp, int *result)
 {
-    return readnumber (fp, NULL, result, NULL);
+    return war_readnumber (fp, NULL, result, NULL);
 }
 #endif
-static int readuint (FILE *fp, WAint4 *result)
+static int war_readuint (FILE *fp, WAint4 *result)
 {
-    return readnumber (fp, NULL, NULL, result);
+    return war_readnumber (fp, NULL, NULL, result);
 }
 
-static WAuint strsinline (FILE *fp, const int a)
+static WAuint war_strsinline (FILE *fp, const int a)
 {
     int valid;
     WAuint n = 0;     /* nombre de chaines */
@@ -260,7 +260,7 @@ static WAuint strsinline (FILE *fp, const int a)
     return n;
 }
 
-static WAuint getline (FILE *fp)
+static WAuint war_getline (FILE *fp)
 {
     WAuint n = 1;
     int c;
@@ -277,7 +277,7 @@ static WAuint getline (FILE *fp)
 
 /*** fonctions de lecture d'un .obj ***/
 
-static void readinfos (FILE *fp, int *n_objs,
+static void war_readinfos (FILE *fp, int *n_objs,
                        size_t *v, size_t *vt, size_t *vn)
 {
     int c;
@@ -306,7 +306,7 @@ static void readinfos (FILE *fp, int *n_objs,
             (*n_objs)++;
         }
         if (c != '\n')
-            jumpline (fp);
+            war_jumpline (fp);
     } while (c != EOF);
     if (*n_objs == 0)
         (*n_objs) = 1;             /* prout */
@@ -314,7 +314,7 @@ static void readinfos (FILE *fp, int *n_objs,
 
 /* lit la taille du tableau d'indices de l'objet selectionne
    (retourne le nombre de valeurs que devra stocker le tableau) */
-static int readnumindices (FILE *fp)
+static int war_readnumindices (FILE *fp)
 {
     int c;
     int n = 0;
@@ -324,12 +324,12 @@ static int readnumindices (FILE *fp)
         switch (c) {
         case 'f':
             /* nombre d indices que comporte la face */
-            switch (strsinline (fp, 1)) {
+            switch (war_strsinline (fp, 1)) {
             case 0:
             case 1:
                 war_error ("line %u : bad file format, "
                            "face with lesser than two vertices!",
-                           getline (fp));
+                           war_getline (fp));
                 return -1;
                 break;
             case 2:
@@ -342,7 +342,7 @@ static int readnumindices (FILE *fp)
             default:
                 war_error ("line %u : bad file format, "
                            "face with more than 4 vertices!",
-                           getline (fp));
+                           war_getline (fp));
                 return -1;
             }
             break;
@@ -352,25 +352,25 @@ static int readnumindices (FILE *fp)
             c = EOF;
         }
         if (c != '\n')
-            jumpline (fp);
+            war_jumpline (fp);
     } while (c != EOF);
 
     return n;
 }
 
-static void readdataline (FILE *fp, WAfloat4 *data, int tex)
+static void war_readdataline (FILE *fp, WAfloat4 *data, int tex)
 {
-    jumpspaces (fp);
-    readfloat (fp, &data[0]);
-    jumpspaces (fp);
-    readfloat (fp, &data[1]);
+    war_jumpspaces (fp);
+    war_readfloat (fp, &data[0]);
+    war_jumpspaces (fp);
+    war_readfloat (fp, &data[1]);
     if (!tex) {
-        jumpspaces (fp);
-        readfloat (fp, &data[2]);
+        war_jumpspaces (fp);
+        war_readfloat (fp, &data[2]);
     }
 }
 
-static void readdata (FILE *fp, WAfloat4 *v, WAfloat4 *vt, WAfloat4 *vn)
+static void war_readdata (FILE *fp, WAfloat4 *v, WAfloat4 *vt, WAfloat4 *vn)
 {
     int c;
     WAuint i = 0, j = 0, k = 0; /* initialisations importantes */
@@ -383,29 +383,29 @@ static void readdata (FILE *fp, WAfloat4 *v, WAfloat4 *vt, WAfloat4 *vn)
             switch (c) {
             case ' ':
                 if (v) {
-                    readdataline (fp, &v[i], 0);
+                    war_readdataline (fp, &v[i], 0);
                     i += 3;
                 }
                 break;
             case 't':
                 if (vt) {
-                    readdataline (fp, &vt[j], 1);
+                    war_readdataline (fp, &vt[j], 1);
                     j += 2;
                 }
                 break;
             case 'n':
                 if (vn) {
-                    readdataline (fp, &vn[k], 0);
+                    war_readdataline (fp, &vn[k], 0);
                     k += 3;
                 }
             }
         }
         if (c != '\n')
-            jumpline (fp);
+            war_jumpline (fp);
     } while (c != EOF);
 }
 
-static int readindexline (FILE *fp, WAint4 *indices)
+static int war_readindexline (FILE *fp, WAint4 *indices)
 {
     int c;
     WAuint i, j;
@@ -414,11 +414,11 @@ static int readindexline (FILE *fp, WAint4 *indices)
     WAuint numstr;
 
     /* algorithme de lecture des donnees dans 'fp' */
-    numstr = strsinline (fp, 1);
-    for (i=0; i<numstr; i++) {
-        jumpspaces (fp);
+    numstr = war_strsinline (fp, 1);
+    for (i = 0; i < numstr; i++) {
+        war_jumpspaces (fp);
         for (j=0; j<3; j++) {
-            readuint (fp, &index[i][j]);
+            war_readuint (fp, &index[i][j]);
             c = fgetc (fp);
             if (c == '/') {
                 c = fgetc (fp);
@@ -472,7 +472,7 @@ static int readindexline (FILE *fp, WAint4 *indices)
     return numstr;
 }
 
-static void readindices (FILE *fp, WAint4 *indices)
+static void war_readindices (FILE *fp, WAint4 *indices)
 {
     int c;
     size_t pos = 0; /* initialisation importante */
@@ -480,22 +480,22 @@ static void readindices (FILE *fp, WAint4 *indices)
     do {
         c = fgetc (fp);
         if (c == 'f')
-            pos += readindexline (fp, &indices[pos]);
+            pos += war_readindexline (fp, &indices[pos]);
         else if (c == 'o') /* definition d'un autre objet, arret */
             break;
         else if (c != '\n')
-            jumpline (fp);
+            war_jumpline (fp);
     } while (c != EOF);
 }
 
 
-static int vectcmp (WAint4 *a, WAint4 *b)
+static int war_vectcmp (WAint4 *a, WAint4 *b)
 {
     return (a[0] == b[0] && a[1] == b[1] && a[2] == b[2]);
 }
 
 /* construit des indices pour un mesh et tri ses sommets en consequence */
-static int makeindices (WarMesh *me)
+static int war_makeindices (WarMesh *me)
 {
     WAint4 *indices = NULL;
     WAuint i, j, k = 0, l = 0, m = 0;
@@ -530,7 +530,7 @@ static int makeindices (WarMesh *me)
         }
 
     /* pour chaque triangle */
-    for (i=0; i<n_triangles; i++) {
+    for (i = 0; i < n_triangles; i++) {
         prc = (float)i / n_triangles;
         prc *= 100.;
         if (prc >= prc_back+0.1)
@@ -543,7 +543,7 @@ static int makeindices (WarMesh *me)
             /* on verifie tous les precedents indices pour en trouver
                un identique... */
             for (m=l; m>0; m--) {
-                if (vectcmp (&index[(m-1)*3], &index[l*3])) {
+                if (war_vectcmp (&index[(m-1)*3], &index[l*3])) {
                     /* un indice a ete trouve, on l'utilise et ignore
                        la copie des donnees vectorielles */
                     indices[l] = indices[m-1];
@@ -591,7 +591,7 @@ static int makeindices (WarMesh *me)
 }
 
 /* cree une suite de sommets en fonction d'indices du type des .obj */
-static int makevertices (WarMesh *me)
+static int war_makevertices (WarMesh *me)
 {
     WAuint i, j;
     WAfloat4 *pos = NULL, *nor = NULL, *tex = NULL;
@@ -613,18 +613,18 @@ static int makevertices (WarMesh *me)
             return -1;
         }
 
-    for (i=0; i<me->icount; i+=3) {
-        for (j=0; j<3; j++)
+    for (i = 0; i < me->icount; i += 3) {
+        for (j = 0; j < 3; j++)
             pos[i+j] = me->pos[3*me->indices[i]+j-3];
     }
     if (nor) {
-        for (i=2; i<me->icount; i+=3) {
-            for (j=0; j<3; j++)
+        for (i = 2; i < me->icount; i += 3) {
+            for (j = 0; j < 3; j++)
                 nor[i-2+j] = me->nor[3*me->indices[i]+j-3];
         }
     }
     if (tex) {
-        for (i=1; i<me->icount; i+=3) {
+        for (i = 1; i < me->icount; i += 3) {
             tex[i-1-(i-1)/3]   = me->tex[2*me->indices[i]-2];
             tex[i-1-(i-1)/3+1] = me->tex[2*me->indices[i]-1];
         }
@@ -658,7 +658,7 @@ WarMesh** war_read (FILE *fp, int gen_indices, int *n_objs)
     }
 
     /* lecture des informations generales */
-    readinfos (fp, n_objs, &v, &vt, &vn);
+    war_readinfos (fp, n_objs, &v, &vt, &vn);
     if (v == 0 && vt == 0 && vn == 0) {
         war_error ("bad file format : can't read some valid OBJ data");
         return NULL;
@@ -672,7 +672,7 @@ WarMesh** war_read (FILE *fp, int gen_indices, int *n_objs)
         return NULL;
     /* initialisation des pointeurs a NULL pour rendre
        possible l'utilisation de WAR_ASSERT */
-    for (i=0; i<*n_objs; i++)
+    for (i = 0; i < *n_objs; i++)
         meshs[i] = NULL;
 
     /* creation du premier objet */
@@ -685,7 +685,7 @@ WarMesh** war_read (FILE *fp, int gen_indices, int *n_objs)
     WAR_ASSERT (!(meshs[0]->nor = malloc (vn * sizeof *meshs[0]->nor)))
 
     /* creation des autres objets */
-    for (i=1; i<*n_objs; i++) {
+    for (i = 1; i < *n_objs; i++) {
         WAR_ASSERT (!(meshs[i] = war_new ()))
         meshs[i]->pos = meshs[0]->pos;
         meshs[i]->tex = meshs[0]->tex;
@@ -693,10 +693,10 @@ WarMesh** war_read (FILE *fp, int gen_indices, int *n_objs)
     }
 
     /* lecture des donnees de sommet */
-    readdata (fp, meshs[0]->pos, meshs[0]->tex, meshs[0]->nor);
+    war_readdata (fp, meshs[0]->pos, meshs[0]->tex, meshs[0]->nor);
     rewind (fp);
 
-    switch (readnumindices (fp)) { /* pour aller jusqu'au prochain 'o' */
+    switch (war_readnumindices (fp)) { /* pour aller jusqu'au prochain 'o' */
     case -1: WAR_ASSERT (1)
     case 0: break;
     default:
@@ -706,8 +706,8 @@ WarMesh** war_read (FILE *fp, int gen_indices, int *n_objs)
         o_first = 0;
     }
     /* lecture de la taille des tableaux d'indices et allocations */
-    for (i=0; i<*n_objs; i++) {
-        WAR_ASSERT ((meshs[i]->icount = readnumindices (fp)) < 0)
+    for (i = 0; i < *n_objs; i++) {
+        WAR_ASSERT ((meshs[i]->icount = war_readnumindices (fp)) < 0)
         if (meshs[i]->icount == 0) {
             war_error ("bad file format : 0 value read for index count");
             WAR_ASSERT (1)
@@ -717,17 +717,17 @@ WarMesh** war_read (FILE *fp, int gen_indices, int *n_objs)
     }
     rewind (fp);
     if (o_first)
-        WAR_ASSERT (readnumindices (fp) < 0) /* pour aller jusqu'au prochain 'o' */
+        WAR_ASSERT (war_readnumindices (fp) < 0) /* pour aller jusqu'au prochain 'o' */
     /* lecture des indices */
     for (i=0; i<*n_objs; i++)
-        readindices (fp, meshs[i]->indices);
+        war_readindices (fp, meshs[i]->indices);
 
     /* construction des meshs */
     if (gen_indices)
-        make = makeindices;
+        make = war_makeindices;
     else
-        make = makevertices;
-    for (i=1; i<*n_objs; i++)
+        make = war_makevertices;
+    for (i = 1; i < *n_objs; i++)
         WAR_ASSERT (make (meshs[i]) < 0)
 
     /* on construit le premier en dernier car on l'a autorise

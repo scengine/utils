@@ -22,6 +22,7 @@
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEResources.h>
+#include <SCE/utils/SCEMedia.h>
 #include <SCE/interface/SCEMD5Loader.h>
 #include <SCE/interface/SCEAnimation.h>
 

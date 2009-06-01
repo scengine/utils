@@ -22,6 +22,7 @@
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEResources.h>
+#include <SCE/utils/SCEMedia.h>
 #include <SCE/interface/SCEMD5Loader.h>
 #include <SCE/interface/SCEAnimatedMesh.h>
 
@@ -245,6 +246,7 @@ int SCE_AnimMesh_AllocateVertices (SCE_SAnimatedMesh *amesh, unsigned int n)
     amesh->n_vertices = n;
     for (i = 0; i < n; i++)
         SCE_AnimMesh_InitVertex (&amesh->vertices[i]);
+    return SCE_OK;
 }
 /**
  * \brief Allocates memory for vertex weights
@@ -262,6 +264,7 @@ int SCE_AnimMesh_AllocateWeights (SCE_SAnimatedMesh *amesh, unsigned int n)
     amesh->n_weights = n;
     for (i = 0; i < n; i++)
         SCE_AnimMesh_InitWeight (&amesh->weights[i]);
+    return SCE_OK;
 }
 
 /**
@@ -365,6 +368,7 @@ int SCE_AnimMesh_SetBaseVerticesDup (SCE_SAnimatedMesh *amesh, int attrib,
         }
     }
     SCE_AnimMesh_SetBaseVertices (amesh, attrib, new, local);
+    return SCE_OK;
 }
 /**
  * \brief Defines an output buffer where write the resulting vectors after
@@ -928,7 +932,7 @@ int SCE_AnimMesh_SetGlobal (SCE_SAnimatedMesh *amesh)
 int SCE_AnimMesh_BuildMesh (SCE_SAnimatedMesh *amesh, int mode, int *size_array)
 {
     int code = SCE_OK;
-    unsigned int posid, norid, tanid, binid;
+    unsigned int posid = 0, norid = 0, tanid = 0, binid = 0;
     int *size = NULL;
     SCE_SMesh *mesh = NULL;
 
@@ -936,6 +940,7 @@ int SCE_AnimMesh_BuildMesh (SCE_SAnimatedMesh *amesh, int mode, int *size_array)
     if (!(mesh = SCE_Mesh_Create ()))
         goto failure;
 
+    posid = norid = tanid = binid = 0;
     size = (size_array ? size_array : amesh->size);
 
     switch (mode)
@@ -946,12 +951,11 @@ int SCE_AnimMesh_BuildMesh (SCE_SAnimatedMesh *amesh, int mode, int *size_array)
         tanid = 2;
         binid = 3;
         break;
-    case SCE_GLOBAL_VERTEX_BUFFER:
-        posid = norid = tanid = binid = 0;
-        break;
     case SCE_GLOBAL_TBN_VERTEX_BUFFER:
         posid = 0;
         norid = tanid = binid = 1;
+        break;
+/*    case SCE_GLOBAL_VERTEX_BUFFER:*/ /* default */
     }
 
 #define SCE_Anim_AddVert(id, type, size)\

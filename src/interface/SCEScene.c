@@ -894,9 +894,7 @@ static void SCE_Scene_RenderSkybox (SCE_SScene *scene, SCE_SCamera *cam)
     matcam[11] = pos[2];
     SCE_Node_HasMoved (node);
     SCE_Node_UpdateRootRecursive (node);
-    /* TODO: WHAT THE FUUUUCK */
-/*    SCE_CActivateDepthBuffer (GL_FALSE);*/
-/*    glClear (GL_DEPTH_BUFFER_BIT);*/
+
     SCE_SceneEntity_UseResources (entity);
     SCE_SceneEntity_Render (entity);
     SCE_CActivateDepthBuffer (GL_TRUE);

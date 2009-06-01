@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 11/04/2009 */
+   updated: 01/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 #include <SCE/interface/lib4fm.h>
@@ -625,6 +625,7 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
     SCE_SMeshVertexData *d = NULL;
     SCE_SListIterator *it = NULL;
     SCE_SMeshVertexBuffer *vb = NULL;
+    int id_;
 
 #define SCE_MESH_ERROR()\
     {\
@@ -692,8 +693,9 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
     if (!it)
     {
         /* create if it doesn't exist */
-        if ((id = SCE_Mesh_AddNewVB (mesh, 0)) < 0)
+        if ((id_ = SCE_Mesh_AddNewVB (mesh, 0)) < 0)
             SCE_MESH_ERROR ()
+        id = id_;
         it = SCE_List_GetIterator (mesh->vertices, id);
     }
     vb = SCE_List_GetData (it);
@@ -1063,7 +1065,7 @@ int SCE_Mesh_SortFaces (SCE_SMesh *mesh, int order, SCE_TVector3 p)
     SCE_SListIterator *it = NULL;
     SCE_SMeshFaceInfo *info = NULL;
     SCE_TVector3 center, vertex[4];
-    int vpf;
+    unsigned int vpf;
     SCEvertices *pos = mesh->position;
     SCEindices *indices = mesh->ib.data;
 
@@ -1091,7 +1093,7 @@ int SCE_Mesh_SortFaces (SCE_SMesh *mesh, int order, SCE_TVector3 p)
     SCE_List_ForEach (it, mesh->sortedfaces)
     {
         info = SCE_List_GetData (it);
-        for (i=0; i<vpf; i++)
+        for (i = 0; i < vpf; i++)
             SCE_Vector3_Copy (vertex[i], &pos[info->index[i]]);
         SCE_Mesh_GetFaceCenter (vertex, vpf, center);
         info->dist = SCE_Vector3_Distance (center, p);
