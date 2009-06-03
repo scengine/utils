@@ -27,4 +27,5 @@ sce_include_interface_HEADERS = lib4fm.h \
                                 SCEShaders.h \
                                 SCESkybox.h \
                                 SCEState.h \
+                                SCESphereMesh.h \
                                 SCETexture.h

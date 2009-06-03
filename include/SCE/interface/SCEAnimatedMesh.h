@@ -69,7 +69,6 @@ struct sce_sanimatedmesh
     unsigned int n_weights;
 
     SCEvertices *base[SCE_MAX_ANIMATED_VERTEX_ATTRIBUTES];
-    SCEvertices *tmpbase;
     int local[SCE_MAX_ANIMATED_VERTEX_ATTRIBUTES];
     SCEvertices *output[SCE_MAX_ANIMATED_VERTEX_ATTRIBUTES];
     int size[SCE_MAX_ANIMATED_VERTEX_ATTRIBUTES];

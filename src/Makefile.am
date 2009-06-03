@@ -30,6 +30,7 @@ libSCE_la_SOURCES = SCEngine.c \
                     interface/SCEAnimation.c \
                     interface/SCEMD5Loader.c \
                     interface/SCEBoundingSphere.c \
+                    interface/SCESphereMesh.c \
                     interface/libwar.c \
                     interface/lib4fm.c \
                     SCEGLee.c \

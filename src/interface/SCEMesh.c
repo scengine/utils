@@ -617,6 +617,8 @@ SCEvertices* SCE_Mesh_GetVerticesBinormals (SCE_SMesh *mesh)
  * see the documentation of glVertexPointer() and its friends.
  *
  * \warning SCE_OK is 0, and a vertex buffer id can be 0 too.
+ * \sa SCE_Mesh_AddVerticesDup(), SCE_Mesh_AddGenVertices(),
+ * SCE_Mesh_SetIndices()
  */
 int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
                           SCEenum type, unsigned int size, unsigned int count,
@@ -777,6 +779,8 @@ int SCE_Mesh_AddVerticesDup (SCE_SMesh *mesh, unsigned int id, int attrib,
  * the indices for rendering. \p type must be an integer and unsigned type,
  * it is recommanded to use SCE_INDICES_TYPE for \p type, that gives a full
  * compatibility with functions acts on the mesh's geometry.
+ * \sa SCE_Mesh_SetIndicesDup(), SCE_Mesh_AddVertices(),
+ * SCE_Mesh_AddGenVertices()
  */
 int SCE_Mesh_SetIndices (SCE_SMesh *mesh, SCEenum usage, SCEenum type,
                          unsigned int count, void *data, int canfree)

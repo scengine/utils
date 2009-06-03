@@ -960,7 +960,7 @@ int SCE_AnimMesh_BuildMesh (SCE_SAnimatedMesh *amesh, int mode, int *size_array)
 
 #define SCE_Anim_AddVert(id, type, size)\
     SCE_Mesh_AddVertices (mesh, id, type, SCE_VERTICES_TYPE,\
-                          size, amesh->n_vertices, NULL, 0)
+                          size, amesh->n_vertices, NULL, SCE_FALSE)
     if (amesh->base[0])
     {
         if (SCE_Anim_AddVert (posid, SCE_POSITION, size[0]) < 0)
