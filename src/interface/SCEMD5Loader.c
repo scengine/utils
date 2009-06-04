@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 10/04/2009
-   updated: 08/05/2009 */
+   updated: 04/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -38,7 +38,7 @@ void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
     int n_joints = 0, n_meshes = 0;
     int n_verts = 0, n_weights = 0, n_tris = 0;
     int max_tris = 0, max_verts = 0;
-    unsigned int *indices = NULL;
+    SCEindices *indices = NULL;
 
     if (!(baseskel = SCE_Skeleton_Create ()))
         goto failure;
@@ -168,14 +168,13 @@ void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
 	}
     }
 
+    SCE_AnimMesh_SetIndices (amesh, indices, n_tris * 3);
     if (SCE_AnimMesh_BuildMesh (amesh, SCE_INDEPENDANT_VERTEX_BUFFER, NULL) < 0)
         goto failure;
     mesh = SCE_AnimMesh_GetMesh (amesh);
-    if (SCE_Mesh_SetIndicesDup (mesh, 0, SCE_UNSIGNED_INT,
-                                n_tris * 3, indices) < 0 ||
-        SCE_Mesh_Build (mesh) < 0)
+    if (SCE_Mesh_Build (mesh) < 0)
         goto failure;
-    SCE_free (indices);
+
     SCE_Skeleton_ComputeMatrices (baseskel, 0);
     SCE_AnimMesh_SetBaseSkeleton (amesh, baseskel, SCE_TRUE);
 

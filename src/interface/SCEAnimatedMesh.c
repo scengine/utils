@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 06/04/2009
-   updated: 13/05/2009 */
+   updated: 04/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -91,8 +91,10 @@ static void SCE_AnimMesh_Init (SCE_SAnimatedMesh *amesh)
     amesh->canfree_animskel = amesh->canfree_baseskel = SCE_FALSE;
     amesh->vertices = NULL;
     amesh->weights = NULL;
+    amesh->indices = NULL;
     amesh->n_vertices = 0;
     amesh->n_weights = 0;
+    amesh->n_indices = 0;
     for (i = 0; i < SCE_MAX_ANIMATED_VERTEX_ATTRIBUTES; i++)
     {
         amesh->base[i] = NULL;
@@ -128,7 +130,7 @@ void SCE_AnimMesh_Delete (SCE_SAnimatedMesh *amesh)
         unsigned int i;
         for (i = 0; i < SCE_MAX_ANIMATED_VERTEX_ATTRIBUTES; i++)
             SCE_free (amesh->base[i]);
-
+        SCE_free (amesh->indices);
         if (amesh->canfree_baseskel)
             SCE_Skeleton_Delete (amesh->baseskel);
         if (amesh->canfree_animskel)
@@ -265,6 +267,18 @@ int SCE_AnimMesh_AllocateWeights (SCE_SAnimatedMesh *amesh, unsigned int n)
     for (i = 0; i < n; i++)
         SCE_AnimMesh_InitWeight (&amesh->weights[i]);
     return SCE_OK;
+}
+
+/**
+ * \brief Sets the vertices indices of an animated mesh
+ * \sa SCE_AnimMesh_SetVertices(), SCE_Mesh_SetIndices()
+ */
+void SCE_AnimMesh_SetIndices (SCE_SAnimatedMesh *amesh, SCEindices *indices,
+                              unsigned int n_indices)
+{
+    SCE_free (amesh->indices);
+    amesh->indices = indices;
+    amesh->n_indices = n_indices;
 }
 
 /**
@@ -958,8 +972,8 @@ int SCE_AnimMesh_BuildMesh (SCE_SAnimatedMesh *amesh, int mode, int *size_array)
 /*    case SCE_GLOBAL_VERTEX_BUFFER:*/ /* default */
     }
 
-#define SCE_Anim_AddVert(id, type, size)\
-    SCE_Mesh_AddVertices (mesh, id, type, SCE_VERTICES_TYPE,\
+#define SCE_Anim_AddVert(id, type, size)                                \
+    SCE_Mesh_AddVertices (mesh, id, type, SCE_VERTICES_TYPE,            \
                           size, amesh->n_vertices, NULL, SCE_FALSE)
     if (amesh->base[0])
     {
@@ -994,7 +1008,12 @@ int SCE_AnimMesh_BuildMesh (SCE_SAnimatedMesh *amesh, int mode, int *size_array)
              size[3]);
     }
 #undef SCE_Anim_AddVert
-
+    if (amesh->indices)
+    {
+        if (SCE_Mesh_SetIndices (mesh, 0, SCE_INDICES_TYPE, amesh->n_indices,
+                                 amesh->indices, SCE_FALSE) < 0)
+            goto failure;
+    }
     SCE_Mesh_SetRenderMode (mesh, SCE_TRIANGLES);
     if (SCE_Mesh_Build (mesh) < 0)
         goto failure;

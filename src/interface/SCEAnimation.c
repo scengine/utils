@@ -319,6 +319,7 @@ void SCE_Anim_Start (SCE_SAnimation *anim)
  * \returns a boolean, which indicates if the current interpolated key has
  * changed (can be used to apply (or not) the current key to an animated mesh)
  * \sa SCE_Anim_GetCurrentKey()
+ * \todo time-location for the frames, not linear animation
  */
 int SCE_Anim_Animate (SCE_SAnimation *anim, float offset)
 {

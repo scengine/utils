@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 06/04/2009
-   updated: 09/05/2009 */
+   updated: 04/06/2009 */
 
 #ifndef SCEANIMATEDMESH_H
 #define SCEANIMATEDMESH_H
@@ -65,8 +65,10 @@ struct sce_sanimatedmesh
 
     SCE_SVertex *vertices;
     SCE_SVertexWeight *weights;
+    SCEindices *indices;
     unsigned int n_vertices;
     unsigned int n_weights;
+    unsigned int n_indices;
 
     SCEvertices *base[SCE_MAX_ANIMATED_VERTEX_ATTRIBUTES];
     int local[SCE_MAX_ANIMATED_VERTEX_ATTRIBUTES];
@@ -91,6 +93,8 @@ void SCE_AnimMesh_SetWeights (SCE_SAnimatedMesh*, SCE_SVertexWeight*,
 
 int SCE_AnimMesh_AllocateVertices (SCE_SAnimatedMesh*, unsigned int);
 int SCE_AnimMesh_AllocateWeights (SCE_SAnimatedMesh*, unsigned int);
+
+void SCE_AnimMesh_SetIndices (SCE_SAnimatedMesh*, SCEindices*, unsigned int);
 
 SCE_SVertex* SCE_AnimMesh_GetVertices (SCE_SAnimatedMesh*);
 SCE_SVertexWeight* SCE_AnimMesh_GetWeights (SCE_SAnimatedMesh*);
