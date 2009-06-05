@@ -165,12 +165,19 @@ do {\
     for ((it) = (l)->first.next, (pro) = (it)->next;\
          (pro);\
          (it) = (pro), (pro) = (pro)->next)
-
+#if 0
 #define SCE_List_ForEachNextList(l)\
     for (; (l)->last.next; (l) = (l)->last.next->data)
 #define SCE_List_ForEachPrevList(l)\
     for (; (l)->first.prev; (l) = (l)->first.prev->data)
+#else
+#define SCE_List_ForEachNextList(l)\
+    for (; (l); (l) = ((l)->last.next ? (l)->last.next->data : NULL))
+#define SCE_List_ForEachPrevList(l)\
+    for (; (l); (l) = ((l)->first.prev ? (l)->first.prev->data : NULL))
+#endif
 
+#if 0
 #define SCE_List_ForEachNextListProtected(pro, l)\
     for ((pro) = (((l) && (l)->last.next) ? (l)->last.next->data : (l)); \
          (l);\
@@ -181,7 +188,18 @@ do {\
          (l);\
          (l) = (pro), (pro) = (((pro) && (pro)->first.prev) ?\
                                 (pro)->first.prev->data : NULL))
-
+#else
+#define SCE_List_ForEachNextListProtected(pro, l)\
+    for ((pro) = ((l)->last.next ? (l)->last.next->data : NULL); \
+         (l);\
+         (l) = (pro), (pro) = ((pro) && (pro)->last.next ?\
+                                (pro)->last.next->data : NULL))
+#define SCE_List_ForEachPrevListProtected(pro, l)\
+    for ((pro) = ((l)->first.prev ? (l)->first.prev->data : NULL);    \
+         (l);\
+         (l) = (pro), (pro) = (((pro) && (pro)->first.prev) ?\
+                                (pro)->first.prev->data : NULL))
+#endif
 
 /** \deprecated */
 #define SCE_List_ForEachNext(it)\
