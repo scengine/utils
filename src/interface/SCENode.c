@@ -116,6 +116,7 @@ void SCE_Node_Delete (SCE_SNode *node)
 #if !SCE_LIST_ITERATOR_NO_MALLOC
         SCE_List_DeleteIt (node->it);
 #endif
+        SCE_Octree_DeleteElement (node->element);
         SCE_List_Delete (node->child);
         SCE_free (node);
     }

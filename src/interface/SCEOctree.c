@@ -474,7 +474,6 @@ static void SCE_Octree_Insert (SCE_SOctree *tree, SCE_SOctreeElement *el)
  * \brief Inserts an element into an octree
  * \param tree an octree
  * \param el the element to insert
- * \param in indicates if \p el is already in the box of \p tree
  * \returns SCE_ERROR when \p el is out of \p tree, SCE_OK otherwise
  * \note \p el must have been previously added by SCE_Octree_AddElement()
  * \sa SCE_Octree_ReinsertElement(), SCE_Octree_RemoveElement()

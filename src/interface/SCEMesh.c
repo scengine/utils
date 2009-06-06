@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 01/06/2009 */
+   updated: 06/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 #include <SCE/interface/lib4fm.h>
@@ -1536,25 +1536,26 @@ success:
  * \param v the vertices' positions (the vectors must have 3 components)
  * \param vcount the number of vertices to read into \p v
  * \param o the position of the bounding box's origin (point bottom, left, near)
- * \param w bounding box's width
- * \param h bounding box's height
- * \param d bounding box's depth
+ * \param w,h,d bounding box dimensions, width, height and depth
  * \sa SCE_Mesh_GenerateBoundingBox()
  */
 void SCE_Mesh_ComputeBoundingBox (SCEvertices *v, unsigned int vcount,
                                   SCE_TVector3 o, float *w, float *h, float *d)
 {
-    SCE_TVector3 max = {0., 0., 0.}, min = {0., 0., 0.};
-    unsigned int i, p, count;
+    SCE_TVector3 max = {0., 0., 0.};
+    SCE_TVector3 min = {0., 0., 0.};
+    unsigned int i, j, count;
 
     /* TODO: utiliser un "Rectangle3D" ? */
     SCE_btstart ();
     count = vcount * 3;
-    for (i=0; i<count; i++)
+    for (i = 0; i < count; i += 3)
     {
-        p = i % 3;
-        max[p] = (v[i] > max[p] ? v[i] : max[p]);
-        min[p] = (v[i] < min[p] ? v[i] : min[p]);
+        for (j = 0; j < 3; j++)
+        {
+            max[j] = (v[i + j] > max[j] ? v[i + j] : max[j]);
+            min[j] = (v[i + j] < min[j] ? v[i + j] : min[j]);
+        }
     }
     SCE_Vector3_Operator1v (o, =, min);
     *w = max[0] - min[0];
@@ -1581,18 +1582,12 @@ void SCE_Mesh_ComputeBoundingBoxv (SCEvertices *v, unsigned int vcount,
  */
 int SCE_Mesh_GenerateBoundingBox (SCE_SMesh *mesh, SCE_SBoundingBox *box)
 {
-    SCE_SMeshVertexData *v = NULL;
+    SCEvertices *pos = NULL;
     SCE_TVector3 o, d;
 
     SCE_btstart ();
-    v = SCE_Mesh_GetVertices (mesh, SCE_POSITION, "vertices positions");
-    if (!v)
-    {
-        Logger_LogSrc ();
-        SCE_btend ();
-        return SCE_ERROR;
-    }
-    SCE_Mesh_ComputeBoundingBoxv (v->data, mesh->vcount, o, d);
+    pos = mesh->position;
+    SCE_Mesh_ComputeBoundingBoxv (pos, mesh->vcount, o, d);
     SCE_BoundingBox_Setv (box, o, d);
     SCE_btend ();
     return SCE_OK;
@@ -1645,19 +1640,13 @@ void SCE_Mesh_ComputeBoundingSphere (SCEvertices *v, unsigned int vcount,
  */
 int SCE_Mesh_GenerateBoundingSphere (SCE_SMesh *mesh, SCE_SBoundingSphere *s)
 {
+    SCEvertices *pos = NULL;
     SCE_TVector3 center = {0.0, 0.0, 0.0};
     float radius = 0.0;
-    SCE_SMeshVertexData *v = NULL;
 
     SCE_btstart ();
-    v = SCE_Mesh_GetVertices (mesh, SCE_POSITION, "vertices positions");
-    if (!v)
-    {
-        Logger_LogSrc ();
-        SCE_btend ();
-        return SCE_ERROR;
-    }
-    SCE_Mesh_ComputeBoundingSphere (v->data, mesh->vcount, center, &radius);
+    pos = mesh->position;
+    SCE_Mesh_ComputeBoundingSphere (pos, mesh->vcount, center, &radius);
     SCE_BoundingSphere_Setv (s, center, radius);
     SCE_btend ();
     return SCE_OK;

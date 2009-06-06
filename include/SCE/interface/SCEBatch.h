@@ -17,10 +17,12 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/11/2008
-   updated: 30/11/2008 */
+   updated: 05/06/2009 */
 
 #ifndef SCEBATCH_H
 #define SCEBATCH_H
+
+#include <SCE/interface/SCESceneResource.h>
 
 #ifdef __cplusplus
 extern "C"

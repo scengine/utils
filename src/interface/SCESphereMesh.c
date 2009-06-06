@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 02/06/2009
-   updated: 03/06/2009 */
+   updated: 06/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -54,8 +54,8 @@ SCE_SphereMesh_GenerateUV (SCE_TVector3 center, float radius, SCEuint segments,
     float seg_offset = 2.0 * M_PI / (float)segments;
     float rin_offset = M_PI / (float)rings;
 
-    *n_pos = (segments * rings + 2) * 3;
-    if (!(p = SCE_malloc (*n_pos * sizeof *p)))
+    *n_pos = segments * rings + 2;
+    if (!(p = SCE_malloc (*n_pos * 3 * sizeof *p)))
         goto failure;
     n_indices = segments * rings * 6;
     if (!(indices = SCE_malloc (n_indices * sizeof *indices)))

@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 15/05/2009 */
+   updated: 06/06/2009 */
 
 #ifndef SCEVECTOR_H
 #define SCEVECTOR_H
@@ -51,68 +51,69 @@ typedef float SCE_TVector2[2];
 #define SCE_Vector3_Copy(v1, v2) memcpy (v1, v2, 3 * sizeof (*(v2)))
 #define SCE_Vector2_Copy(v1, v2) memcpy (v1, v2, 2 * sizeof (*(v2)))
 
-#define SCE_Vector2_Set(v, x, y){\
-        (v)[0] = (x), (v)[1] = (y);}
-#define SCE_Vector3_Set(v, x, y, z){\
-        (v)[0] = (x), (v)[1] = (y), (v)[2] = (z);}
-#define SCE_Vector4_Set(v, x, y, z, w){\
-        (v)[0] = (x), (v)[1] = (y), (v)[2] = (z), (v)[3] = (w);}
+#define SCE_Vector2_Set(v, x, y) do {\
+        (v)[0] = (x), (v)[1] = (y);} while (0)
+#define SCE_Vector3_Set(v, x, y, z) do {\
+        (v)[0] = (x), (v)[1] = (y), (v)[2] = (z);} while (0)
+#define SCE_Vector4_Set(v, x, y, z, w) do {\
+        (v)[0] = (x), (v)[1] = (y), (v)[2] = (z), (v)[3] = (w);} while (0)
 
 #define SCE_Vector3_Dot(v1, v2)\
     (((v1)[0]*(v2)[0])+((v1)[1]*(v2)[1])+((v1)[2]*(v2)[2]))
 #define SCE_Vector2_Dot(v1, v2)\
     (((v1)[0]*(v2)[0])+((v1)[1]*(v2)[1]))
 
-#define SCE_Vector3_Cross(v1, v2, v3) {\
+#define SCE_Vector3_Cross(v1, v2, v3) do {\
     (v1)[0] = (v2)[1]*(v3)[2] - (v2)[2]*(v3)[1];\
     (v1)[1] = (v2)[2]*(v3)[0] - (v2)[0]*(v3)[2];\
-    (v1)[2] = (v2)[0]*(v3)[1] - (v2)[1]*(v3)[0];}
+    (v1)[2] = (v2)[0]*(v3)[1] - (v2)[1]*(v3)[0];} while (0)
 
-#define SCE_Vector2_Operator1(v, o, n) { (v)[0] o (n), (v)[1] o (n);}
-#define SCE_Vector2_Operator1v(v1, o, v2) {\
+#define SCE_Vector2_Operator1(v, o, n) do {\
+        (v)[0] o (n), (v)[1] o (n);} while (0)
+#define SCE_Vector2_Operator1v(v1, o, v2) do {\
     (v1)[0] o (v2)[0];\
-    (v1)[1] o (v2)[1];}
+    (v1)[1] o (v2)[1];} while (0)
 
-#define SCE_Vector2_Operator2(v, o1, v2, o2, n){\
+#define SCE_Vector2_Operator2(v, o1, v2, o2, n) do {\
     (v)[0] o1 (v2)[0] o2 (n);\
-    (v)[1] o1 (v2)[1] o2 (n);}
-#define SCE_Vector2_Operator2v(v1, o1, v2, o2, v3){\
+    (v)[1] o1 (v2)[1] o2 (n);} while (0)
+#define SCE_Vector2_Operator2v(v1, o1, v2, o2, v3) do {\
     (v1)[0] o1 (v2)[0] o2 (v3)[0];\
-    (v1)[1] o1 (v2)[1] o2 (v3)[1];}
+    (v1)[1] o1 (v2)[1] o2 (v3)[1];} while (0)
 
-#define SCE_Vector2_Operator3v(v1, o1, v2, o2, v3, o3, v4){\
+#define SCE_Vector2_Operator3v(v1, o1, v2, o2, v3, o3, v4) do {\
     (v1)[0] o1 (v2)[0] o2 (v3)[0] o3 (v4)[0];\
-    (v1)[1] o1 (v2)[1] o2 (v3)[1] o3 (v4)[1];}
+    (v1)[1] o1 (v2)[1] o2 (v3)[1] o3 (v4)[1];} while (0)
 
 
-#define SCE_Vector3_Operator1(v, o, n){\
-    (v)[0] o (n); (v)[1] o (n); (v)[2] o (n);}
-#define SCE_Vector3_Operator1v(v1, o, v2){\
+#define SCE_Vector3_Operator1(v, o, n) do {\
+        (v)[0] o (n); (v)[1] o (n); (v)[2] o (n);} while (0)
+#define SCE_Vector3_Operator1v(v1, o, v2) do {\
     (v1)[0] o (v2)[0];\
     (v1)[1] o (v2)[1];\
-    (v1)[2] o (v2)[2];}
+    (v1)[2] o (v2)[2];} while (0)
 
-#define SCE_Vector3_Operator2(v, o1, v2, o2, n){\
+#define SCE_Vector3_Operator2(v, o1, v2, o2, n) do {\
     (v)[0] o1 (v2)[0] o2 (n);\
     (v)[1] o1 (v2)[1] o2 (n);\
-    (v)[2] o1 (v2)[2] o2 (n);}
-#define SCE_Vector3_Operator2v(v1, o1, v2, o2, v3)\
+    (v)[2] o1 (v2)[2] o2 (n);} while (0)
+#define SCE_Vector3_Operator2v(v1, o1, v2, o2, v3) do { \
     (v1)[0] o1 (v2)[0] o2 (v3)[0];\
     (v1)[1] o1 (v2)[1] o2 (v3)[1];\
-    (v1)[2] o1 (v2)[2] o2 (v3)[2]
+    (v1)[2] o1 (v2)[2] o2 (v3)[2];} while (0)
 
-#define SCE_Vector3_Operator3(v1, o1, v2, o2, v3, o3, n){\
+#define SCE_Vector3_Operator3(v1, o1, v2, o2, v3, o3, n) do {\
     (v1)[0] o1 (v2)[0] o2 (v3)[0] o3 (n);\
     (v1)[1] o1 (v2)[1] o2 (v3)[1] o3 (n);\
-    (v1)[2] o1 (v2)[2] o2 (v3)[2] o3 (n);}
-#define SCE_Vector3_Operator3v(v1, o1, v2, o2, v3, o3, v4){\
+    (v1)[2] o1 (v2)[2] o2 (v3)[2] o3 (n);} while (0)
+#define SCE_Vector3_Operator3v(v1, o1, v2, o2, v3, o3, v4) do {\
     (v1)[0] o1 (v2)[0] o2 (v3)[0] o3 (v4)[0];\
     (v1)[1] o1 (v2)[1] o2 (v3)[1] o3 (v4)[1];\
-    (v1)[2] o1 (v2)[2] o2 (v3)[2] o3 (v4)[2];}
+    (v1)[2] o1 (v2)[2] o2 (v3)[2] o3 (v4)[2];} while (0)
 
 
-#define SCE_Vector4_Operator1(v, o, n){\
-    (v)[0] o (n); (v)[1] o (n); (v)[2] o (n); (v)[3] o (n);}
+#define SCE_Vector4_Operator1(v, o, n) do {\
+        (v)[0] o (n); (v)[1] o (n); (v)[2] o (n); (v)[3] o (n);} while (0)
 
 
 void SCE_Vector3_Normalize (SCE_TVector3);

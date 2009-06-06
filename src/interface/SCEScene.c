@@ -25,9 +25,9 @@
 #include <SCE/utils/SCEVector.h>
 #include <SCE/core/SCECore.h>
 
-#include <SCE/interface/SCEScene.h>
 #include <SCE/interface/SCEBoundingBox.h>
 #include <SCE/interface/SCEBatch.h>
+#include <SCE/interface/SCEScene.h>
 
 
 /**
@@ -258,10 +258,8 @@ void SCE_Scene_OnNodeMoved (SCE_SNode *node, void *param)
 {
     /* TODO: tmp */
     SCE_SOctreeElement *el = NULL;
-    SCE_SSceneEntityInstance *einst = NULL;
     SCE_SBoundingSphere *bs = NULL;
 
-    einst = SCE_Node_GetData (node);
     el = SCE_Node_GetElement (node);
     bs = el->sphere;
 
