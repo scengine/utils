@@ -185,6 +185,7 @@ SCEvertices* SCE_Mesh_GetVerticesPositions (SCE_SMesh*);
 SCEvertices* SCE_Mesh_GetVerticesNormals (SCE_SMesh*);
 SCEvertices* SCE_Mesh_GetVerticesTangents (SCE_SMesh*);
 SCEvertices* SCE_Mesh_GetVerticesBinormals (SCE_SMesh*);
+SCEindices* SCE_Mesh_GetIndices (SCE_SMesh*);
 
 int SCE_Mesh_AddVertices (SCE_SMesh*, unsigned int, int, SCEenum,
                           unsigned int, unsigned int, void*, int);
@@ -195,6 +196,8 @@ int SCE_Mesh_SetIndices (SCE_SMesh*, SCEenum,SCEenum, unsigned int, void*, int);
 int SCE_Mesh_SetIndicesDup (SCE_SMesh*, SCEenum, SCEenum, unsigned int,
                             const void*);
 
+int SCE_Mesh_GetNumVertices (SCE_SMesh*);
+int SCE_Mesh_GetNumIndices (SCE_SMesh*);
 int SCE_Mesh_GetNumVerticesPerFace (SCE_SMesh*);
 int SCE_Mesh_GetNumFaces (SCE_SMesh*);
 

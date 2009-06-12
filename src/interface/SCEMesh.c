@@ -587,6 +587,14 @@ SCEvertices* SCE_Mesh_GetVerticesBinormals (SCE_SMesh *mesh)
 {
     return mesh->binormal;
 }
+/**
+ * \brief Gets the indices of a mesh (SCE_SMesh::ib.data)
+ */
+SCEindices* SCE_Mesh_GetIndices (SCE_SMesh *mesh)
+{
+    return mesh->ib.data;
+}
+
 
 /**
  * \brief Adds vertex data to the vertex buffer \p id of \p mesh
@@ -841,6 +849,22 @@ int SCE_Mesh_SetIndicesDup (SCE_SMesh *mesh, SCEenum mode, SCEenum type,
 }
 
 
+/**
+ * \brief Gets the number of vertices of a mesh
+ * \sa SCE_Mesh_GetNumIndices(), SCE_Mesh_GetVerticesPositions()
+ */
+int SCE_Mesh_GetNumVertices (SCE_SMesh *mesh)
+{
+    return mesh->vcount;
+}
+/**
+ * \brief Gets the number of indices of a mesh
+ * \sa SCE_Mesh_GetNumVertices(), SCE_Mesh_GetIndices()
+ */
+int SCE_Mesh_GetNumIndices (SCE_SMesh *mesh)
+{
+    return mesh->icount;
+}
 /**
  * \brief Gets the number of vertices per face
  *
@@ -1374,7 +1398,7 @@ static SCE_SMeshVertexData* SCE_Mesh_GetVertices (SCE_SMesh *mesh, SCEenum type,
     return v;
 }
 /* idem que GetVertices, mais pour les indices */
-static SCEindices* SCE_Mesh_GetIndices (SCE_SMesh *mesh, int *del)
+static SCEindices* SCE_Mesh_GetCastIndices (SCE_SMesh *mesh, int *del)
 {
     SCEindices *indices = NULL;
     if (mesh->use_indices)
@@ -1440,7 +1464,7 @@ int SCE_Mesh_GenerateTBN (SCE_SMesh *mesh, SCEvertices *tangents,
         return SCE_ERROR;
     }
     /* on recupere les indices */
-    indices = SCE_Mesh_GetIndices (mesh, &del);
+    indices = SCE_Mesh_GetCastIndices (mesh, &del);
 
     SCE_Mesh_ComputeTBN (mesh->polygon_type, vertex->data, texcoord->data,
                          indices, mesh->icount, mesh->vcount,
