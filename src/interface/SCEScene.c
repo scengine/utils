@@ -311,7 +311,7 @@ static void SCE_Scene_InsertCamera (SCE_SOctree *tree, SCE_SOctreeElement *el)
 /**
  * \brief Adds a node to a scene
  * \param scene a scene
- * \param node the node you want to attach to \p scene
+ * \param node the node to add
  * 
  * Adds a node to a scene.
  * Inserts the octree element of \p node by calling SCE_Octree_InsertElement().
@@ -344,8 +344,11 @@ void SCE_Scene_AddNode (SCE_SScene *scene, SCE_SNode *node)
  */
 void SCE_Scene_RemoveNode (SCE_SScene *scene, SCE_SNode *node)
 {
-    scene->n_nodes--;
-    SCE_Node_Detach (node);
+    if (SCE_Node_GetParent (node) == scene->rootnode)
+    {
+        scene->n_nodes--;
+        SCE_Node_Detach (node);
+    }
     SCE_Octree_RemoveElement (SCE_Node_GetElement (node));
 }
 
