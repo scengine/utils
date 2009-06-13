@@ -93,8 +93,8 @@ void SCE_List_Erase (SCE_SList*, SCE_SListIterator*);
 void SCE_List_EraseFirst (SCE_SList*);
 void SCE_List_EraseLast (SCE_SList*);
 
-void SCE_List_RemoveFromData (SCE_SList*, void*);
-void SCE_List_EraseFromData (SCE_SList*, void*);
+void SCE_List_RemoveFromData (SCE_SList*, const void*);
+void SCE_List_EraseFromData (SCE_SList*, const void*);
 
 void SCE_List_Join (SCE_SList*, SCE_SList*);
 void SCE_List_Insert (SCE_SList*, SCE_SList*);
@@ -109,19 +109,21 @@ void* SCE_List_SetData (SCE_SListIterator*, void*);
 void* SCE_List_GetData (SCE_SListIterator*);
 #endif
 
-unsigned int SCE_List_GetSize (SCE_SList*);
-SCE_SListIterator* SCE_List_GetFirst (SCE_SList*);
-SCE_SListIterator* SCE_List_GetLast (SCE_SList*);
-int SCE_List_HasElements (SCE_SList*);
+/*unsigned int SCE_List_GetSize (const SCE_SList*);*/
+#define SCE_List_GetSize(l) SCE_List_GetLength(l)
+unsigned int SCE_List_GetLength (const SCE_SList*);
+SCE_SListIterator* SCE_List_GetFirst (const SCE_SList*);
+SCE_SListIterator* SCE_List_GetLast (const SCE_SList*);
+int SCE_List_HasElements (const SCE_SList*);
 
-SCE_SListIterator* SCE_List_GetNext (SCE_SListIterator*);
-SCE_SListIterator* SCE_List_GetPrev (SCE_SListIterator*);
+SCE_SListIterator* SCE_List_GetNext (const SCE_SListIterator*);
+SCE_SListIterator* SCE_List_GetPrev (const SCE_SListIterator*);
 
-unsigned int SCE_List_GetIndex (SCE_SListIterator*);
-SCE_SListIterator* SCE_List_GetIterator (SCE_SList*, unsigned int);
-SCE_SListIterator* SCE_List_LocateIterator (SCE_SList*, void*,
+unsigned int SCE_List_GetIndex (const SCE_SListIterator*);
+SCE_SListIterator* SCE_List_GetIterator (const SCE_SList*, unsigned int);
+SCE_SListIterator* SCE_List_LocateIterator (const SCE_SList*, void*,
                                             SCE_FListCompareData);
-unsigned int SCE_List_LocateIndex (SCE_SList*, void*,
+unsigned int SCE_List_LocateIndex (const SCE_SList*, void*,
                                    SCE_FListCompareData);
 
 /**

@@ -407,7 +407,7 @@ void SCE_List_EraseLast (SCE_SList *l)
  * \sa SCE_List_EraseFromData(), SCE_List_Erase(), SCE_List_Remove(),
  * SCE_List_LocateIterator()
  */
-void SCE_List_RemoveFromData (SCE_SList *l, void *data)
+void SCE_List_RemoveFromData (SCE_SList *l, const void *data)
 {
     SCE_SListIterator *it = SCE_List_LocateIterator (l, data, NULL);
     if (it)
@@ -423,7 +423,7 @@ void SCE_List_RemoveFromData (SCE_SList *l, void *data)
  * \sa SCE_List_RemoveFromData(), SCE_List_Remove(), SCE_List_Erase(),
  * SCE_List_LocateIterator()
  */
-void SCE_List_EraseFromData (SCE_SList *l, void *data)
+void SCE_List_EraseFromData (SCE_SList *l, const void *data)
 {
     SCE_SListIterator *it = SCE_List_LocateIterator (l, data, NULL);
     if (it)
@@ -576,7 +576,7 @@ void* SCE_List_GetData (SCE_SListIterator *it)
  * \param l a SCE_SList
  * \returns the length of the list pointed by \p l
  */
-unsigned int SCE_List_GetSize (SCE_SList *l)
+unsigned int SCE_List_GetLength (const SCE_SList *l)
 {
     unsigned int n = 0;
     SCE_SListIterator *it;
@@ -590,7 +590,7 @@ unsigned int SCE_List_GetSize (SCE_SList *l)
  * \param l the list from where get the iterator
  * \returns the first iterator of the list, if any
  */
-SCE_SListIterator* SCE_List_GetFirst (SCE_SList *l)
+SCE_SListIterator* SCE_List_GetFirst (const SCE_SList *l)
 {
     return l->first.next;
 }
@@ -599,7 +599,7 @@ SCE_SListIterator* SCE_List_GetFirst (SCE_SList *l)
  * \param l the list from where get the iterator
  * \returns the last iterator of the list, if any
  */
-SCE_SListIterator* SCE_List_GetLast (SCE_SList *l)
+SCE_SListIterator* SCE_List_GetLast (const SCE_SList *l)
 {
     return l->last.prev;
 }
@@ -607,7 +607,7 @@ SCE_SListIterator* SCE_List_GetLast (SCE_SList *l)
 /**
  * \brief Has \p l any element?
  */
-int SCE_List_HasElements (SCE_SList *l)
+int SCE_List_HasElements (const SCE_SList *l)
 {
     return (l->first.next != &l->last);
 }
@@ -617,7 +617,7 @@ int SCE_List_HasElements (SCE_SList *l)
  * \param it the base iterator
  * \returns the next iterator, if any
  */
-SCE_SListIterator* SCE_List_GetNext (SCE_SListIterator *it)
+SCE_SListIterator* SCE_List_GetNext (const SCE_SListIterator *it)
 {
     return it->next;
 }
@@ -626,7 +626,7 @@ SCE_SListIterator* SCE_List_GetNext (SCE_SListIterator *it)
  * \param it the base iterator
  * \returns the previous iterator, if any
  */
-SCE_SListIterator* SCE_List_GetPrev (SCE_SListIterator *it)
+SCE_SListIterator* SCE_List_GetPrev (const SCE_SListIterator *it)
 {
     return it->prev;
 }
@@ -636,7 +636,7 @@ SCE_SListIterator* SCE_List_GetPrev (SCE_SListIterator *it)
  * \param it the iterator from which you would know the index
  * \returns the index position of the iterator
  */
-unsigned int SCE_List_GetIndex (SCE_SListIterator *it)
+unsigned int SCE_List_GetIndex (const SCE_SListIterator *it)
 {
     unsigned int n = 0;
     SCE_List_ForEachPrev (it)
@@ -650,7 +650,7 @@ unsigned int SCE_List_GetIndex (SCE_SListIterator *it)
  * \param n the index of the iterator you're searching for
  * \returns the iterator at \p n position, if any
  */
-SCE_SListIterator* SCE_List_GetIterator (SCE_SList *l, unsigned int n)
+SCE_SListIterator* SCE_List_GetIterator (const SCE_SList *l, unsigned int n)
 {
     SCE_SListIterator *it = NULL;
     unsigned int i = 0;
@@ -675,7 +675,7 @@ SCE_SListIterator* SCE_List_GetIterator (SCE_SList *l, unsigned int n)
  * This function searches for an iterator containing \p data.
  * The comparison is done by calling \p f and/or comparing the pointers.
  */
-SCE_SListIterator* SCE_List_LocateIterator (SCE_SList *l, void *data,
+SCE_SListIterator* SCE_List_LocateIterator (const SCE_SList *l, void *data,
                                             SCE_FListCompareData f)
 {
     SCE_SListIterator *i = NULL;
@@ -696,7 +696,7 @@ SCE_SListIterator* SCE_List_LocateIterator (SCE_SList *l, void *data,
  * \returns the founded iterator's index, or 0 if index can't be found
  * \sa SCE_List_LocateIterator()
  */
-unsigned int SCE_List_LocateIndex (SCE_SList *l, void *data,
+unsigned int SCE_List_LocateIndex (const SCE_SList *l, void *data,
                                    SCE_FListCompareData f)
 {
     unsigned int j = 0;

@@ -340,7 +340,7 @@ void SCE_Scene_AddNode (SCE_SScene *scene, SCE_SNode *node)
  * \brief Removes a node from a scene
  * \param node the node to remove
  * \warning the node \p node HAVE to be previously added to the scene \p scene,
- * an undefined comportement can happen otherwise.
+ * the behavior is undefined otherwise.
  */
 void SCE_Scene_RemoveNode (SCE_SScene *scene, SCE_SNode *node)
 {
