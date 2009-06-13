@@ -324,8 +324,12 @@ void SCE_Scene_AddNode (SCE_SScene *scene, SCE_SNode *node)
     SCE_SOctreeElement *el = NULL;
     el = SCE_Node_GetElement (node);
 
-    SCE_Node_Attach (scene->rootnode, node);
-    scene->n_nodes++;
+    /* let the user make his own nodes tree */
+    if (!SCE_Node_HasParent (node))
+    {
+        SCE_Node_Attach (scene->rootnode, node);
+        scene->n_nodes++;
+    }
 
     SCE_BoundingSphere_Push (el->sphere, SCE_Node_GetFinalMatrix (node));
     SCE_Octree_InsertElement (scene->octree, el);

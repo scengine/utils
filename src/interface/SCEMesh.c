@@ -824,7 +824,7 @@ int SCE_Mesh_SetIndices (SCE_SMesh *mesh, SCEenum usage, SCEenum type,
  * \returns SCE_ERROR on error, SCE_OK otherwise
  *
  * This function works like SCE_Mesh_SetIndices(), but \p data is duplicated
- * in memory and its new type is SCE_INDICES_TYPE.
+ * in memory and the copy has type SCE_INDICES_TYPE.
  */
 int SCE_Mesh_SetIndicesDup (SCE_SMesh *mesh, SCEenum mode, SCEenum type,
                             unsigned int count, const void *data)
@@ -834,7 +834,7 @@ int SCE_Mesh_SetIndicesDup (SCE_SMesh *mesh, SCEenum mode, SCEenum type,
 
     SCE_btstart ();
 #if 0
-    /* conversion des donnees en le type le plus leger */
+    /* cast to the less memory cost data type */
     t = ((count >= 256*256) ? SCE_UNSIGNED_INT : SCE_UNSIGNED_SHORT);
 #endif
     t = SCE_INDICES_TYPE;
@@ -1446,7 +1446,7 @@ int SCE_Mesh_GenerateTBN (SCE_SMesh *mesh, SCEvertices *tangents,
         return SCE_ERROR;
     }
 
-    /* on recupere les donnees */
+    /* retreive vertices */
     vertex = SCE_Mesh_GetVertices (mesh, SCE_POSITION, "vertices positions");
     if (tangents || binormals)
         texcoord = SCE_Mesh_GetVertices (mesh, SCE_TEXCOORD0 + texunit,
@@ -1463,7 +1463,7 @@ int SCE_Mesh_GenerateTBN (SCE_SMesh *mesh, SCEvertices *tangents,
         SCE_btend ();
         return SCE_ERROR;
     }
-    /* on recupere les indices */
+    /* retreive indices */
     indices = SCE_Mesh_GetCastIndices (mesh, &del);
 
     SCE_Mesh_ComputeTBN (mesh->polygon_type, vertex->data, texcoord->data,
