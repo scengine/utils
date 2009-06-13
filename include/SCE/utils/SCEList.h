@@ -93,8 +93,8 @@ void SCE_List_Erase (SCE_SList*, SCE_SListIterator*);
 void SCE_List_EraseFirst (SCE_SList*);
 void SCE_List_EraseLast (SCE_SList*);
 
-void SCE_List_RemoveFromData (SCE_SList*, const void*);
-void SCE_List_EraseFromData (SCE_SList*, const void*);
+void SCE_List_RemoveFromData (SCE_SList*, void*);
+void SCE_List_EraseFromData (SCE_SList*, void*);
 
 void SCE_List_Join (SCE_SList*, SCE_SList*);
 void SCE_List_Insert (SCE_SList*, SCE_SList*);

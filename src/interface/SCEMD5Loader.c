@@ -307,7 +307,6 @@ void* SCE_idTechMD5_LoadAnim (FILE *fp, const char *fname, void *un)
         {
             if (n_joints > 0)
             {
-                int j;
                 if (n_frames > 0)
                 {
                     if (SCE_Anim_AllocateKeys (anim, n_frames, n_joints) < 0)
@@ -317,11 +316,6 @@ void* SCE_idTechMD5_LoadAnim (FILE *fp, const char *fname, void *un)
                 /* allocate temporary memory for building skeleton frames */
                 joint_infos = SCE_malloc (n_joints * sizeof *joint_infos);
                 base_joints = SCE_malloc (n_joints * sizeof *base_joints);
-                for (j = 0; j < n_joints; j++)
-                {
-                    SCE_Joint_Init (&joint_infos[j]);
-                    SCE_Joint_Init (&base_joints[j]);
-                }
             }
         }
         else if (sscanf (buff, " frameRate %d", &frame_rate) == 1);

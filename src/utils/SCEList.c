@@ -407,7 +407,7 @@ void SCE_List_EraseLast (SCE_SList *l)
  * \sa SCE_List_EraseFromData(), SCE_List_Erase(), SCE_List_Remove(),
  * SCE_List_LocateIterator()
  */
-void SCE_List_RemoveFromData (SCE_SList *l, const void *data)
+void SCE_List_RemoveFromData (SCE_SList *l, void *data)
 {
     SCE_SListIterator *it = SCE_List_LocateIterator (l, data, NULL);
     if (it)
@@ -423,7 +423,7 @@ void SCE_List_RemoveFromData (SCE_SList *l, const void *data)
  * \sa SCE_List_RemoveFromData(), SCE_List_Remove(), SCE_List_Erase(),
  * SCE_List_LocateIterator()
  */
-void SCE_List_EraseFromData (SCE_SList *l, const void *data)
+void SCE_List_EraseFromData (SCE_SList *l, void *data)
 {
     SCE_SListIterator *it = SCE_List_LocateIterator (l, data, NULL);
     if (it)
