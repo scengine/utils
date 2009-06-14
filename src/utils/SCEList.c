@@ -632,6 +632,24 @@ SCE_SListIterator* SCE_List_GetPrev (const SCE_SListIterator *it)
 }
 
 /**
+ * \brief Is \p it the first iterator of the list \p l ?
+ * \sa SCE_List_IsLast(), SCE_List_GetFirst()
+ */
+int SCE_List_IsFirst (const SCE_SList *l, const SCE_SListIterator *it)
+{
+    return (it == l->first.next);
+}
+/**
+ * \brief Is \p it the last iterator of the list \p l ?
+ * \sa SCE_List_IsFirst(), SCE_List_GetLast()
+ */
+int SCE_List_IsLast (const SCE_SList *l, const SCE_SListIterator *it)
+{
+    return (it == l->last.prev);
+}
+
+
+/**
  * \brief Gets the index position of an iterator
  * \param it the iterator from which you would know the index
  * \returns the index position of the iterator

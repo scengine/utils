@@ -119,6 +119,9 @@ int SCE_List_HasElements (const SCE_SList*);
 SCE_SListIterator* SCE_List_GetNext (const SCE_SListIterator*);
 SCE_SListIterator* SCE_List_GetPrev (const SCE_SListIterator*);
 
+int SCE_List_IsFirst (const SCE_SList*, const SCE_SListIterator*);
+int SCE_List_IsLast (const SCE_SList*, const SCE_SListIterator*);
+
 unsigned int SCE_List_GetIndex (const SCE_SListIterator*);
 SCE_SListIterator* SCE_List_GetIterator (const SCE_SList*, unsigned int);
 SCE_SListIterator* SCE_List_LocateIterator (const SCE_SList*, void*,
