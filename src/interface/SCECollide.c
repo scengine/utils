@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 08/01/2009
-   updated: 17/01/2009 */
+   updated: 16/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -34,8 +34,7 @@
 /**
  * \defgroup collide Collider
  * \ingroup interface
- * \brief Collider module that manages collisions between some simple geometrics
- * shapes
+ * \brief Collider module that manages collisions between some simple shapesg
  */
 
 /** @{ */
@@ -83,6 +82,23 @@ int SCE_Collide_PlanesWithBB (SCE_SPlane *planes, unsigned int n,
     }
     return (total == n ? SCE_COLLIDE_IN : SCE_COLLIDE_PARTIALLY);
 }
+int SCE_Collide_PlanesWithBBBool (SCE_SPlane *planes, unsigned int n,
+                                  SCE_SBoundingBox *box)
+{
+    unsigned int i, j;
+    float *points = SCE_BoundingBox_GetPoints (box);
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
+            if (SCE_Plane_DistanceToPointv (&planes[i], &points[j*3]) > 0.0f)
+                break;
+        }
+        if (j == 8)
+            return SCE_COLLIDE_OUT;
+    }
+    return SCE_COLLIDE_IN;
+}
 int SCE_Collide_PlanesWithBS (SCE_SPlane *planes, unsigned int n,
                               SCE_SBoundingSphere *sphere)
 {
@@ -105,6 +121,23 @@ int SCE_Collide_PlanesWithBS (SCE_SPlane *planes, unsigned int n,
             passed--;     /* the sphere can't be totally in (maybe partially) */
     }
     return (passed == n ? SCE_COLLIDE_IN : SCE_COLLIDE_PARTIALLY);
+}
+int SCE_Collide_PlanesWithBSBool (SCE_SPlane *planes, unsigned int n,
+                                  SCE_SBoundingSphere *sphere)
+{
+    unsigned int i;
+    float *c, r;
+
+    c = SCE_BoundingSphere_GetCenter (sphere);
+    r = SCE_BoundingSphere_GetRadius (sphere);
+
+    /* works only with convex meshs */
+    for (i = 0; i < n; i++)
+    {
+        if (SCE_Plane_DistanceToPointv (&planes[i], c) < -r)
+            return SCE_COLLIDE_OUT;
+    }
+    return SCE_COLLIDE_IN;
 }
 
 #if 0
