@@ -474,7 +474,6 @@ static void SCE_Octree_Insert (SCE_SOctree *tree, SCE_SOctreeElement *el)
  * \brief Inserts an element into an octree
  * \param tree an octree
  * \param el the element to insert
- * \returns SCE_ERROR when \p el is out of \p tree, SCE_OK otherwise
  * \note \p el must have been previously added by SCE_Octree_AddElement()
  * \sa SCE_Octree_ReinsertElement(), SCE_Octree_RemoveElement()
  */
@@ -485,11 +484,10 @@ void SCE_Octree_InsertElement (SCE_SOctree *tree, SCE_SOctreeElement *el)
 /**
  * \brief Re-inserts an element into an octree
  * \param el the element to re-insert
- * \returns SCE_ERROR when \p el is out of its old octree, SCE_OK otherwise
  *
  * This function works like SCE_Octree_InsertElement() except that use the
- * current one octree where \p el is contained and finds its parent(s) when is
- * necessary. SCE_ERROR is returned if the root parent doesn't contains \p el.
+ * current one octree where \p el is contained and finds its parent(s) when it's
+ * necessary.
  * \note \p el must have been previously added by SCE_Octree_InsertElement()
  * \sa SCE_Octree_InsertElement(), SCE_Octree_RemoveElement()
  */
@@ -508,6 +506,13 @@ void SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
         parent = parent->parent;
     }
     while (parent);
+#ifdef SCE_DEBUG
+    if (!parent)
+    {
+        /* element hasn't be inserted lol. */
+        Logger_PrintMsg ("octree element reinsertion failure: out of the box!");
+    }
+#endif
 }
 
 /**
