@@ -50,6 +50,7 @@ int SCE_Collide_RectWithBS (SCE_SFloatRect*, SCE_SBoundingSphere*);
 int SCE_Collide_AABBWithPoint (SCE_SBoundingBox*, float, float, float);
 int SCE_Collide_AABBWithPointv (SCE_SBoundingBox*, SCE_TVector3);
 int SCE_Collide_AABBWithBS (SCE_SBoundingBox*, SCE_SBoundingSphere*);
+int SCE_Collide_AABBWithBSBool (SCE_SBoundingBox*, SCE_SBoundingSphere*);
 
 int SCE_Collide_BBWithPoint (SCE_SBoundingBox*, float, float, float);
 int SCE_Collide_BBWithPointv (SCE_SBoundingBox*, SCE_TVector3);

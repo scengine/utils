@@ -65,10 +65,11 @@ int SCE_Collide_PlanesWithPointv (SCE_SPlane *planes, unsigned int n,
 int SCE_Collide_PlanesWithBB (SCE_SPlane *planes, unsigned int n,
                               SCE_SBoundingBox *box)
 {
-    unsigned int i, j, k = 0, total = 0;
+    unsigned int i, j, k, total = 0;
     float *points = SCE_BoundingBox_GetPoints (box);
     for (i = 0; i < n; i++)
     {
+        k = 0;
         for (j = 0; j < 8; j++)
         {
             if (SCE_Plane_DistanceToPointv (&planes[i], &points[j*3]) > 0.0f)
@@ -78,7 +79,6 @@ int SCE_Collide_PlanesWithBB (SCE_SPlane *planes, unsigned int n,
             total++;
         else if (k == 0)
             return SCE_COLLIDE_OUT;
-        k = 0;
     }
     return (total == n ? SCE_COLLIDE_IN : SCE_COLLIDE_PARTIALLY);
 }
@@ -95,9 +95,9 @@ int SCE_Collide_PlanesWithBBBool (SCE_SPlane *planes, unsigned int n,
                 break;
         }
         if (j == 8)
-            return SCE_COLLIDE_OUT;
+            return SCE_FALSE;
     }
-    return SCE_COLLIDE_IN;
+    return SCE_TRUE;
 }
 int SCE_Collide_PlanesWithBS (SCE_SPlane *planes, unsigned int n,
                               SCE_SBoundingSphere *sphere)
@@ -135,9 +135,9 @@ int SCE_Collide_PlanesWithBSBool (SCE_SPlane *planes, unsigned int n,
     for (i = 0; i < n; i++)
     {
         if (SCE_Plane_DistanceToPointv (&planes[i], c) < -r)
-            return SCE_COLLIDE_OUT;
+            return SCE_FALSE;
     }
-    return SCE_COLLIDE_IN;
+    return SCE_TRUE;
 }
 
 #if 0
@@ -198,6 +198,22 @@ int SCE_Collide_AABBWithBS (SCE_SBoundingBox *b, SCE_SBoundingSphere *s)
     }
     else
         return SCE_COLLIDE_OUT;
+}
+int SCE_Collide_AABBWithBSBool (SCE_SBoundingBox *b, SCE_SBoundingSphere *s)
+{
+    float r = 0.0;
+    float *c = NULL;
+    float *p = NULL;
+    r = SCE_BoundingSphere_GetRadius (s);
+    c = SCE_BoundingSphere_GetCenter (s);
+    p = SCE_BoundingBox_GetPoints (b);
+
+    if (c[0] >= p[0]-r && c[0] <= p[3]+r &&
+        c[1] >= p[1]-r && c[1] <= p[10]+r &&
+        c[2] >= p[2]-r && c[2] <= p[23]+r)
+        return SCE_TRUE;
+    else
+        return SCE_FALSE;
 }
 
 int SCE_Collide_BBWithPoint (SCE_SBoundingBox *box, float x, float y, float z)
