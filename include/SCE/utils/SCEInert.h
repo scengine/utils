@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 16/05/2007
-   derniere modification : 10/04/2008 */
+/* created: 16/05/2007
+   updated: 10/04/2008 */
 
 #ifndef SCEINERT_H
 #define SCEINERT_H
@@ -34,6 +34,7 @@ struct sce_sinertvar
     float var;          /* variable concernee */
     int accum;          /* booleen, true: accumulation des valeurs */
     float coeff;        /* taux d'inertie */
+    /* TODO: kick this stupid variable */
     float toadd;        /* prochaine valeur a additionner a var */
     float real;         /* valeur reelle a laquelle devrait etre positionnee
                            var */
@@ -53,29 +54,21 @@ struct sce_sinertvec
 };
 #endif
 
-/* .. et matrice.. ? :D */
 
-
-/* initialise une structure */
 void SCE_Inert_Init (SCE_SInertVar*);
 
-/* defini si la valeur devra s'accumuler avec Set */
 void SCE_Inert_Accum (SCE_SInertVar*, int);
 
-/* defini le coefficient d'inertie */
 void SCE_Inert_SetCoefficient (SCE_SInertVar*, float);
 
-/* demande une incrementation de la variable */
+/* TODO: add real function: GetInterpolated(), GetReal() */
+
 void SCE_Inert_Set (SCE_SInertVar*, float);
-/* macro bourrin */
 #define SCE_Inert_Operator(ivar, op, val)\
     ((ivar)->toadd op (val))
-/* recupere la variable */
 float SCE_Inert_Get (SCE_SInertVar*);
 
-/* calcul une incrementation, avec inertie */
 void SCE_Inert_Compute (SCE_SInertVar*);
-/* meme effet que ComputeVar, mais sans inertie */
 void SCE_Inert_Null (SCE_SInertVar*);
 
 #ifdef __cplusplus

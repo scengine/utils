@@ -673,6 +673,7 @@ void SCE_SceneEntity_SetupBoundingVolume (SCE_SSceneEntity *entity, int volume)
 
 
 /**
+ * \deprecated
  * \brief Combines the nodes of the given entity instances
  *
  * The node of \p toattach becomes the same node of \p einst, so the instances
@@ -690,6 +691,7 @@ void SCE_SceneEntity_AttachInstance (SCE_SSceneEntityInstance *einst,
                             SCE_Node_GetFinalMatrix (toattach->node));
 }
 /**
+ * \deprecated
  * \brief Detachs the given instance from the instance where it was attached to
  *
  * Calling this function when \p einst wasn't attached has no effect

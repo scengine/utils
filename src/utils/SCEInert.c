@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 16/05/2007
-   derniere modification : 10/04/2008 */
+/* created: 16/05/2007
+   updated: 10/04/2008 */
 
 #include <SCE/utils/SCEInert.h>
 
@@ -25,7 +25,7 @@ void SCE_Inert_Init (SCE_SInertVar *ivar)
 {
     ivar->var = ivar->real = ivar->toadd = 0.0f;
     ivar->coeff = 1.0;
-    ivar->accum = 0; /* pas d'accumulation par defaut */
+    ivar->accum = 0;
 }
 
 
@@ -41,7 +41,7 @@ void SCE_Inert_SetCoefficient (SCE_SInertVar *ivar, float coeff)
 
 void SCE_Inert_Set (SCE_SInertVar *ivar, float val)
 {
-    ivar->toadd += val;
+    ivar->toadd += val;         /* TODO: why += ? */
 }
 
 float SCE_Inert_Get (SCE_SInertVar *ivar)
@@ -49,7 +49,6 @@ float SCE_Inert_Get (SCE_SInertVar *ivar)
     return ivar->var;
 }
 
-/* revise le 10/04/2008 */
 void SCE_Inert_Compute (SCE_SInertVar *ivar)
 {
     if (ivar->accum)
@@ -74,9 +73,3 @@ void SCE_Inert_Null (SCE_SInertVar *ivar)
 
     ivar->toadd = 0.0f;
 }
-
-/*
-void SCE_Inert_ComputeVec(SCE_SInertVec *ivec)
-{
-    
-}*/

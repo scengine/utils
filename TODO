@@ -63,5 +63,6 @@ See the file ./doc/html/todo.html
 - Modifier les attributs d'un octree peu visible après une requête d'occlusion.
 - Déplacer la définition de SCE_TANGENT et SCE_BINORMAL dans SCEMesh.[ch].
 - Vérifier les "media type id" lors des chargements de ressources.
+- Matrix_Mask() : applique un masque (multiplie chaque élément).
 
-- 40
+- 41
