@@ -779,43 +779,48 @@ static size_t SCE_List_QuickSortPartition (SCE_SList *l,
                                            size_t start, size_t end,
                                            SCE_FListCompareData func)
 {
-  while (start < end) {
-    while (start < end) {
-      SCE_SListIterator *it_s;
-      SCE_SListIterator *it_e;
-      
-      it_s = SCE_List_GetIterator (l, start);
-      it_e = SCE_List_GetIterator (l, end);
-      if (func (it_s->data, it_e->data) > 0) {
-        void *tmp;
-        
-        /* FIXME: swap elements and not their data? */
-        tmp = it_s->data;
-        it_s->data = it_e->data;
-        it_e->data = tmp;
-        break;
-      }
-      end --;
+    while (start < end)
+    {
+        while (start < end)
+        {
+            SCE_SListIterator *it_s;
+            SCE_SListIterator *it_e;
+            
+            it_s = SCE_List_GetIterator (l, start);
+            it_e = SCE_List_GetIterator (l, end);
+            if (func (it_s->data, it_e->data) > 0)
+            {
+                void *tmp;
+                
+                /* FIXME: swap elements and not their data? */
+                tmp = it_s->data;
+                it_s->data = it_e->data;
+                it_e->data = tmp;
+                break;
+            }
+            end --;
+        }
+        while (start < end)
+        {
+            SCE_SListIterator *it_s;
+            SCE_SListIterator *it_e;
+            
+            it_s = SCE_List_GetIterator (l, start);
+            it_e = SCE_List_GetIterator (l, end);
+            if (func (it_s->data, it_e->data) > 0)
+            {
+                void *tmp;
+                
+                /* FIXME: swap elements and not their data? */
+                tmp = it_s->data;
+                it_s->data = it_e->data;
+                it_e->data = tmp;
+                break;
+            }
+            start ++;
+        }
     }
-    while (start < end) {
-      SCE_SListIterator *it_s;
-      SCE_SListIterator *it_e;
-      
-      it_s = SCE_List_GetIterator (l, start);
-      it_e = SCE_List_GetIterator (l, end);
-      if (func (it_s->data, it_e->data) > 0) {
-        void *tmp;
-        
-        /* FIXME: swap elements and not their data? */
-        tmp = it_s->data;
-        it_s->data = it_e->data;
-        it_e->data = tmp;
-        break;
-      }
-      start ++;
-    }
-  }
-  return start;
+    return start;
 }
 
 /**
@@ -832,13 +837,14 @@ static size_t SCE_List_QuickSortPartition (SCE_SList *l,
 void SCE_List_QuickSortRange (SCE_SList *l, size_t start, size_t end,
                               SCE_FListCompareData func)
 {
-  if (start < end) {
-    size_t p;
-    
-    p = SCE_List_QuickSortPartition (l, start, end-1, func);
-    SCE_List_QuickSortRange (l, start, p, func);
-    SCE_List_QuickSortRange (l, p+1, end, func);
-  }
+    if (start < end)
+    {
+        size_t p;
+        
+        p = SCE_List_QuickSortPartition (l, start, end-1, func);
+        SCE_List_QuickSortRange (l, start, p, func);
+        SCE_List_QuickSortRange (l, p+1, end, func);
+    }
 }
 
 /**
@@ -853,7 +859,7 @@ void SCE_List_QuickSortRange (SCE_SList *l, size_t start, size_t end,
  */
 void SCE_List_QuickSort (SCE_SList *l, SCE_FListCompareData func)
 {
-  SCE_List_QuickSortRange (l, 0, SCE_List_GetLength (l), func);
+    SCE_List_QuickSortRange (l, 0, SCE_List_GetLength (l), func);
 }
 
 /** @} */
