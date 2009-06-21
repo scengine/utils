@@ -132,6 +132,23 @@ SCE_SListIterator* SCE_List_LocateIterator (const SCE_SList*, void*,
                                             SCE_FListCompareData);
 unsigned int SCE_List_LocateIndex (const SCE_SList*, void*,
                                    SCE_FListCompareData);
+void SCE_List_QuickSortRange (SCE_SList*, size_t, size_t, SCE_FListCompareData);
+void SCE_List_QuickSort (SCE_SList*, SCE_FListCompareData);
+
+/**
+ * \brief Sorts a list
+ * \param l the list to sort
+ * \param func comparison function to compare two elements
+ * 
+ * This macro expands to a sorting function. If you need more control on which
+ * algorithm is used to sort the list, you should call one of the specific
+ * sorting function.
+ * \warning Do NOT consider this macro expands to what it expands now, it may
+ *          change later.
+ * 
+ * \see SCE_List_QuickSort()
+ */
+#define SCE_List_Sort(l, func) (SCE_List_QuickSort ((l), (func)))
 
 /**
  * \brief Gets data of an iterator

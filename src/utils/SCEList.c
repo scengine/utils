@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 20/06/2009 */
+   updated: 21/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -772,5 +772,88 @@ void SCE_List_Sort (SCE_SList *l, SCE_FListCompareData comesafter)
     SCE_List_Flush (l);
 }
 #endif
+
+/* FIXME: review list usage */
+/* part of the quicksort implementation */
+static size_t SCE_List_QuickSortPartition (SCE_SList *l,
+                                           size_t start, size_t end,
+                                           SCE_FListCompareData func)
+{
+  while (start < end) {
+    while (start < end) {
+      SCE_SListIterator *it_s;
+      SCE_SListIterator *it_e;
+      
+      it_s = SCE_List_GetIterator (l, start);
+      it_e = SCE_List_GetIterator (l, end);
+      if (func (it_s->data, it_e->data) > 0) {
+        void *tmp;
+        
+        /* FIXME: swap elements and not their data? */
+        tmp = it_s->data;
+        it_s->data = it_e->data;
+        it_e->data = tmp;
+        break;
+      }
+      end --;
+    }
+    while (start < end) {
+      SCE_SListIterator *it_s;
+      SCE_SListIterator *it_e;
+      
+      it_s = SCE_List_GetIterator (l, start);
+      it_e = SCE_List_GetIterator (l, end);
+      if (func (it_s->data, it_e->data) > 0) {
+        void *tmp;
+        
+        /* FIXME: swap elements and not their data? */
+        tmp = it_s->data;
+        it_s->data = it_e->data;
+        it_e->data = tmp;
+        break;
+      }
+      start ++;
+    }
+  }
+  return start;
+}
+
+/**
+ * \brief Sorts a specified range in a list
+ * \param l a list
+ * \param start the start of the range
+ * \param end the end of the range, plus one (e.g. SCE_List_GetLength())
+ * \param func a function used to compare two elements of the list
+ * 
+ * \warning \p start and \p end must be valid for the given list
+ * 
+ * \see SCE_List_QuickSort()
+ */
+void SCE_List_QuickSortRange (SCE_SList *l, size_t start, size_t end,
+                              SCE_FListCompareData func)
+{
+  if (start < end) {
+    size_t p;
+    
+    p = SCE_List_QuickSortPartition (l, start, end-1, func);
+    SCE_List_QuickSortRange (l, start, p, func);
+    SCE_List_QuickSortRange (l, p+1, end, func);
+  }
+}
+
+/**
+ * \brief Sorts a list
+ * \param l a list
+ * \param func a function used to compare two elements of the list
+ * 
+ * This function simply calls
+ * SCE_List_QuickSortRange(l, 0, SCE_List_GetLength (l), func).
+ * 
+ * \see SCE_List_QuickSortRange()
+ */
+void SCE_List_QuickSort (SCE_SList *l, SCE_FListCompareData func)
+{
+  SCE_List_QuickSortRange (l, 0, SCE_List_GetLength (l), func);
+}
 
 /** @} */
