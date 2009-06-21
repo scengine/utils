@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 27/02/2008
-   updated: 06/05/2008 */
+   updated: 21/06/2009 */
 
 #ifndef SCEBOUNDINGBOX_H
 #define SCEBOUNDINGBOX_H
@@ -41,27 +41,22 @@ struct sce_sboundingbox
 };
 
 
-/* initialise une structure de bounding box */
 void SCE_BoundingBox_Init (SCE_SBoundingBox*);
 
-/* defini une bounding box */
 void SCE_BoundingBox_Set (SCE_SBoundingBox*, SCE_TVector3, float, float, float);
 void SCE_BoundingBox_Setv (SCE_SBoundingBox*, SCE_TVector3, SCE_TVector3);
 void SCE_BoundingBox_SetFromCenter (SCE_SBoundingBox*, SCE_TVector3,
                                     float, float, float);
 
-/* defini les dimensions d'une bounding box */
 void SCE_BoundingBox_SetSize (SCE_SBoundingBox*, float, float, float);
 
-/* positionne le centre d'une bounding box */
 void SCE_BoundingBox_SetCenter (SCE_SBoundingBox*, float, float, float);
 void SCE_BoundingBox_SetCenterv (SCE_SBoundingBox*, SCE_TVector3);
-/* retourne le centre de la bounding box */
+
 void SCE_BoundingBox_GetCenterv (SCE_SBoundingBox*, SCE_TVector3);
 float* SCE_BoundingBox_GetOrigin (SCE_SBoundingBox*);
 void SCE_BoundingBox_GetOriginv (SCE_SBoundingBox*, SCE_TVector3);
 
-/* retourne les 8 points d'une bounding box */
 float* SCE_BoundingBox_GetPoints (SCE_SBoundingBox*);
 void SCE_BoundingBox_GetPointsv (SCE_SBoundingBox*, SCE_TVector3*);
 
@@ -69,14 +64,12 @@ void SCE_BoundingBox_MakePlanes (SCE_SBoundingBox*);
 SCE_SPlane* SCE_BoundingBox_GetPlanes (SCE_SBoundingBox*);
 void SCE_BoundingBox_GetPlanesv (SCE_SBoundingBox*, SCE_SPlane*);
 
-/* retourne les dimensions d'une bounding box */
 float SCE_BoundingBox_GetWidth (SCE_SBoundingBox*);
 float SCE_BoundingBox_GetHeight (SCE_SBoundingBox*);
 float SCE_BoundingBox_GetDepth (SCE_SBoundingBox*);
+void SCE_BoundingBox_GetDimensionsv (SCE_SBoundingBox*, float*, float*, float*);
 
-/* assigne une matrice aux points d'une bounding box */
 void SCE_BoundingBox_Push (SCE_SBoundingBox*, SCE_TMatrix4);
-/* restaure les points sauvegardes avant l'application d'une matrice */
 void SCE_BoundingBox_Pop (SCE_SBoundingBox*);
 
 int SCE_BoundingBox_IsPushed (SCE_SBoundingBox*);

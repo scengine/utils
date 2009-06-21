@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 27/02/2008
-   updated: 14/01/2009 */
+   updated: 21/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -273,6 +273,22 @@ float SCE_BoundingBox_GetHeight (SCE_SBoundingBox *box)
 float SCE_BoundingBox_GetDepth (SCE_SBoundingBox *box)
 {
     return box->p[7][2] - box->p[0][2];
+}
+/**
+ * \brief Writes the dimensions of a bounding box into the given pointers
+ * \param w,h,d will writes the dimensions here, some pointers can be NULL
+ * \sa SCE_BoundingBox_GetWidth(), SCE_BoundingBox_GetHeight(),
+ * SCE_BoundingBox_GetDepth()
+ */
+void SCE_BoundingBox_GetDimensionsv (SCE_SBoundingBox *box,
+                                     float *w, float *h, float *d)
+{
+    if (w)
+        *w = SCE_BoundingBox_GetWidth (box);
+    if (h)
+        *h = SCE_BoundingBox_GetHeight (box);
+    if (d)
+        *d = SCE_BoundingBox_GetDepth (box);
 }
 
 /**
