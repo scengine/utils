@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/05/2008
-   updated: 10/03/2009 */
+   updated: 20/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -120,7 +120,10 @@ void SCE_Octree_DeleteRecursive (SCE_SOctree *tree)
     {
         unsigned int i;
         for (i = 0; i < 8; i++)
+        {
             SCE_Octree_DeleteRecursive (tree->child[i]);
+            tree->child[i] = NULL;
+        }
         SCE_Octree_Delete (tree);
     }
 }
@@ -407,28 +410,12 @@ int SCE_Octree_RecursiveMake (SCE_SOctree *tree, unsigned int rec,
 
 
 /**
- * \deprecated
- * \brief Initializes an element, get it ready for insertion and co by adding
- * all the iterators of \p el into \p tree
- */
-void SCE_Octree_AddElement (SCE_SOctree *tree, SCE_SOctreeElement *el)
-{
-    /*SCE_List_Prependl (tree->elements, &el->it);*/
-}
-
-
-/**
  * \brief Default function used to insert an element into an octree
  * \sa SCE_SOctreeElement::insert
  */
 void SCE_Octree_DefaultInsertFunc (SCE_SOctree *tree, SCE_SOctreeElement *el)
 {
     SCE_List_Prependl (tree->elements, &el->it);
-}
-
-static void SCE_Octree_RemoveIterators (SCE_SOctreeElement *el)
-{
-    SCE_List_Removel (&el->it);
 }
 
 static void SCE_Octree_InsertLoose (SCE_SOctree *tree, SCE_SOctreeElement *el)
@@ -514,14 +501,17 @@ void SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
     }
 #endif
 }
-
 /**
- * \brief Removes an element from its octree
+ * \brief Removes an element from its octree (SCE_Octree_ReinsertElement() will
+ * not work after that)
  */
 void SCE_Octree_RemoveElement (SCE_SOctreeElement *el)
 {
-    SCE_Octree_RemoveIterators (el);
-    el->octree = NULL;
+    if (el->octree)
+    {
+        SCE_List_Removel (&el->it);
+        el->octree = NULL;
+    }
 }
 
 

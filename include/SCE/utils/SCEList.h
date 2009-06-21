@@ -46,6 +46,7 @@ struct sce_slistiterator
 #define SCE_LIST_ABUSIVE_MACRO 0
 
 typedef void (*SCE_FListFreeFunc)(void*);
+typedef void (*SCE_FListFreeFunc2)(void*, void*);
 typedef int (*SCE_FListCompareData)(void*, void*);
 
 /**
@@ -56,6 +57,8 @@ struct sce_slist
     SCE_SListIterator first;  /**< First iterator of the list */
     SCE_SListIterator last;   /**< Last iterator of the list */
     SCE_FListFreeFunc f;      /**< Free function */
+    SCE_FListFreeFunc2 f2;    /**< Second free function */
+    void *f2arg;              /**< \c f2 first argument */
     int canfree;              /**< Does the list can delete iterators? */
 };
 
@@ -69,6 +72,7 @@ void SCE_List_DeleteIt (SCE_SListIterator*);
 void SCE_List_Init (SCE_SList*);
 
 SCE_SList* SCE_List_Create (SCE_FListFreeFunc);
+SCE_SList* SCE_List_Create2 (void*, SCE_FListFreeFunc2);
 void SCE_List_Flush (SCE_SList*);
 void SCE_List_Clear (SCE_SList*);
 void SCE_List_Delete (SCE_SList*);

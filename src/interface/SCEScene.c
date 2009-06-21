@@ -47,7 +47,7 @@
 
 /** @{ */
 
-static SCE_SCamera *default_camera = NULL;
+/*static SCE_SCamera *default_camera = NULL;*/
 
 /* dat iz omg coef u no??? */
 static float omg_coeffs[2] = {0.3, 0.02};
@@ -55,25 +55,30 @@ static float omg_coeffs[2] = {0.3, 0.02};
 typedef struct sce_ssceneoctree SCE_SSceneOctree;
 struct sce_ssceneoctree
 {
-    SCE_SList *instances[3];       /* TODO: pkeu 3 laiveuls ser coul */
+    SCE_SList *instances[3];       /* TODO: pkeu 3 laiveuls ser coul (oupa?) */
     SCE_SList *lights;
     SCE_SList *cameras;
+    /* add nodes type here */
 };
 
 /** \internal */
 int SCE_Init_Scene (void)
 {
+#if 0
     if (!(default_camera = SCE_Camera_Create ()))
     {
         Logger_LogSrc ();
         return SCE_ERROR;
     }
+    omg_coeffs[0] = 0.3;
+    omg_coeffs[1] = 0.02;
+#endif
     return SCE_OK;
 }
 /** \internal */
 void SCE_Quit_Scene (void)
 {
-    SCE_Camera_Delete (default_camera), default_camera = NULL;
+/*    SCE_Camera_Delete (default_camera), default_camera = NULL;*/
 }
 
 
@@ -159,16 +164,23 @@ static void SCE_Scene_Init (SCE_SScene *scene)
     scene->camera = NULL;
     SCE_Scene_InitStates (&scene->states);
 }
-
+static void SCE_Scene_RemoveLightNode (void *scene, void *light)
+{
+    SCE_Scene_RemoveNode (scene, SCE_Light_GetNode (light));
+}
+static void SCE_Scene_RemoveCameraNode (void *scene, void *cam)
+{
+    SCE_Scene_RemoveNode (scene, SCE_Camera_GetNode (cam));
+}
 /**
  * \brief Creates a new scene
- * \returns a newly allocated scene or NULL on error
  */
 SCE_SScene* SCE_Scene_Create (void)
 {
     unsigned int i;
     SCE_SScene *scene = NULL;
     SCE_SSceneOctree *stree = NULL;
+    SCE_SOctreeElement *el = NULL;
 
     SCE_btstart ();
     if (!(scene = SCE_malloc (sizeof *scene)))
@@ -192,9 +204,9 @@ SCE_SScene* SCE_Scene_Create (void)
         goto failure;
     if (!(scene->entities = SCE_List_Create (NULL)))
         goto failure;
-    if (!(scene->lights = SCE_List_Create (NULL)))
+    if (!(scene->lights = SCE_List_Create2 (scene, SCE_Scene_RemoveLightNode)))
         goto failure;
-    if (!(scene->cameras = SCE_List_Create (NULL)))
+    if (!(scene->cameras = SCE_List_Create2 (scene,SCE_Scene_RemoveCameraNode)))
         goto failure;
 
     SCE_Octree_SetSize (scene->octree, SCE_SCENE_OCTREE_SIZE,
@@ -202,8 +214,10 @@ SCE_SScene* SCE_Scene_Create (void)
     if (!(stree = SCE_Scene_CreateOctree ()))
         goto failure;
     SCE_Octree_SetData (scene->octree, stree);
+#if 0
     if (SCE_Scene_AddCamera (scene, default_camera) < 0)
         goto failure;
+#endif
 
     SCE_List_CanDeleteIterators (scene->egroups, SCE_TRUE);
     SCE_List_CanDeleteIterators (scene->entities, SCE_TRUE);
@@ -212,7 +226,7 @@ SCE_SScene* SCE_Scene_Create (void)
     goto success;
 
 failure:
-    SCE_Scene_DeleteOctree (stree);
+/*    SCE_Scene_DeleteOctree (stree);*/
     SCE_Scene_Delete (scene), scene = NULL;
     Logger_LogSrc ();
 success:
@@ -334,7 +348,6 @@ void SCE_Scene_AddNode (SCE_SScene *scene, SCE_SNode *node)
     SCE_BoundingSphere_Push (el->sphere, SCE_Node_GetFinalMatrix (node));
     SCE_Octree_InsertElement (scene->octree, el);
     SCE_BoundingSphere_Pop (el->sphere);
-
 }
 /**
  * \brief Removes a node from a scene
@@ -506,27 +519,6 @@ void SCE_Scene_SetSkybox (SCE_SScene *scene, SCE_SSkybox *skybox)
 
 
 /**
- * \deprecated
- * \brief Calls a function for each entity group of a scene
- * \param scene a scene
- * \param f the function to call for each group
- * \param param user data to pass as second argument of \p f
- * \see SCE_FSceneForEachEntityGroupFunc
- */
-void SCE_Scene_ForEachEntityGroup (SCE_SScene *scene,
-                                   SCE_FSceneForEachEntityGroupFunc f,
-                                   void *param)
-{
-    SCE_SListIterator *it, *pro;
-    SCE_List_ForEachProtected (pro, it, scene->egroups)
-    {
-        if (!f (SCE_List_GetData (it), param))
-            break;
-    }
-}
-
-
-/**
  * \brief Defines the size of the octree of a scene
  * \param w,h,d the new dimensions of the octree
  * \sa SCE_Octree_SetSize()
@@ -651,42 +643,13 @@ static float SCE_Scene_GetOctreeSize (SCE_SOctree *tree, SCE_SCamera *cam)
                                               cam);
 }
 
-static void SCE_Scene_AddOctreeInstances (SCE_SScene *scene, SCE_SOctree *tree,
+static void SCE_Scene_SelectAllInstances (SCE_SScene *scene,
+                                          SCE_SSceneOctree *stree,
                                           unsigned int id)
 {
-    SCE_SSceneOctree *stree = SCE_Octree_GetData (tree);
     SCE_List_Join (scene->selected_join, stree->instances[id]);
     scene->selected_join = stree->instances[id];
 }
-
-static void SCE_Scene_SelectOctreeInstances (SCE_SScene *scene, SCE_SOctree *tree)
-{
-    unsigned int i;
-    float size;
-    size = SCE_Scene_GetOctreeSize (tree, scene->camera);
-    SCE_Scene_AddOctreeInstances (scene, tree, 0);
-    for (i = 0; i < 2; i++)
-    {
-        if (omg_coeffs[i] * size < scene->contribution_size)
-            break; /* the next are smaller, so stop */
-        else
-            SCE_Scene_AddOctreeInstances (scene, tree, i+1);
-    }
-}
-
-static void SCE_Scene_SelectOctreeInstancesRec (SCE_SScene *scene,
-                                                SCE_SOctree *tree)
-{
-    SCE_Scene_SelectOctreeInstances (scene, tree);
-    if (SCE_Octree_HasChildren (tree))
-    {
-        unsigned int i;
-        SCE_SOctree **children = SCE_Octree_GetChildren (tree);
-        for (i = 0; i < 8; i++)
-            SCE_Scene_SelectOctreeInstancesRec (scene, children[i]);
-    }
-}
-
 static void SCE_Scene_SelectVisibleInstances (SCE_SScene *scene,
                                               SCE_SSceneOctree *stree,
                                               unsigned int id)
@@ -704,6 +667,40 @@ static void SCE_Scene_SelectVisibleInstances (SCE_SScene *scene,
     }
 }
 
+static void SCE_Scene_SelectOctreeInstances(SCE_SScene *scene,
+                                            SCE_SOctree *tree,
+                                            void (*selectfun)(SCE_SScene*,
+                                                              SCE_SSceneOctree*,
+                                                              unsigned int))
+{
+    unsigned int i = 0;
+    float size = 0.0;
+    SCE_SSceneOctree *stree = SCE_Octree_GetData (tree);
+    size = SCE_Scene_GetOctreeSize (tree, scene->camera);
+    selectfun (scene, stree, 0);
+    for (i = 0; i < 2; i++)
+    {
+        if (omg_coeffs[i] * size < scene->contribution_size)
+            break; /* the next are smaller, so stop */
+        else
+            selectfun (scene, stree, i + 1);
+    }
+}
+
+static void SCE_Scene_SelectOctreeInstancesRec (SCE_SScene *scene,
+                                                SCE_SOctree *tree)
+{
+    SCE_Scene_SelectOctreeInstances (scene, tree, SCE_Scene_SelectAllInstances);
+    if (SCE_Octree_HasChildren (tree))
+    {
+        unsigned int i;
+        SCE_SOctree **children = SCE_Octree_GetChildren (tree);
+        for (i = 0; i < 8; i++)
+            SCE_Scene_SelectOctreeInstancesRec (scene, children[i]);
+    }
+}
+
+
 static void SCE_Scene_SelectVisibleOctrees (SCE_SScene *scene,
                                             SCE_SOctree *tree)
 {
@@ -713,9 +710,10 @@ static void SCE_Scene_SelectVisibleOctrees (SCE_SScene *scene,
         SCE_Scene_SelectOctreeInstancesRec (scene, tree);
     else
     {
-#if 0
-        /* TODO: call it if the octree is too far */
-        SCE_Scene_SelectOctreeInstances (scene, tree);
+#if 1
+        /* TODO: using SelectAllInstances() if the octree is too far */
+        SCE_Scene_SelectOctreeInstances (scene, tree,
+                                         SCE_Scene_SelectVisibleInstances);
 #else
         unsigned int i;
         float size;
@@ -802,10 +800,10 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
 {
     SCE_SOctreeElement *el = NULL;
 
-    /* assign */
     scene->rendertarget = rendertarget;
     scene->cubeface = cubeface;
-    scene->camera = (camera ? camera : default_camera);
+/*    scene->camera = (camera ? camera : default_camera);*/
+    scene->camera = camera;
 
     if (scene->states.lod || scene->states.frustum_culling)
         SCE_Scene_FlushEntities (scene);

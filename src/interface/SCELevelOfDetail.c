@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/11/2008
-   updated: 13/03/2009 */
+   updated: 21/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -94,6 +94,7 @@ float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBoundingBox *box,
         v[1][2] -= dist;
         v[2][2] -= dist;
         v[3][2] -= dist;
+        v[0][3] = v[1][3] = v[2][3] = v[3][3] = 1.0f;
     }
     {
         /* project points */
@@ -138,7 +139,7 @@ float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBoundingBox *box,
                                          SCE_SCamera *cam)
 {
     float area;
-    float dist;
+    float dist = 1.0;
     SCE_TVector3 t;
     SCE_BoundingBox_GetCenterv (box, t);
     {

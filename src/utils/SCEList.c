@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 07/03/2009 */
+   updated: 20/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -86,6 +86,8 @@ void SCE_List_Init (SCE_SList *l)
     l->last.prev = &l->first;
     l->first.data = l->last.data = l;
     l->f = NULL;
+    l->f2 = NULL;
+    l->f2arg = NULL;
     /* TODO: kick useless calls of CanDeleteIterators() in the engine */
     l->canfree = SCE_FALSE;     /* by default, CANT free iterators */
 }
@@ -110,6 +112,26 @@ SCE_SList* SCE_List_Create (SCE_FListFreeFunc f)
     {
         SCE_List_Init (l);
         l->f = f;
+    }
+    return l;
+}
+/**
+ * \brief Creates a new list like SCE_List_Create(), but with a different free
+ * function
+ *
+ * When the list is deleted, call that for each iterator:
+ * \p f (\p arg, SCE_List_GetData (iterator))
+ * \sa SCE_List_Create()
+ */
+SCE_SList* SCE_List_Create2 (void *arg, SCE_FListFreeFunc2 f)
+{
+    SCE_SList *l = NULL;
+    if (!(l = SCE_List_Create (NULL)))
+        Logger_LogSrc ();
+    else
+    {
+        l->f2 = f;
+        l->f2arg = arg;
     }
     return l;
 }
@@ -368,6 +390,8 @@ void SCE_List_Erase (SCE_SList *l, SCE_SListIterator *it)
     SCE_List_Removel (it);
     if (l->f)
         l->f (it->data);
+    else if (l->f2)
+        l->f2 (l->f2arg, it->data);
     if (l->canfree)
         SCE_List_DeleteIt (it);
 }
@@ -378,11 +402,17 @@ void SCE_List_Erase (SCE_SList *l, SCE_SListIterator *it)
  */
 void SCE_List_EraseFirst (SCE_SList *l)
 {
+#if 1
+    SCE_List_Erase (l, SCE_List_GetFirst (l));
+#else
     SCE_SListIterator *it = SCE_List_RemoveFirst (l);
     if (l->f)
         l->f (it->data);
+    else if (l->f2)
+        l->f2 (l->f2arg, it->data);
     if (l->canfree)
         SCE_List_DeleteIt (it);
+#endif
 }
 /**
  * \brief Fully remove the last element of a list
@@ -391,11 +421,17 @@ void SCE_List_EraseFirst (SCE_SList *l)
  */
 void SCE_List_EraseLast (SCE_SList *l)
 {
+#if 1
+    SCE_List_Erase (l, SCE_List_GetLast (l));
+#else
     SCE_SListIterator *it = SCE_List_RemoveLast (l);
     if (l->f)
         l->f (it->data);
+    else if (l->f2)
+        l->f2 (l->f2arg, it->data);
     if (l->canfree)
         SCE_List_DeleteIt (it);
+#endif
 }
 
 /**

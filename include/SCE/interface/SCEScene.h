@@ -101,10 +101,9 @@ struct sce_sscene
     float dclear;               /**< Depth buffer clear value */
     SCE_STexture *rendertarget; /**< Scene's render target */
     SCEuint cubeface;           /**< Face of the cubemap (used if
-                                 * sce_sscenerenderinfos::rendertarget is
-                                 * a cubemap) */
-    SCE_SCamera *camera;        /**< The camera for the current render */
-    SCE_SSceneStates states;    /**< Scene's state */
+                                 * \c rendertarget is a cubemap) */
+    SCE_SCamera *camera;        /**< The camera of the current render */
+    SCE_SSceneStates states;    /**< Scene's states */
 };
 
 /** @} */

@@ -41,7 +41,7 @@ void SCE_Inert_SetCoefficient (SCE_SInertVar *ivar, float coeff)
 
 void SCE_Inert_Set (SCE_SInertVar *ivar, float val)
 {
-    ivar->toadd += val;         /* TODO: why += ? */
+    ivar->toadd = val;
 }
 
 float SCE_Inert_Get (SCE_SInertVar *ivar)
@@ -56,7 +56,7 @@ void SCE_Inert_Compute (SCE_SInertVar *ivar)
     else
         ivar->real = ivar->toadd;
 
-    if (!ivar->accum && (ivar->toadd <= 0.000002f && ivar->toadd >= -0.000002f))
+    if (!ivar->accum && (ivar->toadd < 0.000002f && ivar->toadd > -0.000002f))
         ivar->real = 0.0f;
 
     ivar->var += (ivar->real - ivar->var) * ivar->coeff;

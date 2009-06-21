@@ -16,10 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 3 novembre 2006
-   derniere modification le 17/02/2008 */
+/* created: 03/11/2006
+   updated: 20/06/2009 */
 
-#include <stdlib.h>
+#include <stdlib.h>             /* included by SCEMinimal.h, isn't it? */
 
 #include <SCE/SCEMinimal.h>
 
@@ -34,32 +34,18 @@
 /**
  * \todo types a revoir a cause des specifications
  */
-/* revise le 17/02/2008 */
 void* SCE_4FM_Load (FILE *fp, const char *fname, void *nb_meshs)
 {
-    int i = -1;
-    int *n_meshs = nb_meshs;  /* affectation importante ! */
+    int i;
     int unused;
     SCE_SMesh **m = NULL;
     SCEenum type;
     FFMesh **me = NULL;
+    int *n_meshs = nb_meshs;
 
     SCE_btstart ();
     if (!n_meshs)
         n_meshs = &unused;
-
-#define SCE_4FM_ASSERT(c)\
-        if ((c))\
-        {\
-            for (i++; i>0; i--)\
-                SCE_Mesh_Delete (m[i-1]);\
-            for (i=0; i<*n_meshs; i++)\
-                ffm_free (me[i]);\
-            free (me);\
-            Logger_LogSrc ();\
-            SCE_btend ();\
-            return NULL;\
-        }
 
     me = ffm_read (fp, n_meshs);
     if (!me)
@@ -70,20 +56,30 @@ void* SCE_4FM_Load (FILE *fp, const char *fname, void *nb_meshs)
         return NULL;
     }
 
-    SCE_4FM_ASSERT (!(m = SCE_malloc ((*n_meshs + 1) * sizeof *m)))
-    m[*n_meshs] = NULL; /* valeur nulle finale */
+    if (!(m = SCE_malloc ((*n_meshs + 1) * sizeof *m)))
+        goto failure;
+    for (i = 0; i <= *n_meshs; i++)
+        m[i] = NULL;
 
-    for (i=0; i<*n_meshs; i++)
+    for (i = 0; i < *n_meshs; i++)
     {
-        SCE_4FM_ASSERT (!(m[i] = SCE_Mesh_Create ()))
-        SCE_4FM_ASSERT (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_POSITION,
-                        SCE_FLOAT, 3, me[i]->vcount, me[i]->pos) < 0)
+        if (!(m[i] = SCE_Mesh_Create ()))
+            goto failure;
+        if (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_POSITION, SCE_FLOAT, 3,
+                                     me[i]->vcount, me[i]->pos) < 0)
+            goto failure;
         if (me[i]->tex)
-            SCE_4FM_ASSERT (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_TEXCOORD0,
-                            SCE_FLOAT, 2, me[i]->vcount, me[i]->tex) < 0)
+        {
+            if (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_TEXCOORD0, SCE_FLOAT, 2,
+                                         me[i]->vcount, me[i]->tex) < 0)
+                goto failure;
+        }
         if (me[i]->nor)
-            SCE_4FM_ASSERT (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_NORMAL,
-                            SCE_FLOAT, 3, me[i]->vcount, me[i]->nor) < 0)
+        {
+            if (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_NORMAL, SCE_FLOAT, 3,
+                                         me[i]->vcount, me[i]->nor) < 0)
+                goto failure;
+        }
         switch (me[i]->size)
         {
         case 1: type = SCE_UNSIGNED_BYTE; break;
@@ -92,19 +88,30 @@ void* SCE_4FM_Load (FILE *fp, const char *fname, void *nb_meshs)
         default: type = 0;
         }
         if (type)
-            SCE_4FM_ASSERT (SCE_Mesh_SetIndicesDup (m[i], 0, type,
-                            me[i]->icount, me[i]->indices) < 0)
-
+        {
+            if (SCE_Mesh_SetIndicesDup (m[i], 0, type, me[i]->icount,
+                                        me[i]->indices) < 0)
+                goto failure;
+        }
         SCE_Mesh_SetRenderMode (m[i], SCE_TRIANGLES);
-
-        SCE_Mesh_ActivateVB (m[i], 0, SCE_TRUE);
-        SCE_4FM_ASSERT (SCE_Mesh_Build (m[i]) < 0)
+        if (SCE_Mesh_Build (m[i]) < 0)
+            goto failure;
     }
 
-    for (i=0; i<*n_meshs; i++)
+    for (i = 0; i < *n_meshs; i++)
         ffm_free (me[i]);
     free (me);
 
     SCE_btend ();
     return m;
+failure:
+    for (i = 0; i > *n_meshs; i++)
+    {
+        SCE_Mesh_Delete (m[i]);
+        ffm_free (me[i]);
+    }
+    free (me);                  /* I know. */
+    Logger_LogSrc ();
+    SCE_btend ();
+    return NULL;
 }

@@ -64,5 +64,6 @@ See the file ./doc/html/todo.html
 - Déplacer la définition de SCE_TANGENT et SCE_BINORMAL dans SCEMesh.[ch].
 - Vérifier les "media type id" lors des chargements de ressources.
 - Matrix_Mask() : applique un masque (multiplie chaque élément).
+- Désactivation des nœuds : non mise à jour de leur position dans l'octree, etc.
 
-- 41
+- 42

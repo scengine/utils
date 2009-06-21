@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 06/04/2009
-   updated: 04/06/2009 */
+   updated: 20/06/2009 */
 
 #ifndef SCEANIMATEDMESH_H
 #define SCEANIMATEDMESH_H
@@ -77,6 +77,9 @@ struct sce_sanimatedmesh
 
     SCE_FApplySkeletonFunc applyskel;
 };
+
+int SCE_Init_AnimMesh (void);
+void SCE_Quit_AnimMesh (void);
 
 SCE_SAnimatedMesh* SCE_AnimMesh_Create (void);
 void SCE_AnimMesh_Delete (SCE_SAnimatedMesh*);
