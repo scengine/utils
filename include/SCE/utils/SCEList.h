@@ -47,7 +47,7 @@ struct sce_slistiterator
 
 typedef void (*SCE_FListFreeFunc)(void*);
 typedef void (*SCE_FListFreeFunc2)(void*, void*);
-typedef int (*SCE_FListCompareData)(void*, void*);
+typedef int (*SCE_FListCompareData)(const void*, const void*);
 
 /**
  * \brief A list structure
