@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 22/09/2007 */
+   updated: 21/06/2009 */
 
 #include <SCE/utils/SCEMath.h>
 
@@ -31,13 +31,13 @@
  */
 
 /**
- * \defgroup math Mathematical operations
+ * \defgroup math Maths
  * \ingroup utils
  * \brief Mathematical useful functions
  * \internal
  * 
  * Mathematical useful function not in the C standard library or specific
- * improvments of standrad functions.
+ * improvments of standard functions.
  */
 
 /** @{ */
@@ -151,6 +151,27 @@ int SCE_Math_PowerOfTwo (int n)
         return power;
 
     return 0;
+}
+
+/**
+ * \brief Clamp \p a value between \p min and \p max
+ * \sa SCE_Math_Clampf()
+ */
+int SCE_Math_Clamp (int a, int min, int max)
+{
+    if (a < min) return min;
+    else if (a > max) return max;
+    else return a;
+}
+/**
+ * \brief Clamp \p a value between \p min and \p max
+ * \sa SCE_Math_Clamp()
+ */
+float SCE_Math_Clampf (float a, float min, float max)
+{
+    if (a < min) return min;
+    else if (a > max) return max;
+    else return a;
 }
 
 /** @} */

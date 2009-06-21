@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* created: 22 decembre 2006
-   updated: 27/02/2008 */
+/* created: 22/12/2006
+   updated: 21/06/2009 */
 
 #ifndef SCEMATH_H
 #define SCEMATH_H
@@ -36,7 +36,6 @@ extern "C"
  #define M_PI 3.14159265358979323846
 #endif
 
-/* radian */
 #ifndef RAD
  #define RAD 0.0174532925
 #endif
@@ -50,18 +49,15 @@ extern "C"
  #define min(a, b) (a < b ? a : b)
 #endif
 
-/* calcul la racine carree d'un nombre */
 float SCE_Math_Sqrt (float);
-/* calcul l'inverse de la racine carree d'un nombre */
 float SCE_Math_InvSqrt (float);
 
-/* renvoie un entier puissance n */
 int SCE_Math_Powi (int, unsigned int);
 
-/* fonction renvoyant le nombre de la puissance de 2 a utiliser pour obtenir
-   le chiffre donne en parametre.
-   la fonction renvoie 0 si le nombre n'est pas un nombre puissance de 2 */
 int SCE_Math_PowerOfTwo (int);
+
+int SCE_Math_Clamp (int, int, int);
+float SCE_Math_Clampf (float, float, float);
 
 #ifdef __cplusplus
 } /* extern "C" */
