@@ -636,7 +636,7 @@ static int SCE_SceneEntity_IsBBInFrustum (SCE_SSceneEntityInstance *einst,
     SCE_SBoundingBox *box = &einst->entity->box;
 
     SCE_BoundingBox_Push (box, SCE_Node_GetFinalMatrix (einst->node));
-    result = SCE_Frustum_BoundingBoxIn (SCE_Camera_GetFrustum (cam), box);
+    result = SCE_Frustum_BoundingBoxInBool (SCE_Camera_GetFrustum (cam), box);
     SCE_BoundingBox_Pop (box);
 
     return result;
@@ -648,7 +648,8 @@ static int SCE_SceneEntity_IsBSInFrustum (SCE_SSceneEntityInstance *einst,
     SCE_SBoundingSphere *sphere = &einst->entity->sphere;
 
     SCE_BoundingSphere_Push (sphere, SCE_Node_GetFinalMatrix (einst->node));
-    result = SCE_Frustum_BoundingSphereIn (SCE_Camera_GetFrustum (cam), sphere);
+    result = SCE_Frustum_BoundingSphereInBool (SCE_Camera_GetFrustum (cam),
+                                               sphere);
     SCE_BoundingSphere_Pop (sphere);
 
     return result;
@@ -729,8 +730,8 @@ void SCE_SceneEntity_DetermineInstanceLOD (SCE_SSceneEntityInstance *einst,
     SCE_SceneEntity_AddInstanceToEntity (entity, einst);
 }
 /**
- * \brief Determines if an instance is in the given frustum
- * \sa SCE_Frustum_BoundingBoxIn(), SCE_Frustum_BoundingSphereIn(),
+ * \brief Determines if an instance is in the given frustum (returns a boolean)
+ * \sa SCE_Frustum_BoundingBoxInBool(), SCE_Frustum_BoundingSphereInBool(),
  * SCE_SceneEntity_SetupBoundingVolume()
  */
 int SCE_SceneEntity_IsInstanceInFrustum (SCE_SSceneEntityInstance *einst,

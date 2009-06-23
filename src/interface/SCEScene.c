@@ -687,8 +687,8 @@ static void SCE_Scene_SelectOctreeInstances(SCE_SScene *scene,
     }
 }
 
-static void SCE_Scene_SelectOctreeInstancesRec (SCE_SScene *scene,
-                                                SCE_SOctree *tree)
+static void SCE_Scene_SelectAllOctreeInstancesRec (SCE_SScene *scene,
+                                                   SCE_SOctree *tree)
 {
     SCE_Scene_SelectOctreeInstances (scene, tree, SCE_Scene_SelectAllInstances);
     if (SCE_Octree_HasChildren (tree))
@@ -696,7 +696,7 @@ static void SCE_Scene_SelectOctreeInstancesRec (SCE_SScene *scene,
         unsigned int i;
         SCE_SOctree **children = SCE_Octree_GetChildren (tree);
         for (i = 0; i < 8; i++)
-            SCE_Scene_SelectOctreeInstancesRec (scene, children[i]);
+            SCE_Scene_SelectAllOctreeInstancesRec (scene, children[i]);
     }
 }
 
@@ -707,32 +707,12 @@ static void SCE_Scene_SelectVisibleOctrees (SCE_SScene *scene,
     if (!SCE_Octree_IsVisible (tree))
         return;
     if (!SCE_Octree_IsPartiallyVisible (tree))
-        SCE_Scene_SelectOctreeInstancesRec (scene, tree);
+        SCE_Scene_SelectAllOctreeInstancesRec (scene, tree);
     else
     {
-#if 1
         /* TODO: using SelectAllInstances() if the octree is too far */
         SCE_Scene_SelectOctreeInstances (scene, tree,
                                          SCE_Scene_SelectVisibleInstances);
-#else
-        unsigned int i;
-        float size;
-        SCE_SSceneOctree *stree = NULL;
-
-        stree = SCE_Octree_GetData (tree);
-        size = SCE_Scene_GetOctreeSize (tree, scene->camera);
-
-        /* do visibility test for each instance */
-        SCE_Scene_SelectVisibleInstances (scene, stree, 0);
-        for (i = 0; i < 2; i++)
-        {
-            if (omg_coeffs[i] * size < scene->contribution_size)
-                break; /* the next are smaller, so stop */
-            else
-                SCE_Scene_SelectVisibleInstances (scene, stree, i+1);
-        }
-#endif
-
         if (SCE_Octree_HasChildren (tree))
         {
             unsigned int i;
@@ -765,7 +745,9 @@ static void SCE_Scene_DetermineEntities (SCE_SScene *scene)
     SCE_SListIterator *it = NULL;
     SCE_SList *instances = scene->selected;
     SCE_List_ForEach (it, instances)
+    {
         SCE_SceneEntity_ReplaceInstanceToEntity (SCE_List_GetData (it));
+    }
 }
 
 
@@ -799,16 +781,19 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
                        SCE_STexture *rendertarget, SCEuint cubeface)
 {
     SCE_SOctreeElement *el = NULL;
+    int fc;
 
     scene->rendertarget = rendertarget;
     scene->cubeface = cubeface;
 /*    scene->camera = (camera ? camera : default_camera);*/
     scene->camera = camera;
 
-    if (scene->states.lod || scene->states.frustum_culling)
+    fc = scene->states.frustum_culling;
+
+    if (scene->states.lod || fc)
         SCE_Scene_FlushEntities (scene);
 
-    if (scene->states.frustum_culling)
+    if (fc)
     {
         /* do it before FastUpdateRootRecursive(), otherwise the calls of
            List_Removel() can fail */
@@ -817,7 +802,7 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
         scene->selected_join = scene->selected;
     }
 
-    /* updating scene nodes */
+    /* update scene nodes */
     if (!scene->node_updated)
         SCE_Node_FastUpdateRootRecursive (scene->rootnode, scene->n_nodes);
     /* NOTE: node_updated or do_update_nodes can be a state because its value
@@ -826,17 +811,17 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
 
     SCE_Camera_Update (scene->camera);
 
-    if (scene->states.frustum_culling)
+    if (fc)
     {
         SCE_Octree_MarkVisibles (scene->octree,
                                  SCE_Camera_GetFrustum (scene->camera));
         SCE_Scene_SelectVisibles (scene);
     }
 
-    /* determinating entities */
+    /* determinate entities */
     if (scene->states.lod)
         SCE_Scene_DetermineEntitiesUsingLOD (scene);
-    else if (scene->states.frustum_culling)
+    else if (fc)
         SCE_Scene_DetermineEntities (scene);
 }
 

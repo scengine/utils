@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 14/01/2009 */
+   updated: 23/06/2009 */
 
 #ifndef SCEFRUSTUM_H
 #define SCEFRUSTUM_H
@@ -50,6 +50,9 @@ void SCE_Frustum_MakeFromMatrices (SCE_SFrustum*, SCE_TMatrix4, SCE_TMatrix4);
 
 int SCE_Frustum_BoundingBoxIn (SCE_SFrustum*, SCE_SBoundingBox*);
 int SCE_Frustum_BoundingSphereIn (SCE_SFrustum*, SCE_SBoundingSphere*);
+
+int SCE_Frustum_BoundingBoxInBool (SCE_SFrustum*, SCE_SBoundingBox*);
+int SCE_Frustum_BoundingSphereInBool (SCE_SFrustum*, SCE_SBoundingSphere*);
 
 #ifdef __cplusplus
 } /* extern "C" */

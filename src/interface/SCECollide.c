@@ -92,10 +92,11 @@ int SCE_Collide_PlanesWithBBBool (SCE_SPlane *planes, unsigned int n,
         for (j = 0; j < 8; j++)
         {
             if (SCE_Plane_DistanceToPointv (&planes[i], &points[j*3]) > 0.0f)
-                break;
+                goto end;
         }
-        if (j == 8)
-            return SCE_FALSE;
+        return SCE_FALSE;
+    end:
+        continue;
     }
     return SCE_TRUE;
 }

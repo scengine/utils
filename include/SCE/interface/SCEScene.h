@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 10/03/2009 */
+   updated: 23/06/2009 */
 
 #ifndef SCESCENE_H
 #define SCESCENE_H
@@ -67,7 +67,6 @@ struct sce_sscenestates
     int lod;             /**< Use LOD? */
 };
 
-/* scene */
 /** \copydoc sce_sscene */
 typedef struct sce_sscene SCE_SScene;
 /**
@@ -75,6 +74,7 @@ typedef struct sce_sscene SCE_SScene;
  */
 struct sce_sscene
 {
+    SCE_SSceneStates states;    /**< Scene's states */
     SCE_SNode *rootnode;        /**< Root node */
     int node_updated;           /**< Defines the root node's status */
     unsigned int n_nodes;       /**< Number of nodes attached to \c rootnode */
@@ -103,7 +103,6 @@ struct sce_sscene
     SCEuint cubeface;           /**< Face of the cubemap (used if
                                  * \c rendertarget is a cubemap) */
     SCE_SCamera *camera;        /**< The camera of the current render */
-    SCE_SSceneStates states;    /**< Scene's states */
 };
 
 /** @} */

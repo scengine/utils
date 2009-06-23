@@ -70,10 +70,18 @@ void SCE_Frustum_MakeFromMatrices (SCE_SFrustum *f, SCE_TMatrix4 view,
 #define N_PL 6
 int SCE_Frustum_BoundingBoxIn (SCE_SFrustum *f, SCE_SBoundingBox *b)
 {
-    return SCE_Collide_PlanesWithBBBool (f->planes, N_PL, b);
+    return SCE_Collide_PlanesWithBB (f->planes, N_PL, b);
+}
+int SCE_Frustum_BoundingSphereIn (SCE_SFrustum *f, SCE_SBoundingSphere *s)
+{
+    return SCE_Collide_PlanesWithBS (f->planes, N_PL, s);
 }
 
-int SCE_Frustum_BoundingSphereIn (SCE_SFrustum *f, SCE_SBoundingSphere *s)
+int SCE_Frustum_BoundingBoxInBool (SCE_SFrustum *f, SCE_SBoundingBox *b)
+{
+    return SCE_Collide_PlanesWithBBBool (f->planes, N_PL, b);
+}
+int SCE_Frustum_BoundingSphereInBool (SCE_SFrustum *f, SCE_SBoundingSphere *s)
 {
     return SCE_Collide_PlanesWithBSBool (f->planes, N_PL, s);
 }

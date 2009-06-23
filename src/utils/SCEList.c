@@ -36,9 +36,8 @@
 /**
  * \defgroup list Linked lists managment
  * \ingroup utils
+ * @{
  */
-
-/** @{ */
 
 /**
  * \brief Initializes an iterator
@@ -48,7 +47,6 @@ void SCE_List_InitIt (SCE_SListIterator *it)
     it->next = it->prev = NULL;
     it->data = NULL;
 }
-
 /**
  * \brief Creates an iterator
  */
@@ -61,7 +59,6 @@ SCE_SListIterator* SCE_List_CreateIt (void)
         SCE_List_InitIt (it);
     return it;
 }
-
 /**
  * \brief Deletes an iterator
  */
@@ -69,7 +66,6 @@ void SCE_List_DeleteIt (SCE_SListIterator *it)
 {
     SCE_free (it);
 }
-
 
 /**
  * \brief Initializes a list
@@ -91,7 +87,6 @@ void SCE_List_Init (SCE_SList *l)
     /* TODO: kick useless calls of CanDeleteIterators() in the engine */
     l->canfree = SCE_FALSE;     /* by default, CANT free iterators */
 }
-
 /**
  * \brief Creates a new list
  * \param f a SCE_FListFreeFunc function to free the list's data at deletion
@@ -169,7 +164,6 @@ void SCE_List_Clear (SCE_SList *l)
     SCE_List_ForEachProtected (pro, it, l)
         SCE_List_Erase (l, it);
 }
-
 /**
  * \brief Deletes a list
  * \param l the list to delete
@@ -513,6 +507,7 @@ static void SCE_List_InitLast (SCE_SListIterator *it)
 
 /**
  * \brief Breaks a join created by SCE_List_Join()
+ * \sa SCE_List_BreakEnd()
  */
 void SCE_List_BreakStart (SCE_SList *l)
 {
@@ -522,6 +517,7 @@ void SCE_List_BreakStart (SCE_SList *l)
 }
 /**
  * \brief Breaks a join created by SCE_List_Join()
+ * \sa SCE_List_BreakStart()
  */
 void SCE_List_BreakEnd (SCE_SList *l)
 {
