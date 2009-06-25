@@ -76,7 +76,7 @@ int SCE_CInit (SCEflags flags)
     SCE_btend ();
     return SCE_OK;
 }
-/* revise le 24/03/2008 */
+
 void SCE_CQuit (void)
 {
     SCE_btstart ();

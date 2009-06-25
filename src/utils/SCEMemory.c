@@ -417,6 +417,13 @@ void SCE_Mem_Free (void *p)
 }
 
 
+/**
+ * \brief Duplicates allocated memory and copies its content
+ * \param p the memory to duplicate
+ * \param size allocated size of \p p, in bytes
+ * \returns the newly allocated memory
+ * \sa SCE_Mem_Convert(), SCE_Mem_ConvertDup()
+ */
 void* SCE_Mem_Dup (const void *p, size_t size)
 {
     void *new = SCE_malloc (size);
@@ -427,6 +434,16 @@ void* SCE_Mem_Dup (const void *p, size_t size)
     return new;
 }
 
+/**
+ * \brief Converts data from one to another type
+ * \param tdest destination data type
+ * \param dest destination data pointer (must be already allocated)
+ * \param tsrc source data type
+ * \param src source data pointer
+ * \param n number of elements in \p src (not bytes, just the number of typed
+ * values)
+ * \sa SCE_Mem_Dup(), SCE_Mem_ConvertDup()
+ */
 void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
 {
     union SCE_UMemType
@@ -447,7 +464,7 @@ void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
 #define SCE_MEM_FOR(type, namedest, namesrc)\
     case type:\
         tout.namedest = dest;\
-        for (i=0; i<n; i++)\
+        for (i = 0; i < n; i++)\
             tout.namedest[i] = tin.namesrc[i];\
         break;
 
@@ -480,6 +497,13 @@ void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
     }
 }
 
+/**
+ * \brief Converts data and allocates memory for them
+ *
+ * This function is a combination of SCE_Mem_Dup() and SCE_Mem_Convert(). It
+ * allocates memory for the further converted data, and calls SCE_Mem_Convert().
+ * \sa SCE_Mem_Dup(), SCE_Mem_Convert()
+ */
 void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
 {
     size_t size;
