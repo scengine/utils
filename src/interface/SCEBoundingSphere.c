@@ -111,11 +111,20 @@ void SCE_BoundingSphere_Push (SCE_SBoundingSphere *sphere, SCE_TMatrix4 m)
         SCE_Vector3_Copy (sphere->ocenter, sphere->center);
         sphere->oradius = sphere->radius;
         /* 2nd: apply the matrix */
+        /* TODO: maybe wrong? */
+#if 1
         /* find the highest scaling component */
-        highest = max (m[0], m[5]);
+        highest = max (m[0], m[1]);
+        highest = max (highest, m[2]);
+        highest = max (highest, m[4]);
+        highest = max (highest, m[5]);
+        highest = max (highest, m[6]);
+        highest = max (highest, m[8]);
+        highest = max (highest, m[9]);
         highest = max (highest, m[10]);
         /* use it */
         sphere->radius *= highest;
+#endif
         /* apply the matrix to the center vector */
         SCE_Matrix4_MulV3Copy (m, sphere->center);
         sphere->pushed = SCE_TRUE;
