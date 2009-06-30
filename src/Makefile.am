@@ -9,7 +9,6 @@ libSCE_la_SOURCES = SCEngine.c \
                     interface/SCEFrustum.c \
                     interface/SCE4FMLoader.c \
                     interface/SCELevelOfDetail.c \
-                    interface/SCEState.c \
                     interface/SCEShaders.c \
                     interface/SCEGeometryInstance.c \
                     interface/SCEBatch.c \
@@ -31,6 +30,7 @@ libSCE_la_SOURCES = SCEngine.c \
                     interface/SCEMD5Loader.c \
                     interface/SCEBoundingSphere.c \
                     interface/SCESphereMesh.c \
+                    interface/SCEModel.c \
                     interface/libwar.c \
                     interface/lib4fm.c \
                     SCEGLee.c \

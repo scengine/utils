@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* created: 03/11/2008 */
+/* created: 03/11/2008
+   updated: 27/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -53,6 +54,7 @@ SCE_SSceneResource* SCE_SceneResource_Create (void)
 #endif
     /* for compatibility with group functions */
     SCE_List_SetData (res->it, res);
+    SCE_List_CanDeleteIterators (res->owners, SCE_TRUE);
     goto success;
 
 failure:
@@ -103,10 +105,7 @@ SCE_SSceneResourceGroup* SCE_SceneResource_CreateGroup (void)
     if (!(group->resources = SCE_List_Create (
               SCE_SceneResource_YouDontHaveGroup)))
         goto failure;
-    /* each resource manages its own iterator */
-    SCE_List_CanDeleteIterators (group->resources, SCE_FALSE);
     goto success;
-
 failure:
     SCE_SceneResource_DeleteGroup (group), group = NULL;
     Logger_LogSrc ();
@@ -199,24 +198,6 @@ SCE_SList* SCE_SceneResource_GetResourcesList (SCE_SSceneResourceGroup *group)
     return group->resources;
 }
 
-/**
- * \brief Calls a function for each resource of a group
- * \param group the group where check the resources
- * \param f the function to call for each resource
- * \param param an user defined parameter sent to \p f
- */
-void SCE_SceneResource_ForEachResource (SCE_SSceneResourceGroup *group,
-                                        SCE_FForEachSceneResourceFunc f,
-                                        void *param)
-{
-    SCE_SListIterator *it, *pro;
-    SCE_List_ForEachProtected (pro, it, group->resources)
-    {
-        if (!f (group, SCE_List_GetData (it), param))
-            break;
-    }
-}
-
 
 void SCE_SceneResource_SetResource (SCE_SSceneResource *res, void *resource)
 {
@@ -241,6 +222,9 @@ int SCE_SceneResource_AddOwner (SCE_SSceneResource *res, void *owner)
 
 void SCE_SceneResource_RemoveOwner (SCE_SSceneResource *res, void *owner)
 {
+#if 1
+    SCE_List_EraseFromData (res->owners, owner);
+#else
     SCE_SListIterator *it;
     it = SCE_List_LocateIterator (res->owners, owner, NULL);
     if (it)
@@ -248,6 +232,7 @@ void SCE_SceneResource_RemoveOwner (SCE_SSceneResource *res, void *owner)
         SCE_List_Removel (it);
         SCE_List_DeleteIt (it);
     }
+#endif
 }
 
 

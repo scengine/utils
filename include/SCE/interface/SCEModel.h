@@ -22,7 +22,10 @@
 #ifndef SCEMODEL_H
 #define SCEMODEL_H
 
+#include <stdarg.h>
 #include <SCE/utils/SCEList.h>
+#include <SCE/interface/SCETexture.h>
+#include <SCE/interface/SCEShaders.h>
 #include <SCE/interface/SCESceneEntity.h>
 
 #ifdef __cplusplus
@@ -30,20 +33,67 @@ extern "C"
 {
 #endif
 
-typedef struct sce_smodelgroup SCE_SModelGroup;
-struct sce_smodelgroup
+#define SCE_MAX_MODEL_ENTITIES 8
+#define SCE_MAX_MODEL_LOD_LEVELS SCE_MAX_MODEL_ENTITIES
+
+typedef struct sce_smodelentity SCE_SModelEntity;
+struct sce_smodelentity
+{
+    SCE_SSceneEntity *entity;
+    SCE_SMesh *mesh;
+    SCE_SList *textures;
+    SCE_SShader *shader;
+    SCE_SList *locales;         /* Local space instances position */
+    int is_instance;
+
+    SCE_SListIterator iterator;
+    SCE_SListIterator *it;
+};
+
+typedef struct sce_smodelentitygroup SCE_SModelEntityGroup;
+struct sce_smodelentitygroup
 {
     SCE_SSceneEntityGroup *group;
-    int canfree;                /* YES!1ONE */
+    int is_instance;
+    SCE_SListIterator iterator;
+    SCE_SListIterator *it;
 };
 
 typedef struct sce_smodel SCE_SModel;
 struct sce_smodel
 {
+    SCE_SList *entities[SCE_MAX_MODEL_ENTITIES];
     SCE_SList *groups;
-    SCE_SList *entities;
-
+    SCE_SList *instances;
+    SCE_TMatrix4 matrix;
+    int is_instance;            /* Is an instance? */
 };
+
+SCE_SModel* SCE_Model_Create (void);
+void SCE_Model_Delete (SCE_SModel*);
+
+int SCE_Model_AddEntityArg (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*, va_list);
+int SCE_Model_AddEntity (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*, ...);
+
+int SCE_Model_AddInstance (SCE_SModel*, unsigned int, SCE_TMatrix4);
+int SCE_Model_AddInstanceDup (SCE_SModel*, unsigned int, SCE_TMatrix4);
+
+unsigned int SCE_Model_GetNumLOD (SCE_SModel*);
+float* SCE_Model_GetMatrix (SCE_SModel*);
+float* SCE_Model_GetLocalMatrix (SCE_SModel*, unsigned int);
+
+int SCE_Model_Build (SCE_SModel*);
+
+int SCE_Model_Instanciate (SCE_SModel*, SCE_SModel*);
+SCE_SModel* SCE_Model_CreateInstanciate (SCE_SModel*);
+
+SCE_SList* SCE_Model_GetInstances (SCE_SModel*);
+SCE_SSceneEntityGroup* SCE_Model_GetSceneEntityGroup(SCE_SModel*, unsigned int);
+
+#if 0
+int SCE_Model_IsRoot();
+void SCE_Model_GiveRoot();
+#endif
 
 #ifdef __cplusplus
 } /* extern "C" */

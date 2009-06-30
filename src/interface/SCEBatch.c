@@ -175,7 +175,7 @@ int SCE_Batch_SortEntities (SCE_SList *entities, unsigned int size,
         list2 = SCE_List_GetData (it);
         SCE_List_ForEach (it2, list2)
         {
-            /* skip "doublons" */
+            /* skip doubles */
             if (SCE_List_GetData (it2) == SCE_List_GetData (it3))
                 it3 = SCE_List_GetNext (it3);
             else

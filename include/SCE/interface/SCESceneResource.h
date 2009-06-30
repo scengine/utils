@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* created: 03/11/2008 */
+/* created: 03/11/2008
+   updated: 27/06/2009 */
 
 #ifndef SCESCENERESOURCE_H
 #define SCESCENERESOURCE_H
@@ -28,13 +29,9 @@ extern "C"
 {
 #endif
 
-typedef struct sce_ssceneresource SCE_SSceneResource;
 typedef struct sce_ssceneresourcegroup SCE_SSceneResourceGroup;
 
-typedef int (*SCE_FForEachSceneResourceFunc)(SCE_SSceneResourceGroup*,
-                                             SCE_SSceneResource*,
-                                             void*);
-
+typedef struct sce_ssceneresource SCE_SSceneResource;
 struct sce_ssceneresource
 {
     void *resource;                 /**< Resource */
@@ -71,9 +68,6 @@ void SCE_SceneResource_AddResource (SCE_SSceneResourceGroup*,
 void SCE_SceneResource_RemoveResource (SCE_SSceneResource*);
 
 SCE_SList* SCE_SceneResource_GetResourcesList (SCE_SSceneResourceGroup*);
-void SCE_SceneResource_ForEachResource (SCE_SSceneResourceGroup*,
-                                        SCE_FForEachSceneResourceFunc,
-                                        void*);
 
 void SCE_SceneResource_SetResource (SCE_SSceneResource*, void*);
 void* SCE_SceneResource_GetResource (SCE_SSceneResource*);

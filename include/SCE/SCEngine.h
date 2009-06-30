@@ -43,7 +43,7 @@
 #include <SCE/interface/SCELight.h>
 #include <SCE/interface/SCECamera.h>
 #include <SCE/interface/SCELevelOfDetail.h>
-#include <SCE/interface/SCEState.h>
+/*#include <SCE/interface/SCEState.h>*/
 #include <SCE/interface/SCEGeometryInstance.h>
 #include <SCE/interface/SCESceneResource.h>
 #include <SCE/interface/SCESceneEntity.h>

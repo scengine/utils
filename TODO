@@ -67,5 +67,7 @@ See the file ./doc/html/todo.html
 - Désactivation des nœuds : non mise à jour de leur position dans l'octree, etc.
 - Disparitions inopinées du vaisseau de spaceracer en vue intérieure
   (sce:rev54 sp:rev78).
+- Merge SceneResource & Shader, Texture, etc. ?
+- VAO.
 
-- 43
+- 45

@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008 
-   updated: 10/03/2009 */
+   updated: 29/06/2009 */
 
 #ifndef SCESCENEENTITY_H
 #define SCESCENEENTITY_H
@@ -76,8 +76,9 @@ struct sce_ssceneentityinstance
 };
 
 /**
- * \brief A scene entity that defines a model that can be rendered via an
- * instance
+ * \brief A scene entity
+ *
+ * Defines a model which can be rendered via an instance
  * \sa SCE_SSceneEntityInstance
  */
 struct sce_ssceneentity
@@ -104,17 +105,14 @@ struct sce_ssceneentity
 /**
  * \brief Defines a group of entities they represent the same geometry but in
  * a different LOD
+ * \sa SCE_SSceneEntity
  */
 struct sce_ssceneentitygroup
 {
     SCE_SList *entities;
-    unsigned int n_entities;
+    unsigned int n_entities;    /* wtf? */
 };
 
-/* callback prototype for 'ForEach' function */
-typedef int (*SCE_FForEachSceneEntityInstanceFunc)(SCE_SSceneEntityGroup*,
-                                                   SCE_SSceneEntityInstance*,
-                                                   void*);
 
 void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance*);
 SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void);

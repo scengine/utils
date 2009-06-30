@@ -86,11 +86,13 @@ int SCE_Init (FILE *outlog, SCEflags flags)
         Logger_LogFinish ("can't initialize animations manager");
         goto failure;
     }
+#if 0
     if (SCE_Init_State () < 0)
     {
         Logger_LogFinish ("can't initialize states manager");
         goto failure;
     }
+#endif
     if (SCE_Init_Quad () < 0)
     {
         Logger_LogFinish ("can't initialize quads manager");

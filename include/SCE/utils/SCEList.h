@@ -191,30 +191,12 @@ do {\
     for ((it) = (l)->first.next, (pro) = (it)->next;\
          (pro);\
          (it) = (pro), (pro) = (pro)->next)
-#if 0
-#define SCE_List_ForEachNextList(l)\
-    for (; (l)->last.next; (l) = (l)->last.next->data)
-#define SCE_List_ForEachPrevList(l)\
-    for (; (l)->first.prev; (l) = (l)->first.prev->data)
-#else
+
 #define SCE_List_ForEachNextList(l)\
     for (; (l); (l) = ((l)->last.next ? (l)->last.next->data : NULL))
 #define SCE_List_ForEachPrevList(l)\
     for (; (l); (l) = ((l)->first.prev ? (l)->first.prev->data : NULL))
-#endif
 
-#if 0
-#define SCE_List_ForEachNextListProtected(pro, l)\
-    for ((pro) = (((l) && (l)->last.next) ? (l)->last.next->data : (l)); \
-         (l);\
-         (l) = (pro), (pro) = ((pro) && (pro)->last.next ?\
-                                (pro)->last.next->data : NULL))
-#define SCE_List_ForEachPrevListProtected(pro, l)\
-    for ((pro) = (((l) && (l)->first.prev) ? (l)->first.prev->data : (l));\
-         (l);\
-         (l) = (pro), (pro) = (((pro) && (pro)->first.prev) ?\
-                                (pro)->first.prev->data : NULL))
-#else
 #define SCE_List_ForEachNextListProtected(pro, l)\
     for ((pro) = ((l)->last.next ? (l)->last.next->data : NULL); \
          (l);\
@@ -225,24 +207,19 @@ do {\
          (l);\
          (l) = (pro), (pro) = (((pro) && (pro)->first.prev) ?\
                                 (pro)->first.prev->data : NULL))
-#endif
 
-/** \deprecated */
 #define SCE_List_ForEachNext(it)\
-    for (; (it); (it) = (it)->next)
-/** \deprecated */
+    for (; (it)->next; (it) = (it)->next)
 #define SCE_List_ForEachNextProtected(pro, it)\
     for ((pro) = (it)->next;\
-         (it);\
+         (pro);\
          (it) = (pro), (pro) = ((pro) ? (pro)->next : NULL))
 
-/** \deprecated */
 #define SCE_List_ForEachPrev(it)\
-    for (; (it); (it) = (it)->prev)
-/** \deprecated */
+    for (; (it)->prev; (it) = (it)->prev)
 #define SCE_List_ForEachPrevProtected(pro, it)\
     for ((pro) = (it)->prev;\
-         (it);\
+         (pro);\
          (it) = (pro), (pro) = ((pro) ? (pro)->prev : NULL))
 
 #ifdef __cplusplus

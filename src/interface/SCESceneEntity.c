@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008
-   updated: 10/03/2009 */
+   updated: 29/06/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -402,7 +402,7 @@ SCE_SceneEntity_GetInstanceLOD (SCE_SSceneEntityInstance *einst)
     return einst->lod;
 }
 /**
- * \brief Gets the first iterator of an instance
+ * \brief Gets the first iterator of an instance (internal use)
  */
 SCE_SListIterator*
 SCE_SceneEntity_GetInstanceIterator1 (SCE_SSceneEntityInstance *einst)
@@ -410,7 +410,7 @@ SCE_SceneEntity_GetInstanceIterator1 (SCE_SSceneEntityInstance *einst)
     return einst->it;
 }
 /**
- * \brief Gets the second iterator of an instance
+ * \brief Gets the second iterator of an instance (available for the user)
  */
 SCE_SListIterator*
 SCE_SceneEntity_GetInstanceIterator2 (SCE_SSceneEntityInstance *einst)
