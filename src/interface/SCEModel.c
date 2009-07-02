@@ -356,7 +356,7 @@ static SCE_SModelEntity* SCE_Model_CopyDupEntity (SCE_SModelEntity *in)
     }
     return entity;
 }
-static int SCE_Model_InstanciateSoft (SCE_SModel *mdl, SCE_SModel *mdl2)
+static int SCE_Model_InstanciateHard (SCE_SModel *mdl, SCE_SModel *mdl2)
 {
     unsigned int i;
     mdl2->groups = mdl->groups;
@@ -365,7 +365,7 @@ static int SCE_Model_InstanciateSoft (SCE_SModel *mdl, SCE_SModel *mdl2)
     mdl2->instance_type = SCE_MODEL_HARD_INSTANCE;
     return SCE_OK;
 }
-static int SCE_Model_InstanciateHard (SCE_SModel *mdl, SCE_SModel *mdl2)
+static int SCE_Model_InstanciateSoft (SCE_SModel *mdl, SCE_SModel *mdl2)
 {
     SCE_SListIterator *it = NULL;
     unsigned int i;
@@ -388,16 +388,13 @@ static int SCE_Model_InstanciateHard (SCE_SModel *mdl, SCE_SModel *mdl2)
 
     for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++)
     {
-        if (!SCE_List_HasElements (mdl->entities[i]))
+        if (!mdl->entities[i] || !SCE_List_HasElements (mdl->entities[i]))
             break;
-        else
+        if (!mdl2->entities[i])
         {
-            if (!mdl2->entities[i])
-            {
-                if (!(mdl2->entities[i] = SCE_List_Create (
-                          (SCE_FListFreeFunc)SCE_Model_DeleteEntity)))
-                    goto fail;
-            }
+            if (!(mdl2->entities[i] = SCE_List_Create (
+                      (SCE_FListFreeFunc)SCE_Model_DeleteEntity)))
+                goto fail;
         }
         SCE_List_ForEach (it, mdl->entities[i])
         {
