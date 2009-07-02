@@ -268,6 +268,8 @@ int SCE_Model_AddInstance (SCE_SModel *mdl, unsigned int n,
     }
     mgroup = SCE_List_GetData (it);
     SCE_SceneEntity_AddInstance (mgroup->group, einst);
+    SCE_List_Appendl (mdl->instances,
+                      SCE_SceneEntity_GetInstanceIterator2 (einst));
     return SCE_OK;
 }
 int SCE_Model_AddNewInstance (SCE_SModel *mdl, unsigned int n)
