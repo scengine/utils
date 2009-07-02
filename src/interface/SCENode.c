@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/07/2007
-   updated: 01/02/2009 */
+   updated: 01/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -473,6 +473,14 @@ SCE_SNode* SCE_Node_GetParent (SCE_SNode *node)
 SCE_SOctreeElement* SCE_Node_GetElement (SCE_SNode *node)
 {
     return node->element;
+}
+
+/**
+ * \brief Gets the list of the children of a node
+ */
+SCE_SList* SCE_Node_GetChildrenList (SCE_SNode *node)
+{
+    return node->child;
 }
 
 /**

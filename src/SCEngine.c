@@ -122,7 +122,7 @@ void SCE_Quit (void)
     SCE_btstart ();
     SCE_Quit_Scene ();
     SCE_Quit_Quad ();
-    SCE_Quit_State ();
+/*    SCE_Quit_State ();*/
     SCE_Quit_Anim ();
     SCE_Quit_AnimMesh ();
     SCE_Quit_Mesh ();

@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 27/06/2009
-   updated: 27/06/2009 */
+   updated: 01/07/2009 */
 
 #ifndef SCEMODEL_H
 #define SCEMODEL_H
@@ -40,14 +40,8 @@ typedef struct sce_smodelentity SCE_SModelEntity;
 struct sce_smodelentity
 {
     SCE_SSceneEntity *entity;
-    SCE_SMesh *mesh;
-    SCE_SList *textures;
-    SCE_SShader *shader;
-    SCE_SList *locales;         /* Local space instances position */
     int is_instance;
-
-    SCE_SListIterator iterator;
-    SCE_SListIterator *it;
+    SCE_SListIterator it;
 };
 
 typedef struct sce_smodelentitygroup SCE_SModelEntityGroup;
@@ -55,9 +49,16 @@ struct sce_smodelentitygroup
 {
     SCE_SSceneEntityGroup *group;
     int is_instance;
-    SCE_SListIterator iterator;
-    SCE_SListIterator *it;
+    SCE_SListIterator it;
 };
+
+/* instance types */
+/** \brief The model isn't an instance */
+#define SCE_MODEL_NOT_INSTANCE 0
+/** \brief Makes a new model using the scene entities of the root one */
+#define SCE_MODEL_SOFT_INSTANCE 1
+/** \brief Copy the main structure element on the fly */
+#define SCE_MODEL_HARD_INSTANCE 2
 
 typedef struct sce_smodel SCE_SModel;
 struct sce_smodel
@@ -65,8 +66,7 @@ struct sce_smodel
     SCE_SList *entities[SCE_MAX_MODEL_ENTITIES];
     SCE_SList *groups;
     SCE_SList *instances;
-    SCE_TMatrix4 matrix;
-    int is_instance;            /* Is an instance? */
+    int instance_type;            /* Is an instance? */
 };
 
 SCE_SModel* SCE_Model_Create (void);
@@ -75,19 +75,20 @@ void SCE_Model_Delete (SCE_SModel*);
 int SCE_Model_AddEntityArg (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*, va_list);
 int SCE_Model_AddEntity (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*, ...);
 
-int SCE_Model_AddInstance (SCE_SModel*, unsigned int, SCE_TMatrix4);
-int SCE_Model_AddInstanceDup (SCE_SModel*, unsigned int, SCE_TMatrix4);
+int SCE_Model_AddInstance (SCE_SModel*, unsigned int, SCE_SSceneEntityInstance*);
+int SCE_Model_AddNewInstance (SCE_SModel*, unsigned int);
 
 unsigned int SCE_Model_GetNumLOD (SCE_SModel*);
-float* SCE_Model_GetMatrix (SCE_SModel*);
-float* SCE_Model_GetLocalMatrix (SCE_SModel*, unsigned int);
+SCE_SSceneEntity* SCE_Model_GetEntity (SCE_SModel*, int, unsigned int);
+SCE_SList* SCE_Model_GetEntitiesList (SCE_SModel*, int);
+SCE_SSceneEntity* SCE_Model_GetEntityEntity (SCE_SModelEntity*);
 
-int SCE_Model_Build (SCE_SModel*);
+int SCE_Model_Instanciate (SCE_SModel*, SCE_SModel*, int);
+SCE_SModel* SCE_Model_CreateInstanciate (SCE_SModel*, int);
 
-int SCE_Model_Instanciate (SCE_SModel*, SCE_SModel*);
-SCE_SModel* SCE_Model_CreateInstanciate (SCE_SModel*);
+int SCE_Model_GetInstanceType (SCE_SModel*);
 
-SCE_SList* SCE_Model_GetInstances (SCE_SModel*);
+SCE_SList* SCE_Model_GetInstancesList (SCE_SModel*);
 SCE_SSceneEntityGroup* SCE_Model_GetSceneEntityGroup(SCE_SModel*, unsigned int);
 
 #if 0

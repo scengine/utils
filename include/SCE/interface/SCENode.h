@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/07/2007
-   updated: 01/02/2009 */
+   updated: 01/07/2009 */
 
 #ifndef SCENODE_H
 #define SCENODE_H
@@ -106,6 +106,8 @@ int SCE_Node_HasParent (SCE_SNode*);
 SCE_SNode* SCE_Node_GetParent (SCE_SNode*);
 
 SCE_SOctreeElement* SCE_Node_GetElement (SCE_SNode*);
+
+SCE_SList* SCE_Node_GetChildrenList (SCE_SNode*);
 
 void SCE_Node_SetData (SCE_SNode*, void*);
 #if 0

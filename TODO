@@ -68,6 +68,8 @@ See the file ./doc/html/todo.html
 - Disparitions inopinées du vaisseau de spaceracer en vue intérieure
   (sce:rev54 sp:rev78).
 - Merge SceneResource & Shader, Texture, etc. ?
-- VAO.
+- VAO (OpenGL 3.1).
+- SCE_SSceneEntityInstanceGroup : group d'instances situées impérativement dans
+  le même bounding volume.
 
-- 45
+- 46

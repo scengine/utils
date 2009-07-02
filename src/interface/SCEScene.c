@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2008
-   updated: 09/05/2009 */
+   updated: 02/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -350,6 +350,22 @@ void SCE_Scene_AddNode (SCE_SScene *scene, SCE_SNode *node)
     SCE_BoundingSphere_Pop (el->sphere);
 }
 /**
+ * \brief Adds a node and all its children to a scene
+ *
+ * This function calls SCE_Scene_AddNode() under \p node and also calls
+ * SCE_Scene_AddNodeRecursive() for each child of \p node.
+ * \sa SCE_Scene_AddNode()
+ */
+void SCE_Scene_AddNodeRecursive (SCE_SScene *scene, SCE_SNode *node)
+{
+    SCE_SListIterator *it = NULL;
+    SCE_SList *children = NULL;
+    SCE_Scene_AddNode (scene, node);
+    children = SCE_Node_GetChildrenList (node);
+    SCE_List_ForEach (it, children)
+        SCE_Scene_AddNodeRecursive (scene, SCE_List_GetData (it));
+}
+/**
  * \brief Removes a node from a scene
  * \param node the node to remove
  * \warning the node \p node HAVE to be previously added to the scene \p scene,
@@ -400,6 +416,53 @@ void SCE_Scene_RemoveInstance (SCE_SScene *scene,
 }
 
 /**
+ * \brief Adds the resources of a scene entity
+ * \sa SCE_Scene_AddResource()
+ */
+void SCE_Scene_AddEntityResources (SCE_SScene *scene, SCE_SSceneEntity *entity)
+{
+    SCE_SListIterator *it = NULL;
+    SCE_SList *textures = NULL;
+    SCE_SSceneResource *res = NULL;
+
+    textures = SCE_SceneEntity_GetTexturesList (entity);
+    SCE_List_ForEach (it, textures)
+    {
+        SCE_Scene_AddResource (scene, SCE_SCENE_TEXTURES0_GROUP,
+                               SCE_List_GetData (it));
+    }
+    res = SCE_SceneEntity_GetShader (entity);
+    if (res)
+        SCE_Scene_AddResource (scene, SCE_SCENE_SHADERS_GROUP, res);
+    res = SCE_SceneEntity_GetMaterial (entity);
+    if (res)
+        SCE_Scene_AddResource (scene, SCE_SCENE_MATERIALS_GROUP, res);
+}
+/**
+ * \brief Removes the resources of a scene entity
+ * \sa SCE_Scene_RemoveResource()
+ */
+void SCE_Scene_RemoveEntityResources (SCE_SScene *scene,
+                                      SCE_SSceneEntity *entity)
+{
+    SCE_SListIterator *it = NULL;
+    SCE_SList *textures = NULL;
+    SCE_SSceneResource *res = NULL;
+
+    textures = SCE_SceneEntity_GetTexturesList (entity);
+    SCE_List_ForEach (it, textures)
+    {
+        SCE_Scene_RemoveResource (SCE_List_GetData (it));
+    }
+    res = SCE_SceneEntity_GetShader (entity);
+    if (res)
+        SCE_Scene_RemoveResource (res);
+    res = SCE_SceneEntity_GetMaterial (entity);
+    if (res)
+        SCE_Scene_RemoveResource (res);
+}
+
+/**
  * \brief Adds an entity to a scene
  * \param scene a scene
  * \param entity the entity to add
@@ -423,6 +486,80 @@ void SCE_Scene_RemoveEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
     SCE_List_EraseFromData (scene->entities, entity);
 }
 
+
+static void SCE_Scene_AddModelEntities (SCE_SScene *scene, SCE_SModel *mdl)
+{
+    unsigned int i, n;
+    SCE_SListIterator *it = NULL;
+    n = SCE_Model_GetNumLOD (mdl);
+    for (i = 0; i < n; i++)
+    {
+        SCE_SList *entities = SCE_Model_GetEntitiesList (mdl, i);
+        if (!entities)
+            break;
+        SCE_List_ForEach (it, entities)
+        {
+            SCE_SSceneEntity *entity = NULL;
+            entity = ((SCE_SModelEntity*)SCE_List_GetData (it))->entity;
+            SCE_Scene_AddEntityResources (scene, entity);
+            SCE_Scene_AddEntity (scene, entity);
+        }
+    }
+}
+/**
+ * \brief Adds a model to a scene
+ */
+void SCE_Scene_AddModel (SCE_SScene *scene, SCE_SModel *mdl)
+{
+    SCE_SListIterator *it = NULL;
+    SCE_SList *instances = NULL;
+
+    if (SCE_Model_GetInstanceType (mdl) == SCE_MODEL_NOT_INSTANCE)
+        SCE_Scene_AddModelEntities (scene, mdl);
+
+    instances = SCE_Model_GetInstancesList (mdl);
+    SCE_List_ForEach (it, instances)
+        SCE_Scene_AddInstance (scene, SCE_List_GetData (it));
+}
+
+
+static void SCE_Scene_RemoveModelEntities (SCE_SScene *scene, SCE_SModel *mdl)
+{
+    unsigned int i, n;
+    SCE_SListIterator *it = NULL;
+    n = SCE_Model_GetNumLOD (mdl);
+    for (i = 0; i < n; i++)
+    {
+        SCE_SList *entities = SCE_Model_GetEntitiesList (mdl, i);
+        if (!entities)
+            break;
+        SCE_List_ForEach (it, entities)
+        {
+            SCE_SSceneEntity *entity = NULL;
+
+            entity = ((SCE_SModelEntity*)SCE_List_GetData (it))->entity;
+            SCE_Scene_RemoveEntityResources (scene, entity);
+            SCE_Scene_RemoveEntity (scene, entity);
+        }
+    }
+}
+/**
+ * \brief Removes a model from a scene
+ */
+void SCE_Scene_RemoveModel (SCE_SScene *scene, SCE_SModel *mdl)
+{
+    SCE_SListIterator *it = NULL;
+    SCE_SList *instances = NULL;
+
+    if (SCE_Model_GetInstanceType (mdl) == SCE_MODEL_NOT_INSTANCE)
+        SCE_Scene_RemoveModelEntities (scene, mdl);
+
+    instances = SCE_Model_GetInstancesList (mdl);
+    SCE_List_ForEach (it, instances)
+        SCE_Scene_RemoveInstance (scene, SCE_List_GetData (it));
+}
+
+#if 0
 /**
  * \deprecated
  * \brief Adds an entity group to a scene
@@ -451,6 +588,7 @@ int SCE_Scene_AddEntityGroup (SCE_SScene *scene, SCE_SSceneEntityGroup *group)
 
     return SCE_OK;
 }
+#endif
 
 /**
  * \brief Adds a light to a scene
@@ -496,6 +634,14 @@ int SCE_Scene_AddCamera (SCE_SScene *scene, SCE_SCamera *camera)
 void SCE_Scene_AddResource (SCE_SScene *scene, int id, SCE_SSceneResource *res)
 {
     SCE_SceneResource_AddResource (scene->rgroups[id], res);
+}
+/**
+ * \brief Removes a resource from a scene (except that no scene parameter is
+ * needed.)
+ */
+void SCE_Scene_RemoveResource (SCE_SSceneResource *res)
+{
+    SCE_SceneResource_RemoveResource (res);
 }
 
 /**

@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 23/06/2009 */
+   updated: 02/07/2009 */
 
 #ifndef SCESCENE_H
 #define SCESCENE_H
@@ -30,6 +30,7 @@
 #include <SCE/interface/SCEMaterial.h>
 /*#include <SCE/interface/SCEShaders.h>*/
 #include <SCE/interface/SCESceneEntity.h>
+#include <SCE/interface/SCEModel.h>
 #include <SCE/interface/SCEOctree.h>
 #include <SCE/interface/SCESkybox.h>
 
@@ -118,15 +119,25 @@ SCE_SNode* SCE_Scene_GetRootNode (SCE_SScene*);
 void SCE_Scene_OnNodeMoved (SCE_SNode*, void*);
 
 void SCE_Scene_AddNode (SCE_SScene*, SCE_SNode*);
+void SCE_Scene_AddNodeRecursive (SCE_SScene*, SCE_SNode*);
 void SCE_Scene_RemoveNode (SCE_SScene*, SCE_SNode*);
+
 void SCE_Scene_AddInstance (SCE_SScene*, SCE_SSceneEntityInstance*);
 void SCE_Scene_RemoveInstance (SCE_SScene*, SCE_SSceneEntityInstance*);
+
+void SCE_Scene_AddEntityResources (SCE_SScene*, SCE_SSceneEntity*);
+void SCE_Scene_RemoveEntityResources (SCE_SScene*, SCE_SSceneEntity*);
 int SCE_Scene_AddEntity (SCE_SScene*, SCE_SSceneEntity*);
 void SCE_Scene_RemoveEntity (SCE_SScene*, SCE_SSceneEntity*);
-int SCE_Scene_AddEntityGroup (SCE_SScene*, SCE_SSceneEntityGroup*);
+
+void SCE_Scene_AddModel (SCE_SScene*, SCE_SModel*);
+void SCE_Scene_RemoveModel (SCE_SScene*, SCE_SModel*);
+/*int SCE_Scene_AddEntityGroup (SCE_SScene*, SCE_SSceneEntityGroup*);*/
 int SCE_Scene_AddLight (SCE_SScene*, SCE_SLight*);
 int SCE_Scene_AddCamera (SCE_SScene*, SCE_SCamera*);
+
 void SCE_Scene_AddResource (SCE_SScene*, int, SCE_SSceneResource*);
+void SCE_Scene_RemoveResource (SCE_SSceneResource*);
 
 void SCE_Scene_SetSkybox (SCE_SScene*, SCE_SSkybox*);
 
