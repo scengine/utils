@@ -520,6 +520,9 @@ void SCE_Scene_AddModel (SCE_SScene *scene, SCE_SModel *mdl)
     instances = SCE_Model_GetInstancesList (mdl);
     SCE_List_ForEach (it, instances)
         SCE_Scene_AddInstance (scene, SCE_List_GetData (it));
+
+    if (SCE_Model_GetRootNode (mdl) && !SCE_Model_RootNodeIsInstance (mdl))
+        SCE_Scene_AddNode (scene, SCE_Model_GetRootNode (mdl));
 }
 
 

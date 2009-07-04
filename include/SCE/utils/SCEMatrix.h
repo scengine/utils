@@ -51,7 +51,11 @@ typedef float SCE_TMatrix4x3[12];
     (ma)[8]  = i; (ma)[9]  = j; (ma)[10] = k; (ma)[11] = l;}
 
 /* copies n into m */
+#if 0
 #define SCE_Matrix4_Copy(m, n) memcpy ((m), (n), 16 * sizeof *(m))
+#else
+#define SCE_Matrix4_Copy(m, n) memcpy ((m), (n), 16 * sizeof (float))
+#endif
 #define SCE_Matrix4_CopyM4x3(m, n) memcpy ((m), (n), 12 * sizeof *(m))
 #define SCE_Matrix3_Copy(m, n) memcpy ((m), (n), 9 * sizeof *(m))
 #define SCE_Matrix4x3_Copy(m, n) memcpy ((m), (n), 12 * sizeof *(m))

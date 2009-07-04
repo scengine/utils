@@ -656,13 +656,13 @@ void SCE_Matrix3_Scalev (SCE_TMatrix3 m, SCE_TVector3 v)
 
 void SCE_Matrix4_MulScale (SCE_TMatrix4 m, float x, float y, float z)
 {
-    SCE_TMatrix3 tm;
+    SCE_TMatrix4 tm;
     SCE_Matrix4_Scale (tm, x, y, z);
     SCE_Matrix4_MulCopy (m, tm);
 }
 void SCE_Matrix4_MulScalev (SCE_TMatrix4 m, SCE_TVector3 v)
 {
-    SCE_TMatrix3 tm;
+    SCE_TMatrix4 tm;
     SCE_Matrix4_Scalev (tm, v);
     SCE_Matrix4_MulCopy (m, tm);
 }

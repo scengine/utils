@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 28 fevrier 2007
-   derniere modification le 24/02/2008 */
+/* created: 28/02/2007
+   updated: 24/02/2008 */
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -26,16 +26,14 @@
 /* mode debug trop lourd dans Valof et Strof
  * + flemme de changer ca...
  */
-/*
-#ifdef __SCE_DEBUG__
- #define DEBUG 1
+#ifdef SCE_DEBUG
+#define DEBUG 0
 #else
- #define DEBUG 0
-#endif*/
+#define DEBUG 0
+#endif
 
-
-#if (DEBUG)
- #include <stdio.h>
+#if DEBUG
+#include <stdio.h>
 #endif
 
 #include <SCE/utils/SCEError.h>
@@ -43,7 +41,6 @@
 #include <SCE/utils/SCEMath.h>
 
 #include <SCE/utils/SCEString.h>
-
 
 /**
  * \file SCEString.c
@@ -66,9 +63,7 @@
 
 /** @{ */
 
-
-
-/** 
+/**
  * \brief Counts the number of digits in a number
  * \param arg number to be counted
  * \returns The number of contained digits
@@ -96,7 +91,7 @@ static unsigned int SCE_String_lenof (long arg)
     return size;
 }
 
-/** 
+/**
  * \brief Extracts a double from a string
  * \param str string containing the double
  * \returns The extracted double
@@ -173,7 +168,7 @@ double SCE_String_Valof (const char *str)
     return res;
 }
 
-/** 
+/**
  * \brief Writes a double to a string
  * \param arg double to write to a string
  * \param nd double's mantissa accuracy
@@ -281,7 +276,7 @@ const char* SCE_String_Strof (double arg, unsigned int nd)
     return str;
 }
 
-/** 
+/**
  * \brief Finds out how many times a character is in a string
  * \param str String to be scanned
  * \param c   Character sought
@@ -289,7 +284,6 @@ const char* SCE_String_Strof (double arg, unsigned int nd)
  */
 unsigned int SCE_String_NChrInStr(const char *str, char c)
 {
-    /* nombre d'occurrences */
     unsigned int nb = 0;
 
     for (; *str != '\0'; str++)
@@ -320,7 +314,7 @@ char* SCE_String_GetExt (char *str)
     return &str[i];
 }
 
-/** 
+/**
  * \brief Compares two strings
  * \param str1 first string to compare
  * \param str2 second string to compare
@@ -358,7 +352,7 @@ int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
         else
         {
             for (rv = 0;
-                 (rv = tolower (*str1) - tolower (*str2)) == 0;
+                 (rv = (tolower (*str1) - tolower (*str2))) == 0;
                  str1++, str2++)
             {
                 if (*str1 == 0)
@@ -370,8 +364,6 @@ int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
     return rv;
 }
 
-/* ajoute le 18/10/2007 */
-/* revise le 19/10/2007 */
 /**
  * \brief Duplicates a string
  * \param src the string to copy
@@ -394,8 +386,6 @@ char* SCE_String_Dup (const char *src)
         return NULL;
 }
 
-/* ajoute le 18/10/2007 */
-/* revise le 20/07/2008 */
 /**
  * \brief Duplicates the concatenation of two strings
  * \param a first string

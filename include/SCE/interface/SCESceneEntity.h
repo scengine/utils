@@ -117,6 +117,8 @@ struct sce_ssceneentitygroup
 void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance*);
 SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void);
 void SCE_SceneEntity_DeleteInstance (SCE_SSceneEntityInstance*);
+SCE_SSceneEntityInstance*
+SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance*);
 
 void SCE_SceneEntity_InitProperties (SCE_SSceneEntityProperties*);
 void SCE_SceneEntity_Init (SCE_SSceneEntity*);

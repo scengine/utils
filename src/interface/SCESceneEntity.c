@@ -116,6 +116,24 @@ void SCE_SceneEntity_DeleteInstance (SCE_SSceneEntityInstance *einst)
     }
 }
 
+/**
+ * \brief Duplicates an instance, the copy is in the same entity group of
+ * \p einst
+ */
+SCE_SSceneEntityInstance*
+SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance *einst)
+{
+    SCE_SSceneEntityInstance *new = NULL;
+    if (!(new = SCE_SceneEntity_CreateInstance ()))
+    {
+        Logger_LogSrc ();
+        return NULL;
+    }
+    SCE_SceneEntity_AddInstance (einst->group, new);
+    return new;
+}
+
+
 static int SCE_SceneEntity_IsBSInFrustum (SCE_SSceneEntityInstance*,
                                           SCE_SCamera*);
 

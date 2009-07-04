@@ -466,6 +466,7 @@ static void SCE_Octree_Insert (SCE_SOctree *tree, SCE_SOctreeElement *el)
  */
 void SCE_Octree_InsertElement (SCE_SOctree *tree, SCE_SOctreeElement *el)
 {
+/*    SCE_Octree_RemoveElement (el); */
     tree->insert (tree, el);
 }
 /**
@@ -481,12 +482,12 @@ void SCE_Octree_InsertElement (SCE_SOctree *tree, SCE_SOctreeElement *el)
 void SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
 {
     SCE_SOctree *parent = el->octree;
-    SCE_List_Removel (&el->it);
     do
     {
         if (SCE_Collide_AABBWithBS (&parent->box, el->sphere) ==
             SCE_COLLIDE_IN)
         {
+            SCE_List_Removel (&el->it);
             SCE_Octree_InsertElement (parent, el);
             break;
         }
@@ -503,7 +504,7 @@ void SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
 }
 /**
  * \brief Removes an element from its octree (SCE_Octree_ReinsertElement() will
- * not work after that)
+ * not works after that)
  */
 void SCE_Octree_RemoveElement (SCE_SOctreeElement *el)
 {

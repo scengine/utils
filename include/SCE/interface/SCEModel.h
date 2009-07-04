@@ -23,6 +23,7 @@
 #define SCEMODEL_H
 
 #include <stdarg.h>
+#include <SCE/utils/SCEMatrix.h>
 #include <SCE/utils/SCEList.h>
 #include <SCE/interface/SCETexture.h>
 #include <SCE/interface/SCEShaders.h>
@@ -66,7 +67,9 @@ struct sce_smodel
     SCE_SList *entities[SCE_MAX_MODEL_ENTITIES];
     SCE_SList *groups;
     SCE_SList *instances;
-    int instance_type;            /* Is an instance? */
+    SCE_SNode *root;            /* Root node */
+    int root_instance;          /* Is root node an instance node? */
+    int instance_type;          /* Is an instance? */
 };
 
 SCE_SModel* SCE_Model_Create (void);
@@ -75,16 +78,21 @@ void SCE_Model_Delete (SCE_SModel*);
 int SCE_Model_AddEntityArg (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*, va_list);
 int SCE_Model_AddEntity (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*, ...);
 
-int SCE_Model_AddInstance (SCE_SModel*, unsigned int, SCE_SSceneEntityInstance*);
-int SCE_Model_AddNewInstance (SCE_SModel*, unsigned int);
+void SCE_Model_SetRootNode (SCE_SModel*, SCE_SNode*);
+SCE_SNode* SCE_Model_GetRootNode (SCE_SModel*);
+int SCE_Model_RootNodeIsInstance (SCE_SModel*);
+
+int SCE_Model_AddInstance (SCE_SModel*, unsigned int, SCE_SSceneEntityInstance*,
+                           int);
+int SCE_Model_AddNewInstance (SCE_SModel*, unsigned int, int, float*);
 
 unsigned int SCE_Model_GetNumLOD (SCE_SModel*);
 SCE_SSceneEntity* SCE_Model_GetEntity (SCE_SModel*, int, unsigned int);
 SCE_SList* SCE_Model_GetEntitiesList (SCE_SModel*, int);
 SCE_SSceneEntity* SCE_Model_GetEntityEntity (SCE_SModelEntity*);
 
-int SCE_Model_Instanciate (SCE_SModel*, SCE_SModel*, int);
-SCE_SModel* SCE_Model_CreateInstanciate (SCE_SModel*, int);
+int SCE_Model_Instanciate (SCE_SModel*, SCE_SModel*, int, int);
+SCE_SModel* SCE_Model_CreateInstanciate (SCE_SModel*, int, int);
 
 int SCE_Model_GetInstanceType (SCE_SModel*);
 
