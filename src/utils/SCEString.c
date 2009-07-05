@@ -52,13 +52,13 @@
 /**
  * \defgroup string String utility functions
  * \ingroup utils
- * \brief Some useful string utiliy functions 
+ * \brief Some useful string utility functions 
  * 
- * This module provides some useful fonctions, like conversions from numbers to
+ * This module provides some useful functions, like conversions from numbers to
  * string, string to number, length in characters of a number and so on.
  * It also provides some extensions to the standard strings functions like
  * insensitive string comparison, extension extraction and multiple
- * contactenation.
+ * concatenation.
  */
 
 /** @{ */
@@ -66,7 +66,7 @@
 /**
  * \brief Counts the number of digits in a number
  * \param arg number to be counted
- * \returns The number of contained digits
+ * \returns The number of digits in \p arg
  */
 static unsigned int SCE_String_lenof (long arg)
 {
@@ -172,7 +172,7 @@ double SCE_String_Valof (const char *str)
  * \brief Writes a double to a string
  * \param arg double to write to a string
  * \param nd double's mantissa accuracy
- * \returns a staticly allocated string containing the double number
+ * \returns a statically allocated string containing the double number
  * 
  * \warning This function is NOT reentrant.
  */
@@ -323,7 +323,7 @@ char* SCE_String_GetExt (char *str)
  * if the first string is greater than the second, and a number below 0
  * otherwise
  * \see string.h's strcmp()
- * \note This function is safe with NULL string comparaison.
+ * \note This function is safe with NULL string comparison.
  */
 int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
 {
@@ -389,7 +389,7 @@ char* SCE_String_Dup (const char *src)
 /**
  * \brief Duplicates the concatenation of two strings
  * \param a first string
- * \param b second string to concatenante to first
+ * \param b second string to concatenate with the first
  * \returns a newly allocated string containing both \p a and \p b strings 
  */
 char* SCE_String_CatDup (const char *a, const char *b)
