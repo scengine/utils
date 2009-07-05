@@ -180,7 +180,7 @@ void SCE_Matrix4_Sub (SCE_TMatrix4 a, SCE_TMatrix4 b)
 }
 
 
-void SCE_Matrix4_Transpose (SCE_TMatrix4 m, SCE_TMatrix4 n)
+void SCE_Matrix4_Transpose (const SCE_TMatrix4 m, SCE_TMatrix4 n)
 {
     n[1] = m[4];
     n[2] = m[8];
@@ -199,7 +199,7 @@ void SCE_Matrix4_TransposeCopy (SCE_TMatrix4 m)
     t = m[7]; m[7] = m[13]; m[13] = t;
     t = m[11]; m[11] = m[14]; m[14] = t;
 }
-void SCE_Matrix3_Transpose (SCE_TMatrix3 m, SCE_TMatrix3 n)
+void SCE_Matrix3_Transpose (const SCE_TMatrix3 m, SCE_TMatrix3 n)
 {
     n[1] = m[3];
     n[2] = m[6];
@@ -213,7 +213,7 @@ void SCE_Matrix3_TransposeCopy (SCE_TMatrix3 m)
     t = m[5]; m[5] = m[7]; m[7] = t;
 }
 
-void SCE_Matrix4_Inverse (SCE_TMatrix4 m, SCE_TMatrix4 inv)
+void SCE_Matrix4_Inverse (const SCE_TMatrix4 m, SCE_TMatrix4 inv)
 {
     /* this code comes from the mesa implementation of GLU */
     float det;
@@ -270,7 +270,7 @@ void SCE_Matrix4_InverseCopy (SCE_TMatrix4 m)
     SCE_Matrix4_Copy (m, tm);
 }
 
-void SCE_Matrix3_Inverse (SCE_TMatrix3 m, SCE_TMatrix3 inv)
+void SCE_Matrix3_Inverse (const SCE_TMatrix3 m, SCE_TMatrix3 inv)
 {
     float det;
 
@@ -302,7 +302,7 @@ void SCE_Matrix3_InverseCopy (SCE_TMatrix3 m)
     SCE_Matrix3_Copy (m, tm);
 }
 
-void SCE_Matrix4x3_Inverse (SCE_TMatrix4x3 m, SCE_TMatrix4x3 inv)
+void SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3 m, SCE_TMatrix4x3 inv)
 {
     float det;
 

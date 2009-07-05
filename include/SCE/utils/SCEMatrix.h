@@ -84,16 +84,16 @@ float* SCE_Matrix4x3_MulCopy (SCE_TMatrix4x3, SCE_TMatrix4x3);
 void SCE_Matrix4_Add (SCE_TMatrix4, SCE_TMatrix4);
 void SCE_Matrix4_Sub (SCE_TMatrix4, SCE_TMatrix4);
 
-void SCE_Matrix4_Transpose (SCE_TMatrix4, SCE_TMatrix4);
+void SCE_Matrix4_Transpose (const SCE_TMatrix4, SCE_TMatrix4);
 void SCE_Matrix4_TransposeCopy (SCE_TMatrix4);
-void SCE_Matrix3_Transpose (SCE_TMatrix3, SCE_TMatrix3);
+void SCE_Matrix3_Transpose (const SCE_TMatrix3, SCE_TMatrix3);
 void SCE_Matrix3_TransposeCopy (SCE_TMatrix3);
 
-void SCE_Matrix4_Inverse (SCE_TMatrix4, SCE_TMatrix4);
+void SCE_Matrix4_Inverse (const SCE_TMatrix4, SCE_TMatrix4);
 void SCE_Matrix4_InverseCopy (SCE_TMatrix4);
-void SCE_Matrix3_Inverse (SCE_TMatrix3, SCE_TMatrix3);
+void SCE_Matrix3_Inverse (const SCE_TMatrix3, SCE_TMatrix3);
 void SCE_Matrix3_InverseCopy (SCE_TMatrix3);
-void SCE_Matrix4x3_Inverse (SCE_TMatrix4x3, SCE_TMatrix4x3);
+void SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3, SCE_TMatrix4x3);
 void SCE_Matrix4x3_InverseCopy (SCE_TMatrix4x3);
 
 void SCE_Matrix4_Interpolate (SCE_TMatrix4, SCE_TMatrix4, float, SCE_TMatrix4);
