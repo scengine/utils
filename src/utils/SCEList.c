@@ -192,6 +192,27 @@ void SCE_List_CanDeleteIterators (SCE_SList *l, int canfree)
     l->canfree = canfree;
 }
 
+/**
+ * \brief Defines the free function to use for the given list
+ * \sa SCE_List_Create()
+ */
+void SCE_List_SetFreeFunc (SCE_SList *l, SCE_FListFreeFunc f)
+{
+    l->f = f;
+    l->f2 = NULL;
+    l->f2arg = NULL;
+}
+/**
+ * \brief Defines the free function to use for the given list
+ * \sa SCE_List_Create2()
+ */
+void SCE_List_SetFreeFunc2 (SCE_SList *l, SCE_FListFreeFunc2 f, void *a)
+{
+    l->f = NULL;
+    l->f2 = f;
+    l->f2arg = a;
+}
+
 
 /**
  * \brief

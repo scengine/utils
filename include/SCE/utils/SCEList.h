@@ -78,6 +78,8 @@ void SCE_List_Clear (SCE_SList*);
 void SCE_List_Delete (SCE_SList*);
 
 void SCE_List_CanDeleteIterators (SCE_SList*, int);
+void SCE_List_SetFreeFunc (SCE_SList*, SCE_FListFreeFunc);
+void SCE_List_SetFreeFunc2 (SCE_SList*, SCE_FListFreeFunc2, void*);
 
 void SCE_List_Prepend (SCE_SListIterator*, SCE_SListIterator*);
 void SCE_List_Append (SCE_SListIterator*, SCE_SListIterator*);
