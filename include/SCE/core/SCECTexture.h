@@ -92,6 +92,8 @@ struct sce_ctexture
 int SCE_CTextureInit (void);
 void SCE_CTextureQuit (void);
 
+int SCE_CGetTextureResourceType (void);
+
 /* defini la texture active */
 void SCE_CBindTexture (SCE_CTexture*);
 
@@ -182,8 +184,8 @@ SCE_CTexData* SCE_CRemoveTextureTexData_ (int, int);
 void SCE_CEraseTextureTexData (SCE_CTexture*, int, int);
 void SCE_CEraseTextureTexData_ (int, int);
 
-SCE_CTexture* SCE_CLoadTexture (int, int, int, int, ...);
-SCE_CTexture* SCE_CLoadTextureArg (int, int, int, int, va_list);
+SCE_CTexture* SCE_CLoadTexturev (int, int, int, int, int, const char**);
+SCE_CTexture* SCE_CLoadTexture (int, int, int, int, int, ...);
 
 int SCE_CBuildTexture (SCE_CTexture*, int, int);
 int SCE_CBuildTexture_ (int, int);

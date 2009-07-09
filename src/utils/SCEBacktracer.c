@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 21/10/2007
-   derniere modification : 15/01/2008 */
+/* created: 21/10/2007
+   updated: 15/01/2008 */
 
 #ifdef SCE_USE_BACKTRACER
 #include <stdio.h>
@@ -47,7 +47,7 @@ void SCE_BT_Start (const char *name, unsigned int line)
     for (i=0; i<n_indent; i++)
         fprintf (stream, "%s", indent);
     fprintf (stream, "|- %s%s (%u)... ",
-             (Logger_HaveError ()) ? "err " : "", name, line);
+             (SCEE_HaveError ()) ? "err " : "", name, line);
     n_indent++;
     need_indent = 0;
 }
@@ -62,7 +62,7 @@ void SCE_BT_End (void)
         for (i=0; i<n_indent; i++)
             fprintf (stream, "%s", indent);
     }
-    if (Logger_HaveError ())
+    if (SCEE_HaveError ())
         fprintf (stream, "error!\n");
     else
         fprintf (stream, "ok\n");

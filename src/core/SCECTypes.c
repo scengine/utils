@@ -47,8 +47,8 @@ size_t SCE_CSizeofType (SCEenum type)
 
 #ifdef SCE_DEBUG
     default:
-        Logger_Log (SCE_INVALID_ARG);
-        Logger_LogMsg ("unknown data type");
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("unknown data type");
 #endif
     }
 

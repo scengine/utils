@@ -54,7 +54,7 @@ SCE_SLight* SCE_Light_Create (void)
     goto success;
 failure:
     SCE_Light_Delete (light), light = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return light;

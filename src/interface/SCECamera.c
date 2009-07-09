@@ -80,7 +80,7 @@ SCE_SCamera* SCE_Camera_Create (void)
     goto success;
 failure:
     SCE_Camera_Delete (cam), cam = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return cam;

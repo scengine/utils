@@ -21,11 +21,28 @@
 
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/utils/SCEMedia.h>
 #include <SCE/interface/SCEJoint.h>
 #include <SCE/interface/SCEAnimatedMesh.h>
 #include <SCE/interface/SCEAnimation.h>
 #include <SCE/interface/SCEMD5Loader.h>
 
+
+int SCE_Init_idTechMD5 (void)
+{
+    if (SCE_Media_Register (SCE_AnimMesh_GetResourceType (),
+                            "."SCE_MD5MESH_FILE_EXTENSION,
+                            SCE_idTechMD5_LoadMesh, NULL) < 0)
+        goto fail;
+    if (SCE_Media_Register (SCE_Anim_GetResourceType (),
+                            "."SCE_MD5ANIM_FILE_EXTENSION,
+                            SCE_idTechMD5_LoadAnim, NULL) < 0)
+        goto fail;
+    return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    return SCE_ERROR;
+}
 
 void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
 {
@@ -40,6 +57,7 @@ void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
     int max_tris = 0, max_verts = 0;
     SCEindices *indices = NULL;
 
+    (void)unused;
     if (!(baseskel = SCE_Skeleton_Create ()))
         goto failure;
 
@@ -182,7 +200,7 @@ void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
 failure:
     SCE_Skeleton_Delete (baseskel);
     SCE_AnimMesh_Delete (amesh), amesh = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return amesh;
@@ -279,7 +297,7 @@ void* SCE_idTechMD5_LoadAnim (FILE *fp, const char *fname, void *un)
     SCE_SSkeleton *baseskel = NULL;
 
     SCE_btstart ();
-    un = NULL;
+    (void)un;
     if (!(anim = SCE_Anim_Create ()))
         goto failure;
     if (!(baseskel = SCE_Skeleton_Create ()))
@@ -383,7 +401,7 @@ void* SCE_idTechMD5_LoadAnim (FILE *fp, const char *fname, void *un)
 failure:
     SCE_Skeleton_Delete (baseskel);
     SCE_Anim_Delete (anim), anim = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_free (joint_infos);
     SCE_free (anim_frame_data);

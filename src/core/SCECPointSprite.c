@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 24/03/2008
-   derniere modification : 12/11/2008 */
+/* created: 24/03/2008
+   updated: 12/11/2008 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -37,7 +37,7 @@ int SCE_CPointSpriteInit (void)
     if (c)\
     {\
         SCE_CDeleteVertexBuffer (vb);\
-        Logger_LogSrc ();\
+        SCEE_LogSrc ();\
         SCE_btend ();\
         return SCE_ERROR;\
     }
@@ -70,7 +70,7 @@ SCE_CPointSprite* SCE_CCreatePointSprite (void)
     SCE_CPointSprite *point = NULL;
     SCE_btstart ();
     if (!(point = SCE_malloc (sizeof *point)))
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_CInitPointSprite (point);
     SCE_btend ();

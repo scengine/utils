@@ -59,7 +59,7 @@ SCE_SSceneResource* SCE_SceneResource_Create (void)
 
 failure:
     SCE_SceneResource_Delete (res), res = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return res;
@@ -108,7 +108,7 @@ SCE_SSceneResourceGroup* SCE_SceneResource_CreateGroup (void)
     goto success;
 failure:
     SCE_SceneResource_DeleteGroup (group), group = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return group;
@@ -214,7 +214,7 @@ int SCE_SceneResource_AddOwner (SCE_SSceneResource *res, void *owner)
 {
     if (SCE_List_PrependNewl (res->owners, owner) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     return SCE_OK;

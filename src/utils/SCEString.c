@@ -135,7 +135,7 @@ double SCE_String_Valof (const char *str)
         unit_tmp = str[i] - '0';
         if (unit_tmp > 9)
         {
-            Logger_PrintMsg ("argument %d : '%c' is not a number\n", i, str[i]);
+            SCEE_SendMsg ("argument %d : '%c' is not a number\n", i, str[i]);
             /* on saute, on s'en occupe pas */
             unit_tmp = 0;
         }
@@ -152,7 +152,7 @@ double SCE_String_Valof (const char *str)
         unit_tmp = str[i] - '0';
         if (unit_tmp > 9)
         {
-            Logger_PrintMsg ("argument %d : '%c' is not a number\n", i, str[i]);
+            SCEE_SendMsg ("argument %d : '%c' is not a number\n", i, str[i]);
             /* on saute, on s'en occupe pas */
             unit_tmp = 0;
         }
@@ -301,17 +301,17 @@ unsigned int SCE_String_NChrInStr(const char *str, char c)
  * \returns a pointer to the extension part of \p str or NULL if \p str has no
  * extension
  */
-char* SCE_String_GetExt (char *str)
+char* SCE_String_GetExt (const char *str)
 {
     size_t i = strlen (str);
 
     while (i != 0 && str[i] != '.')
         i--;
 
-    if (i == 0 && str[0] != '.') /* sans extension... */
+    if (i == 0 && str[0] != '.')
         return NULL;
 
-    return &str[i];
+    return (char*)&str[i];
 }
 
 /**
@@ -377,7 +377,7 @@ char* SCE_String_Dup (const char *src)
         size_t s = strlen (src) + 1;
         char *new = SCE_malloc (s);
         if (!new)
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
         else
             memcpy (new, src, s);
         return new;
@@ -402,7 +402,7 @@ char* SCE_String_CatDup (const char *a, const char *b)
 
     new = SCE_malloc (size);
     if (!new)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
     {
         memset (new, '\0', size);
@@ -436,7 +436,7 @@ char* SCE_String_CatDupMulti (const char* str, ...)
     
     new = SCE_malloc (size);
     if (! new)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
     {
         strcpy (new, str);

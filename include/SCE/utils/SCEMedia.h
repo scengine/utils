@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 5 janvier 2007
-   derniere modification le 03/10/2007 */
+/* created: 05/01/2007
+   updated: 07/07/2009 */
 
 #ifndef SCEMEDIA_H
 #define SCEMEDIA_H
@@ -27,33 +27,20 @@ extern "C"
 {
 #endif
 
-#define SCE_UNKNOWN_TYPE -1
-
+    /* obsolete, void type is 0 */
+/*#define SCE_UNKNOWN_TYPE -1*/
 
 typedef void* (*SCE_FMediaLoadFunc) (FILE*, const char*, void*);
-typedef int (*SCE_FMediaSaveFunc) (const char*, void*);
+typedef int (*SCE_FMediaSaveFunc) (void*, const char*);
 
-
-/* fonction d'initialisation */
 int SCE_Init_Media (void);
-/* libere la memoire allouee par le MediaManager */
 void SCE_Quit_Media (void);
 
-/* fonction de generation d'un identifiant de type */
-int SCE_Media_GenTypeID (void);
+int SCE_Media_Register (int, const char*, SCE_FMediaLoadFunc,
+                        SCE_FMediaSaveFunc);
 
-/* fonction de chargement d'un media */
-void* SCE_Media_LoadFromFile (const char*, void*, int*);
-
-/* fonction d'enregistrement d'une fonction de chargement d'un media
-   pour un nombre magic et une extension specifies */
-int SCE_Media_RegisterLoader (int, int, const char*, SCE_FMediaLoadFunc);
-
-/* fonction de sauvegarde d'un media */
-int SCE_Media_SaveToFile (void*, const char*, int);
-
-/* fonction d'enregistrement d'une fonction de sauvegarde d'un media */
-int SCE_Media_RegisterSaver (int, SCE_FMediaSaveFunc);
+void* SCE_Media_Load (int, const char*, void*);
+int SCE_Media_Save (int, void*, const char*);
 
 #ifdef __cplusplus
 } /* extern "C" */

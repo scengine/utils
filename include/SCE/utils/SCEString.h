@@ -46,7 +46,7 @@ const char* SCE_String_Strof (double, unsigned int);
 unsigned int SCE_String_NChrInStr (const char*, char);
 
 /* renvoie l'extension d'un nom de fichier passe en parametre */
-char* SCE_String_GetExt (char*);
+char* SCE_String_GetExt (const char*);
 
 /* compare deux chaines en comptant les majuscules ou non */
 int SCE_String_Cmp (const char*, const char*, int);

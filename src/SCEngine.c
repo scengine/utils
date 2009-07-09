@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 12/10/2006
-   updated: 13/05/2009 */
+   updated: 08/07/2009 */
 
 #include <config.h>
 #include <SCE/SCEngine.h>
@@ -57,50 +57,69 @@ int SCE_Init (FILE *outlog, SCEflags flags)
 
     if (SCE_CInit (flags) < 0)
     {
-        Logger_LogFinish ("can't initialize core!");
+        SCEE_LogSrcMsg ("can't initialize core!");
         goto failure;
     }
 
     if (SCE_Init_Texture () < 0)
     {
-        Logger_LogFinish ("can't initialize textures manager");
+        SCEE_LogSrcMsg ("can't initialize textures manager");
         goto failure;
     }
     if (SCE_Init_Shader () < 0)
     {
-        Logger_LogFinish ("can't initialize shaders manager");
+        SCEE_LogSrcMsg ("can't initialize shaders manager");
         goto failure;
     }
     if (SCE_Init_Mesh () < 0)
     {
-        Logger_LogFinish ("can't initialize meshs manager");
+        SCEE_LogSrcMsg ("can't initialize meshs manager");
         goto failure;
+    }
+    {
+        if (SCE_Init_OBJ () < 0)
+        {
+            SCEE_LogSrcMsg ("can't initialize .obj loader");
+            goto failure;
+        }
+        if (SCE_Init_4FM () < 0)
+        {
+            SCEE_LogSrcMsg ("can't initialize .4fm loader");
+            goto failure;
+        }
     }
     if (SCE_Init_AnimMesh () < 0)
     {
-        Logger_LogFinish ("can't initialize animated meshs manager");
+        SCEE_LogSrcMsg ("can't initialize animated meshs manager");
         goto failure;
     }
     if (SCE_Init_Anim () < 0)
     {
-        Logger_LogFinish ("can't initialize animations manager");
+        SCEE_LogSrcMsg ("can't initialize animations manager");
         goto failure;
+    }
+    {
+        if (SCE_Init_idTechMD5 () < 0)
+        {
+            SCEE_LogSrcMsg ("can't initialize .md5mesh/anim loader");
+            goto failure;
+        }
     }
 #if 0
     if (SCE_Init_State () < 0)
     {
-        Logger_LogFinish ("can't initialize states manager");
+        SCEE_LogSrcMsg ("can't initialize states manager");
         goto failure;
     }
 #endif
     if (SCE_Init_Quad () < 0)
     {
-        Logger_LogFinish ("can't initialize quads manager");
+        SCEE_LogSrcMsg ("can't initialize quads manager");
         goto failure;
     }
     if (SCE_Init_Scene () < 0)
     {
-        Logger_LogFinish ("can't initialize scenes manager");
+        SCEE_LogSrcMsg ("can't initialize scenes manager");
         goto failure;
     }
     goto success;

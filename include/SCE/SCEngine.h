@@ -28,6 +28,8 @@
 #include <SCE/core/SCECore.h>
 
 #include <SCE/interface/SCEOBJLoader.h>
+#include <SCE/interface/SCE4FMLoader.h>
+#include <SCE/interface/SCEMD5Loader.h>
 #include <SCE/interface/SCENode.h>
 #include <SCE/interface/SCEBoundingBox.h>
 #include <SCE/interface/SCEBoundingSphere.h>
@@ -35,6 +37,7 @@
 #include <SCE/interface/SCEQuad.h>
 #include <SCE/interface/SCEMesh.h>
 #include <SCE/interface/SCESphereMesh.h>
+/*#include <SCE/interface/SCECubeMesh.h>*/
 #include <SCE/interface/SCEJoint.h>
 #include <SCE/interface/SCESkeleton.h>
 #include <SCE/interface/SCEAnimatedMesh.h>

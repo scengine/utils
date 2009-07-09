@@ -133,7 +133,7 @@ static SCE_SMemArrayBlock* SCE_Mem_CreateBlock (size_t size)
 {
     SCE_SMemArrayBlock *b = malloc (sizeof *b);
     if (!b)
-        Logger_Log (SCE_OUT_OF_MEMORY);
+        SCEE_Log (SCE_OUT_OF_MEMORY);
     else
     {
         size_t i;
@@ -144,7 +144,7 @@ static SCE_SMemArrayBlock* SCE_Mem_CreateBlock (size_t size)
         b->allocs[0] = malloc (size * SCE_ARRAY_BLOCK_SIZE);
         if (!b->allocs[0])
         {
-            Logger_Log (SCE_OUT_OF_MEMORY);
+            SCEE_Log (SCE_OUT_OF_MEMORY);
             free (b);
             return NULL;
         }
@@ -258,7 +258,7 @@ static SCE_SMemAlloc* SCE_Mem_NewAlloc (size_t size)
         /* make one allocation for all: descriptor and demanded block */
         m = malloc (sizeof *m + size);
         if (!m)
-            Logger_Log (SCE_OUT_OF_MEMORY);
+            SCEE_Log (SCE_OUT_OF_MEMORY);
         else
             SCE_Mem_InitAlloc (m);
     }
@@ -383,7 +383,7 @@ void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
         mem = SCE_Mem_LocateAllocFromPointer (p);
         if (!mem)
         {
-            Logger_Log (SCE_INVALID_POINTER);
+            SCEE_Log (SCE_INVALID_POINTER);
             return NULL;
         }
         mem = realloc (mem, sizeof *mem + s);
@@ -391,7 +391,7 @@ void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
         {
             /* en cas d'echec realloc conserve la memoire deja alloue,
                donc on ne libere aucune memoire */
-            Logger_Log (SCE_OUT_OF_MEMORY);
+            SCEE_Log (SCE_OUT_OF_MEMORY);
             return NULL;
         }
     }
@@ -430,7 +430,7 @@ void* SCE_Mem_Dup (const void *p, size_t size)
     if (new)
         memcpy (new, p, size);
     else
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     return new;
 }
 
@@ -536,8 +536,8 @@ void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
 
     default:
 #ifdef SCE_DEBUG
-        Logger_Log (SCE_INVALID_ARG);
-        Logger_LogMsg ("invalid type for the destination");
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("invalid type for the destination");
 #endif
         return NULL;
     }
@@ -548,7 +548,7 @@ void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
     dest = SCE_malloc (size * n);
     if (!dest)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return NULL;
     }
 
@@ -563,11 +563,11 @@ void SCE_Mem_List (void)
     SCE_SMemAlloc *a = NULL;
     SCE_Mem_For (a)
     {
-        Logger_PrintMsg ("- allocation in %s (%u): %u bytes.\n",
-                         a->file, a->line, a->size);
+        SCEE_SendMsg ("- allocation in %s (%u): %u bytes.\n",
+                      a->file, a->line, a->size);
         n++;
     }
-    Logger_PrintMsg ("you have %u non-freeds allocations.\n", n);
+    SCEE_SendMsg ("you have %u non-freeds allocations.\n", n);
 }
 
 

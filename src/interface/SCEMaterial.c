@@ -51,7 +51,7 @@ SCE_SMaterial* SCE_Material_Create (void)
 
 failure:
     SCE_Material_Delete (mat), mat = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return mat;

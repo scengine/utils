@@ -22,11 +22,11 @@
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEString.h>
+#include <SCE/utils/SCEResource.h>
+#include <SCE/utils/SCEMedia.h>
 
 #include <SCE/core/SCECSupport.h>
 #include <SCE/core/SCECImage.h>
-
-#include <SCE/utils/SCEMedia.h>
 
 /**
  * \file SCECImage.c
@@ -46,10 +46,10 @@
 
 /** @{ */
 
-static int media_type_id = 0;
+static int resource_type = 0;
 /*static SCEenum resize_filter = ILU_NEAREST;*/ /* unused */
 
-static SCE_CImage *binded = NULL;
+static SCE_CImage *bound = NULL;
 
 #define SCE_IMG_FORCE_PONCTUAL 1
 #define SCE_IMG_FORCE_PERSISTENT 2
@@ -60,15 +60,6 @@ static float scale_w, scale_h, scale_d;
 static int resizeforced = SCE_FALSE;
 static int size_w, size_h, size_d;
 
-
-/**
- * \brief Get the identifier used in the media manager for the type "image"
- * \returns the media type id
- */
-int SCE_CGetImageMediaTypeID (void)
-{
-    return media_type_id;
-}
 
 /**
  * \brief Initializes the images manager
@@ -86,18 +77,19 @@ int SCE_CImageInit (void)
     /* on sauvegarde les donnees compressees */
     ilSetInteger (IL_KEEP_DXTC_DATA, IL_TRUE);
 
-    media_type_id = SCE_Media_GenTypeID ();
-    if (SCE_Media_RegisterLoader (media_type_id, 0,
-                                  ".bmp .gif .jpg .dds .png .tga .jpeg .ico .mn"
-                                  "g .pcx .rgb .rgba .tif", SCE_CLoadImage) < 0)
-    {
-        Logger_LogSrc ();
-        SCE_btend ();
-        return SCE_ERROR;
-    }
-
+    resource_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
+    if (resource_type < 0)
+        goto fail;
+    if (SCE_Media_Register (resource_type,
+                            ".bmp .gif .jpg .dds .png .tga .jpeg .ico .mn"
+                            "g .pcx .rgb .rgba .tif", SCE_CLoadImage, NULL) < 0)
+        goto fail;
     SCE_btend ();
     return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    SCE_btend ();
+    return SCE_ERROR;
 }
 
 /**
@@ -111,23 +103,29 @@ void SCE_CImageQuit (void)
 }
 
 
+int SCE_CGetImageResourceType (void)
+{
+    return resource_type;
+}
+
+
 void SCE_CBindImage (SCE_CImage *img)
 {
     SCE_btstart ();
-    binded = img;
-    if (binded)
+    bound = img;
+    if (bound)
     {
-	ilBindImage (0);
-        ilBindImage (binded->id);
-        ilActiveMipmap (binded->level);
+        ilBindImage (0);
+        ilBindImage (bound->id);
+        ilActiveMipmap (bound->level);
     }
     else
         ilBindImage (0);
     SCE_btend ();
 }
-SCE_CImage* SCE_CGetImageBinded (void)
+SCE_CImage* SCE_CGetImageBound (void)
 {
-    return binded;
+    return bound;
 }
 
 
@@ -146,7 +144,7 @@ static SCE_CImageData* SCE_CCreateImageData (void)
     SCE_btstart ();
     d = SCE_malloc (sizeof *d);
     if (!d)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_CInitImageData (d);
     SCE_btend ();
@@ -187,7 +185,7 @@ SCE_CImage* SCE_CCreateImage (void)
     img = SCE_malloc (sizeof *img);
     if (!img)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -197,7 +195,7 @@ SCE_CImage* SCE_CCreateImage (void)
     if (!img->mipmaps)
     {
         SCE_free (img);
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -214,7 +212,7 @@ SCE_CImage* SCE_CCreateImage (void)
  */
 void SCE_CDeleteImage (SCE_CImage *img)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     SCE_CBindImage (img);
     SCE_CDeleteImage_ ();
     SCE_CBindImage (back);
@@ -222,13 +220,13 @@ void SCE_CDeleteImage (SCE_CImage *img)
 void SCE_CDeleteImage_ (void)
 {
     SCE_btstart ();
-    if (binded)
+    if (bound)
     {
 	ilBindImage (0);
-        SCE_List_Delete (binded->mipmaps);
-        ilDeleteImages (1, &binded->id);
-        SCE_free (binded);
-        binded = NULL;
+        SCE_List_Delete (bound->mipmaps);
+        ilDeleteImages (1, &bound->id);
+        SCE_free (bound);
+        bound = NULL;
     }
     SCE_btend ();
 }
@@ -278,7 +276,7 @@ unsigned int SCE_CGetImageNumMipmaps (SCE_CImage *img)
 }
 unsigned int SCE_CGetImageNumMipmaps_ (void)
 {
-    return SCE_List_GetSize (binded->mipmaps);
+    return SCE_List_GetSize (bound->mipmaps);
 }
 
 /**
@@ -291,7 +289,7 @@ int SCE_CHaveImageMipmaps (SCE_CImage *img)
 }
 int SCE_CHaveImageMipmaps_ (void)
 {
-    return (SCE_List_GetSize (binded->mipmaps) > 1) ? 1 : 0;
+    return (SCE_List_GetSize (bound->mipmaps) > 1) ? 1 : 0;
 }
 
 /**
@@ -303,7 +301,7 @@ unsigned int SCE_CGetImageMipmapLevel (SCE_CImage *img)
 }
 unsigned int SCE_CGetImageMipmapLevel_ (void)
 {
-    return binded->level;
+    return bound->level;
 }
 
 
@@ -313,10 +311,10 @@ static SCE_CImageData* SCE_CGetImageCurrentMipmapData_ (void)
     SCE_SListIterator *it = NULL;
 
     SCE_btstart ();
-    it = SCE_List_GetIterator (binded->mipmaps, binded->level);
+    it = SCE_List_GetIterator (bound->mipmaps, bound->level);
     if (!it)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -332,7 +330,7 @@ static SCE_CImageData* SCE_CGetImageCurrentMipmapData_ (void)
  */
 int SCE_CSetImageMipmapLevel (SCE_CImage *img, unsigned int level)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     int r;
     SCE_CBindImage (img);
     r = SCE_CSetImageMipmapLevel_ (level);
@@ -345,22 +343,22 @@ int SCE_CSetImageMipmapLevel_ (unsigned int level)
 
     SCE_btstart ();
     /*ilBindImage (0);
-      ilBindImage (binded->id);*/
+      ilBindImage (bound->id);*/
     /*max_level = SCE_CGetImageNumMipmaps_ ();*/
     ilGetIntegerv (IL_NUM_MIPMAPS, &max_level);
     max_level++;
     if (level >= max_level)
     {
-        Logger_Log (SCE_INVALID_ARG);
-        Logger_LogMsg ("you can't active this mipmap level (%d), the maximum "
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("you can't active this mipmap level (%d), the maximum "
                        "mipmap level for this image is %d", level, max_level);
         SCE_btend ();
         return SCE_ERROR;
     }
-    binded->level = level;
-    binded->data = SCE_CGetImageCurrentMipmapData_ ();
+    bound->level = level;
+    bound->data = SCE_CGetImageCurrentMipmapData_ ();
     ilBindImage (0);
-    ilBindImage (binded->id);
+    ilBindImage (bound->id);
     ilActiveMipmap (level);
     SCE_btend ();
     return SCE_OK;
@@ -384,7 +382,7 @@ static int SCE_CIsCompressedPixelFormat (SCEenum fmt)
  */
 int SCE_CUpdateImageMipmap (SCE_CImage *img)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     int r;
     SCE_CBindImage (img);
     r = SCE_CUpdateImageMipmap_ ();
@@ -393,12 +391,12 @@ int SCE_CUpdateImageMipmap (SCE_CImage *img)
 }
 int SCE_CUpdateImageMipmap_ (void)
 {
-    SCE_CImageData *d = binded->data;
+    SCE_CImageData *d = bound->data;
 
     SCE_btstart ();
     if (!d)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
+        SCEE_Log (SCE_INVALID_OPERATION);
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -420,7 +418,7 @@ int SCE_CUpdateImageMipmap_ (void)
         d->data = SCE_malloc (data_size);
         if (!d->data)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -454,10 +452,10 @@ static int SCE_CUpdateImageMipmapList_ (void)
     /* on se place au premier niveau de mipmap
        (j'ai pas confiance en ilActiveMipmap (0)) */
     ilBindImage (0);
-    ilBindImage (binded->id);
+    ilBindImage (bound->id);
 
     /* on detruit la liste */
-    SCE_List_Clear (binded->mipmaps);
+    SCE_List_Clear (bound->mipmaps);
 
     /* puis on la recree */
     ilGetIntegerv (IL_NUM_MIPMAPS, &num_mipmaps);
@@ -465,22 +463,22 @@ static int SCE_CUpdateImageMipmapList_ (void)
     for (i=0; i<num_mipmaps; i++)
     {
         ilBindImage (0);
-        ilBindImage (binded->id);
+        ilBindImage (bound->id);
         ilActiveMipmap (i);
         
         d = SCE_CCreateImageData ();
         if (!d)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
         ilGetIntegerv (IL_DXTC_DATA_FORMAT, &d->pxf);
         if (d->pxf == IL_DXT_NO_COMP)
             ilGetIntegerv (IL_IMAGE_FORMAT, &d->pxf);
-        if (SCE_List_AppendNewl (binded->mipmaps, d) < 0)
+        if (SCE_List_AppendNewl (bound->mipmaps, d) < 0)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -489,13 +487,13 @@ static int SCE_CUpdateImageMipmapList_ (void)
 
     /* si level est trop grand, on le defini
        au niveau de mipmap le plus petit */
-    if (binded->level >= num_mipmaps)
-        binded->level = SCE_List_GetIndex (SCE_List_GetLast (binded->mipmaps));
+    if (bound->level >= num_mipmaps)
+        bound->level = SCE_List_GetIndex (SCE_List_GetLast (bound->mipmaps));
 
     /* recuperation du niveau de mipmap */
-    if (SCE_CSetImageMipmapLevel_ (binded->level) < 0)
+    if (SCE_CSetImageMipmapLevel_ (bound->level) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -515,7 +513,7 @@ static int SCE_CUpdateImageMipmapList_ (void)
  */
 int SCE_CUpdateImage (SCE_CImage *img)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     int r;
     SCE_CBindImage (img);
     r = SCE_CUpdateImage_ ();
@@ -531,7 +529,7 @@ int SCE_CUpdateImage_ (void)
 #define SCE_CIMGGET(name, ienum)\
 int SCE_CGetImage##name (SCE_CImage *img)\
 {\
-    SCE_CImage *back = binded;\
+    SCE_CImage *back = bound;\
     int r;\
     SCE_CBindImage (img);\
     ilGetIntegerv (ienum, &r);\
@@ -559,7 +557,7 @@ SCE_CIMGGET (DataType,  IL_IMAGE_TYPE)
  */
 int SCE_CGetImageType (SCE_CImage *img)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     int r;
     SCE_CBindImage (img);
     r = SCE_CGetImageType_ ();
@@ -626,7 +624,7 @@ int SCE_CGetImagePixelFormat (SCE_CImage *img)
 }
 int SCE_CGetImagePixelFormat_ (void)
 {
-    return SCE_CConvertPxfIlToGl (binded->data->pxf);
+    return SCE_CConvertPxfIlToGl (bound->data->pxf);
 }
 
 
@@ -636,7 +634,7 @@ int SCE_CGetImagePixelFormat_ (void)
  */
 size_t SCE_CGetImageDataSize (SCE_CImage *img)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     size_t r;
     SCE_CBindImage (img);
     r = SCE_CGetImageDataSize_ ();
@@ -646,7 +644,7 @@ size_t SCE_CGetImageDataSize (SCE_CImage *img)
 size_t SCE_CGetImageDataSize_ (void)
 {
     if (SCE_CGetImageIsCompressed_ ())
-        return ilGetDXTCData (NULL, 0, binded->data->pxf);
+        return ilGetDXTCData (NULL, 0, bound->data->pxf);
     else
         return ilGetInteger (IL_IMAGE_SIZE_OF_DATA);
 }
@@ -661,7 +659,7 @@ int SCE_CGetImageIsCompressed (SCE_CImage *img)
 }
 int SCE_CGetImageIsCompressed_ (void)
 {
-    return SCE_CIsCompressedPixelFormat (binded->data->pxf);
+    return SCE_CIsCompressedPixelFormat (bound->data->pxf);
 }
 
 /**
@@ -682,7 +680,7 @@ void* SCE_CGetImageData_ (void)
     /* mise a jour du niveau de mipmap actif */
     SCE_CUpdateImageMipmap_ ();
     SCE_btend ();
-    return binded->data->data;
+    return bound->data->data;
 }
 
 
@@ -697,7 +695,7 @@ void* SCE_CGetImageData_ (void)
  */
 void SCE_CResizeImage (SCE_CImage *img, int w, int h, int d)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     SCE_CBindImage (img);
     SCE_CResizeImage_ (w, h, d);
     SCE_CBindImage (back);
@@ -713,7 +711,7 @@ void SCE_CResizeImage_ (int w, int h, int d)
         d = SCE_CGetImageDepth_ ();
 
     iluScale (w, h, d);
-    binded->data->updated = SCE_FALSE;
+    bound->data->updated = SCE_FALSE;
     SCE_btend ();
 }
 
@@ -728,7 +726,7 @@ void SCE_CResizeImage_ (int w, int h, int d)
  */
 void SCE_CRescaleImage (SCE_CImage *img, float w, float h, float d)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     SCE_CBindImage (img);
     SCE_CResizeImage_ (w, h, d);
     SCE_CBindImage (back);
@@ -741,7 +739,7 @@ void SCE_CRescaleImage_ (float w, float h, float d)
     d = SCE_CGetImageDepth_ () * d;
 
     iluScale (w, h, d);
-    binded->data->updated = SCE_FALSE;
+    bound->data->updated = SCE_FALSE;
     SCE_btend ();
 }
 
@@ -751,7 +749,7 @@ void SCE_CRescaleImage_ (float w, float h, float d)
  */
 void SCE_CFlipImage (SCE_CImage *img)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     SCE_CBindImage (img);
     SCE_CFlipImage_ ();
     SCE_CBindImage (back);
@@ -760,7 +758,7 @@ void SCE_CFlipImage_ (void)
 {
     SCE_btstart ();
     iluFlipImage (); /* seg fault §§ */
-    binded->data->updated = SCE_FALSE;
+    bound->data->updated = SCE_FALSE;
     SCE_btend ();
 }
 
@@ -774,7 +772,7 @@ void SCE_CFlipImage_ (void)
     {\
         if (SCE_CSetImageMipmapLevel_ (i) < 0)\
         {\
-            Logger_LogSrc ();\
+            SCEE_LogSrc ();\
             break;\
         }\
         action;\
@@ -796,8 +794,8 @@ void SCE_CSetImagePixelFormat (SCE_CImage *img, SCEenum fmt)
 }
 void SCE_CSetImagePixelFormat_ (SCEenum fmt)
 {
-    binded->data->pxf = SCE_CConvertPxfGlToIl (fmt);
-    binded->data->updated = SCE_FALSE;
+    bound->data->pxf = SCE_CConvertPxfGlToIl (fmt);
+    bound->data->updated = SCE_FALSE;
 }
 /**
  * \brief Sets the pixel format of all mipmap levels of \p img
@@ -807,7 +805,7 @@ void SCE_CSetImagePixelFormat_ (SCEenum fmt)
  */
 void SCE_CSetImageAllPixelFormat (SCE_CImage *img, SCEenum fmt)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     SCE_CBindImage (img);
     SCE_CSetImageAllPixelFormat_ (fmt);
     SCE_CBindImage (back);
@@ -824,7 +822,7 @@ void SCE_CSetImageAllPixelFormat_ (SCEenum fmt)
  */
 int SCE_CBuildImageMipmaps (SCE_CImage *img)
 {
-    SCE_CImage *back = binded;
+    SCE_CImage *back = bound;
     int r;
     SCE_CBindImage (img);
     r = SCE_CBuildImageMipmaps_ ();
@@ -837,8 +835,8 @@ int SCE_CBuildImageMipmaps_ (void)
     /* ilActiveLevel (0) ? */
     if (iluBuildMipmaps () == IL_FALSE)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("DevIL fails to build mipmaps : %s",
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("DevIL fails to build mipmaps : %s",
                        iluErrorString (ilGetError ()));
         SCE_btend ();
         return SCE_ERROR;
@@ -864,7 +862,7 @@ void* SCE_CLoadImage (FILE *fp, const char *fname, void *unused)
     img = SCE_CCreateImage ();
     if (!img)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -876,8 +874,8 @@ void* SCE_CLoadImage (FILE *fp, const char *fname, void *unused)
     /* chargement de l'image */
     if (!ilLoadImage ((char*)fname))
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("DevIL can't load '%s': %s",
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("DevIL can't load '%s': %s",
                        fname, iluErrorString (ilGetError ()));
         SCE_CDeleteImage_ ();
         SCE_btend ();
@@ -892,7 +890,7 @@ void* SCE_CLoadImage (FILE *fp, const char *fname, void *unused)
 
     if (SCE_CUpdateImage_ () < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_CDeleteImage_ ();
         SCE_btend ();
         return NULL;

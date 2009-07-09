@@ -16,43 +16,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 2 janvier 2007
-   derniere modification le 13/02/2008 */
+/* created: 02/01/2007
+   updated: 07/07/2009 */
 
-#ifndef SCERESOURCES_H
-#define SCERESOURCES_H
+#ifndef SCERESOURCE_H
+#define SCERESOURCE_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-/* initialise le gestionnaire de ressources */
+#if 0
+/* examples */
+void* loadf (const char *fname, int forced, void *udata);
+int savef (void *object, const char *fname, int recursive, void *udata);
+#endif
+
+typedef void* (*SCE_FLoadResourceFunc)(const char*, int, void*);
+typedef int (*SCE_FSaveResourceFunc)(void*, const char*, int, void*);
+
 int SCE_Init_Resource (void);
-/* quitte le gestionnaire de ressources */
 void SCE_Quit_Resource (void);
 
-/* change l'etat du gestionnaire de ressources (active/desactive) */
-void SCE_Resource_Active (int);
+int SCE_Resource_RegisterType (int, SCE_FLoadResourceFunc,
+                               SCE_FSaveResourceFunc);
 
-/* ajoute une nouvelle ressource */
-int SCE_Resource_Add (const char*, void*);
-/* charge une ressource */
-void* SCE_Resource_Load (const char*, void*, void*);
-/* charge une nouvelle ressource */
-void* SCE_Resource_LoadNew (const char*, void*, void*);
-/* supprime une ressource, et renvoie 'true' si la ressource n'est plus
-   utilisee, et peut donc etre supprimee */
+int SCE_Resource_Add (int, const char*, void*);
+void* SCE_Resource_Load (int, const char*, int, void*);
 int SCE_Resource_Free (void*);
 
-/* indique combien de fois une ressource est utilisee,
-   en se basant soit sur son nom, soit sur le pointeur vers ses donnees */
 int SCE_Resource_NumUsed (const char*, void*);
-
-/* retourne le nombre de ressources chargees */
 int SCE_Resource_NumLoaded (void);
 
-/* renvoie le nom d'une ressource */
 char* SCE_Resource_GetName (void*);
 
 #ifdef __cplusplus

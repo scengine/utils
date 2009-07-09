@@ -130,37 +130,29 @@ int SCE_Texture_GetType (SCE_STexture*);
 /* renvoie le type de la texture coeur (target opengl) */
 int SCE_Texture_GetCType (SCE_STexture*);
 
-/* renvoie la texture de.. la texture :D */
 SCE_CTexture* SCE_Texture_GetCTexture (SCE_STexture*);
 SCE_CTexture* SCE_Texture_GetCTexture_ (void);
 
-/* retourne les dimensions d'une texture */
 int SCE_Texture_GetWidth (SCE_STexture*, int, int);
 int SCE_Texture_GetHeight (SCE_STexture*, int, int);
 
-/* construit la texture */
 int SCE_Texture_Build (SCE_STexture*, int);
 int SCE_Texture_Build_ (int);
 
-/* met a jour les donnees de la texture */
 int SCE_Texture_Update (SCE_STexture*);
 int SCE_Texture_Update_ (void);
 
-/* cree une texture a partir d'un ou plusieurs fichiers */
-SCE_STexture* SCE_Texture_LoadArg (int, int, int, int, va_list);
-SCE_STexture* SCE_Texture_Load (int, int, int, int, ...);
+SCE_STexture* SCE_Texture_Loadv (int, int, int, int, int, const char**);
+SCE_STexture* SCE_Texture_Load (int, int, int, int, int, ...);
 
-/* ajoute une texture de rendu */
 int SCE_Texture_AddRenderCTexture (SCE_STexture*, int, SCE_CTexture*);
 int SCE_Texture_AddRenderTexture (SCE_STexture*, int, SCE_STexture*);
 
-/* blit une texture sur une autre */
 void SCE_Texture_Blit (SCE_SIntRect*, SCE_STexture*,
                        SCE_SIntRect*, SCE_STexture*);
 void SCE_Texture_Blitf (SCE_SFloatRect*, SCE_STexture*,
                         SCE_SFloatRect*, SCE_STexture*);
 
-/* ajoute/enleve une texture a la pile des textures utilisees */
 void SCE_Texture_Use (SCE_STexture*);
 
 void SCE_Texture_Flush (void);
@@ -173,8 +165,6 @@ void SCE_Texture_Mark (void);
 void SCE_Texture_Restore (void);
 #endif
 
-/* defini la texture dans laquelle effectuer le rendu
-   (sous condition que la texture soit de type "render texture") */
 void SCE_Texture_RenderTo (SCE_STexture*, SCEuint);
 void SCE_Texture_RenderTo_ (SCEuint);
 

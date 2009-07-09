@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/03/2006
-   updated: 26/09/2008 */
+   updated: 08/07/2009 */
 
 #include <ctype.h>
 
@@ -25,7 +25,7 @@
 
 #include <SCE/utils/SCEString.h>
 #include <SCE/utils/SCEMedia.h>
-#include <SCE/utils/SCEResources.h>
+#include <SCE/utils/SCEResource.h>
 
 #include <SCE/interface/SCEShaders.h>
 
@@ -320,15 +320,15 @@ static const SCE_FShaderUse Use[2] =
 };
 
 
-/* identifiant de type du media manager */
-static int shader_mediatypeid = 0;
+static int resource_source_type = 0;
+static int resource_shader_type = 0;
 
 static int sce_shd_enabled = SCE_FALSE;
 
 static SCE_SShader *used = NULL;
 
+static void* SCE_Shader_LoadResource (const char*, int, void*);
 
-/* revise le 19/10/2007 */
 int SCE_Init_Shader (void)
 {
     static int is_init = SCE_FALSE;
@@ -336,13 +336,17 @@ int SCE_Init_Shader (void)
     SCE_btstart ();
     if (!is_init)
     {
-        shader_mediatypeid = SCE_Media_GenTypeID ();
-        SCE_Media_RegisterLoader (shader_mediatypeid, 0,
-                                  ".glsl .vert .frag"
+        /* register source loader */
+        resource_source_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
+        SCE_Media_Register (resource_source_type,
+                            ".glsl .vert .frag"
 #ifdef SCE_USE_CG
-                                  " .cg .vcg .pcg .fcg .cgvs .cgps"
+                            " .cg .vcg .pcg .fcg .cgvs .cgps"
 #endif
-                                  ,SCE_Shader_LoadSourceFromFile);
+                            ,SCE_Shader_LoadSourceFromFile, NULL);
+        /* register shader loader */
+        resource_shader_type = SCE_Resource_RegisterType (
+            SCE_FALSE, SCE_Shader_LoadResource, NULL);
 
         is_init = SCE_TRUE;
         sce_shd_enabled = SCE_TRUE;
@@ -352,16 +356,15 @@ int SCE_Init_Shader (void)
     return SCE_OK;
 }
 
-/* revise le 18/10/2007 */
 void SCE_Quit_Shader (void)
 {
     sce_shd_enabled = SCE_FALSE;
     used = NULL;
 }
 
-int SCE_Shader_MediaTypeID (void)
+int SCE_Shader_GetResourceType (void)
 {
-    return shader_mediatypeid;
+    return resource_shader_type;
 }
 
 
@@ -370,7 +373,11 @@ static void SCE_Shader_InitParam (SCE_SShaderParam *sp)
     sp->param = NULL;
     sp->index = 0; /* TODO: constante nulle pour les indices
                       de parametres non-definie... */
+    sp->size = 0;
     sp->setfv = NULL;
+    sp->setm = NULL;
+    SCE_List_InitIt (&sp->it);
+    SCE_List_SetData (&sp->it, sp);
 }
 static void SCE_Shader_DeleteParam (void *p)
 {
@@ -398,12 +405,12 @@ SCE_SShader* SCE_Shader_Create (int type)
     SCE_btstart ();
     shader = SCE_malloc (sizeof *shader);
     if (!shader)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
     {
 #define SCE_SHDASSERT(c)if(c){\
     SCE_Shader_Delete (shader);\
-    Logger_LogSrc ();\
+    SCEE_LogSrc ();\
     SCE_btend ();\
     return NULL;\
 }
@@ -445,6 +452,8 @@ void SCE_Shader_Delete (SCE_SShader *shader)
     SCE_btstart ();
     if (shader)
     {
+        if (!SCE_Resource_Free (shader))
+            return;
         Delete[shader->type] (shader);
 
         SCE_free (shader->vs_addsrc);
@@ -515,8 +524,8 @@ static void SCE_Shader_SearchTypes (const char *ext, int *type)
     SCE_SHADER_FOR (".cgps", SCE_CG_SHADER, SCE_PIXEL_SHADER)
 #endif
     {
-        Logger_Log (SCE_INVALID_ARG);
-        Logger_LogMsg ("'%s' is not a valid shader source extension", ext);
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("'%s' is not a valid shader source extension", ext);
         type[0] = type[1] = SCE_UNKNOWN_SHADER;
     }
 #undef SCE_SHADER_FOR
@@ -599,7 +608,7 @@ static char* SCE_Shader_LoadSource (FILE *fp, long end)
     src = SCE_malloc (len+1);
     if (!src)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -621,7 +630,7 @@ static void* SCE_Shader_LoadSources (FILE *fp, const char *fname)
     srcs = SCE_malloc (2 * sizeof *srcs);
     if (!srcs)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -674,16 +683,18 @@ void* SCE_Shader_LoadSourceFromFile (FILE *fp, const char *fname, void *uusd)
     int i, j;
     char buf[BUFSIZ] = {0};
     char *ptr = NULL;
-    char **srcs = SCE_Shader_LoadSources (fp, fname);
+    char **srcs = NULL;
+
     SCE_btstart ();
+    srcs = SCE_Shader_LoadSources (fp, fname);
     if (!srcs)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
 
-    for (j=0; j<2; j++)
+    for (j = 0; j < 2; j++)
         if (srcs[j] && (ptr = strstr (srcs[j], SCE_SHADER_INCLUDE)))
         {
             size_t len, diff = ptr - srcs[j];
@@ -697,10 +708,12 @@ void* SCE_Shader_LoadSourceFromFile (FILE *fp, const char *fname, void *uusd)
             while (*ptr != '>')
                 buf[i++] = *ptr++;
             /* lecture des fichiers inclus de maniere recursive */
-            isrcs = SCE_Resource_Load (buf, NULL, NULL); /* type non force */
+            /* TODO: include path of fname into buf */
+            isrcs = SCE_Resource_Load (resource_source_type, buf, SCE_FALSE,
+                                       NULL);
             if (!isrcs)
             {
-                Logger_LogSrc ();
+                SCEE_LogSrc ();
                 SCE_btend ();
                 return NULL;
             }
@@ -721,23 +734,35 @@ void* SCE_Shader_LoadSourceFromFile (FILE *fp, const char *fname, void *uusd)
     return srcs;
 }
 
-SCE_SShader* SCE_Shader_CreateFromFile (const char *vname, const char *pname)
+static void* SCE_Shader_LoadResource (const char *name, int force, void *data)
 {
     SCE_SShader *shader = NULL;
     char **srcs1 = NULL, **srcs2 = NULL;
     char *vsource = NULL, *psource = NULL;
     int type[2];
     int ttemp = SCE_UNKNOWN_SHADER;
+    char vnamebuf[256] = {0};
+    char *vname = NULL, *pname = NULL;
+    unsigned int i;
+
+    if (name != data)
+        vname = vnamebuf;
+    pname = data;
+    for (i = 0; &name[i] != data; i++)
+        vnamebuf[i] = name[i];
+
+    if (force > 0)
+        force--;
 
     SCE_btstart ();
     if (vname)
     {
         SCE_Shader_SearchTypes (SCE_String_GetExt ((char*)vname), type);
 
-        srcs1 = SCE_Resource_Load (vname, NULL, NULL);
+        srcs1 = SCE_Resource_Load (resource_source_type, vname, force, NULL);
         if (!srcs1)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return NULL;
         }
@@ -755,10 +780,10 @@ SCE_SShader* SCE_Shader_CreateFromFile (const char *vname, const char *pname)
     {
         SCE_Shader_SearchTypes (SCE_String_GetExt ((char*)pname), type);
 
-        srcs2 = SCE_Resource_Load (pname, NULL, NULL);
+        srcs2 = SCE_Resource_Load (resource_source_type, pname, force, NULL);
         if (!srcs2)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return NULL;
         }
@@ -772,35 +797,38 @@ SCE_SShader* SCE_Shader_CreateFromFile (const char *vname, const char *pname)
         if (ttemp != type[0] && vname)
         {
             /* le type du pixel shader differe de celui du vertex shader */
-
             if (SCE_Resource_Free (srcs1))
             {
                 SCE_free (vsource);
                 SCE_free (psource);
                 SCE_free (srcs1);
             }
-
-            Logger_Log (SCE_INVALID_ARG);
-            Logger_LogMsg ("you can't load a %s vertex shader with"
-                           " a %s pixel shader",
-                           (ttemp == SCE_GLSL_SHADER) ? "GLSL" : "Cg",
-                           (type[0] == SCE_GLSL_SHADER) ? "GLSL" : "Cg");
+            SCEE_Log (SCE_INVALID_ARG);
+            SCEE_LogMsg ("you can't load a %s vertex shader with"
+                         " a %s pixel shader",
+                         (ttemp == SCE_GLSL_SHADER) ? "GLSL" : "Cg",
+                         (type[0] == SCE_GLSL_SHADER) ? "GLSL" : "Cg");
             SCE_btend ();
             return NULL;
         }
     }
 
-    /* creation du shader */
     shader = SCE_Shader_Create (type[0]);
     if (!shader)
     {
         if (SCE_Resource_Free (srcs1))
         {
-            SCE_free (vsource);
-            SCE_free (psource);
+            SCE_free (srcs1[0]);
+            SCE_free (srcs1[1]);
             SCE_free (srcs1);
         }
-        Logger_LogSrc ();
+        if (SCE_Resource_Free (srcs2))
+        {
+            SCE_free (srcs2[0]);
+            SCE_free (srcs2[1]);
+            SCE_free (srcs2);
+        }
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -815,6 +843,18 @@ SCE_SShader* SCE_Shader_CreateFromFile (const char *vname, const char *pname)
 }
 
 
+SCE_SShader* SCE_Shader_Load (const char *vname, const char *pname, int force)
+{
+    char buf[512] = {0};
+    if (vname)
+        strcpy (buf, vname);
+    if (pname)
+        strcat (buf, pname);
+    strcat (buf, "_resource");
+    return SCE_Resource_Load (resource_shader_type, buf, force, (void*)pname);
+}
+
+
 #define SCE_SHADER_BUILDFUNC(bign, add)\
 static int SCE_Shader_Build##bign (SCE_SShader *shader)\
 {\
@@ -824,7 +864,7 @@ static int SCE_Shader_Build##bign (SCE_SShader *shader)\
         shader->v = SCE_CCreateShader##bign (SCE_VERTEX_SHADER);\
         if (!shader->v)\
         {\
-            Logger_LogSrc ();\
+            SCEE_LogSrc ();\
             SCE_btend ();\
             return SCE_ERROR;\
         }\
@@ -832,7 +872,7 @@ static int SCE_Shader_Build##bign (SCE_SShader *shader)\
         if (SCE_CBuildShader##bign (shader->v) < 0)\
         {\
             SCE_CDeleteShader##bign (shader->v);\
-            Logger_LogSrc ();\
+            SCEE_LogSrc ();\
             SCE_btend ();\
             return SCE_ERROR;\
         }\
@@ -843,7 +883,7 @@ static int SCE_Shader_Build##bign (SCE_SShader *shader)\
         shader->p = SCE_CCreateShader##bign (SCE_PIXEL_SHADER);\
         if (!shader->p)\
         {\
-            Logger_LogSrc ();\
+            SCEE_LogSrc ();\
             SCE_btend ();\
             return SCE_ERROR;\
         }\
@@ -851,7 +891,7 @@ static int SCE_Shader_Build##bign (SCE_SShader *shader)\
         if (SCE_CBuildShader##bign (shader->p) < 0)\
         {\
             SCE_CDeleteShader##bign (shader->p);\
-            Logger_LogSrc ();\
+            SCEE_LogSrc ();\
             SCE_btend ();\
             return SCE_ERROR;\
         }\
@@ -871,7 +911,7 @@ SCE_SHADER_BUILDFUNC
  {
      SCE_CDeleteShaderGLSL (shader->v);
      SCE_CDeleteShaderGLSL (shader->p);
-     Logger_LogSrc ();
+     SCEE_LogSrc ();
      SCE_btend ();
      return SCE_ERROR;
  }
@@ -884,7 +924,7 @@ SCE_SHADER_BUILDFUNC
      SCE_CDeleteProgram (shader->p_glsl);
      SCE_CDeleteShaderGLSL (shader->v);
      SCE_CDeleteShaderGLSL (shader->p);
-     Logger_LogSrc ();
+     SCEE_LogSrc ();
      SCE_btend ();
      return SCE_ERROR;
  }
@@ -898,8 +938,8 @@ int SCE_Shader_Build (SCE_SShader *shader)
     if (!shader->vs_source && !shader->ps_source &&
         !shader->vs_addsrc && !shader->ps_addsrc)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("this shader don't have a source code!");
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("this shader don't have a source code!");
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -910,7 +950,7 @@ int SCE_Shader_Build (SCE_SShader *shader)
         shader->vs_source = SCE_String_CatDup (shader->vs_addsrc, shader->vs_source);
         if (!shader->vs_source)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -920,7 +960,7 @@ int SCE_Shader_Build (SCE_SShader *shader)
         shader->ps_source = SCE_String_CatDup (shader->ps_addsrc, shader->ps_source);
         if (!shader->ps_source)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -928,7 +968,7 @@ int SCE_Shader_Build (SCE_SShader *shader)
 
     if (Build[shader->type] (shader) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -958,7 +998,7 @@ int SCE_Shader_AddSource (SCE_SShader *shader, int type, char *src)
     if (type != SCE_PIXEL_SHADER && type != SCE_VERTEX_SHADER &&
         type != SCE_UNKNOWN_SHADER)
     {
-        Logger_Log (SCE_INVALID_ARG);
+        SCEE_Log (SCE_INVALID_ARG);
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -979,7 +1019,7 @@ int SCE_Shader_AddSource (SCE_SShader *shader, int type, char *src)
     addsrc = SCE_realloc (addsrc, realen);
     if (!addsrc)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -1020,13 +1060,13 @@ int SCE_Shader_GetIndex (SCE_SShader *shader, int type, const char *name)
 #ifdef SCE_DEBUG
     if (!shader || !name)
     {
-        Logger_Log (SCE_INVALID_ARG);
+        SCEE_Log (SCE_INVALID_ARG);
         return SCE_SHADER_BAD_INDEX;
     }
     if (!shader->ready)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("you can't use a non-built shader");
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("you can't use a non-built shader");
         return SCE_SHADER_BAD_INDEX;
     }
 #endif
@@ -1222,18 +1262,12 @@ int SCE_Shader_AddParamv (SCE_SShader *shader, int type, const char *n, void *p)
     SCE_btstart ();
     if (!(param = SCE_malloc (sizeof *param)))
     {
-        Logger_LogSrc ();
-        SCE_btend ();
-        return SCE_ERROR;
-    }
-    if (SCE_List_AppendNewl (shader->params_i, param) < 0)
-    {
-        SCE_free (param);
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
     SCE_Shader_InitParam (param);
+    SCE_List_Appendl (shader->params_i, &param->it);
     param->param = p;
     /* necessite que le shader ait deja ete construit */
     param->index = SCE_Shader_GetIndex (shader, type, n);
@@ -1262,18 +1296,12 @@ int SCE_Shader_AddParamfv (SCE_SShader *shader, int type, const char *n,
     SCE_btstart ();
     if (!(param = SCE_malloc (sizeof *param)))
     {
-        Logger_LogSrc ();
-        SCE_btend ();
-        return SCE_ERROR;
-    }
-    if (SCE_List_AppendNewl (shader->params_f, param) < 0)
-    {
-        SCE_free (param);
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
     SCE_Shader_InitParam (param);
+    SCE_List_Appendl (shader->params_f, &param->it);
     param->param = p;
     switch (num)
     {
@@ -1310,18 +1338,12 @@ int SCE_Shader_AddMatrix (SCE_SShader *shader, int type, const char *n,
     SCE_btstart ();
     if (!(param = SCE_malloc (sizeof *param)))
     {
-        Logger_LogSrc ();
-        SCE_btend ();
-        return SCE_ERROR;
-    }
-    if (SCE_List_AppendNewl (shader->params_m, param) < 0)
-    {
-        SCE_free (param);
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
     SCE_Shader_InitParam (param);
+    SCE_List_Appendl (shader->params_m, &param->it);
     param->param = p;
     /* necessite que le shader ait deja ete construit */
     param->index = SCE_Shader_GetIndex (shader, type, n);
@@ -1417,7 +1439,9 @@ void SCE_Shader_Use (SCE_SShader *shader)
         pixelshader = NULL;
         vs_binded = SCE_FALSE;
     }
-    else if (shader != used)
+    else if (shader == used)
+        SCE_Shader_SetParams (shader);
+    else
     {
         if (used && used->type != shader->type)
         {

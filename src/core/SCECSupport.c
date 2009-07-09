@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 31 janvier 2006
-   derniere modification le 31/10/2008 */
+/* created: 31/01/2006
+   updated: 31/10/2008 */
 
 #include <string.h>
 #include <SCE/SCEMinimal.h>

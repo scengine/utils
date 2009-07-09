@@ -24,7 +24,7 @@
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEMath.h>
-#include <SCE/utils/SCEResources.h>
+#include <SCE/utils/SCEResource.h>
 
 #include <SCE/core/SCECSupport.h>
 #include <SCE/core/SCECTexture.h>
@@ -46,6 +46,9 @@
 
 /** @{ */
 
+static int resource_type = 0;
+
+#if 0
 static unsigned int nbatchs = 0;
 
 unsigned int SCE_CGetTextureNumBatchs (void)
@@ -54,6 +57,7 @@ unsigned int SCE_CGetTextureNumBatchs (void)
     nbatchs = 0;
     return n;
 }
+#endif
 
 /* booleen: true = reduction des images lors d'une redimension automatique */
 static int sce_tex_reduce = SCE_TRUE;
@@ -61,7 +65,7 @@ static int sce_tex_reduce = SCE_TRUE;
 static int texsub = 0;  /* indique glTexImage (0) ou glTexSubImage (1) */
 
 /* texture actuellement bindee */
-static SCE_CTexture *binded = NULL;
+static SCE_CTexture *bound = NULL;
 
 /* stocke les textures utilisees (via Use) */
 static SCE_CTexture **texused = NULL;
@@ -82,8 +86,10 @@ static int force_fmt = SCE_FALSE, forced_fmt;
 /* nombre de textures utilisees de chaque type */
 static int n_textype[4];
 
+static void* SCE_CLoadTextureResource (const char*, int, void*);
 
 /**
+ * \internal
  * \brief Initializes the textures manager
  */
 int SCE_CTextureInit (void)
@@ -103,27 +109,36 @@ int SCE_CTextureInit (void)
     /* creation du tableau de stockage des textures en cours d'utilisation */
     texused = SCE_malloc (max_tex_units * sizeof *texused);
     if (!texused)
-    {
-        Logger_LogSrc ();
-        SCE_btend ();
-        return SCE_ERROR;
-    }
-
+        goto fail;
     for (i=0; i<max_tex_units; i++)
         texused[i] = NULL;
+    resource_type = SCE_Resource_RegisterType (SCE_FALSE,
+                                               SCE_CLoadTextureResource, NULL);
+    if (resource_type < 0)
+        goto fail;
 
     SCE_btend ();
     return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    SCE_btend ();
+    return SCE_ERROR;
 }
 
 /**
- * \brief 
- * \param 
+ * \internal
+ * \brief Quits the textures manager
  */
 void SCE_CTextureQuit (void)
 {
     SCE_free (texused);
     texused = NULL;
+}
+
+
+int SCE_CGetTextureResourceType (void)
+{
+    return resource_type;
 }
 
 
@@ -133,9 +148,9 @@ void SCE_CTextureQuit (void)
  */
 void SCE_CBindTexture (SCE_CTexture *tex)
 {
-    binded = tex;
-    if (binded)
-        glBindTexture (binded->target, binded->id);
+    bound = tex;
+    if (bound)
+        glBindTexture (bound->target, bound->id);
 }
 
 
@@ -168,7 +183,7 @@ SCE_CTexData* SCE_CCreateTexData (void)
     SCE_btstart ();
     d = SCE_malloc (sizeof *d);
     if (!d)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_CInitTexData (d);
     SCE_btend ();
@@ -176,7 +191,7 @@ SCE_CTexData* SCE_CCreateTexData (void)
 }
 
 /**
- * \brief Creates a texture data from the binded SCE image
+ * \brief Creates a texture data from the bound SCE image
  * \returns the new texture data
  * \sa SCE_CImage
  */
@@ -188,7 +203,7 @@ SCE_CTexData* SCE_CCreateTexDataFromImage (void)
     d = SCE_malloc (sizeof *d);
     if (!d)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -199,12 +214,12 @@ SCE_CTexData* SCE_CCreateTexDataFromImage (void)
     if (!d->data)
     {
         SCE_free (d);
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
     memcpy (d->data, SCE_CGetImageData_ (), d->data_size);
-    d->img = SCE_CGetImageBinded ();
+    d->img = SCE_CGetImageBound ();
     d->target = SCE_CGetImageType_ ();
     d->level = SCE_CGetImageMipmapLevel_ ();
     d->w = SCE_CGetImageWidth_ ();
@@ -266,7 +281,7 @@ SCE_CTexData* SCE_CDupTexData (SCE_CTexData *d)
     data = SCE_malloc (sizeof *data);
     if (!data)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -278,7 +293,7 @@ SCE_CTexData* SCE_CDupTexData (SCE_CTexData *d)
         if (!data->data)
         {
             SCE_free (data);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return NULL;
         }
@@ -317,7 +332,7 @@ SCE_CTexture* SCE_CCreateTexture (SCEenum target)
     tex = SCE_malloc (sizeof *tex);
     if (!tex)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -330,7 +345,7 @@ SCE_CTexture* SCE_CCreateTexture (SCEenum target)
         if (!tex->data[i])
         {
             SCE_CDeleteTexture (tex);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return NULL;
         }
@@ -355,14 +370,14 @@ SCE_CTexture* SCE_CCreateTexture (SCEenum target)
 
 /* ... */
 #define SCE_CDEFAULTFUNC(action)\
-SCE_CTexture *back = binded;\
+SCE_CTexture *back = bound;\
 SCE_CBindTexture (tex);\
 action;\
 SCE_CBindTexture (back);
 
 #define SCE_CDEFAULTFUNCR(t, action)\
 t r;\
-SCE_CTexture *back = binded;\
+SCE_CTexture *back = bound;\
 SCE_CBindTexture (tex);\
 r = action;\
 SCE_CBindTexture (back);\
@@ -388,8 +403,8 @@ void SCE_CDeleteTexture (SCE_CTexture *tex)
 }
 void SCE_CDeleteTexture_ (void)
 {
-    SCE_CDeleteTexture (binded);
-    binded = NULL;
+    SCE_CDeleteTexture (bound);
+    bound = NULL;
 }
 
 
@@ -472,7 +487,7 @@ void SCE_CSetTextureParam (SCE_CTexture *tex, SCEenum pname, SCEint param)
 }
 void SCE_CSetTextureParam_ (SCEenum pname, SCEint param)
 {
-    glTexParameteri (binded->target, pname, param);
+    glTexParameteri (bound->target, pname, param);
 }
 
 /**
@@ -491,7 +506,7 @@ void SCE_CSetTextureParamf (SCE_CTexture *tex, SCEenum pname, SCEfloat param)
 }
 void SCE_CSetTextureParamf_ (SCEenum pname, SCEfloat param)
 {
-    glTexParameterf (binded->target, pname, param);
+    glTexParameterf (bound->target, pname, param);
 }
 
 /**
@@ -587,7 +602,7 @@ SCEenum SCE_CGetTextureTarget (SCE_CTexture *tex)
 }
 SCEenum SCE_CGetTextureTarget_ (void)
 {
-    return binded->target;
+    return bound->target;
 }
 
 
@@ -631,7 +646,7 @@ SCE_CTexData* SCE_CGetTextureTexData (SCE_CTexture *tex, int target, int level)
 }
 SCE_CTexData* SCE_CGetTextureTexData_ (int target, int level)
 {
-    return SCE_CGetTextureTexData (binded, target, level);
+    return SCE_CGetTextureTexData (bound, target, level);
 }
 
 /**
@@ -651,7 +666,7 @@ int SCE_CIsTextureUsingMipmaps (SCE_CTexture *tex)
 }
 int SCE_CIsTextureUsingMipmaps_ (void)
 {
-    return binded->use_mipmap;
+    return bound->use_mipmap;
 }
 
 /**
@@ -669,7 +684,7 @@ int SCE_CGetTextureNumMipmaps (SCE_CTexture *tex, int target)
 }
 int SCE_CGetTextureNumMipmaps_ (int target)
 {
-    return SCE_CGetTextureNumMipmaps (binded, target);
+    return SCE_CGetTextureNumMipmaps (bound, target);
 }
 
 /**
@@ -786,10 +801,10 @@ int SCE_CAddTextureImage (SCE_CTexture *tex, int target,
     SCE_CResizeTextureImage_ (0, 0, 0);
 #if 0
     /* log de l'operation */
-    Logger_PrintMsg ("your hardware doesn't support non-power of two "
-                     "textures.\n%s of '%s' forced.\nnew dimentions: "
-                     "%d*%d\n", sce_img_reduce ? "shrinkage":"extention",
-                     fname, w, h);
+    SCEE_SendMsg ("your hardware doesn't support non-power of two "
+                  "textures.\n%s of '%s' forced.\nnew dimentions: "
+                  "%d*%d\n", sce_img_reduce ? "shrinkage":"extention",
+                  fname, w, h);
 #endif
 
     /**
@@ -806,7 +821,7 @@ int SCE_CAddTextureImage (SCE_CTexture *tex, int target,
         if (!d)
         {
             SCE_CBindImage (NULL);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -819,7 +834,7 @@ int SCE_CAddTextureImage (SCE_CTexture *tex, int target,
         {
             SCE_CBindImage (NULL);
             SCE_CDeleteTexData (d);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -835,7 +850,7 @@ int SCE_CAddTextureImage (SCE_CTexture *tex, int target,
 }
 int SCE_CAddTextureImage_ (int target, SCE_CImage *img, int canfree)
 {
-    return SCE_CAddTextureImage (binded, target, img, canfree);
+    return SCE_CAddTextureImage (bound, target, img, canfree);
 }
 
 
@@ -860,7 +875,7 @@ int SCE_CAddTextureTexData (SCE_CTexture *tex, int target,
     d->user = !canfree;
     if (SCE_List_AppendNewl (tex->data[i], d) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -874,7 +889,7 @@ int SCE_CAddTextureTexData (SCE_CTexture *tex, int target,
 }
 int SCE_CAddTextureTexData_ (int target, SCE_CTexData *d, int canfree)
 {
-    return SCE_CAddTextureTexData (binded, target, d, canfree);
+    return SCE_CAddTextureTexData (bound, target, d, canfree);
 }
 
 /**
@@ -893,7 +908,7 @@ int SCE_CAddTextureTexDataDup (SCE_CTexture *tex, int target, SCE_CTexData *d)
     data = SCE_CDupTexData (d);
     if (!data)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -902,7 +917,7 @@ int SCE_CAddTextureTexDataDup (SCE_CTexture *tex, int target, SCE_CTexData *d)
 }
 int SCE_CAddTextureTexDataDup_ (int target, SCE_CTexData *d)
 {
-    return SCE_CAddTextureTexDataDup (binded, target, d);
+    return SCE_CAddTextureTexDataDup (bound, target, d);
 }
 
 /**
@@ -945,7 +960,7 @@ SCE_CImage* SCE_CRemoveTextureImage (SCE_CTexture *tex, int target, int level)
 }
 SCE_CImage* SCE_CRemoveTextureImage_ (int target, int level)
 {
-    return SCE_CRemoveTextureImage (binded, target, level);
+    return SCE_CRemoveTextureImage (bound, target, level);
 }
 
 /**
@@ -963,7 +978,7 @@ void SCE_CEraseTextureImage (SCE_CTexture *tex, int target, int level)
 }
 void SCE_CEraseTextureImage_ (int target, int level)
 {
-    SCE_CEraseTextureImage (binded, target, level);
+    SCE_CEraseTextureImage (bound, target, level);
 }
 
 /**
@@ -1005,7 +1020,7 @@ SCE_CTexData* SCE_CRemoveTextureTexData (SCE_CTexture *tex,
 }
 SCE_CTexData* SCE_CRemoveTextureTexData_ (int target, int level)
 {
-    return SCE_CRemoveTextureTexData (binded, target, level);
+    return SCE_CRemoveTextureTexData (bound, target, level);
 }
 
 /**
@@ -1023,110 +1038,147 @@ void SCE_CEraseTextureTexData (SCE_CTexture *tex, int target, int level)
 }
 void SCE_CEraseTextureTexData_ (int target, int level)
 {
-    SCE_CEraseTextureTexData (binded, target, level);
+    SCE_CEraseTextureTexData (bound, target, level);
 }
 
 
-/**
- * \brief 
- * \param 
- */
-SCE_CTexture* SCE_CLoadTexture (int type, int w, int h, int d, ...)
+typedef struct
 {
-    va_list args;
-    SCE_CTexture *tex = NULL;
-    SCE_btstart ();
-    va_start (args, d);
-    tex = SCE_CLoadTextureArg (type, w, h, d, args);
-    va_end (args);
-    SCE_btend ();
-    return tex;
-}
-/**
- * \brief 
- * \param 
- */
-SCE_CTexture* SCE_CLoadTextureArg (int type, int w, int h, int d, va_list args)
+    int type, w, h, d;
+    const char **names;
+} SCE_CTexResInfo;
+
+static void* SCE_CLoadTextureResource (const char *name, int force, void *data)
 {
-    unsigned int i = 0;
-    const char *fname = NULL;
-    int type_id = SCE_CGetImageMediaTypeID ();
+    unsigned int i = 0, j;
     SCE_CImage *img = NULL;
     SCE_CTexture *tex = NULL;
-    const int resize = (w > 0 || h > 0 || d > 0);
+    int resize;
+    int type, w, h, d;
+    SCE_CTexResInfo *rinfo = data;
 
     SCE_btstart ();
+    (void)name;
+    type = rinfo->type;
+    w = rinfo->w; h = rinfo->h; d = rinfo->d;
+    resize = (w > 0 || h > 0 || d > 0);
+
     /* si type est egal a SCE_TEX_CUBE, 6 const char* seront recuperes,
      * representant respectivement les 6 faces du cube. si des parametres
      * manquent, seul le premier sera construit lors de la construction.
      * sinon, chaque parametre representera un niveau de mipmap
      */
 
-    fname = va_arg (args, const char*);
-    while (fname)
+    if (force > 0)
+        force--;
+    for (j = 0; rinfo->names[j]; j++)
     {
-        /* chargement de l'image et verifications */
-        img = SCE_Resource_Load (fname, NULL, &type_id);
+        const char *fname = rinfo->names[j];
+        img = SCE_Resource_Load (SCE_CGetImageResourceType(), fname,force,NULL);
         if (!img)
-        {
-            SCE_CDeleteTexture (tex);
-            Logger_LogSrc ();
-            SCE_btend ();
-            return NULL;
-        }
+            goto fail;
         SCE_CBindImage (img);
 
-        /* redimensionnement de l'image si demande */
         if (resize)
             SCE_CResizeTextureImage_ (w, h, d);
 
-        /* maintenant qu'on a un type, on peut
-           creer la texture si ce n'est pas encore fait */
         if (!tex)
         {
-            /* initialisation du type definitif : si le type est indefini,
-               on l'initialise a la valeur de la premiere image */
             if (type <= 0)
                 type = SCE_CGetImageType_ ();
             tex = SCE_CCreateTexture (type);
             if (!tex)
-            {
-                SCE_CDeleteImage_ ();
-                Logger_LogSrc ();
-                SCE_btend ();
-                return NULL;
-            }
+                goto fail;
         }
 
-        /* ajout de l'image a la texture */
         if (SCE_CAddTextureImage (tex, (type == SCE_TEX_CUBE) ?
                                   SCE_TEX_POSX + i : 0, img, SCE_TRUE) < 0)
-        {
-            SCE_CDeleteTexture (tex);
-            SCE_CDeleteImage_ ();
-            Logger_LogSrc ();
-            SCE_btend ();
-            return NULL;
-        }
+            goto fail;
 
-        /* s'il s'agit d'une cubemap, on passe a la face suivante */
+        /* cubemap..? */
         if (type == SCE_TEX_CUBE)
             i++;
         else if (resize)
         {
-            /* sinon, redimensionnement du niveau de mipmap inferieur */
+            /* mipmapping */
             w = SCE_CGetImageWidth_ () / 2;
             h = SCE_CGetImageHeight_ () / 2;
             d = SCE_CGetImageDepth_ () / 2;
         }
 
-        if (i == 6) /* terminus tout le monde descend, on a notre quota */
+        if (i == 6)             /* cube map completed */
             break;
-
-        fname = va_arg (args, const char*);
     }
 
     SCE_CBindImage (NULL);
+    SCE_btend ();
+    return tex;
+fail:
+    SCE_CDeleteTexture (tex);
+    SCEE_LogSrc ();
+    SCE_btend ();
+    return NULL;
+}
+
+/**
+ * \brief 
+ * \param force force a new texture to be loaded
+ */
+SCE_CTexture* SCE_CLoadTexturev (int type, int w, int h, int d, int force,
+                                 const char **names)
+{
+    unsigned int i;
+    char buf[2048] = {0};
+    SCE_CTexResInfo info;
+    SCE_CTexture *tex;
+
+    info.type = type;
+    info.w = w; info.h = h; info.d = d;
+    info.names = names;
+    for (i = 0; names[i]; i++)
+        strcat (buf, names[i]);
+
+    if (!(tex = SCE_Resource_Load (resource_type, buf, force, &info)))
+        goto fail;
+
+    return tex;
+fail:
+    SCEE_LogSrc ();
+    return NULL;
+}
+/**
+ * \brief 
+ * \param 
+ */
+SCE_CTexture* SCE_CLoadTexture (int type, int w, int h, int d, int force, ...)
+{
+    va_list args;
+    unsigned int i = 0;
+    const char *name = NULL;
+    const char *names[42];
+    SCE_CTexture *tex = NULL;
+
+    SCE_btstart ();
+    va_start (args, force);
+    name = va_arg (args, const char*);
+    while (name && i < 42 - 1)
+    {
+        names[i] = name;
+        name = va_arg (args, const char*);
+        i++;
+    }
+    va_end (args);
+    names[i] = NULL;
+#ifdef SCE_DEBUG
+    if (i == 0)
+    {
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("excpected at least 1 file name, but 0 given");
+        SCE_btend ();
+        return NULL;
+    }
+#endif
+    tex = SCE_CLoadTexturev (type, w, h, d, force, names);
     SCE_btend ();
     return tex;
 }
@@ -1209,8 +1261,8 @@ static void SCE_CMakeTexture1DMp (SCE_CTexData *d)
                                  d->fmt, d->type, d->data);
     if (err != 0)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("gluBuild1DMipmaps fails : %s\n", gluErrorString (err));
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("gluBuild1DMipmaps fails : %s\n", gluErrorString (err));
     }
 }
 static void SCE_CMakeTexture2DMp (SCE_CTexData *d)
@@ -1219,8 +1271,8 @@ static void SCE_CMakeTexture2DMp (SCE_CTexData *d)
                                  d->fmt, d->type, d->data);
     if (err != 0)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("gluBuild2DMipmaps fails : %s\n", gluErrorString (err));
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("gluBuild2DMipmaps fails : %s\n", gluErrorString (err));
     }
 }
 static void SCE_CMakeTexture3DMp (SCE_CTexData *d)
@@ -1231,8 +1283,8 @@ static void SCE_CMakeTexture3DMp (SCE_CTexData *d)
                              d->fmt, d->type, d->data);
     if (err != 0)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("gluBuild3DMipmaps fails : %s\n", gluErrorString (err));
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("gluBuild3DMipmaps fails : %s\n", gluErrorString (err));
     }
     SCE_btend ();
 }
@@ -1302,14 +1354,14 @@ static void SCE_CMakeTexture (SCEenum textype, SCE_SList *data,
 int SCE_CBuildTexture_ (int use_mipmap, int hw_mipmap)
 {
     unsigned int i, n = 1;
-    SCEenum t = binded->target;
+    SCEenum t = bound->target;
     void (*make)(SCEenum, SCE_SList*, SCEenum, int) = SCE_CMakeTexture;
 
     SCE_btstart ();
-    if (!binded->have_data)
+    if (!bound->have_data)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("you must specify data before texture build");
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("you must specify data before texture build");
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -1317,15 +1369,15 @@ int SCE_CBuildTexture_ (int use_mipmap, int hw_mipmap)
     /* si un parametre est non-specifie, on lui attribue la valeur
        deja presente dans la texture, sinon c'est l'inverse */
     if (use_mipmap < 0)
-        use_mipmap = binded->use_mipmap;
+        use_mipmap = bound->use_mipmap;
     else
-        binded->use_mipmap = use_mipmap;
+        bound->use_mipmap = use_mipmap;
     if (hw_mipmap < 0)
-        hw_mipmap = binded->hw_mipmap;
+        hw_mipmap = bound->hw_mipmap;
     else
-        binded->hw_mipmap = hw_mipmap;
+        bound->hw_mipmap = hw_mipmap;
 
-    if (binded->target == SCE_TEX_CUBE)
+    if (bound->target == SCE_TEX_CUBE)
         n = 6;
 
     if (use_mipmap)
@@ -1334,14 +1386,14 @@ int SCE_CBuildTexture_ (int use_mipmap, int hw_mipmap)
         {
             SCE_CSetTextureParam_ (GL_GENERATE_MIPMAP_SGIS, SCE_TRUE);
             for (i=0; i<n; i++)
-                make (t, binded->data[i], ((n>1) ? SCE_TEX_POSX+i:0),SCE_FALSE);
+                make (t, bound->data[i], ((n>1) ? SCE_TEX_POSX+i:0),SCE_FALSE);
         }
         else
         {
             if (hw_mipmap)
-                Logger_PrintMsg ("hardware mipmap generation isn't supported");
+                SCEE_SendMsg ("hardware mipmap generation isn't supported");
             for (i=0; i<n; i++)
-                make (t, binded->data[i], (n > 1 ? SCE_TEX_POSX+i:0), SCE_TRUE);
+                make (t, bound->data[i], (n > 1 ? SCE_TEX_POSX+i:0), SCE_TRUE);
         }
         SCE_CSetTextureParam_ (GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
         SCE_CSetTextureFilter_ (SCE_TEX_TRILINEAR);
@@ -1349,7 +1401,7 @@ int SCE_CBuildTexture_ (int use_mipmap, int hw_mipmap)
     else
     {
         for (i=0; i<n; i++)
-            make (t, binded->data[i], (n > 1 ? SCE_TEX_POSX+i : 0), SCE_FALSE);
+            make (t, bound->data[i], (n > 1 ? SCE_TEX_POSX+i : 0), SCE_FALSE);
         SCE_CSetTextureParam_ (GL_TEXTURE_MAX_LEVEL, 0);
     }
 
@@ -1395,7 +1447,9 @@ static void SCE_CSetTextureUsed (SCE_CTexture *tex, int unit)
         glBindTexture (tex->target, tex->id);
         n_textype[tex->type]++;
         texused[unit] = tex;
+#if 0
         nbatchs++;
+#endif
     }
     else if (texused[unit])
     {

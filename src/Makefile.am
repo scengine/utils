@@ -54,7 +54,7 @@ libSCE_la_SOURCES = SCEngine.c \
                     utils/SCEInert.c \
                     utils/SCEError.c \
                     utils/SCEString.c \
-                    utils/SCEResources.c \
+                    utils/SCEResource.c \
                     utils/SCEMatrix.c \
                     utils/SCEListFastForeach.c \
                     utils/SCERectangle.c \

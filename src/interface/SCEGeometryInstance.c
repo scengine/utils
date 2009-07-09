@@ -80,7 +80,7 @@ SCE_SGeometryInstance* SCE_Instance_Create (void)
 
 failure:
     SCE_Instance_Delete (inst), inst = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return inst;
@@ -120,7 +120,7 @@ SCE_SGeometryInstanceGroup* SCE_Instance_CreateGroup (void)
 
 failure:
     SCE_Instance_DeleteGroup (group), group = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return group;
@@ -149,8 +149,8 @@ void SCE_Instance_SetInstancingType (SCE_SGeometryInstanceGroup *group,
     {
         group->type = SCE_SIMPLE_INSTANCING;
 #ifdef SCE_DEBUG
-        Logger_PrintMsg ("hardware instancing is not supported,"
-                         "using simple instancing.\n");
+        SCEE_SendMsg ("hardware instancing is not supported,"
+                      "using simple instancing.\n");
 #endif
     }
 }

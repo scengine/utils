@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 10/04/2009
-   updated: 13/05/2009 */
+   updated: 08/07/2009 */
 
 #ifndef SCEMD5LOADER_H
 #define SCEMD5LOADER_H
@@ -29,6 +29,8 @@ extern "C"
 
 #define SCE_MD5MESH_FILE_EXTENSION "md5mesh"
 #define SCE_MD5ANIM_FILE_EXTENSION "md5anim"
+
+int SCE_Init_idTechMD5 (void);
 
 void* SCE_idTechMD5_LoadMesh (FILE*, const char*, void*);
 void* SCE_idTechMD5_LoadAnim (FILE*, const char*, void*);

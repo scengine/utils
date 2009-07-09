@@ -29,47 +29,44 @@ static int initialized = SCE_FALSE;
  * \brief Initializes the sub-module 'utils' of the SCEngine
  * \param outlog stream where write the error messages
  * \return SCE_ERROR on error, SCE_OK otherwise
- * \note Logger_LogSrc() don't have to be used if this function fails.
+ * \note SCEE_LogSrc() don't have to be used if this function fails.
  */
 int SCE_Init_Utils (FILE *outlog)
 {
     if (initialized)
         return SCE_OK;
+    SCE_Init_Error (outlog);
     if (SCE_Init_Mem () < 0)
     {
-        fputs ("error: can't initialize memory manager", stderr);
-        SCE_btend ();
-        return SCE_ERROR;
-    }
-    if (outlog)
-        Logger_Init (outlog);
-    else
-    {
-        fputs ("error: invalid output stream of errors", stderr);
+        fprintf (stderr, "SCEngine error: can't initialize memory manager");
         SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_Init_Matrix () < 0)
     {
-        Logger_LogFinish ("can't initialize matrices manager");
+        SCEE_LogSrc ();
+        SCEE_LogSrcMsg ("can't initialize matrices manager");
         SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_Init_FastList () < 0)
     {
-        Logger_LogFinish ("can't initialize fast lists manager");
+        SCEE_LogSrc ();
+        SCEE_LogSrcMsg ("can't initialize fast lists manager");
         SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_Init_Media () < 0)
     {
-        Logger_LogFinish ("can't initialize medias manager");
+        SCEE_LogSrc ();
+        SCEE_LogSrcMsg ("can't initialize medias manager");
         SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_Init_Resource () < 0)
     {
-        Logger_LogFinish ("can't initialize resources manager");
+        SCEE_LogSrc ();
+        SCEE_LogSrcMsg ("can't initialize resources manager");
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -90,4 +87,5 @@ void SCE_Quit_Utils (void)
     /*SCE_Quit_Matrix ();*/
     /*SCE_Quit_Error ();*/
     /*SCE_Quit_Mem ();*/
+    initialized = SCE_FALSE;
 }

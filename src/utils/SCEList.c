@@ -54,7 +54,7 @@ SCE_SListIterator* SCE_List_CreateIt (void)
 {
     SCE_SListIterator *it = SCE_malloc (sizeof *it);
     if (!it)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_List_InitIt (it);
     return it;
@@ -102,7 +102,7 @@ SCE_SList* SCE_List_Create (SCE_FListFreeFunc f)
 {
     SCE_SList *l = NULL;
     if (!(l = SCE_malloc (sizeof *l)))
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
     {
         SCE_List_Init (l);
@@ -122,7 +122,7 @@ SCE_SList* SCE_List_Create2 (void *arg, SCE_FListFreeFunc2 f)
 {
     SCE_SList *l = NULL;
     if (!(l = SCE_List_Create (NULL)))
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
     {
         l->f2 = f;
@@ -274,7 +274,7 @@ int SCE_List_PrependNew (SCE_SListIterator *i, void *d)
     SCE_SListIterator *new = SCE_List_CreateIt ();
     if (!new)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     new->data = d;
@@ -295,7 +295,7 @@ int SCE_List_AppendNew (SCE_SListIterator *i, void *d)
     SCE_SListIterator *new = SCE_List_CreateIt ();
     if (!new)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     new->data = d;
@@ -316,7 +316,7 @@ int SCE_List_PrependNewl (SCE_SList *l, void *d)
     SCE_SListIterator *it = SCE_List_CreateIt ();
     if (!it)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     it->data = d;
@@ -336,7 +336,7 @@ int SCE_List_AppendNewl (SCE_SList *l, void *d)
     SCE_SListIterator *it = SCE_List_CreateIt ();
     if (!it)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     it->data = d;

@@ -44,7 +44,7 @@ SCE_CLight* SCE_CCreateLight (void)
 
     SCE_btstart ();
     if (!(light = SCE_malloc (sizeof *light)))
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_CInitLight (light);
     SCE_btend ();

@@ -50,7 +50,7 @@ SCE_SJoint* SCE_Joint_Create (void)
     SCE_SJoint *joint = NULL;
     SCE_btstart ();
     if (!(joint = SCE_malloc (sizeof *joint)))
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_Joint_Init (joint);
     SCE_btend ();

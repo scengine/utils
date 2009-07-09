@@ -49,7 +49,7 @@ static SCE_SList* SCE_Batch_Inter (SCE_SList *a, SCE_SList *b)
     goto success;
 failure:
     SCE_List_Delete (l), l = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     return l;
 }
@@ -111,7 +111,7 @@ static int SCE_Batch_Sort (SCE_SList *finall, SCE_SList *entities,
     goto success;
 failure:
     SCE_List_Delete (l);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     code = SCE_ERROR;
 success:
     return code;
@@ -191,7 +191,7 @@ int SCE_Batch_SortEntities (SCE_SList *entities, unsigned int size,
 
     goto success;
 failure:
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     code = SCE_ERROR;
 success:
     SCE_List_Delete (list);

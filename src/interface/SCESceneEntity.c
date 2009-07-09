@@ -95,7 +95,7 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void)
 
 failure:
     SCE_SceneEntity_DeleteInstance (einst), einst = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return einst;
@@ -126,7 +126,7 @@ SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance *einst)
     SCE_SSceneEntityInstance *new = NULL;
     if (!(new = SCE_SceneEntity_CreateInstance ()))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return NULL;
     }
     SCE_SceneEntity_AddInstance (einst->group, new);
@@ -192,7 +192,7 @@ SCE_SSceneEntity* SCE_SceneEntity_Create (void)
 
 failure:
     SCE_SceneEntity_Delete (entity), entity = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return entity;
@@ -237,7 +237,7 @@ SCE_SSceneEntityGroup* SCE_SceneEntity_CreateGroup (void)
     goto success;
 failure:
     SCE_SceneEntity_DeleteGroup (group), group = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return group;
@@ -501,12 +501,12 @@ int SCE_SceneEntity_AddTexture (SCE_SSceneEntity *entity, SCE_SSceneResource *r)
 {
     if (SCE_List_PrependNewl (entity->textures, r) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     if (SCE_SceneResource_AddOwner (r, entity) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     return SCE_OK;
@@ -561,7 +561,7 @@ int SCE_SceneEntity_SetShader (SCE_SSceneEntity *entity, SCE_SSceneResource *r)
     {
         if (SCE_SceneResource_AddOwner (r, entity) < 0)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             return SCE_ERROR;
         }
     }
@@ -597,7 +597,7 @@ int SCE_SceneEntity_SetMaterial (SCE_SSceneEntity *entity, SCE_SSceneResource*r)
     {
         if (SCE_SceneResource_AddOwner (r, entity) < 0)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             return SCE_ERROR;
         }
     }

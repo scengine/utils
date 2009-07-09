@@ -100,7 +100,7 @@ SCE_CVertexDeclaration* SCE_CCreateVertexDeclaration (void)
     if (dec)
         SCE_CInitVertexDeclaration (dec);
     else
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     return dec;
 }
 /**
@@ -130,7 +130,7 @@ SCE_CBufferData* SCE_CCreateBufferData (void)
 {
     SCE_CBufferData *d = SCE_malloc (sizeof *d);
     if (!d)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_CInitBufferData (d);
     return d;
@@ -185,7 +185,7 @@ SCE_CVertexBuffer* SCE_CCreateVertexBuffer (void)
     SCE_btstart ();
     vb = SCE_malloc (sizeof *vb);
     if (!vb)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
     {
         SCE_CInitVertexBuffer (vb);
@@ -193,7 +193,7 @@ SCE_CVertexBuffer* SCE_CCreateVertexBuffer (void)
         if (!vb->data)
         {
             SCE_CDeleteVertexBuffer (vb);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return NULL;
         }
@@ -202,7 +202,7 @@ SCE_CVertexBuffer* SCE_CCreateVertexBuffer (void)
         {
             SCE_CDeleteVertexBuffer (vb);
             vb = NULL;
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
         }
         glGenBuffersARB (1, &vb->id);
     }
@@ -220,7 +220,7 @@ SCE_CIndexBuffer* SCE_CCreateIndexBuffer (void)
     SCE_btstart ();
     ib = SCE_malloc (sizeof *ib);
     if (!ib)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
     {
         SCE_CInitIndexBuffer (ib);
@@ -230,7 +230,7 @@ SCE_CIndexBuffer* SCE_CCreateIndexBuffer (void)
         {
             SCE_CDeleteIndexBuffer (ib);
             ib = NULL;
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
         }
     }
     SCE_btend ();
@@ -390,14 +390,14 @@ int SCE_CAddVertexBufferData_ (size_t data_size, void *data)
         SCE_CBufferData *d = SCE_CCreateBufferData ();
         if (!d)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
         if (SCE_List_PrependNewl (vb_bound->data, d) < 0)
         {
             SCE_CDeleteBufferData (d);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -433,13 +433,13 @@ int SCE_CAddVertexBufferDataDup_ (size_t data_size, void *data)
         void *new = SCE_Mem_Dup (data, data_size);
         if (!new)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
         if (SCE_CAddVertexBufferData_ (data_size, new) < 0)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -471,14 +471,14 @@ int SCE_CAddIndexBufferData_ (size_t data_size, void *data)
         SCE_CBufferData *d = SCE_CCreateBufferData ();
         if (!d)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
         if (SCE_List_PrependNewl (ib_bound->data, d) < 0)
         {
             SCE_CDeleteBufferData (d);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -514,13 +514,13 @@ int SCE_CAddIndexBufferDataDup_ (size_t data_size, void *data)
     new = SCE_Mem_Dup (data, data_size);
     if (!new)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_CAddIndexBufferData_ (data_size, new) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -607,8 +607,8 @@ static void SCE_CAttribBufferFunc (void)
 #ifdef SCE_DEBUG
     if (attrib >= /*max_attribs*/16)
     {
-        Logger_Log (SCE_INVALID_SIZE);
-        Logger_LogMsg ("you can't set an vertex attribute "
+        SCEE_Log (SCE_INVALID_SIZE);
+        SCEE_LogMsg ("you can't set an vertex attribute "
                        "if his index is greater than %d",
                        /*max_attribs*/ 16);
     }
@@ -660,7 +660,7 @@ int SCE_CAddVertexDeclaration_ (SCE_CVertexDeclaration *dec)
     {
         if (SCE_List_PrependNewl (vb_bound->decs, dec) < 0)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -688,7 +688,7 @@ int SCE_CAddVertexDeclarationDup_ (SCE_CVertexDeclaration *dec)
     new = SCE_Mem_Dup (dec, sizeof *dec);
     if (!new)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }

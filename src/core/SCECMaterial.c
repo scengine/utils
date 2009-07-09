@@ -47,7 +47,7 @@ SCE_CMaterial* SCE_CCreateMaterial (void)
 {
     SCE_CMaterial *mat = SCE_malloc (sizeof *mat);
     if (!mat)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_CInitMaterial (mat);
     return mat;

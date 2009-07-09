@@ -67,6 +67,8 @@ struct sce_sanimation
 int SCE_Init_Anim (void);
 void SCE_Quit_Anim (void);
 
+int SCE_Anim_GetResourceType (void);
+
 SCE_SAnimation* SCE_Anim_Create (void);
 void SCE_Anim_Delete (SCE_SAnimation*);
 

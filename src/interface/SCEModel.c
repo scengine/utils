@@ -50,7 +50,7 @@ static SCE_SModelEntity* SCE_Model_CreateEntity (SCE_SSceneEntity *e)
     return entity;
 fail:
     SCE_Model_DeleteEntity (entity);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     SCE_btend ();
     return NULL;
 }
@@ -89,7 +89,7 @@ SCE_Model_CreateEntityGroup (SCE_SSceneEntityGroup *g)
     return group;
 fail:
     SCE_Model_DeleteEntityGroup (group);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     return NULL;
 }
 static void SCE_Model_DeleteEntityGroup (SCE_SModelEntityGroup *group)
@@ -130,7 +130,7 @@ SCE_SModel* SCE_Model_Create (void)
     return mdl;
 fail:
     SCE_Model_Delete (mdl);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     SCE_btend ();
     return NULL;
 }
@@ -176,15 +176,15 @@ static int SCE_Model_BuildEntityArg (SCE_SModelEntity *entity, SCE_SMesh *mesh,
     }
     return SCE_OK;
 fail:
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     return SCE_ERROR;
 }
 
 #define SCE_CHECK_LEVEL(level) do {                                     \
         if (level >= SCE_MAX_MODEL_ENTITIES)                            \
         {                                                               \
-            Logger_Log (SCE_INVALID_ARG);                               \
-            Logger_LogMsg ("parameter 'level' is too high (%d), maximum is %u",\
+            SCEE_Log (SCE_INVALID_ARG);                               \
+            SCEE_LogMsg ("parameter 'level' is too high (%d), maximum is %u",\
                            level, SCE_MAX_MODEL_ENTITIES);              \
             return;                 /* lol. */                          \
         }                                                               \
@@ -245,7 +245,7 @@ int SCE_Model_AddEntityArg (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
     return n;
 fail:
     SCE_Model_DeleteEntity (entity);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     return SCE_ERROR;
 }
 int SCE_Model_AddEntity (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
@@ -306,8 +306,8 @@ int SCE_Model_AddInstance (SCE_SModel *mdl, unsigned int n,
     SCE_SListIterator *it = SCE_List_GetIterator (mdl->groups, n);
     if (!it)
     {
-        Logger_Log (SCE_INVALID_ARG);
-        Logger_LogMsg ("no group number %u in this model", n);
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("no group number %u in this model", n);
         return SCE_ERROR;
     }
     mgroup = SCE_List_GetData (it);
@@ -345,7 +345,7 @@ int SCE_Model_AddNewInstance (SCE_SModel *mdl, unsigned int n, int root,
     return SCE_OK;
 fail:
     SCE_SceneEntity_DeleteInstance (einst);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     return SCE_ERROR;
 }
 
@@ -414,7 +414,7 @@ static SCE_SModelEntity* SCE_Model_CopyDupEntity (SCE_SModelEntity *in)
     SCE_SModelEntity *entity = NULL;
     if (!(entity = SCE_Model_CreateEntity (in->entity)))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return NULL;
     }
     return entity;
@@ -472,7 +472,7 @@ static int SCE_Model_InstanciateSoft (SCE_SModel *mdl, SCE_SModel *mdl2)
 
     return SCE_OK;
 fail:
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     return SCE_ERROR;
 }
 static int SCE_Model_InstanciateInstances (SCE_SModel *mdl, SCE_SModel *mdl2)
@@ -500,7 +500,7 @@ static int SCE_Model_InstanciateInstances (SCE_SModel *mdl, SCE_SModel *mdl2)
     }
     return SCE_OK;
 fail:
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     return SCE_ERROR;
 }
 /**
@@ -542,7 +542,7 @@ int SCE_Model_Instanciate (SCE_SModel *mdl, SCE_SModel *mdl2, int mode,
 
     return SCE_OK;
 fail:
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     return SCE_ERROR;
 }
 /**
@@ -558,7 +558,7 @@ SCE_SModel* SCE_Model_CreateInstanciate (SCE_SModel *mdl, int mode,
     SCE_SModel *instance = NULL;
     if (!(instance = SCE_Model_Create ()))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return NULL;
     }
     SCE_Model_Instanciate (mdl, instance, mode, dup_inst);

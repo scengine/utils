@@ -125,7 +125,7 @@ SCE_SphereMesh_GenerateUV (SCE_TVector3 center, float radius, SCEuint segments,
 failure:
     SCE_free (p);
     SCE_free (indices);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     SCE_btend ();
     return SCE_ERROR;
 }
@@ -164,7 +164,7 @@ SCE_SMesh* SCE_SphereMesh_CreateUV (SCE_TVector3 center, float radius,
     return mesh;
 failure:
     SCE_Mesh_Delete (mesh);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     SCE_btend ();
     return NULL;
 }

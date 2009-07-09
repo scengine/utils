@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 06/06/2009 */
+   updated: 07/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 #include <SCE/interface/lib4fm.h>
@@ -25,16 +25,13 @@
 
 #include <SCE/utils/SCEVector.h>
 #include <SCE/utils/SCEString.h>
-#include <SCE/utils/SCEResources.h>
 #include <SCE/utils/SCEMedia.h>
+#include <SCE/utils/SCEResource.h>
 
 #include <SCE/core/SCECTexture.h>
 #include <SCE/core/SCECBuffers.h>
 
 #include <SCE/interface/SCEMesh.h>
-
-#include <SCE/interface/SCE4FMLoader.h>
-#include <SCE/interface/SCEOBJLoader.h>
 
 /**
  * \defgroup mesh Mesh
@@ -50,16 +47,16 @@ static int is_init = SCE_FALSE;
 /* mesh en cache pour le dessin */
 static SCE_SMesh *m = NULL;
 
-static int sce_4fm_media_type;
-static int sce_obj_media_type;
+static int resource_type = 0;
 
 /* liste des mises a jour a effectuer */
-static SCE_SList *updates = NULL;
+static SCE_SList *updates = NULL; /* TODO: make it as static structure */
 /* pointeur sur le dernier tampon (SCE_SMeshVertexBuffer)
    dont on a demande la mise a jour */
 static SCE_SListIterator *upit = NULL;
 /* nombre de mises a jour demandees */
 static unsigned int num_updates = 0;
+
 
 int SCE_Init_Mesh (void)
 {
@@ -68,17 +65,12 @@ int SCE_Init_Mesh (void)
     {
         if (!(updates = SCE_List_Create (NULL)))
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             return SCE_ERROR;
         }
 
-        /* enregistrement des loaders par defaut */
-        sce_4fm_media_type = SCE_Media_GenTypeID ();
-        SCE_Media_RegisterLoader (sce_4fm_media_type, FFM_MAGIC,
-                                  "."FFM_FILE_EXTENSION, SCE_4FM_Load);
-        sce_obj_media_type = SCE_Media_GenTypeID ();
-        SCE_Media_RegisterLoader (sce_obj_media_type, 0,
-                                  "."WAR_FILE_EXTENSION, SCE_OBJ_Load);
+        /* TODO: sux, add a SCEGeometry module */
+        resource_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
 
         is_init = SCE_TRUE;
     }
@@ -92,6 +84,11 @@ void SCE_Quit_Mesh (void)
     SCE_List_Delete (updates), updates = NULL;
     num_updates = 0;
     upit = NULL;
+}
+
+int SCE_Mesh_GetResourceType (void)
+{
+    return resource_type;
 }
 
 
@@ -110,7 +107,7 @@ static SCE_SMeshVertexData* SCE_Mesh_CreateVertexData (void)
     d = SCE_malloc (sizeof *d);
     if (!d)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -120,7 +117,7 @@ static SCE_SMeshVertexData* SCE_Mesh_CreateVertexData (void)
     if (!d->dec)
     {
         SCE_free (d);
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -182,14 +179,14 @@ SCE_SMeshVertexBuffer* SCE_Mesh_CreateVB (void)
     SCE_btstart ();
     vb = SCE_malloc (sizeof *vb);
     if (!vb)
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
     {
 #define SCE_MESHASSERT(c)\
         if (c)\
         {\
             SCE_Mesh_DeleteVB (vb);\
-            Logger_LogSrc ();\
+            SCEE_LogSrc ();\
             SCE_btend ();\
             return NULL;\
         }
@@ -202,7 +199,7 @@ SCE_SMeshVertexBuffer* SCE_Mesh_CreateVB (void)
         if (!vb->data)
         {
             SCE_Mesh_DeleteVB (vb), vb = NULL;
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
         }
 #undef SCE_MESHASSERT
     }
@@ -256,14 +253,14 @@ int SCE_Mesh_BuildVB (SCE_SMeshVertexBuffer *vb)
         if (SCE_CAddVertexDeclaration_ (d->dec) < 0)
         {
             SCE_CBindVertexBuffer (NULL);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
         if (SCE_CAddVertexBufferData_ (d->size, d->data) < 0)
         {
             SCE_CBindVertexBuffer (NULL);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -290,7 +287,7 @@ int SCE_Mesh_BuildIB (SCE_SMeshIndexBuffer *ib)
         if (SCE_CAddIndexBufferData_ (ib->size, ib->data) < 0)
         {
             SCE_CBindIndexBuffer (NULL);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -334,7 +331,7 @@ SCE_SMesh* SCE_Mesh_Create (void)
     mesh = SCE_malloc (sizeof *mesh);
     if (!mesh)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -344,7 +341,7 @@ SCE_SMesh* SCE_Mesh_Create (void)
     if (!mesh->ib.buffer)
     {
         SCE_free (mesh);
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -352,7 +349,7 @@ SCE_SMesh* SCE_Mesh_Create (void)
     if (!mesh->vertices)
     {
         SCE_Mesh_Delete (mesh), mesh = NULL;
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     }
 
     SCE_btend ();
@@ -405,7 +402,7 @@ int SCE_Mesh_AddVB (SCE_SMesh *mesh, SCE_SMeshVertexBuffer *b)
     SCE_btstart ();
     if (SCE_List_AppendNewl (mesh->vertices, b) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -429,7 +426,7 @@ int SCE_Mesh_AddNewVB (SCE_SMesh *mesh, int mode)
     b = SCE_Mesh_CreateVB ();
     if (!b)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -440,7 +437,7 @@ int SCE_Mesh_AddNewVB (SCE_SMesh *mesh, int mode)
     if (ret < 0)
     {
         SCE_Mesh_DeleteVB (b);
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     }
     SCE_btend ();
     return ret;
@@ -639,7 +636,7 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
 
 #define SCE_MESH_ERROR()\
     {\
-        Logger_LogSrc ();\
+        SCEE_LogSrc ();\
         SCE_btend ();\
         return SCE_ERROR;\
     }
@@ -651,8 +648,8 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
         mesh->vcount = count;
     else if (count < mesh->vcount)
     {
-        Logger_Log (SCE_INVALID_ARG);
-        Logger_LogMsg ("too small count, the minimum requested for"
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("too small count, the minimum requested for"
                        " this mesh is %u", mesh->vcount);
         SCE_btend ();
         return SCE_ERROR;
@@ -663,7 +660,7 @@ int SCE_Mesh_AddVertices (SCE_SMesh *mesh, unsigned int id, int attrib,
         canfree = SCE_TRUE;
         if (!(data = SCE_malloc (count * size * SCE_CSizeofType (type))))
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -760,7 +757,7 @@ int SCE_Mesh_AddVerticesDup (SCE_SMesh *mesh, unsigned int id, int attrib,
     new = SCE_Mem_ConvertDup (SCE_VERTICES_TYPE, type, data, count * size);
     if (!new)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -840,7 +837,7 @@ int SCE_Mesh_SetIndicesDup (SCE_SMesh *mesh, SCEenum mode, SCEenum type,
     t = SCE_INDICES_TYPE;
     if (!(data_dup = SCE_Mem_ConvertDup (t, type, data, count)))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -885,8 +882,8 @@ int SCE_Mesh_GetNumVerticesPerFace (SCE_SMesh *mesh)
 #ifdef SCE_DEBUG
         break;
     default:
-        Logger_Log (-1);
-        Logger_LogMsg ("unsupported face type to compute the "
+        SCEE_Log (-1);
+        SCEE_LogMsg ("unsupported face type to compute the "
                        "number of vertices per face");
         vpf = SCE_ERROR;
 #endif
@@ -928,8 +925,8 @@ int SCE_Mesh_ForEachFace (SCE_SMesh *mesh, SCE_FMeshFaceFunc func, void *param)
 #ifdef SCE_DEBUG
         if (mesh->ib.type != SCE_UNSIGNED_INT)
         {
-            Logger_Log (SCE_INVALID_OPERATION);
-            Logger_LogMsg ("unsigned int indices expected on "
+            SCEE_Log (SCE_INVALID_OPERATION);
+            SCEE_LogMsg ("unsigned int indices expected on "
                            "this mesh for calling %s", __FUNCTION__);
             return SCE_ERROR;
         }
@@ -1001,7 +998,7 @@ static int SCE_Mesh_MakeSortedList (SCE_SMesh *mesh)
         mesh->sortedfaces = SCE_List_Create (SCE_Mesh_DeleteFaceInfo);
         if (!mesh->sortedfaces)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             return SCE_ERROR;
         }
     }
@@ -1019,7 +1016,7 @@ static int SCE_Mesh_MakeSortedList (SCE_SMesh *mesh)
             if (!fi || SCE_List_PrependNewl (mesh->sortedfaces, fi) < 0)
             {
                 SCE_free (fi);
-                Logger_LogSrc ();
+                SCEE_LogSrc ();
                 return SCE_ERROR;
             }
         }
@@ -1027,7 +1024,7 @@ static int SCE_Mesh_MakeSortedList (SCE_SMesh *mesh)
     /* copie brut des donnees */
     if (SCE_Mesh_ForEachFace (mesh, SCE_Mesh_CopyFaceToSortedList, NULL) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     return SCE_OK;
@@ -1100,8 +1097,8 @@ int SCE_Mesh_SortFaces (SCE_SMesh *mesh, int order, SCE_TVector3 p)
 #ifdef SCE_DEBUG
     if (!indices)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("the mesh of which you want to sort the "
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("the mesh of which you want to sort the "
                        "faces hasn't indices");
         return SCE_ERROR;
     }
@@ -1111,7 +1108,7 @@ int SCE_Mesh_SortFaces (SCE_SMesh *mesh, int order, SCE_TVector3 p)
     if (!mesh->sortedfaces)
         if (SCE_Mesh_MakeSortedList (mesh) < 0)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             return SCE_ERROR;
         }
 
@@ -1271,7 +1268,7 @@ int SCE_Mesh_ComputeTBN (SCEenum polygon_type, SCEvertices *vertex,
         index = SCE_malloc (sizeof *index * count);
         if (!index)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -1343,8 +1340,8 @@ int SCE_Mesh_ComputeTBN (SCEenum polygon_type, SCEvertices *vertex,
         /* type de primitive non supporte, dommage pour l'utilisateur :D */
         if (!indices)
             SCE_free (index);
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("primitive type unsupported, you must choose one"
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("primitive type unsupported, you must choose one"
                        " of the following types: SCE_TRIANGLES, "
                        "SCE_TRIANGLE_STRIP, SCE_TRIANGLE_FAN or SCE_QUADS");
         SCE_btend ();
@@ -1381,16 +1378,16 @@ static SCE_SMeshVertexData* SCE_Mesh_GetVertices (SCE_SMesh *mesh, SCEenum type,
     v = SCE_Mesh_LocateData (mesh, type, NULL);
     if (!v)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("any buffer contains %s in this mesh", name);
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("any buffer contains %s in this mesh", name);
         SCE_btend ();
         return NULL;
     }
     /* on verifie si les donnees sont du bon type */
     if (v->dec->type != SCE_VERTICES_TYPE)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("data type of the %s is not SCE_VERTICES_TYPE", name);
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("data type of the %s is not SCE_VERTICES_TYPE", name);
         SCE_btend ();
         return NULL;
     }
@@ -1439,8 +1436,8 @@ int SCE_Mesh_GenerateTBN (SCE_SMesh *mesh, SCEvertices *tangents,
     if (texunit >= SCE_CGetMaxTextureUnits ())
     {
         /* TODO: message d'erreur frequent, prevoir qq'chose... */
-        Logger_Log (SCE_INVALID_ARG);
-        Logger_LogMsg ("the texture unit number %d are not available on your "
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("the texture unit number %d are not available on your "
                        "hardware", texunit);
         SCE_btend ();
         return SCE_ERROR;
@@ -1459,7 +1456,7 @@ int SCE_Mesh_GenerateTBN (SCE_SMesh *mesh, SCEvertices *tangents,
 
     if (!vertex || !texcoord)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -1547,7 +1544,7 @@ failure:
     SCE_free (n);
     SCE_free (b);
     SCE_free (t);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     code = SCE_ERROR;
 success:
     SCE_btend ();
@@ -1779,7 +1776,7 @@ SCE_SMesh* SCE_Mesh_CreateCube (SCE_TVector3 o, float w, float h, float d)
     if (c)\
     {\
         SCE_Mesh_Delete (mesh);\
-        Logger_LogSrc ();\
+        SCEE_LogSrc ();\
         SCE_btend ();\
         return NULL;\
     }
@@ -1865,7 +1862,7 @@ SCE_SMesh* SCE_Mesh_CreateIndexedCube(SCE_TVector3 o, float w, float h, float d)
     if (c)\
     {\
         SCE_Mesh_Delete (mesh);\
-        Logger_LogSrc ();\
+        SCEE_LogSrc ();\
         SCE_btend ();\
         return NULL;\
     }
@@ -1901,7 +1898,7 @@ SCE_SMesh* SCE_Mesh_CreateFromBoundingBox (SCE_SBoundingBox *box)
 #define SCE_ASSERT(c)\
     if (c)\
     {\
-        Logger_LogSrc ();\
+        SCEE_LogSrc ();\
         SCE_btend ();\
         return NULL;\
     }
@@ -1938,7 +1935,7 @@ int SCE_Mesh_Build (SCE_SMesh *mesh)
     {
         if (SCE_Mesh_BuildVB (SCE_List_GetData (i)) < 0)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -1946,7 +1943,7 @@ int SCE_Mesh_Build (SCE_SMesh *mesh)
 
     if (SCE_Mesh_BuildIB (&mesh->ib) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -1987,8 +1984,8 @@ int SCE_Mesh_Update (SCE_SMesh *mesh, unsigned int bufid)
     i = SCE_List_GetIterator (mesh->vertices, bufid);
     if (!i)
     {
-        Logger_LogMsg ("any buffer number %u in this mesh", bufid);
-        Logger_LogSrc ();
+        SCEE_LogMsg ("any buffer number %u in this mesh", bufid);
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -2008,8 +2005,8 @@ int SCE_Mesh_LogUpdate (SCE_SMesh *mesh, unsigned int bufid)
     SCE_SListIterator *i = SCE_List_GetIterator (mesh->vertices, bufid);
     if (!i)
     {
-        Logger_LogMsg ("none buffer number %u in this mesh", bufid);
-        Logger_LogSrc ();
+        SCEE_LogMsg ("none buffer number %u in this mesh", bufid);
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -2066,7 +2063,7 @@ void SCE_Mesh_ApplyUpdates (void)
  * This function uses the resources manager to load the meshs.
  * \todo check media type id
  */
-SCE_SMesh** SCE_Mesh_Load (const char *fname, int *n_meshs)
+SCE_SMesh** SCE_Mesh_Load (const char *fname, int force)
 {
     SCE_SMesh **meshs = NULL;
     int i, unused = 0;
@@ -2074,34 +2071,32 @@ SCE_SMesh** SCE_Mesh_Load (const char *fname, int *n_meshs)
     char *subname = NULL;
 
     SCE_btstart ();
-    if (!n_meshs)
-        n_meshs = &unused;
     size = strlen (fname) + 8;
     subname = SCE_malloc (size);
     if (!subname)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
 
-    meshs = SCE_Resource_Load (fname, n_meshs, NULL);
+    meshs = SCE_Resource_Load (resource_type, fname, force, NULL);
     if (!meshs)
     {
         SCE_free (subname);
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
 
-    for (i = 0; i < *n_meshs; i++)
+    for (i = 0; meshs[i]; i++)
     {
         memset (subname, '\0', size);
         strcpy (subname, fname);
         strcat (subname, "_lod");
         strcat (subname, SCE_String_Strof (i, 0));
         /* TODO: et la valeur de retour n'est pas analysee ? */
-        SCE_Resource_Add (subname, meshs[i]);
+        SCE_Resource_Add (resource_type, subname, meshs[i]);
     }
     SCE_free (subname);
 

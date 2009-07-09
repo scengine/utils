@@ -81,7 +81,7 @@ SCE_SSkybox* SCE_Skybox_Create (void)
     goto success;
 failure:
     SCE_Skybox_Delete (skybox), skybox = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return skybox;
@@ -219,7 +219,7 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
     skybox->textype = type;
     goto success;
 failure:
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     code = SCE_ERROR;
 success:
     SCE_btend ();

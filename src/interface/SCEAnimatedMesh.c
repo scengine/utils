@@ -21,9 +21,7 @@
 
 #include <SCE/SCEMinimal.h>
 
-#include <SCE/utils/SCEResources.h>
-#include <SCE/utils/SCEMedia.h>
-#include <SCE/interface/SCEMD5Loader.h>
+#include <SCE/utils/SCEResource.h>
 #include <SCE/interface/SCEAnimatedMesh.h>
 
 /**
@@ -38,7 +36,7 @@
 #define SCE_ANIMMESH_ENABLE_QUAT_TRANSFORM 0
 
 static int is_init = SCE_FALSE;
-static int media_type = 0;
+static int resource_type = 0;
 
 /**
  * \internal
@@ -49,9 +47,13 @@ int SCE_Init_AnimMesh (void)
     SCE_btstart ();
     if (!is_init)
     {
-        media_type = SCE_Media_GenTypeID ();
-        SCE_Media_RegisterLoader (media_type, 0, "."SCE_MD5MESH_FILE_EXTENSION,
-                                  SCE_idTechMD5_LoadMesh);
+        resource_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
+        if (resource_type < 0)
+        {
+            SCEE_LogSrc ();
+            SCE_btend ();
+            return SCE_ERROR;
+        }
     }
     SCE_btend ();
     return SCE_OK;
@@ -61,6 +63,12 @@ void SCE_Quit_AnimMesh (void)
 {
     SCE_btstart ();
     SCE_btend ();
+}
+
+
+int SCE_AnimMesh_GetResourceType (void)
+{
+    return resource_type;
 }
 
 
@@ -113,7 +121,7 @@ SCE_SAnimatedMesh* SCE_AnimMesh_Create (void)
     SCE_SAnimatedMesh *amesh = NULL;
     SCE_btstart ();
     if (!(amesh = SCE_malloc (sizeof *amesh)))
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_AnimMesh_Init (amesh);
     SCE_btend ();
@@ -189,8 +197,8 @@ int SCE_AnimMesh_AllocateAnimSkeleton (SCE_SAnimatedMesh *amesh)
 #ifdef SCE_DEBUG
     if (!amesh->baseskel)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("this animated has not bind pose skeleton: animation "
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("this animated has not bind pose skeleton: animation "
                        "skeleton can't be created");
         return SCE_ERROR;
     }
@@ -203,7 +211,7 @@ int SCE_AnimMesh_AllocateAnimSkeleton (SCE_SAnimatedMesh *amesh)
         goto failure;
     goto success;
 failure:
-    Logger_LogSrc (), code = SCE_ERROR;
+    SCEE_LogSrc (), code = SCE_ERROR;
 success:
     SCE_btend ();
     return code;
@@ -242,7 +250,7 @@ int SCE_AnimMesh_AllocateVertices (SCE_SAnimatedMesh *amesh, unsigned int n)
     unsigned int i;
     if (!(amesh->vertices = SCE_malloc (n * sizeof *amesh->vertices)))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     amesh->n_vertices = n;
@@ -260,7 +268,7 @@ int SCE_AnimMesh_AllocateWeights (SCE_SAnimatedMesh *amesh, unsigned int n)
     unsigned int i;
     if (!(amesh->weights = SCE_malloc (n * sizeof *amesh->weights)))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     amesh->n_weights = n;
@@ -357,8 +365,8 @@ int SCE_AnimMesh_SetBaseVerticesDup (SCE_SAnimatedMesh *amesh, int attrib,
 #ifdef SCE_DEBUG
     if (amesh->n_vertices == 0)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("missing number of vertices in the animated mesh");
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("missing number of vertices in the animated mesh");
         return SCE_ERROR;
     }
 #endif
@@ -368,7 +376,7 @@ int SCE_AnimMesh_SetBaseVerticesDup (SCE_SAnimatedMesh *amesh, int attrib,
         new = SCE_Mem_Dup (data, amesh->n_vertices * 4 * sizeof *data);
     if (!new)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     if (size == 3)
@@ -420,19 +428,19 @@ int SCE_AnimMesh_AllocateBaseVertices (SCE_SAnimatedMesh *amesh, int attrib,
 #ifdef SCE_DEBUG
     if (n == 0)
     {
-        Logger_Log (42);
+        SCEE_Log (42);
         if (local)
-            Logger_LogMsg ("you must call SCE_AnimMesh_AllocateWeights() or "
+            SCEE_LogMsg ("you must call SCE_AnimMesh_AllocateWeights() or "
                       "SCE_AnimMesh_SetWeights() before calling this function");
         else
-            Logger_LogMsg ("you must call SCE_AnimMesh_AllocateVertices() or "
+            SCEE_LogMsg ("you must call SCE_AnimMesh_AllocateVertices() or "
                      "SCE_AnimMesh_SetVertices() before calling this function");
         return SCE_ERROR;
     }
 #endif
     if (!(data = SCE_malloc (n * 4 * sizeof *data)))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     for (i = 0; i < n * 4; i++)
@@ -856,8 +864,8 @@ void SCE_AnimMesh_ApplyBaseSkeleton (SCE_SAnimatedMesh *amesh)
 #ifdef SCE_DEBUG
     if (!amesh->baseskel)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("this animated mesh has not bind pose skeleton, SCE_Ani"
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("this animated mesh has not bind pose skeleton, SCE_Ani"
                        "mMesh_ApplyBaseSkeleton() aborted");
     }
     else
@@ -873,8 +881,8 @@ void SCE_AnimMesh_ApplyAnimSkeleton (SCE_SAnimatedMesh *amesh)
 #ifdef SCE_DEBUG
     if (!amesh->animskel)
     {
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("this animated mesh has not animation skeleton, SCE_Ani"
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("this animated mesh has not animation skeleton, SCE_Ani"
                        "mMesh_ApplyBaseSkeleton() aborted");
     }
     else
@@ -913,7 +921,7 @@ int SCE_AnimMesh_SetGlobal (SCE_SAnimatedMesh *amesh)
             /* alloc new base */
             if (!(vert = SCE_malloc (amesh->n_vertices * 4 * sizeof *vert)))
             {
-                Logger_LogSrc ();
+                SCEE_LogSrc ();
                 return SCE_ERROR;
             }
             SCE_AnimMesh_ApplySkeletonLocal (amesh, i, amesh->baseskel);
@@ -1024,7 +1032,7 @@ int SCE_AnimMesh_BuildMesh (SCE_SAnimatedMesh *amesh, int mode, int *size_array)
     goto success;
 failure:
     SCE_Mesh_Delete (mesh);
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     code = SCE_ERROR;
 success:
     SCE_btend ();
@@ -1062,7 +1070,7 @@ int SCE_AnimMesh_UpdateMesh (SCE_SAnimatedMesh *amesh)
             size_t offset;
             if (SCE_AnimMesh_AllocateBaseVertices (amesh, attrib, SCE_FALSE) < 0)
             {
-                Logger_LogSrc ();
+                SCEE_LogSrc ();
                 SCE_btend ();
                 return SCE_ERROR;
             }
@@ -1092,19 +1100,20 @@ SCE_SAnimatedMesh* SCE_AnimMesh_Load (const char *fmesh, const char *fskel)
     SCE_SAnimatedMesh *amesh = NULL;
 
     SCE_btstart ();
-    if (!(amesh = SCE_Resource_Load (fmesh, NULL, NULL)))
+    if (!(amesh = SCE_Resource_Load (resource_type, fmesh, SCE_FALSE, NULL)))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
     if (fskel)
     {
         SCE_SSkeleton *skel = NULL;
-        if (!(skel = SCE_Resource_Load (fmesh, NULL, NULL)))
+        /* TODO: hey what's the type? */
+        if (!(skel = SCE_Resource_Load (resource_type, fmesh, SCE_FALSE, NULL)))
         {
             SCE_AnimMesh_Delete (amesh);
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return NULL;
         }

@@ -17,11 +17,11 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/04/2008
-   updated: 06/04/2008 */
+   updated: 08/07/2008 */
 
 #include <SCE/SCEMinimal.h>
 
-#include <SCE/utils/SCEResources.h>
+#include <SCE/utils/SCEResource.h>
 
 #include <SCE/core/SCECMatrix.h>
 
@@ -62,36 +62,42 @@ int SCE_Init_Quad (void)
     SCEvertices colors[] = {1., 1., 1., 1.,  1., 1., 1., 1.,
                             1., 1., 1., 1.,  1., 1., 1., 1.};
     SCE_btstart ();
-#define SCE_QUASSERT(c)\
-    if (c)\
-    {\
-        SCE_Mesh_Delete (mesh);\
-        Logger_LogSrc ();\
-        SCE_btend ();\
-        return SCE_ERROR;\
-    }
-    SCE_QUASSERT (!(mesh = SCE_Mesh_Create ()))
-    SCE_QUASSERT (SCE_Mesh_AddVertices (mesh, 0, SCE_POSITION,
-                  SCE_VERTICES_TYPE, 2, 4, vertices, SCE_FALSE) < 0)
-    SCE_QUASSERT (SCE_Mesh_AddVertices (mesh, 0, SCE_TEXCOORD0,
-                  SCE_VERTICES_TYPE, 2, 4, vertices, SCE_FALSE) < 0)
-    SCE_QUASSERT (SCE_Mesh_AddVertices (mesh, 0, SCE_NORMAL,
-                  SCE_VERTICES_TYPE, 3, 4, normals, SCE_FALSE) < 0)
-    SCE_QUASSERT (SCE_Mesh_AddVertices (mesh, 0, SCE_COLOR,
-                  SCE_VERTICES_TYPE, 4, 4, colors, SCE_FALSE) < 0)
+    if (!(mesh = SCE_Mesh_Create ()))
+        goto fail;
+    if (SCE_Resource_Add (SCE_Mesh_GetResourceType (),
+                          SCE_QUAD_MESH_NAME, mesh) < 0)
+        goto fail;
+    if (SCE_Mesh_AddVertices (mesh, 0, SCE_POSITION, SCE_VERTICES_TYPE, 2, 4,
+                              vertices, SCE_FALSE) < 0)
+        goto fail;
+    if (SCE_Mesh_AddVertices (mesh, 0, SCE_TEXCOORD0, SCE_VERTICES_TYPE, 2, 4,
+                              vertices, SCE_FALSE) < 0)
+        goto fail;
+    if (SCE_Mesh_AddVertices (mesh, 0, SCE_NORMAL, SCE_VERTICES_TYPE, 3, 4,
+                              normals, SCE_FALSE) < 0)
+        goto fail;
+    if (SCE_Mesh_AddVertices (mesh, 0, SCE_COLOR, SCE_VERTICES_TYPE, 4, 4,
+                              colors, SCE_FALSE) < 0)
+        goto fail;
     SCE_Mesh_ActivateVB (mesh, 0, SCE_TRUE);
     SCE_Mesh_SetRenderMode (mesh, SCE_QUADS);
-    SCE_QUASSERT (SCE_Mesh_Build (mesh) < 0)
+    if (SCE_Mesh_Build (mesh) < 0)
+        goto fail;
 
     ptr[0] = mesh;
     ptr[1] = NULL;
 
     /* log resource */
-    SCE_QUASSERT (SCE_Resource_Add (SCE_QUAD_MESHS_NAME, ptr) < 0)
-    SCE_QUASSERT (SCE_Resource_Add (SCE_QUAD_MESH_NAME, mesh) < 0)
+    if (SCE_Resource_Add (SCE_Mesh_GetResourceType (),
+                          SCE_QUAD_MESHS_NAME, ptr) < 0)
+        goto fail;
     SCE_btend ();
     return SCE_OK;
-#undef SCE_QUASSERT
+fail:
+    SCE_Mesh_Delete (mesh);
+    SCEE_LogSrc ();
+    SCE_btend ();
+    return SCE_ERROR;
 }
 void SCE_Quit_Quad (void)
 {

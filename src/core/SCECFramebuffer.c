@@ -98,7 +98,7 @@ SCE_CFramebuffer* SCE_CCreateFramebuffer (void)
     fb = SCE_malloc (sizeof *fb);
     if (!fb)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -251,8 +251,8 @@ int SCE_CAddRenderTexture_ (SCEuint id, SCEenum target, SCE_CTexture *tex,
     {
         /* target designant une face de cubemap, mais la texture
            n'est pas de type cubemap : erreur */
-        Logger_Log (SCE_INVALID_ARG);
-        Logger_LogMsg ("invalid target, the texture is not a cubemap");
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("invalid target, the texture is not a cubemap");
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -300,8 +300,8 @@ int SCE_CAddRenderTexture_ (SCEuint id, SCEenum target, SCE_CTexture *tex,
     status = glCheckFramebufferStatusEXT (GL_FRAMEBUFFER_EXT);
     if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
     {
-        Logger_Log (status);
-        Logger_LogMsg ("framebuffer check failed: %s",
+        SCEE_Log (status);
+        SCEE_LogMsg ("framebuffer check failed: %s",
                        SCE_CGetFramebufferError (status));
         SCE_btend ();
         return SCE_ERROR;
@@ -387,8 +387,8 @@ int SCE_CAddRenderBuffer_ (SCEuint id, int fmt, int w, int h)
     status = glCheckFramebufferStatusEXT (GL_FRAMEBUFFER_EXT);
     if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
     {
-        Logger_Log (status);
-        Logger_LogMsg ("framebuffer check failed: %s",
+        SCEE_Log (status);
+        SCEE_LogMsg ("framebuffer check failed: %s",
                        SCE_CGetFramebufferError (status));
         SCE_btend ();
         return SCE_ERROR;
@@ -439,7 +439,7 @@ int SCE_CCreateRenderTexture_ (SCEuint id, int pxf, int fmt,
     tex = SCE_CCreateTexture (SCE_TEX_2D);
     if (!tex)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -474,14 +474,14 @@ int SCE_CCreateRenderTexture_ (SCEuint id, int pxf, int fmt,
     SCE_CBindTexture (tex);
     if (SCE_CAddTextureTexDataDup_ (0, &data) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_CDeleteTexture (tex);
         SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_CBuildTexture_ (0, 0) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_CDeleteTexture (tex);
         SCE_btend ();
         return SCE_ERROR;

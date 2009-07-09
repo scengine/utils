@@ -21,8 +21,7 @@
 
 #include <SCE/SCEMinimal.h>
 
-#include <SCE/utils/SCEResources.h>
-#include <SCE/utils/SCEMedia.h>
+#include <SCE/utils/SCEResource.h>
 #include <SCE/interface/SCEMD5Loader.h>
 #include <SCE/interface/SCEAnimation.h>
 
@@ -36,7 +35,7 @@
 /** @{ */
 
 static int is_init = SCE_FALSE;
-static int media_type = 0;
+static int resource_type = 0;
 
 /**
  * \internal
@@ -44,16 +43,30 @@ static int media_type = 0;
  */
 int SCE_Init_Anim (void)
 {
+    SCE_btstart ();
     if (!is_init)
     {
-        media_type = SCE_Media_GenTypeID ();
-        SCE_Media_RegisterLoader (media_type, 0, "."SCE_MD5ANIM_FILE_EXTENSION,
-                                  SCE_idTechMD5_LoadAnim);
+        resource_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
+        if (resource_type < 0)
+        {
+            SCEE_LogSrc ();
+            SCE_btend ();
+            return SCE_ERROR;
+        }
     }
+    SCE_btend ();
     return SCE_OK;
 }
 void SCE_Quit_Anim (void)
 {
+    SCE_btstart ();
+    SCE_btend ();
+}
+
+
+int SCE_Anim_GetResourceType (void)
+{
+    return resource_type;
 }
 
 /**
@@ -85,13 +98,13 @@ SCE_SAnimation* SCE_Anim_Create (void)
     SCE_SAnimation* anim = NULL;
     SCE_btstart ();
     if (!(anim = SCE_malloc (sizeof *anim)))
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
     {
         SCE_Anim_Init (anim);
         if (!(anim->key = SCE_Skeleton_Create ()))
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_Anim_Delete (anim), anim = NULL;
         }
     }
@@ -171,7 +184,7 @@ int SCE_Anim_SetKeys (SCE_SAnimation *anim, SCE_SSkeleton **keys,
     }
     goto success;
 failure:
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     code = SCE_ERROR;
 success:
     SCE_btend ();
@@ -225,7 +238,7 @@ int SCE_Anim_AllocateKeys (SCE_SAnimation *anim, unsigned int n_keys,
         goto failure;
     goto success;
 failure:
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     code = SCE_ERROR;
 success:
     SCE_btend ();
@@ -360,8 +373,8 @@ SCE_SAnimation* SCE_Anim_Load (const char *fname)
 {
     SCE_SAnimation *anim = NULL;
     SCE_btstart ();
-    if (!(anim = SCE_Resource_Load (fname, NULL, NULL)))
-        Logger_LogSrc ();
+    if (!(anim = SCE_Resource_Load (resource_type, fname, SCE_FALSE, NULL)))
+        SCEE_LogSrc ();
     SCE_btend ();
     return anim;
 }

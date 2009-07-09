@@ -98,7 +98,7 @@ SCE_SNode* SCE_Node_Create (void)
     goto success;
 failure:
     SCE_Node_Delete (node), node = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     return node;
 }
@@ -175,7 +175,7 @@ SCE_SNode* SCE_Node_AttachNew (SCE_SNode *node)
     SCE_SNode *new = NULL;
     if (!(new = SCE_Node_Create ()))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return NULL;
     }
     SCE_Node_Attach (node, new);

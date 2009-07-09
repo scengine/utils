@@ -166,7 +166,9 @@ void SCE_Matrix4_Projection (SCE_TMatrix4, float, float, float, float);
 void SCE_Matrix4_LookAt (SCE_TMatrix4, SCE_TVector3,
                          SCE_TVector3, SCE_TVector3);
 
+/* NOTE: should be named GetTranslationv... */
 void SCE_Matrix4_GetTranslation (SCE_TMatrix4, SCE_TVector3);
+/*void SCE_Matrix4_GetRotation (SCE_TMatrix4, float*, SCE_TVector3);*/
 
 #ifdef __cplusplus
 } /* extern "C" */

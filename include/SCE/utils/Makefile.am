@@ -11,7 +11,7 @@ sce_include_utils_HEADERS = SCEBacktracer.h \
                             SCEPlane.h \
                             SCEQuaternion.h \
                             SCERectangle.h \
-                            SCEResources.h \
+                            SCEResource.h \
                             SCEString.h \
                             SCETime.h \
                             SCEUtils.h \

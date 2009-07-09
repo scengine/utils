@@ -40,7 +40,7 @@
 /** @{ */
 
 /**
- * \brief Normalize a quaternion
+ * \brief Normalizes a quaternion
  * \param q the quaternion to normalize
  */
 void SCE_Quaternion_Normalize (SCE_TQuaternion q)

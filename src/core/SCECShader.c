@@ -60,8 +60,8 @@ static CGprofile ps_profile;
 /* fonction callback en cas d'erreur Cg */
 static void SCE_CCgOnError (void)
 {
-    Logger_Log (SCE_CG_ERROR);
-    Logger_LogMsg ("a Cg error was occured :\n- %s\n- %s",
+    SCEE_Log (SCE_CG_ERROR);
+    SCEE_LogMsg ("a Cg error was occured :\n- %s\n- %s",
                    cgGetErrorString (cgGetError()), cgGetLastListing (context));
 }
 
@@ -82,9 +82,9 @@ static int SCE_CCgManager (int action)
 
             /* creation du contexte */
             context = cgCreateContext ();
-            if (Logger_HaveError () && Logger_GetCode () == SCE_CG_ERROR)
+            if (SCEE_HaveError () && SCEE_GetCode () == SCE_CG_ERROR)
             {
-                Logger_LogSrc ();
+                SCEE_LogSrc ();
                 is_init = SCE_ERROR;
                 break; /* on sort... */
             }
@@ -137,7 +137,7 @@ int SCE_CShaderInit (int use_cg)
     {
         if (!SCE_CCgManager (SCE_INIT))
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -174,7 +174,7 @@ SCE_CShaderGLSL* SCE_CCreateShaderGLSL (SCEenum type)
     shader = SCE_malloc (sizeof *shader);
     if (!shader)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -189,8 +189,8 @@ SCE_CShaderGLSL* SCE_CCreateShaderGLSL (SCEenum type)
     if (shader->id == 0)
     {
         /* une erreur est survenue lors de la creation du shader */
-        Logger_Log (SCE_ERROR);
-        Logger_LogMsg ("I can't create a shader, what's the fuck ?");
+        SCEE_Log (SCE_ERROR);
+        SCEE_LogMsg ("I can't create a shader, what's the fuck ?");
         SCE_free (shader);
         SCE_btend ();
         return NULL;
@@ -209,7 +209,7 @@ SCE_CShaderCG* SCE_CCreateShaderCG (SCEenum type)
     shader = SCE_malloc (sizeof *shader);
     if (!shader)
     {
-        Logger_LogSrc();
+        SCEE_LogSrc();
         SCE_btend ();
         return NULL;
     }
@@ -277,7 +277,7 @@ int SCE_CSetShaderGLSLSourceDup (SCE_CShaderGLSL *shader, char *src)
     new = SCE_String_Dup (src);
     if (!new)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -300,7 +300,7 @@ int SCE_CSetShaderCGSourceDup (SCE_CShaderCG *shader, char *src)
     new = SCE_String_Dup (src);
     if (!new)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -333,7 +333,7 @@ int SCE_CSetShaderCGArgsDup (SCE_CShaderCG *shader, char **args)
     new = SCE_malloc (s * sizeof *new + 1);
     if (!new)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
     }
@@ -341,7 +341,7 @@ int SCE_CSetShaderCGArgsDup (SCE_CShaderCG *shader, char **args)
     {
         if (!(new[i] = SCE_String_Dup (args[i])))
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -358,14 +358,14 @@ int SCE_CSetShaderCGArgsDup (SCE_CShaderCG *shader, char **args)
 /* fonctions generique des erreurs de construction */
 static int SCE_CCantRecompile (void)
 {
-    Logger_Log (SCE_INVALID_OPERATION);
-    Logger_LogMsg ("you can't re-compile a shader");
+    SCEE_Log (SCE_INVALID_OPERATION);
+    SCEE_LogMsg ("you can't re-compile a shader");
     return SCE_ERROR;
 }
 static int SCE_CNeedCode (void)
 {
-    Logger_Log (SCE_INVALID_OPERATION);
-    Logger_LogMsg ("you can't compile a shader without source code");
+    SCEE_Log (SCE_INVALID_OPERATION);
+    SCEE_LogMsg ("you can't compile a shader without source code");
     return SCE_ERROR;
 }
 
@@ -400,13 +400,13 @@ int SCE_CBuildShaderGLSL (SCE_CShaderGLSL *shader)
         /* erreur a la compilation
            recuperation du log d'erreur */
 
-        Logger_Log (SCE_INVALID_OPERATION);
+        SCEE_Log (SCE_INVALID_OPERATION);
 
         glGetShaderiv (shader->id, GL_INFO_LOG_LENGTH, &loginfo_size);
         loginfo = SCE_malloc (loginfo_size + 1);
         if (!loginfo)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
@@ -414,7 +414,7 @@ int SCE_CBuildShaderGLSL (SCE_CShaderGLSL *shader)
         memset (loginfo, '\0', loginfo_size + 1);
         glGetShaderInfoLog (shader->id, loginfo_size, &loginfo_size, loginfo);
 
-        Logger_LogMsg ("error while compiling GLSL %s shader :\n%s",
+        SCEE_LogMsg ("error while compiling GLSL %s shader :\n%s",
                        shader->is_pixelshader ? "pixel":"vertex", loginfo);
 
         SCE_free (loginfo);
@@ -435,8 +435,8 @@ int SCE_CBuildShaderCG (SCE_CShaderCG *shader)
     if (!SCE_CCgManager (SCE_GET_STATE))
     {
         /* le contexte Cg n'a pas ete ou a ete detrui, arret */
-        Logger_Log (SCE_INVALID_OPERATION);
-        Logger_LogMsg ("you can't build a Cg shader if you have"
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("you can't build a Cg shader if you have"
                        " not initialized the shaders manager");
         SCE_btend ();
         return SCE_ERROR;
@@ -455,9 +455,9 @@ int SCE_CBuildShaderCG (SCE_CShaderCG *shader)
     }
 
     #define SCE_CG_VERIF()\
-    if (Logger_HaveError () && Logger_GetCode () == SCE_CG_ERROR)\
+    if (SCEE_HaveError () && SCEE_GetCode () == SCE_CG_ERROR)\
     {\
-        Logger_LogSrc ();\
+        SCEE_LogSrc ();\
         SCE_btend ();\
         return SCE_ERROR;\
     }
@@ -530,7 +530,7 @@ SCE_CProgram* SCE_CCreateProgram (void)
     prog = SCE_malloc (sizeof *prog);
     if (!prog)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
     }
@@ -585,20 +585,20 @@ int SCE_CBuildProgram (SCE_CProgram *prog)
     if (status != GL_TRUE)
     {
         /* erreur de 'linkage', recuperation du message d'erreur */
-        Logger_Log (SCE_INVALID_OPERATION);
+        SCEE_Log (SCE_INVALID_OPERATION);
 
         glGetProgramiv (prog->id, GL_INFO_LOG_LENGTH, &loginfo_size);
         loginfo = SCE_malloc (loginfo_size + 1);
         if (!loginfo)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
         memset (loginfo, '\0', loginfo_size + 1);
         glGetProgramInfoLog (prog->id, loginfo_size, &loginfo_size, loginfo);
 
-        Logger_LogMsg ("can't link program, reason : %s", loginfo);
+        SCEE_LogMsg ("can't link program, reason : %s", loginfo);
 
         SCE_free (loginfo);
         SCE_btend ();
@@ -610,7 +610,7 @@ int SCE_CBuildProgram (SCE_CProgram *prog)
     {
         /* what to do? */
         /* TODO: add program name */
-        Logger_PrintMsg ("can't validate program");
+        SCEE_SendMsg ("can't validate program");
     }
     prog->compiled = SCE_TRUE;
     SCE_btend ();

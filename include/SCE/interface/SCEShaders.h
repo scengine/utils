@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 6 mars 2006
-   derniere modification le 23/09/2008 */
+/* created: 06/03/2006
+   updated: 08/07/2009 */
 
 #ifndef SCESHADERS_H
 #define SCESHADERS_H
@@ -53,6 +53,7 @@ struct sce_sshaderparam
     int size;
     SCE_FShaderSetParamfv setfv;
     SCE_FShaderSetMatrix setm;
+    SCE_SListIterator it;
 };
 
 typedef struct sce_sshader SCE_SShader;
@@ -81,20 +82,14 @@ int SCE_Init_Shader (void);
 /* quitte le gestionnaire de shaders */
 void SCE_Quit_Shader (void);
 
-/* retourne l'identifiant de type du media manager */
-int SCE_Shader_GetMediaTypeID (void);
+int SCE_Shader_GetResourceType (void);
 
-/* initialise une structure de shader */
 void SCE_Shader_Init (SCE_SShader*);
-/* cree un shader */
 SCE_SShader* SCE_Shader_Create (int);
-/* detruit un shader */
 void SCE_Shader_Delete (SCE_SShader*);
 
-/* retourne le langage du shader (Cg, GLSL ou ASM) */
 int SCE_Shader_GetLanguage (SCE_SShader*);
 
-/* retourne le type du shader (vertex, pixel, ou les deux) */
 int SCE_Shader_GetType (SCE_SShader*);
 
 
@@ -105,7 +100,8 @@ void* SCE_Shader_LoadSourceFromFile (FILE*, const char*, void*);
 /* cree un shader a partir de deux fichiers, le premier contient le code du
    vertex shader, le second le code du pixel shader. un des deux fichiers peut
    contenir les deux types de code ensemble */
-SCE_SShader* SCE_Shader_CreateFromFile (const char*, const char*);
+/*SCE_SShader* SCE_Shader_CreateFromFile (const char*, const char*);*/
+SCE_SShader* SCE_Shader_Load (const char*, const char*, int);
 
 /* construit un shader */
 int SCE_Shader_Build (SCE_SShader*);

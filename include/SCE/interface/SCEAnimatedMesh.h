@@ -81,6 +81,8 @@ struct sce_sanimatedmesh
 int SCE_Init_AnimMesh (void);
 void SCE_Quit_AnimMesh (void);
 
+int SCE_AnimMesh_GetResourceType (void);
+
 SCE_SAnimatedMesh* SCE_AnimMesh_Create (void);
 void SCE_AnimMesh_Delete (SCE_SAnimatedMesh*);
 

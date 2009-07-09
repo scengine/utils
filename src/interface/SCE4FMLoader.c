@@ -17,12 +17,11 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2006
-   updated: 20/06/2009 */
-
-#include <stdlib.h>             /* included by SCEMinimal.h, isn't it? */
+   updated: 07/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/utils/SCEMedia.h>
 #include <SCE/interface/SCEMesh.h>
 #include <SCE/interface/lib4fm.h> /* haha, integrated library :-' */
 #include <SCE/interface/SCE4FMLoader.h>
@@ -31,37 +30,47 @@
  * d'apres les specifications du 26/01/2008
  */
 
+int SCE_Init_4FM (void)
+{
+    /* register loader */
+    if (SCE_Media_Register (SCE_Mesh_GetResourceType(), "."FFM_FILE_EXTENSION,
+                            SCE_4FM_Load, NULL) < 0)
+    {
+        SCEE_LogSrc ();
+        return SCE_ERROR;
+    }
+    return SCE_OK;
+}
+
 /**
  * \todo types a revoir a cause des specifications
  */
-void* SCE_4FM_Load (FILE *fp, const char *fname, void *nb_meshs)
+void* SCE_4FM_Load (FILE *fp, const char *fname, void *unused)
 {
     int i;
-    int unused;
     SCE_SMesh **m = NULL;
     SCEenum type;
     FFMesh **me = NULL;
-    int *n_meshs = nb_meshs;
+    int n_meshs;
 
     SCE_btstart ();
-    if (!n_meshs)
-        n_meshs = &unused;
+    (void)unused;
 
-    me = ffm_read (fp, n_meshs);
+    me = ffm_read (fp, &n_meshs);
     if (!me)
     {
-        Logger_Log (-1);
-        Logger_LogMsg ("lib4fm can't load '%s' : %s", fname, ffm_geterror ());
+        SCEE_Log (-1);
+        SCEE_LogMsg ("lib4fm can't load '%s' : %s", fname, ffm_geterror ());
         SCE_btend ();
         return NULL;
     }
 
-    if (!(m = SCE_malloc ((*n_meshs + 1) * sizeof *m)))
+    if (!(m = SCE_malloc ((n_meshs + 1) * sizeof *m)))
         goto failure;
-    for (i = 0; i <= *n_meshs; i++)
+    for (i = 0; i <= n_meshs; i++)
         m[i] = NULL;
 
-    for (i = 0; i < *n_meshs; i++)
+    for (i = 0; i < n_meshs; i++)
     {
         if (!(m[i] = SCE_Mesh_Create ()))
             goto failure;
@@ -98,20 +107,20 @@ void* SCE_4FM_Load (FILE *fp, const char *fname, void *nb_meshs)
             goto failure;
     }
 
-    for (i = 0; i < *n_meshs; i++)
+    for (i = 0; i < n_meshs; i++)
         ffm_free (me[i]);
     free (me);
 
     SCE_btend ();
     return m;
 failure:
-    for (i = 0; i > *n_meshs; i++)
+    for (i = 0; i > n_meshs; i++)
     {
         SCE_Mesh_Delete (m[i]);
         ffm_free (me[i]);
     }
     free (me);                  /* I know. */
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
     SCE_btend ();
     return NULL;
 }

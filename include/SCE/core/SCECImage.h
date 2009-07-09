@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 28 juillet 2007
-   derniere modification : 20/10/2007 */
+/* created: 28/07/2007
+   updated: 08/07/2009 */
 
 #ifndef SCECIMAGE_H
 #define SCECIMAGE_H
@@ -74,18 +74,13 @@ struct sce_cimage
 };
 
 
-/* retourne l'identifiant utilise pour le gestionnaire de medias */
-int SCE_CGetImageMediaTypeID (void);
-
-/* initialise le gestionnaire d'images */
 int SCE_CImageInit (void);
-/* quitte le gestionnaire d'images */
 void SCE_CImageQuit (void);
 
-/* defini l'image active */
+int SCE_CGetImageResourceType (void);
+
 void SCE_CBindImage (SCE_CImage*);
-/* renvoi l'image active */
-SCE_CImage* SCE_CGetImageBinded (void);
+SCE_CImage* SCE_CGetImageBound (void);
 
 /* cree une nouvelle image */
 SCE_CImage* SCE_CCreateImage (void);

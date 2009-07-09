@@ -71,5 +71,7 @@ See the file ./doc/html/todo.html
 - VAO (OpenGL 3.1).
 - SCE_SSceneEntityInstanceGroup : group d'instances situées impérativement dans
   le même bounding volume.
+- Ajouter un module de gestion de la géométrie (SCEGeometry) au lieu de tout
+  fourrer dans SCEMesh.
 
-- 46
+- 47

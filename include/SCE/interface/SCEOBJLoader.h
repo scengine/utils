@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 08/07/2007
-   updated: 07/03/2008 */
+   updated: 07/07/2009 */
 
 #ifndef SCEOBJLOADER_H
 #define SCEOBJLOADER_H
@@ -26,6 +26,8 @@
 extern "C"
 {
 #endif
+
+int SCE_Init_OBJ (void);
 
 void SCE_OBJ_ActivateIndicesGeneration (int);
 

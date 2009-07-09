@@ -67,7 +67,7 @@ int SCE_Init_Scene (void)
 #if 0
     if (!(default_camera = SCE_Camera_Create ()))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     omg_coeffs[0] = 0.3;
@@ -113,7 +113,7 @@ static SCE_SSceneOctree* SCE_Scene_CreateOctree (void)
     goto success;
 failure:
     SCE_Scene_DeleteOctree (tree), tree = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     return tree;
 }
@@ -228,7 +228,7 @@ SCE_SScene* SCE_Scene_Create (void)
 failure:
 /*    SCE_Scene_DeleteOctree (stree);*/
     SCE_Scene_Delete (scene), scene = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return scene;
@@ -472,7 +472,7 @@ int SCE_Scene_AddEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
 {
     if (SCE_List_PrependNewl (scene->entities, entity) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     return SCE_OK;
@@ -577,14 +577,14 @@ int SCE_Scene_AddEntityGroup (SCE_SScene *scene, SCE_SSceneEntityGroup *group)
 
     if (SCE_List_PrependNewl (scene->egroups, group) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     SCE_List_ForEach (it, l)
     {
         if (SCE_Scene_AddEntity (scene, SCE_List_GetData (it)) < 0)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             return SCE_ERROR;
         }
     }
@@ -605,7 +605,7 @@ int SCE_Scene_AddLight (SCE_SScene *scene, SCE_SLight *light)
     SCE_SNode *node = NULL;
     if (SCE_List_PrependNewl (scene->lights, light) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     node = SCE_Light_GetNode (light);
@@ -622,7 +622,7 @@ int SCE_Scene_AddCamera (SCE_SScene *scene, SCE_SCamera *camera)
     SCE_SNode *node = NULL;
     if (SCE_List_PrependNewl (scene->cameras, camera) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     node = SCE_Camera_GetNode (camera);
@@ -683,7 +683,7 @@ static int SCE_Scene_MakeOctreeInternal (SCE_SOctree *tree)
     SCE_SSceneOctree *stree = SCE_Scene_CreateOctree ();
     if (!tree)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     SCE_Octree_SetData (tree, stree);
@@ -695,7 +695,7 @@ static int SCE_Scene_MakeOctreeInternal (SCE_SOctree *tree)
         {
             if (SCE_Scene_MakeOctreeInternal (children[i]) < 0)
             {
-                Logger_LogSrc ();
+                SCEE_LogSrc ();
                 return SCE_ERROR;
             }
         }
@@ -730,13 +730,13 @@ int SCE_Scene_MakeOctree (SCE_SScene *scene, unsigned int rec,
     if (SCE_Octree_RecursiveMake (scene->octree, rec, NULL,
                                   NULL, loose, margin) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     /* creates the internal structures */
     if (SCE_Scene_MakeOctreeInternal (scene->octree) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     return SCE_OK;
@@ -747,7 +747,7 @@ int SCE_Scene_SetupBatching (SCE_SScene *scene, unsigned int n, int *order)
     if (SCE_Batch_SortEntities (scene->entities, SCE_SCENE_NUM_RESOURCE_GROUP,
                                 scene->rgroups, 2, order) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     return SCE_OK;
@@ -759,7 +759,7 @@ int SCE_Scene_SetupDefaultBatching (SCE_SScene *scene)
     if (SCE_Batch_SortEntities (scene->entities, SCE_SCENE_NUM_RESOURCE_GROUP,
                                 scene->rgroups, 2, order) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     return SCE_OK;

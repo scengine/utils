@@ -44,7 +44,7 @@ int SCE_CInit (SCEflags flags)
     if (c)\
     {\
         SCE_CQuit ();\
-        Logger_LogSrc ();\
+        SCEE_LogSrc ();\
         SCE_btend ();\
         return SCE_ERROR;\
     }
@@ -52,9 +52,9 @@ int SCE_CInit (SCEflags flags)
     SCE_COREASSERT (SCE_CSupportInit () < 0)
     if (!SCE_CHasCap (SCE_VBO))
     {
-        Logger_Log (-1);
-        Logger_LogMsg ("your hardware doesn't support vertex buffer object "
-                       "extension: initialization aborted.");
+        SCEE_Log (-1);
+        SCEE_LogMsg ("your hardware doesn't support vertex buffer object "
+                     "extension: initialization aborted.");
         return SCE_ERROR;
     }
 

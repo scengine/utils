@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 10/04/2009 */
+   updated: 07/07/2009 */
 
 #ifndef SCEMESH_H
 #define SCEMESH_H
@@ -158,6 +158,8 @@ typedef int (*SCE_FMeshFaceFunc)(SCE_SMesh*, SCE_SMeshFace*, int, void*);
 int SCE_Init_Mesh (void);
 void SCE_Quit_Mesh (void);
 
+int SCE_Mesh_GetResourceType (void);
+
 void SCE_Mesh_InitVB (SCE_SMeshVertexBuffer*);
 void SCE_Mesh_InitIB (SCE_SMeshIndexBuffer*);
 
@@ -249,7 +251,7 @@ int SCE_Mesh_Update (SCE_SMesh*, unsigned int);
 int SCE_Mesh_LogUpdate (SCE_SMesh*, unsigned int);
 void SCE_Mesh_ApplyUpdates (void);
 
-SCE_SMesh** SCE_Mesh_Load (const char*, int*);
+SCE_SMesh** SCE_Mesh_Load (const char*, int);
 
 void SCE_Mesh_Use (SCE_SMesh*);
 void SCE_Mesh_Draw (void);

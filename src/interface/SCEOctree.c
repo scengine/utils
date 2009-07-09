@@ -73,7 +73,7 @@ SCE_SOctree* SCE_Octree_Create (void)
     goto success;
 failure:
     SCE_Octree_Delete (tree), tree = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return tree;
@@ -153,7 +153,7 @@ SCE_SOctreeElement* SCE_Octree_CreateElement (void)
     goto success;
 failure:
     SCE_Octree_DeleteElement (el), el = NULL;
-    Logger_LogSrc ();
+    SCEE_LogSrc ();
 success:
     SCE_btend ();
     return el;
@@ -352,7 +352,7 @@ int SCE_Octree_MakeChildren (SCE_SOctree *tree, int useloose, float ratio)
         tree->child[i] = SCE_Octree_Create ();
         if (!tree->child[i])
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             return SCE_ERROR;
         }
         tree->child[i]->parent = tree;
@@ -392,7 +392,7 @@ int SCE_Octree_RecursiveMake (SCE_SOctree *tree, unsigned int rec,
         unsigned int i;
         if (SCE_Octree_MakeChildren (tree, useloose, ratio) < 0)
         {
-            Logger_LogSrc ();
+            SCEE_LogSrc ();
             return SCE_ERROR;
         }
         for (i = 0; i < 8; i++)
@@ -400,7 +400,7 @@ int SCE_Octree_RecursiveMake (SCE_SOctree *tree, unsigned int rec,
             if (SCE_Octree_RecursiveMake (tree->child[i], rec-1,
                                           stop, param, useloose, ratio) < 0)
             {
-                Logger_LogSrc ();
+                SCEE_LogSrc ();
                 return SCE_ERROR;
             }
         }
@@ -498,7 +498,7 @@ void SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
     if (!parent)
     {
         /* element hasn't be inserted lol. */
-        Logger_PrintMsg ("octree element reinsertion failure: out of the box!");
+        SCEE_SendMsg ("octree element reinsertion failure: out of the box!");
     }
 #endif
 }

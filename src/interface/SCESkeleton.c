@@ -52,7 +52,7 @@ SCE_SSkeleton* SCE_Skeleton_Create (void)
     SCE_SSkeleton *skel = NULL;
     SCE_btstart ();
     if (!(skel = SCE_malloc (sizeof *skel)))
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
     else
         SCE_Skeleton_Init (skel);
     SCE_btend ();
@@ -120,12 +120,12 @@ int SCE_Skeleton_AllocateJoints (SCE_SSkeleton *skel, unsigned int n_joints)
     skel->joints = SCE_malloc (n_joints * sizeof *skel->joints);
     if (!skel->joints)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     if (SCE_Skeleton_AllocateMatrices (skel, 0) < 0)
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     skel->n_joints = n_joints;
@@ -155,7 +155,7 @@ int SCE_Skeleton_AllocateMatrices (SCE_SSkeleton *skel, unsigned int n)
     SCE_free (skel->mat[n]);
     if (!(skel->mat[n] = SCE_malloc (skel->n_joints * 12 * sizeof (float))))
     {
-        Logger_LogSrc ();
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     SCE_Skeleton_Identity (skel, n);

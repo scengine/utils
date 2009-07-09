@@ -17,60 +17,70 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 08/07/2007
-   updated: 07/03/2008 */
+   updated: 07/07/2009 */
 
 #include <stdlib.h>
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/utils/SCEMedia.h>
 #include <SCE/interface/SCEMesh.h>
 #include <SCE/interface/SCEOBJLoader.h>
 #include <SCE/interface/libwar.h>
 
 static int gen_indices = SCE_FALSE;
 
+int SCE_Init_OBJ (void)
+{
+    /* register loader */
+    if (SCE_Media_Register (SCE_Mesh_GetResourceType(), "."WAR_FILE_EXTENSION,
+                            SCE_OBJ_Load, NULL) < 0)
+    {
+        SCEE_LogSrc ();
+        return SCE_ERROR;
+    }
+    return SCE_OK;
+}
+
 void SCE_OBJ_ActivateIndicesGeneration (int activated)
 {
     gen_indices = activated;
 }
 
-void* SCE_OBJ_Load (FILE *fp, const char *fname, void *n_objs)
+void* SCE_OBJ_Load (FILE *fp, const char *fname, void *unused)
 {
     int i = -1;
-    int *n_meshs = n_objs;
-    int unused;
+    int n_meshs;
     SCE_SMesh **m = NULL;
     WarMesh **me = NULL;
 
     SCE_btstart ();
-    if (!n_meshs)
-        n_meshs = &unused;
-
+    (void)unused;
 #define SCE_OBJ_ASSERT(c)\
         if ((c))\
         {\
             for (i++; i>0; i--)\
                 SCE_Mesh_Delete (m[i-1]);\
-            for (i=0; i<*n_meshs; i++)\
+            for (i=0; i<n_meshs; i++)\
                 war_free (me[i]);\
             free (me);\
-            Logger_LogSrc ();\
+            SCEE_LogSrc ();\
             SCE_btend ();\
             return NULL;\
         }
 
-    me = war_read (fp, gen_indices, n_meshs);
+    me = war_read (fp, gen_indices, &n_meshs);
     if (!me)
     {
-        Logger_Log (-1);
-        Logger_LogMsg ("libwar can't load '%s': %s", fname, war_geterror ());
+        SCEE_Log (-1);
+        SCEE_LogMsg ("libwar can't load '%s': %s", fname, war_geterror ());
         SCE_btend ();
         return NULL;
     }
 
-    SCE_OBJ_ASSERT (!(m = SCE_malloc ((*n_meshs + 1) * sizeof *m)))
-    m[*n_meshs] = NULL;
+    SCE_OBJ_ASSERT (!(m = SCE_malloc ((n_meshs + 1) * sizeof *m)))
+    m[n_meshs] = NULL;
 
-    for (i = 0; i < *n_meshs; i++)
+    for (i = 0; i < n_meshs; i++)
     {
         SCE_OBJ_ASSERT (!(m[i] = SCE_Mesh_Create ()))
         SCE_OBJ_ASSERT (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_POSITION,
@@ -89,7 +99,7 @@ void* SCE_OBJ_Load (FILE *fp, const char *fname, void *n_objs)
         SCE_OBJ_ASSERT (SCE_Mesh_Build (m[i]) < 0)
     }
 
-    for (i=0; i<*n_meshs; i++)
+    for (i = 0; i < n_meshs; i++)
         war_free (me[i]);
     free (me);
 

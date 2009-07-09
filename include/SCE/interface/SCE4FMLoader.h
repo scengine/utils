@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 3 novembre 2006
-   derniere modification le 03/02/2008 */
+/* created: 03/11/2006
+   updated: 08/07/2009 */
 
 #ifndef SCE4FMLOADER_H
 #define SCE4FMLOADER_H
@@ -27,7 +27,8 @@ extern "C"
 {
 #endif
 
-/* fonction de chargement */
+int SCE_Init_4FM (void);
+
 void* SCE_4FM_Load (FILE*, const char*, void*);
 
 #ifdef __cplusplus
