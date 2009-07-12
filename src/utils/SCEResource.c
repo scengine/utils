@@ -312,7 +312,7 @@ static void* SCE_Resource_LoadNew (int type, const char *name, int force,
     }
     if (!force)
     {
-        if (!(res = SCE_Resource_SafeAdd (t, name, resource)))
+        if (!(res = SCE_Resource_SafeAdd (t, name, NULL)))
             goto fail;
     }
     if (t->media)
@@ -320,15 +320,13 @@ static void* SCE_Resource_LoadNew (int type, const char *name, int force,
     else
         resource = t->load (res->name, force, data);
     if (!resource)
-    {
-        SCEE_LogSrc ();
-        SCEE_LogSrcMsg ("failed to load resource '%s'", name);
         goto fail;
-    }
+    res->data = resource;
     return resource;
 fail:
     SCE_List_Erase (&resources, &res->it);
     SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to load resource '%s'", name);
     return NULL;
 }
 /**
