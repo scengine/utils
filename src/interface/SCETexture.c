@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/03/2007
-   updated: 09/07/2009 */
+   updated: 12/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -113,12 +113,10 @@ static void SCE_Texture_Init (SCE_STexture *tex)
     tex->type = 0;
     tex->used = SCE_FALSE;
     tex->toremove = SCE_FALSE;
-#if SCE_LIST_ITERATOR_NO_MALLOC
-    tex->it = &tex->iterator;
-    SCE_List_InitIt (tex->it);
-#else
-    tex->it = NULL;
-#endif
+    SCE_List_InitIt (&tex->it);
+    SCE_List_SetData (&tex->it, tex);
+    SCE_SceneResource_Init (&tex->s_resource);
+    SCE_SceneResource_SetResource (&tex->s_resource, tex);
 }
 
 static void SCE_Texture_SetupParameters (SCE_STexture *tex)
@@ -247,12 +245,6 @@ SCE_STexture* SCE_Texture_Create (SCEenum type, int w, int h/*, int d*/)
     /*tex->d = d;*/
 
     SCE_Texture_Init (tex);
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-    if (!(tex->it = SCE_List_CreateIt ()))
-        goto failure;
-#endif
-    /* for compatibility with used textures list managment functions */
-    SCE_List_SetData (tex->it, tex);
     tex->type = type;
     switch (type)
     {
@@ -320,18 +312,24 @@ void SCE_Texture_Delete_ (void)
     if (bound)
     {
         unsigned int i;
+        SCE_SceneResource_RemoveResource (&bound->s_resource);
         for (i=0; i<6; i++)
             SCE_CDeleteFramebuffer (bound->fb[i]);
         SCE_CDeleteTexture (bound->tex);
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-        SCE_List_DeleteIt (bound->it);
-#endif
         SCE_free (bound);
         bound = NULL;
     }
     SCE_btend ();
 }
 
+
+/**
+ * \brief Gets the scene resource of the given texture
+ */
+SCE_SSceneResource* SCE_Texture_GetSceneResource (SCE_STexture *tex)
+{
+    return &tex->s_resource;
+}
 
 /**
  * \brief Sets the filter of a texture when is far
@@ -896,12 +894,12 @@ void SCE_Texture_Use (SCE_STexture *tex)
             textmp = unitused[tex->unit];
             if (textmp)
             {
-                SCE_List_Removel (textmp->it);
+                SCE_List_Removel (&textmp->it);
                 textmp->used = SCE_FALSE;
             }
             SCE_Texture_Set (tex);
             /* add the texture to the used list */
-            SCE_List_Prependl (texused, tex->it);
+            SCE_List_Prependl (texused, &tex->it);
             tex->used = SCE_TRUE;
             unitused[tex->unit] = tex;
         }

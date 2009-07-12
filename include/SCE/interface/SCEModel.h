@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 27/06/2009
-   updated: 01/07/2009 */
+   updated: 10/07/2009 */
 
 #ifndef SCEMODEL_H
 #define SCEMODEL_H
@@ -75,7 +75,8 @@ struct sce_smodel
 SCE_SModel* SCE_Model_Create (void);
 void SCE_Model_Delete (SCE_SModel*);
 
-int SCE_Model_AddEntityArg (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*, va_list);
+int SCE_Model_AddEntityv (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*,
+                          SCE_STexture**);
 int SCE_Model_AddEntity (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*, ...);
 
 void SCE_Model_SetRootNode (SCE_SModel*, SCE_SNode*);

@@ -27,6 +27,8 @@
 
 #include <SCE/core/SCECShader.h>
 
+#include <SCE/interface/SCESceneResource.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -74,6 +76,8 @@ struct sce_sshader
     SCE_SList *params_i;         /* entiers */
     SCE_SList *params_f;         /* flottants */
     SCE_SList *params_m;         /* matrices */
+
+    SCE_SSceneResource s_resource;
 };
 
 
@@ -87,6 +91,8 @@ int SCE_Shader_GetResourceType (void);
 void SCE_Shader_Init (SCE_SShader*);
 SCE_SShader* SCE_Shader_Create (int);
 void SCE_Shader_Delete (SCE_SShader*);
+
+SCE_SSceneResource* SCE_Shader_GetSceneResource (SCE_SShader*);
 
 int SCE_Shader_GetLanguage (SCE_SShader*);
 

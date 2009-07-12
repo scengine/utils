@@ -167,7 +167,8 @@ void SCE_Error_Log (const char *file, const char *func, const int line,int code)
     error->line = line;
     error->code = code;
     strncpy (error->file, file, SCE_MAX_ERROR_INFO_LEN);
-    strncpy (error->func, func, SCE_MAX_ERROR_INFO_LEN);
+    if (func)
+        strncpy (error->func, func, SCE_MAX_ERROR_INFO_LEN);
     SCE_Error_GetCodeMsg (errors[0].code, error->msg, SCE_MAX_ERROR_MSG_LEN);
 }
 
@@ -287,9 +288,6 @@ int SCE_Error_HaveError (void)
  */
 void SCE_Error_Out (void)
 {
-#define SCE_INDENT_MARGIN 2
-    char indent[SCE_MAX_ERRORS * SCE_INDENT_MARGIN] = {0};
-    unsigned int posind = 0, j = 0;
     const struct tm *time_info = NULL;
     char date[32] = {0};
     int i = 0;
@@ -297,18 +295,14 @@ void SCE_Error_Out (void)
     time_info = gmtime (&errors[0].date);
     SCE_Time_MakeString (date, time_info);
 
-
-#define SCE_INDENT()\
-    for (j = 0; j < SCE_INDENT_MARGIN; j++, posind++)\
-        indent[posind] = ' ';
-
-    fprintf (stream, "\n[log %s]\n>>\n", date);
+    fprintf (stream, "\n[log %s]\n", date);
     for (i = current_error; i >= 0; i--)
     {
-        fprintf (stream, "%s%s:%d (%s): error: %s\n", indent,
-                 errors[i].file, errors[i].func, errors[i].line,
-                 errors[i].msg);
-        SCE_INDENT ()
+        fprintf (stream, "%s%s:%s (%d): %s%c\n",
+                 (i == current_error ? "error: " : " from: "),
+                 errors[i].file,
+                 errors[i].func, errors[i].line, errors[i].msg,
+                 (i == 0 ? '.' : ':'));
     }
     fprintf (stream, "[end log]\n");
 }
@@ -319,14 +313,14 @@ void SCE_Error_Out (void)
  */
 void SCE_Error_SoftOut (void)
 {
-    char indent[SCE_MAX_ERRORS * SCE_INDENT_MARGIN] = {0};
-    unsigned int posind = 0, j = 0;
     int i = 0;
 
+    fprintf (stream, "error:\n");
     for (i = current_error; i >= 0; i--)
     {
-        fprintf (stream, "%serror: %s\n", indent, errors[i].msg);
-        SCE_INDENT ()
+        /* only if there is a message available */
+        if (errors[i].msg[0])
+            fprintf (stream, "  %s%c\n", errors[i].msg, (i == 0 ? '.' : ':'));
     }
 }
 

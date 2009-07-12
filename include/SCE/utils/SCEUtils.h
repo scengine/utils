@@ -37,7 +37,7 @@
 
 #include <SCE/utils/SCEInert.h>
 #include <SCE/utils/SCEMedia.h>
-#include <SCE/utils/SCEResources.h>
+#include <SCE/utils/SCEResource.h>
 #include <SCE/utils/SCEList.h>
 #include <SCE/utils/SCEListFastForeach.h>
 #include <SCE/utils/SCEString.h>

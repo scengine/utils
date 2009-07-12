@@ -396,6 +396,8 @@ void SCE_Shader_Init (SCE_SShader *shader)
     shader->vs_addsrc = shader->ps_addsrc = NULL;
 
     shader->params_i = shader->params_f = shader->params_m = NULL;
+    SCE_SceneResource_Init (&shader->s_resource);
+    SCE_SceneResource_SetResource (&shader->s_resource, shader);
 }
 
 SCE_SShader* SCE_Shader_Create (int type)
@@ -454,6 +456,7 @@ void SCE_Shader_Delete (SCE_SShader *shader)
     {
         if (!SCE_Resource_Free (shader))
             return;
+        SCE_SceneResource_RemoveResource (&shader->s_resource);
         Delete[shader->type] (shader);
 
         SCE_free (shader->vs_addsrc);
@@ -479,6 +482,13 @@ void SCE_Shader_Delete (SCE_SShader *shader)
     }
     SCE_btend ();
 }
+
+
+SCE_SSceneResource* SCE_Shader_GetSceneResource (SCE_SShader *shader)
+{
+    return &shader->s_resource;
+}
+
 
 int SCE_Shader_GetLanguage (SCE_SShader *shader)
 {

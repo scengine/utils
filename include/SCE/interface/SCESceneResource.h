@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008
-   updated: 27/06/2009 */
+   updated: 12/07/2009 */
 
 #ifndef SCESCENERESOURCE_H
 #define SCESCENERESOURCE_H
@@ -35,13 +35,10 @@ typedef struct sce_ssceneresource SCE_SSceneResource;
 struct sce_ssceneresource
 {
     void *resource;                 /**< Resource */
-    SCE_SList *owners;              /**< Objects using this resource */
+    SCE_SList owners;               /**< Objects using this resource */
     SCE_SSceneResourceGroup *group; /**< Group if this resource */
     int removed;                    /**< Is it removed from its group? */
-#if SCE_LIST_ITERATOR_NO_MALLOC
-    SCE_SListIterator iterator;
-#endif
-    SCE_SListIterator *it;          /**< Own iterator */
+    SCE_SListIterator it;
 };
 
 struct sce_ssceneresourcegroup

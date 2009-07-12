@@ -42,10 +42,10 @@ typedef struct sce_sskybox SCE_SSkybox;
 struct sce_sskybox
 {
     SCE_SMesh *mesh;                    /**< Skybox cube mesh */
-    SCE_SSceneResource *tex;            /**< Texture */
+    SCE_STexture *tex;                  /**< Texture */
     int mode;                           /**< Texture mode */
     int textype;
-    SCE_SSceneResource *shader;         /**< Shader */
+    SCE_SShader *shader;                /**< Shader */
 #if 0
     SCE_SSceneEntityGroup *group;       /**< Entity group */
 #endif
@@ -59,8 +59,8 @@ SCE_SSkybox* SCE_Skybox_Create (void);
 void SCE_Skybox_Delete (SCE_SSkybox*);
 
 void SCE_Skybox_SetSize (SCE_SSkybox*, float);
-int SCE_Skybox_SetTexture (SCE_SSkybox*, SCE_SSceneResource*, int);
-void SCE_Skybox_SetShader (SCE_SSkybox*, SCE_SSceneResource*);
+int SCE_Skybox_SetTexture (SCE_SSkybox*, SCE_STexture*, int);
+void SCE_Skybox_SetShader (SCE_SSkybox*, SCE_SShader*);
 
 #if 0
 SCE_SSceneEntityGroup* SCE_Skybox_GetEntityGroup (SCE_SSkybox*);

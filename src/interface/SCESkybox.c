@@ -132,8 +132,7 @@ void SCE_Skybox_SetSize (SCE_SSkybox *skybox, float size)
  * \warning \p mode not yet supported
  * \todo badly documented
  */
-int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
-                           int mode)
+int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_STexture *tex, int mode)
 {
     int code = SCE_OK, type;
     SCEvertices v[72];
@@ -146,7 +145,7 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_SSceneResource *tex,
     SCE_SceneEntity_AddTexture (skybox->entity, tex);
     skybox->tex = tex;
 
-    type = SCE_Texture_GetType (SCE_SceneResource_GetResource (tex));
+    type = SCE_Texture_GetType (tex);
     if (type == SCE_TEX_CUBE || type == SCE_RENDER_COLOR_CUBE ||
         type == SCE_RENDER_DEPTH_CUBE)
     {
@@ -230,7 +229,7 @@ success:
  * \param skybox a skybox
  * \param shader the shader to set
  */
-void SCE_Skybox_SetShader (SCE_SSkybox *skybox, SCE_SSceneResource *shader)
+void SCE_Skybox_SetShader (SCE_SSkybox *skybox, SCE_SShader *shader)
 {
     SCE_SceneEntity_SetShader (skybox->entity, shader);
     skybox->shader = shader;

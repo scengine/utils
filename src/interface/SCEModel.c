@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 27/06/2009
-   updated: 01/07/2009 */
+   updated: 10/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -150,29 +150,19 @@ void SCE_Model_Delete (SCE_SModel *mdl)
 }
 
 
-static int SCE_Model_BuildEntityArg (SCE_SModelEntity *entity, SCE_SMesh *mesh,
-                                     SCE_SShader *shader, va_list args)
+static int SCE_Model_BuildEntityv (SCE_SModelEntity *entity, SCE_SMesh *mesh,
+                                   SCE_SShader *shader, SCE_STexture **texs)
 {
+    unsigned int i;
     SCE_STexture *tex = NULL;
 
     SCE_SceneEntity_SetMesh (entity->entity, mesh);
     if (shader)
-    {
-        SCE_SSceneResource *res = SCE_SceneResource_Create ();
-        if (!res)
-            goto fail;
-        SCE_SceneResource_SetResource (res, shader);
-        SCE_SceneEntity_SetShader (entity->entity, res);
-    }
-    tex = va_arg (args, SCE_STexture*);
-    while (tex)
-    {
-        SCE_SSceneResource *res = SCE_SceneResource_Create ();
-        if (!res)
-            goto fail;
-        SCE_SceneResource_SetResource (res, tex);
-        SCE_SceneEntity_AddTexture (entity->entity, res);
-        tex = va_arg (args, SCE_STexture*);
+        SCE_SceneEntity_SetShader (entity->entity, shader);
+    i = 0;
+    while (texs[i]) {
+        SCE_SceneEntity_AddTexture (entity->entity, texs[i]);
+        i++;
     }
     return SCE_OK;
 fail:
@@ -183,10 +173,10 @@ fail:
 #define SCE_CHECK_LEVEL(level) do {                                     \
         if (level >= SCE_MAX_MODEL_ENTITIES)                            \
         {                                                               \
-            SCEE_Log (SCE_INVALID_ARG);                               \
+            SCEE_Log (SCE_INVALID_ARG);                                 \
             SCEE_LogMsg ("parameter 'level' is too high (%d), maximum is %u",\
-                           level, SCE_MAX_MODEL_ENTITIES);              \
-            return;                 /* lol. */                          \
+                         level, SCE_MAX_MODEL_ENTITIES);                \
+            return SCE_ERROR;                                           \
         }                                                               \
     } while (0)
 
@@ -196,8 +186,8 @@ fail:
  *
  * If \p level is lesser than 0, then using the latest level of detail.
  */
-int SCE_Model_AddEntityArg (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
-                            SCE_SShader *shader, va_list args)
+int SCE_Model_AddEntityv (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
+                          SCE_SShader *shader, SCE_STexture **tex)
 {
     SCE_SModelEntity *entity = NULL;
     unsigned int n;
@@ -232,7 +222,7 @@ int SCE_Model_AddEntityArg (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
     }
     if (!(entity = SCE_Model_CreateEntity (NULL)))
         goto fail;
-    if (SCE_Model_BuildEntityArg (entity, mesh, shader, args) < 0)
+    if (SCE_Model_BuildEntityv (entity, mesh, shader, tex) < 0)
         goto fail;
     SCE_List_Appendl (mdl->entities[level], &entity->it);
     {
@@ -253,9 +243,22 @@ int SCE_Model_AddEntity (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
 {
     va_list args;
     int code;
+    unsigned int i = 0;
+    SCE_STexture *tex = NULL;
+    SCE_STexture *textures[42];
+
     va_start (args, shader);
-    code = SCE_Model_AddEntityArg (mdl, level, mesh, shader, args);
+    tex = va_arg (args, SCE_STexture*);
+    while (tex)
+    {
+        textures[i] = tex;
+        tex = va_arg (args, SCE_STexture*);
+        i++;
+    }
     va_end (args);
+    textures[i] = NULL;
+
+    code = SCE_Model_AddEntityv (mdl, level, mesh, shader, textures);
     return code;
 }
 

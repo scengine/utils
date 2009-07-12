@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 16/09/2006
-   updated: 09/07/2009 */
+   updated: 12/07/2009 */
 
 #ifndef SCEERROR_H
 #define SCEERROR_H
@@ -31,21 +31,13 @@ extern "C"
 {
 #endif
 
-#if defined (__FUNCTION__)
+/* TODO: sucks */
+#define SCE__FUNCTION__ __FUNCTION__
+
+#define SCEE_Log(c) SCE_Error_Log (__FILE__, SCE__FUNCTION__, __LINE__, c)
 #define SCEE_LogFromErrno(a,c)\
-    SCE_Error_LogFromErrno(__FILE__, __FUNCTION__, __LINE__, a, c)
-#define SCEE_LogSrc() SCE_Error_LogSrc(__FILE__, __FUNCTION__, __LINE__)
-#elif defined (__function__)
-#define SCEE_LogFromErrno(a,c)\
-    SCE_Error_LogFromErrno(__FILE__, __function__, __LINE__, a, c)
-#define SCEE_Log(c) SCE_Error_Log(__FILE__, __function__, __LINE__, c)
-#define SCEE_LogSrc() SCE_Error_LogSrc(__FILE__, __function__, __LINE__)
-#else
-#define SCEE_LogFromErrno(a,c)\
-    SCE_Error_LogFromErrno(__FILE__, NULL, __LINE__, a, c)
-#define SCEE_Log(c) SCE_Error_Log(__FILE__, NULL, __LINE__, c)
-#define SCEE_LogSrc() SCE_Error_LogSrc(__FILE__, NULL, __LINE__)
-#endif
+    SCE_Error_LogFromErrno(__FILE__, SCE__FUNCTION__, __LINE__, a, c)
+#define SCEE_LogSrc() SCE_Error_LogSrc(__FILE__, SCE__FUNCTION__, __LINE__)
 #define SCEE_LogMsg SCE_Error_LogMsg
 #define SCEE_LogSrcMsg SCE_Error_LogSrcMsg
 #define SCEE_SendMsg SCE_Error_SendMsg

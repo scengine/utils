@@ -17,16 +17,20 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/03/2007
-   updated: 18/02/2009 */
+   updated: 12/07/2009 */
 
 #ifndef SCETEXTURE_H
 #define SCETEXTURE_H
 
 #include <stdarg.h>
+
 #include <SCE/utils/SCEMatrix.h>
 #include <SCE/utils/SCEList.h>
+
 #include <SCE/core/SCECTexture.h>
 #include <SCE/core/SCECFramebuffer.h>
+
+#include <SCE/interface/SCESceneResource.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -85,10 +89,8 @@ struct sce_stexture
     int w, h, d;             /**< Used to save Create() input */
     int used;                /**< Is texture used for rendering? */
     int toremove;            /**< Internal use (like everything lol) */
-#if SCE_LIST_ITERATOR_NO_MALLOC
-    SCE_SListIterator iterator;
-#endif
-    SCE_SListIterator *it;   /**< Own iterator */
+    SCE_SListIterator it;    /**< Own iterator */
+    SCE_SSceneResource s_resource; /**< Scene resource */
 };
 
 /** @} */
@@ -106,6 +108,8 @@ SCE_STexture* SCE_Texture_Create (SCEenum, int, int);
 /* supprime une texture */
 void SCE_Texture_Delete (SCE_STexture*);
 void SCE_Texture_Delete_ (void);
+
+SCE_SSceneResource* SCE_Texture_GetSceneResource (SCE_STexture*);
 
 /* defini les filtrages */
 void SCE_Texture_SetFilter (SCE_STexture*, SCEint);

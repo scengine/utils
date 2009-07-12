@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008
-   updated: 27/06/2009 */
+   updated: 12/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -27,42 +27,28 @@
 void SCE_SceneResource_Init (SCE_SSceneResource *res)
 {
     res->resource = NULL;
-    res->owners = NULL;
+    SCE_List_Init (&res->owners);
+    SCE_List_CanDeleteIterators (&res->owners, SCE_TRUE);
     res->group = NULL;
     res->removed = SCE_TRUE;
-#if SCE_LIST_ITERATOR_NO_MALLOC
-    SCE_List_InitIt (&res->iterator);
-    res->it = &res->iterator;
-#else
-    res->it = NULL;
-#endif
+    SCE_List_InitIt (&res->it);
+    SCE_List_SetData (&res->it, res);
 }
 
 SCE_SSceneResource* SCE_SceneResource_Create (void)
 {
     SCE_SSceneResource *res = NULL;
-
     SCE_btstart ();
     if (!(res = SCE_malloc (sizeof *res)))
-        goto failure;
+        goto fail;
     SCE_SceneResource_Init (res);
-    if (!(res->owners = SCE_List_Create (NULL)))
-        goto failure;
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-    if (!(res->it = SCE_List_CreateIt ()))
-        goto failure;
-#endif
-    /* for compatibility with group functions */
-    SCE_List_SetData (res->it, res);
-    SCE_List_CanDeleteIterators (res->owners, SCE_TRUE);
-    goto success;
-
-failure:
-    SCE_SceneResource_Delete (res), res = NULL;
-    SCEE_LogSrc ();
-success:
     SCE_btend ();
     return res;
+fail:
+    SCE_SceneResource_Delete (res);
+    SCEE_LogSrc ();
+    SCE_btend ();
+    return NULL;
 }
 
 void SCE_SceneResource_Delete (SCE_SSceneResource *res)
@@ -70,10 +56,7 @@ void SCE_SceneResource_Delete (SCE_SSceneResource *res)
     if (res)
     {
         SCE_SceneResource_RemoveResource (res);
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-        SCE_List_DeleteIt (res->it);
-#endif
-        SCE_List_Delete (res->owners);
+        SCE_List_Clear (&res->owners);
         SCE_free (res);
     }
 }
@@ -164,17 +147,16 @@ void SCE_SceneResource_AddResource (SCE_SSceneResourceGroup *group,
     if (!group || group == res->group)
     {
         if (res->removed) /* in this case, res should have a group... */
-            SCE_List_Prependl (res->group->resources, res->it);
+            SCE_List_Prependl (res->group->resources, &res->it);
     }
     else
     {
         SCE_SceneResource_RemoveResource (res);
-        SCE_List_Prependl (group->resources, res->it);
+        SCE_List_Prependl (group->resources, &res->it);
         res->group = group;
     }
     res->removed = SCE_FALSE;
 }
-
 /**
  * \brief Removes a resource from its current group
  * \param res the resource to remove from
@@ -184,11 +166,10 @@ void SCE_SceneResource_RemoveResource (SCE_SSceneResource *res)
 {
     if (!res->removed)
     {
-        SCE_List_Removel (res->it);
+        SCE_List_Removel (&res->it);
         res->removed = SCE_TRUE;
     }
 }
-
 
 /**
  * \brief Gets the list of the resource of a resources group
@@ -198,45 +179,30 @@ SCE_SList* SCE_SceneResource_GetResourcesList (SCE_SSceneResourceGroup *group)
     return group->resources;
 }
 
-
 void SCE_SceneResource_SetResource (SCE_SSceneResource *res, void *resource)
 {
     res->resource = resource;
 }
-
 void* SCE_SceneResource_GetResource (SCE_SSceneResource *res)
 {
     return res->resource;
 }
 
-
 int SCE_SceneResource_AddOwner (SCE_SSceneResource *res, void *owner)
 {
-    if (SCE_List_PrependNewl (res->owners, owner) < 0)
+    if (SCE_List_PrependNewl (&res->owners, owner) < 0)
     {
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
     return SCE_OK;
 }
-
 void SCE_SceneResource_RemoveOwner (SCE_SSceneResource *res, void *owner)
 {
-#if 1
-    SCE_List_EraseFromData (res->owners, owner);
-#else
-    SCE_SListIterator *it;
-    it = SCE_List_LocateIterator (res->owners, owner, NULL);
-    if (it)
-    {
-        SCE_List_Removel (it);
-        SCE_List_DeleteIt (it);
-    }
-#endif
+    SCE_List_EraseFromData (&res->owners, owner);
 }
-
 
 SCE_SList* SCE_SceneResource_GetOwnersList (SCE_SSceneResource *res)
 {
-    return res->owners;
+    return &res->owners;
 }

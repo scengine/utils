@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 19/05/2007
-   derniere modification : 12/11/2008 */
+/* created: 19/05/2007
+   updated: 12/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -35,6 +35,8 @@ static void SCE_Material_Init (SCE_SMaterial *m)
     m->mat = NULL;
     SCE_CInitPointSprite (&m->ps);
     m->use_ps = SCE_FALSE;
+    SCE_SceneResource_Init (&m->s_resource);
+    SCE_SceneResource_SetResource (&m->s_resource, m);
 }
 
 SCE_SMaterial* SCE_Material_Create (void)
@@ -62,12 +64,17 @@ void SCE_Material_Delete (SCE_SMaterial *mat)
     SCE_btstart ();
     if (mat)
     {
+        SCE_SceneResource_RemoveResource (&mat->s_resource);
         SCE_CDeleteMaterial (mat->mat);
         SCE_free (mat);
     }
     SCE_btend ();
 }
 
+SCE_SSceneResource* SCE_Material_GetSceneResource (SCE_SMaterial *mat)
+{
+    return &mat->s_resource;
+}
 
 SCE_CMaterial* SCE_Material_GetCMaterial (SCE_SMaterial *mat)
 {

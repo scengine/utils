@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008 
-   updated: 29/06/2009 */
+   updated: 12/07/2009 */
 
 #ifndef SCESCENEENTITY_H
 #define SCESCENEENTITY_H
@@ -31,6 +31,9 @@
 #include <SCE/interface/SCEBoundingSphere.h>
 #include <SCE/interface/SCECamera.h>
 #include <SCE/interface/SCEOctree.h>
+#include <SCE/interface/SCEShaders.h>
+#include <SCE/interface/SCETexture.h>
+#include <SCE/interface/SCEMaterial.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -166,14 +169,14 @@ SCE_SSceneEntityProperties* SCE_SceneEntity_GetProperties (SCE_SSceneEntity*);
 void SCE_SceneEntity_SetMesh (SCE_SSceneEntity*, SCE_SMesh*);
 SCE_SMesh* SCE_SceneEntity_GetMesh (SCE_SSceneEntity*);
 
-int SCE_SceneEntity_AddTexture (SCE_SSceneEntity*, SCE_SSceneResource*);
-void SCE_SceneEntity_RemoveTexture (SCE_SSceneEntity*, SCE_SSceneResource*);
+int SCE_SceneEntity_AddTexture (SCE_SSceneEntity*, SCE_STexture*);
+void SCE_SceneEntity_RemoveTexture (SCE_SSceneEntity*, SCE_STexture*);
 SCE_SList* SCE_SceneEntity_GetTexturesList (SCE_SSceneEntity*);
 
-int SCE_SceneEntity_SetShader (SCE_SSceneEntity*, SCE_SSceneResource*);
+int SCE_SceneEntity_SetShader (SCE_SSceneEntity*, SCE_SShader*);
 SCE_SSceneResource* SCE_SceneEntity_GetShader (SCE_SSceneEntity*);
 
-int SCE_SceneEntity_SetMaterial (SCE_SSceneEntity*, SCE_SSceneResource*);
+int SCE_SceneEntity_SetMaterial (SCE_SSceneEntity*, SCE_SMaterial*);
 SCE_SSceneResource* SCE_SceneEntity_GetMaterial (SCE_SSceneEntity*);
 
 int SCE_SceneEntity_HasResourceOfType (SCE_SSceneEntity*, int);

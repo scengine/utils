@@ -24,10 +24,6 @@
 #include <SCE/core/SCECore.h>
 #include <SCE/interface/SCESceneEntity.h>
 
-#include <SCE/interface/SCETexture.h>
-#include <SCE/interface/SCEMaterial.h>
-#include <SCE/interface/SCEShaders.h>
-
 /**
  * \file SCESceneEntity.c
  * \copydoc sceneentity
@@ -497,8 +493,9 @@ SCE_SMesh* SCE_SceneEntity_GetMesh (SCE_SSceneEntity *entity)
  * \sa SCE_SceneEntity_RemoveTexture(), SCE_SceneEntity_SetShader(),
  * SCE_SceneEntity_SetMaterial(), SCE_SceneResource_AddOwner()
  */
-int SCE_SceneEntity_AddTexture (SCE_SSceneEntity *entity, SCE_SSceneResource *r)
+int SCE_SceneEntity_AddTexture (SCE_SSceneEntity *entity, SCE_STexture *tex)
 {
+    SCE_SSceneResource *r = SCE_Texture_GetSceneResource (tex);
     if (SCE_List_PrependNewl (entity->textures, r) < 0)
     {
         SCEE_LogSrc ();
@@ -520,10 +517,12 @@ int SCE_SceneEntity_AddTexture (SCE_SSceneEntity *entity, SCE_SSceneResource *r)
  * SCE_SceneEntity_AddTexture().
  * \sa SCE_SceneEntity_AddTexture(), SCE_SceneResource_RemoveOwner()
  */
-void SCE_SceneEntity_RemoveTexture (SCE_SSceneEntity *entity,
-                                    SCE_SSceneResource *r)
+void SCE_SceneEntity_RemoveTexture (SCE_SSceneEntity *entity, SCE_STexture *tex)
 {
-    SCE_SListIterator *it = SCE_List_LocateIterator (entity->textures, r, NULL);
+    SCE_SSceneResource *r = NULL;
+    SCE_SListIterator *it = NULL;
+    r = SCE_Texture_GetSceneResource (tex);
+    it = SCE_List_LocateIterator (entity->textures, r, NULL);
     if (it)
     {
         SCE_List_Removel (it);
@@ -552,14 +551,14 @@ SCE_SList* SCE_SceneEntity_GetTexturesList (SCE_SSceneEntity *entity)
  * SCE_SceneResource_AddOwner(), SCE_SceneResource_RemoveOwner(),
  * SCE_SceneEntity_GetShader()
  */
-int SCE_SceneEntity_SetShader (SCE_SSceneEntity *entity, SCE_SSceneResource *r)
+int SCE_SceneEntity_SetShader (SCE_SSceneEntity *entity, SCE_SShader *s)
 {
     if (entity->shader)
         SCE_SceneResource_RemoveOwner (entity->shader, entity);
-    entity->shader = r;
-    if (r)
+    entity->shader = SCE_Shader_GetSceneResource (s);
+    if (entity->shader)
     {
-        if (SCE_SceneResource_AddOwner (r, entity) < 0)
+        if (SCE_SceneResource_AddOwner (entity->shader, entity) < 0)
         {
             SCEE_LogSrc ();
             return SCE_ERROR;
@@ -588,14 +587,14 @@ SCE_SSceneResource* SCE_SceneEntity_GetShader (SCE_SSceneEntity *entity)
  * SCE_SceneResource_AddOwner(), SCE_SceneResource_RemoveOwner(),
  * SCE_SceneEntity_GetMaterial()
  */
-int SCE_SceneEntity_SetMaterial (SCE_SSceneEntity *entity, SCE_SSceneResource*r)
+int SCE_SceneEntity_SetMaterial (SCE_SSceneEntity *entity, SCE_SMaterial *mat)
 {
     if (entity->material)
         SCE_SceneResource_RemoveOwner (entity->material, entity);
-    entity->material = r;
-    if (r)
+    entity->material = SCE_Material_GetSceneResource (mat);
+    if (entity->material)
     {
-        if (SCE_SceneResource_AddOwner (r, entity) < 0)
+        if (SCE_SceneResource_AddOwner (entity->material, entity) < 0)
         {
             SCEE_LogSrc ();
             return SCE_ERROR;

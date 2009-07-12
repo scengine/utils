@@ -374,19 +374,20 @@ void* SCE_Resource_Load (int type, const char *name, int forcenew, void *data)
  */
 int SCE_Resource_Free (void *data)
 {
-    int ret = SCE_FALSE;
+    int ret = SCE_TRUE;         /* 'coz the user could want to delete a forced
+                                   resource */
     SCE_SResource *res = NULL;
 
     SCE_btstart ();
-    if (data)
+    if (!data)
+        ret = SCE_FALSE;
+    else {
         res = SCE_Resource_LocateFromData (data);
-    if (res)
-    {
-        res->nb_used--;
-        if (res->nb_used == 0)
+        if (res)
         {
-            SCE_List_Erase (&resources, &res->it);
-            ret = SCE_TRUE;
+            res->nb_used--;
+            if (res->nb_used == 0)
+                SCE_List_Erase (&resources, &res->it);
         }
     }
 

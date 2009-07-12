@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 19/05/2007
-   derniere modification : 25/09/2008 */
+/* created: 19/05/2007
+   updated: 12/07/2009 */
 
 #ifndef SCEMATERIAL_H
 #define SCEMATERIAL_H
@@ -26,6 +26,7 @@
 #include <SCE/core/SCECMaterial.h>
 #include <SCE/core/SCECPointSprite.h>
 
+#include <SCE/interface/SCESceneResource.h>
 #include <SCE/interface/SCELight.h>
 #include <SCE/interface/SCETexture.h>
 #include <SCE/interface/SCEShaders.h>
@@ -59,6 +60,7 @@ struct sce_smaterial
     /* request that SCE_CCreatePointSprite() doesn't allocs for internal var */
     SCE_CPointSprite ps; /**< Point sprite's model */
     int use_ps;          /**< Are point sprites actived? */
+    SCE_SSceneResource s_resource; /**< Scene resource */
 };
 
 /** @} */
@@ -67,6 +69,8 @@ struct sce_smaterial
 SCE_SMaterial* SCE_Material_Create (void);
 /* supprime un materiau */
 void SCE_Material_Delete (SCE_SMaterial*);
+
+SCE_SSceneResource* SCE_Material_GetSceneResource (SCE_SMaterial*);
 
 /* retourne le materiau coeur d'un materiau */
 SCE_CMaterial* SCE_Material_GetCMaterial (SCE_SMaterial*);

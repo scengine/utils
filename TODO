@@ -44,12 +44,12 @@ See the file ./doc/html/todo.html
 - Ajouter une fonction reload() au gestionnaire de médias/ressources.
 - Ajouter une fonction qui permet de mettre à jour certaines parties de la scène
   via des flags SCE_Scene_Update (scene, a | b | c | d).
-- Gestion des terrains.
+- Gestion des terrains (wesh).
 - Virer un max d'appels à glEnable/glDisable si c'est pour ne rien changer.
 - Textures atlases manager.
 - Créer une fonction de mise en état d'un mode propice au "double-speed z-pass".
 - Permettre de transformer dynamiquement les types des données de vertices
-  via le gestionnaire de meshs (float -> short).
+  via le gestionnaire de géométrie (float -> short).
 - Regrouper plusieurs meshs en un seul via le gestionnaire de meshs
   (ou de batchs...) + plusieurs instances uniquement via indices OpenGL...
 - Instaurer d'autres règles pour le changement d'entité d'une instance en plus
@@ -62,16 +62,16 @@ See the file ./doc/html/todo.html
 - Improve MulCopy() functions: DONT duplicate all the matrix.
 - Modifier les attributs d'un octree peu visible après une requête d'occlusion.
 - Déplacer la définition de SCE_TANGENT et SCE_BINORMAL dans SCEMesh.[ch].
-- Vérifier les "media type id" lors des chargements de ressources.
 - Matrix_Mask() : applique un masque (multiplie chaque élément).
 - Désactivation des nœuds : non mise à jour de leur position dans l'octree, etc.
-- Disparitions inopinées du vaisseau de spaceracer en vue intérieure
-  (sce:rev54 sp:rev78).
 - Merge SceneResource & Shader, Texture, etc. ?
 - VAO (OpenGL 3.1).
 - SCE_SSceneEntityInstanceGroup : group d'instances situées impérativement dans
   le même bounding volume.
 - Ajouter un module de gestion de la géométrie (SCEGeometry) au lieu de tout
   fourrer dans SCEMesh.
+- Paramètres de ressources lors de l'utilisation : recharger la ressource de
+  type SCE_SShader lorsque les paramètres à fourguer sont différents, mais
+  instancier quand même le SCE_CShader.
 
-- 47
+- 46
