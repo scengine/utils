@@ -323,6 +323,46 @@ static void SCE_Scene_InsertCamera (SCE_SOctree *tree, SCE_SOctreeElement *el)
 }
 
 /**
+ * \internal
+ * \brief Bound to SCE_Octree_InsertElement()
+ */
+static void SCE_Scene_AddElement (SCE_SScene *scene, SCE_SOctreeElement *el)
+{
+    SCE_Octree_InsertElement (scene->octree, el);
+}
+/**
+ * \internal
+ * \brief Bound to SCE_Octree_RemoveElement()
+ */
+void SCE_Scene_RemoveElement (SCE_SOctreeElement *el)
+{
+    SCE_Octree_RemoveElement (el);
+}
+/**
+ * \brief Adds the node's element to a scene
+ *
+ * Bound to SCE_Scene_AddElement(), but calls
+ * SCE_BoundingSphere_Push() before and SCE_BoundingSphere_Pop() after.
+ * \sa SCE_Scene_AddNode()
+ */
+void SCE_Scene_AddNodeElement (SCE_SScene *scene, SCE_SNode *node)
+{
+    SCE_SOctreeElement *el = SCE_Node_GetElement (node);
+    SCE_BoundingSphere_Push (el->sphere, SCE_Node_GetFinalMatrix (node));
+    SCE_Scene_AddElement (scene, el);
+    SCE_BoundingSphere_Pop (el->sphere);
+}
+/**
+ * \brief Removes a node's element from a scene
+ *
+ * Just calls SCE_Octree_RemoveElement().
+ * \sa SCE_Octree_RemoveElement(), SCE_Scene_RemoveElement()
+ */
+void SCE_Scene_RemoveNodeElement (SCE_SNode *node)
+{
+    SCE_Octree_RemoveElement (SCE_Node_GetElement (node));
+}
+/**
  * \brief Adds a node to a scene
  * \param scene a scene
  * \param node the node to add
@@ -335,19 +375,12 @@ static void SCE_Scene_InsertCamera (SCE_SOctree *tree, SCE_SOctreeElement *el)
  */
 void SCE_Scene_AddNode (SCE_SScene *scene, SCE_SNode *node)
 {
-    SCE_SOctreeElement *el = NULL;
-    el = SCE_Node_GetElement (node);
-
     /* let the user make his own nodes tree */
     if (!SCE_Node_HasParent (node))
     {
         SCE_Node_Attach (scene->rootnode, node);
         scene->n_nodes++;
     }
-
-    SCE_BoundingSphere_Push (el->sphere, SCE_Node_GetFinalMatrix (node));
-    SCE_Octree_InsertElement (scene->octree, el);
-    SCE_BoundingSphere_Pop (el->sphere);
 }
 /**
  * \brief Adds a node and all its children to a scene
@@ -378,7 +411,6 @@ void SCE_Scene_RemoveNode (SCE_SScene *scene, SCE_SNode *node)
         scene->n_nodes--;
         SCE_Node_Detach (node);
     }
-    SCE_Octree_RemoveElement (SCE_Node_GetElement (node));
 }
 
 /**
@@ -398,6 +430,7 @@ void SCE_Scene_AddInstance (SCE_SScene *scene, SCE_SSceneEntityInstance *einst)
     el->insert = SCE_Scene_InsertInstance;
 
     SCE_Scene_AddNode (scene, node);
+    SCE_Scene_AddNodeElement (scene, node);
     /* NOTE: not relative to the (future) parent (gne?) */
     SCE_Node_SetOnMovedCallback (node, SCE_Scene_OnNodeMoved, scene);
     SCE_List_Prependl (scene->instances,
@@ -412,6 +445,7 @@ void SCE_Scene_RemoveInstance (SCE_SScene *scene,
                                SCE_SSceneEntityInstance *einst)
 {
     SCE_List_Removel (SCE_SceneEntity_GetInstanceIterator1 (einst));
+    SCE_Scene_RemoveNodeElement (SCE_SceneEntity_GetInstanceNode (einst));
     SCE_Scene_RemoveNode (scene, SCE_SceneEntity_GetInstanceNode (einst));
 }
 

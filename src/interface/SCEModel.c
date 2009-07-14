@@ -153,16 +153,17 @@ void SCE_Model_Delete (SCE_SModel *mdl)
 static int SCE_Model_BuildEntityv (SCE_SModelEntity *entity, SCE_SMesh *mesh,
                                    SCE_SShader *shader, SCE_STexture **texs)
 {
-    unsigned int i;
-    SCE_STexture *tex = NULL;
 
     SCE_SceneEntity_SetMesh (entity->entity, mesh);
     if (shader)
         SCE_SceneEntity_SetShader (entity->entity, shader);
-    i = 0;
-    while (texs[i]) {
-        SCE_SceneEntity_AddTexture (entity->entity, texs[i]);
-        i++;
+    if (texs)
+    {
+        unsigned int i = 0;
+        while (texs[i]) {
+            SCE_SceneEntity_AddTexture (entity->entity, texs[i]);
+            i++;
+        }
     }
     return SCE_OK;
 fail:
