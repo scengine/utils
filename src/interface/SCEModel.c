@@ -112,7 +112,7 @@ static void SCE_Model_Init (SCE_SModel *mdl)
     mdl->groups = NULL;
     mdl->instances = NULL;
     mdl->root = NULL;
-    mdl->root_instance = SCE_FALSE;
+    mdl->root_instance = SCE_FALSE; /* SCE_TRUE.. ? */
     mdl->instance_type = SCE_MODEL_NOT_INSTANCE;
 }
 SCE_SModel* SCE_Model_Create (void)
@@ -150,8 +150,8 @@ void SCE_Model_Delete (SCE_SModel *mdl)
 }
 
 
-static int SCE_Model_BuildEntityv (SCE_SModelEntity *entity, SCE_SMesh *mesh,
-                                   SCE_SShader *shader, SCE_STexture **texs)
+static void SCE_Model_BuildEntityv (SCE_SModelEntity *entity, SCE_SMesh *mesh,
+                                    SCE_SShader *shader, SCE_STexture **texs)
 {
 
     SCE_SceneEntity_SetMesh (entity->entity, mesh);
@@ -160,15 +160,9 @@ static int SCE_Model_BuildEntityv (SCE_SModelEntity *entity, SCE_SMesh *mesh,
     if (texs)
     {
         unsigned int i = 0;
-        while (texs[i]) {
+        for (i = 0; texs[i]; i++)
             SCE_SceneEntity_AddTexture (entity->entity, texs[i]);
-            i++;
-        }
     }
-    return SCE_OK;
-fail:
-    SCEE_LogSrc ();
-    return SCE_ERROR;
 }
 
 #define SCE_CHECK_LEVEL(level) do {                                     \
@@ -223,8 +217,7 @@ int SCE_Model_AddEntityv (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
     }
     if (!(entity = SCE_Model_CreateEntity (NULL)))
         goto fail;
-    if (SCE_Model_BuildEntityv (entity, mesh, shader, tex) < 0)
-        goto fail;
+    SCE_Model_BuildEntityv (entity, mesh, shader, tex);
     SCE_List_Appendl (mdl->entities[level], &entity->it);
     {
         /* can't fail */

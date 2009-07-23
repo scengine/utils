@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 20/11/2008 */
+   updated: 16/07/2009 */
 
 #include <stdlib.h>
 #include <string.h>
@@ -87,7 +87,7 @@ typedef struct SCE_SMemArray
 
 static SCE_SMemArray arrays[SCE_NUM_MEMORY_ARRAYS];
 
-#define SCE_Mem_For(i) for (i = allocs.next; i; i = i->next)
+#define SCE_Mem_For(i) for ((i) = allocs.next; (i); (i) = (i)->next)
 
 static void SCE_Mem_InitArray (SCE_SMemArray *a)
 {
@@ -99,7 +99,7 @@ static void SCE_Mem_InitArray (SCE_SMemArray *a)
 int SCE_Init_Mem (void)
 {
     size_t i;
-    for (i=0; i<SCE_NUM_MEMORY_ARRAYS; i++)
+    for (i = 0; i < SCE_NUM_MEMORY_ARRAYS; i++)
     {
         SCE_Mem_InitArray (&arrays[i]);
         arrays[i].alloc_size = i + 1;
@@ -112,13 +112,14 @@ static void SCE_Mem_InitAlloc (SCE_SMemAlloc *m)
     m->file = NULL;
     m->line = 1;
     m->size = 0;
+    m->block = NULL;
     m->next = m->prev = NULL;
 }
 
 static void SCE_Mem_InitBlock (SCE_SMemArrayBlock *b)
 {
     unsigned int i;
-    for (i=0; i<SCE_ARRAY_BLOCK_SIZE; i++)
+    for (i = 0; i < SCE_ARRAY_BLOCK_SIZE; i++)
     {
         b->allocs[i] = NULL;
         b->freeallocs[i] = NULL;
@@ -251,9 +252,11 @@ static void SCE_Mem_EraseAllocFromArray (SCE_SMemAlloc *m)
 static SCE_SMemAlloc* SCE_Mem_NewAlloc (size_t size)
 {
     SCE_SMemAlloc *m = NULL;
+#if 0
     if (size <= SCE_NUM_MEMORY_ARRAYS)
         m = SCE_Mem_NewAllocFromArray (size);
     else
+#endif
     {
         /* make one allocation for all: descriptor and demanded block */
         m = malloc (sizeof *m + size);
@@ -270,19 +273,19 @@ static void SCE_Mem_DeleteAlloc (SCE_SMemAlloc *m)
     free (m);
 }
 
-#define SCE_Mem_GetAllocAddress(m) ((void*)&m[1])
+#define SCE_Mem_GetAllocAddress(m) ((void*)&((SCE_SMemAlloc*)(m))[1])
 
 
 static SCE_SMemAlloc* SCE_Mem_LocateAllocFromPointer (void *p)
 {
-    SCE_SMemAlloc *i = &allocs;
-
-    while (i->next && SCE_Mem_GetAllocAddress (i) != p)
-        i = i->next;
-
-    if (SCE_Mem_GetAllocAddress (i) == p)
-        return i;
-
+    SCE_SMemAlloc *i = NULL;
+    SCE_SMemAlloc *al = p;
+    al = &al[-1];
+    SCE_Mem_For (i)
+    {
+        if (i == al)
+            return i;
+    }
     return NULL;
 }
 
@@ -299,6 +302,7 @@ static void SCE_Mem_AddAlloc (SCE_SMemAlloc *m)
     m->next = allocs.next;
     if (m->next)
         m->next->prev = m;
+    allocs.next = m;
 }
 
 static void SCE_Mem_EraseAlloc (SCE_SMemAlloc *m)
@@ -306,9 +310,11 @@ static void SCE_Mem_EraseAlloc (SCE_SMemAlloc *m)
     m->prev->next = m->next;
     if (m->next)
         m->next->prev = m->prev;
+#if 0
     if (m->size <= SCE_NUM_MEMORY_ARRAYS)
         SCE_Mem_EraseAllocFromArray (m);
     else
+#endif
         SCE_Mem_DeleteAlloc (m);
 }
 
@@ -328,8 +334,11 @@ void* SCE_Mem_Alloc (const char *file, unsigned int line, size_t s)
     SCE_SMemAlloc *mem = NULL;
 
     mem = SCE_Mem_NewAlloc (s);
-    if (!mem) /* pas de LogSrc, car cette fonction alloue de la memoire */
+    if (!mem)
+    {
+        SCEE_LogSrc ();
         return NULL;
+    }
 
     mem->file = file;
     mem->line = line;
@@ -406,13 +415,16 @@ void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
  * 
  * \see SCE_free
  */
-void SCE_Mem_Free (void *p)
+void SCE_Mem_Free (const char *file, int line, void *p)
 {
     if (p)
     {
         SCE_SMemAlloc *m = SCE_Mem_LocateAllocFromPointer (p);
         if (m && m != &allocs)
             SCE_Mem_EraseAlloc (m);
+        else
+            SCEE_SendMsg ("SCE_Mem_Free(): trying to free an invalid pointer at"
+                          " %s(%d).\n", file, line);
     }
 }
 
@@ -556,7 +568,7 @@ void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
     return dest;
 }
 
-#ifdef SCE_DEBUG
+/*#ifdef SCE_DEBUG*/
 void SCE_Mem_List (void)
 {
     unsigned int n = 0;
@@ -602,6 +614,6 @@ const char* SCE_Mem_GetFile (void *p)
         return m->file;
     return NULL;
 }
-#endif
+/*#endif*/
 
 /** @} */

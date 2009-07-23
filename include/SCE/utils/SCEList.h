@@ -186,7 +186,6 @@ do {\
 } while (0)
 #endif
 
-
 #define SCE_List_ForEach(it, l)\
     for ((it) = (l)->first.next; (it)->next; (it) = (it)->next)
 #define SCE_List_ForEachProtected(pro, it, l)\

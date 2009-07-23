@@ -156,12 +156,9 @@ void SCE_SceneEntity_Init (SCE_SSceneEntity *entity)
 
     entity->group = NULL;
     entity->isinfrustumfunc = SCE_SceneEntity_IsBSInFrustum;
-#if SCE_LIST_ITERATOR_NO_MALLOC
     entity->it = &entity->iterator;
     SCE_List_InitIt (entity->it);
-#else
-    entity->it = NULL;
-#endif
+    SCE_List_SetData (entity->it, entity);
 }
 
 SCE_SSceneEntity* SCE_SceneEntity_Create (void)
@@ -176,12 +173,6 @@ SCE_SSceneEntity* SCE_SceneEntity_Create (void)
         goto failure;
     if (!(entity->textures = SCE_List_Create (NULL)))
         goto failure;
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-    if (!(entity->it = SCE_List_CreateIt ()))
-        goto failure;
-#endif
-    /* for compatibility with groups */
-    SCE_List_SetData (entity->it, entity);
     /* resources don't manages their own iterator (not yet) */
     SCE_List_CanDeleteIterators (entity->textures, SCE_TRUE);
     goto success;
@@ -198,9 +189,6 @@ void SCE_SceneEntity_Delete (SCE_SSceneEntity *entity)
 {
     if (entity)
     {
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-        SCE_List_DeleteIt (entity->it);
-#endif
         SCE_List_Delete (entity->textures);
         SCE_Instance_DeleteGroup (entity->igroup);
         SCE_free (entity);
@@ -497,16 +485,13 @@ int SCE_SceneEntity_AddTexture (SCE_SSceneEntity *entity, SCE_STexture *tex)
 {
     SCE_SSceneResource *r = SCE_Texture_GetSceneResource (tex);
     if (SCE_List_PrependNewl (entity->textures, r) < 0)
-    {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
-    }
+        goto fail;
     if (SCE_SceneResource_AddOwner (r, entity) < 0)
-    {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
-    }
+        goto fail;
     return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    return SCE_ERROR;
 }
 /**
  * \brief Removes a texture from an entity
@@ -520,14 +505,8 @@ int SCE_SceneEntity_AddTexture (SCE_SSceneEntity *entity, SCE_STexture *tex)
 void SCE_SceneEntity_RemoveTexture (SCE_SSceneEntity *entity, SCE_STexture *tex)
 {
     SCE_SSceneResource *r = NULL;
-    SCE_SListIterator *it = NULL;
     r = SCE_Texture_GetSceneResource (tex);
-    it = SCE_List_LocateIterator (entity->textures, r, NULL);
-    if (it)
-    {
-        SCE_List_Removel (it);
-        SCE_List_DeleteIt (it);
-    }
+    SCE_List_EraseFromData (entity->textures, r);
     SCE_SceneResource_RemoveOwner (r, entity);
 }
 /**

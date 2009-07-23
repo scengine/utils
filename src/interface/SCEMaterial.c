@@ -22,7 +22,7 @@
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEMatrix.h>
-#include <SCE/utils/SCEResources.h>
+#include <SCE/utils/SCEResource.h>
 #include <SCE/core/SCECore.h>
 #include <SCE/core/SCECMatrix.h>
 

@@ -161,9 +161,9 @@ fi
 
 AC_ARG_ENABLE(
   [debug],
-  AC_HELP_STRING([--enable-debug], [enable debugging [[default=no]]]),
+  AC_HELP_STRING([--enable-debug], [enable debugging [[default=yes]]]),
   [enable_debug="$enableval"],
-  [enable_debug="no"]
+  [enable_debug="yes"]
 )
 AC_MSG_CHECKING([[whether to enable debugging]])
 if test "x$enable_debug" = "xyes"; then

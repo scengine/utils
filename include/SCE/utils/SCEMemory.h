@@ -70,7 +70,7 @@ extern "C"
  *       argument of another function taking a function pointer and so on.
  */
 #ifdef SCE_DEBUG
-#define SCE_free SCE_Mem_Free
+#define SCE_free(p) SCE_Mem_Free (__FILE__, __LINE__, p)
 #else
 #define SCE_free free
 #endif
@@ -82,7 +82,7 @@ int SCE_Init_Mem (void);
 void* SCE_Mem_Alloc (const char*, unsigned int, size_t);
 void* SCE_Mem_Calloc (const char*, unsigned int, size_t, size_t);
 void* SCE_Mem_Realloc (const char*, unsigned int, void*, size_t);
-void SCE_Mem_Free (void*);
+void SCE_Mem_Free (const char*, int, void*);
 
 void* SCE_Mem_Dup (const void*, size_t);
 
