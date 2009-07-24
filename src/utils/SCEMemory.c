@@ -44,6 +44,8 @@
 
 /** @{ */
 
+#define SCE_USE_MEMORY_MANAGER 0
+
 #define SCE_NUM_MEMORY_ARRAYS 128
 /* number of allocs per block */
 #define SCE_ARRAY_BLOCK_SIZE 128
@@ -331,6 +333,15 @@ static void SCE_Mem_EraseAlloc (SCE_SMemAlloc *m)
  */
 void* SCE_Mem_Alloc (const char *file, unsigned int line, size_t s)
 {
+#if !SCE_USE_MEMORY_MANAGER
+    void *p = NULL;
+    (void)file;
+    (void)line;
+    p = malloc (s);
+    if (!p)
+        SCEE_Log (SCE_OUT_OF_MEMORY);
+    return p;
+#else
     SCE_SMemAlloc *mem = NULL;
 
     mem = SCE_Mem_NewAlloc (s);
@@ -347,6 +358,7 @@ void* SCE_Mem_Alloc (const char *file, unsigned int line, size_t s)
     SCE_Mem_AddAlloc (mem);
 
     return SCE_Mem_GetAllocAddress (mem);
+#endif
 }
 
 /**
@@ -363,10 +375,20 @@ void* SCE_Mem_Alloc (const char *file, unsigned int line, size_t s)
  */
 void* SCE_Mem_Calloc (const char *file, unsigned int line, size_t s, size_t n)
 {
+#if !SCE_USE_MEMORY_MANAGER
+    void *p = NULL;
+    (void)file;
+    (void)line;
+    p = calloc (s, n);
+    if (!p)
+        SCEE_Log (SCE_OUT_OF_MEMORY);
+    return p;
+#else
     void *p = SCE_Mem_Alloc (file, line, s * n);
     if (p)
         memset (p, 0, s * n);
     return p;
+#endif
 }
 
 /**
@@ -383,6 +405,14 @@ void* SCE_Mem_Calloc (const char *file, unsigned int line, size_t s, size_t n)
  */
 void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
 {
+#if !SCE_USE_MEMORY_MANAGER
+    (void)file;
+    (void)line;
+    p = realloc (p, s);
+    if (!p)
+        SCEE_Log (SCE_OUT_OF_MEMORY);
+    return p;
+#else
     SCE_SMemAlloc *mem = NULL;
 
     if (!p)
@@ -406,6 +436,7 @@ void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
     }
 
     return SCE_Mem_GetAllocAddress (mem);
+#endif
 }
 
 /**
@@ -417,6 +448,9 @@ void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
  */
 void SCE_Mem_Free (const char *file, int line, void *p)
 {
+#if !SCE_USE_MEMORY_MANAGER
+    free (p);
+#else
     if (p)
     {
         SCE_SMemAlloc *m = SCE_Mem_LocateAllocFromPointer (p);
@@ -426,6 +460,7 @@ void SCE_Mem_Free (const char *file, int line, void *p)
             SCEE_SendMsg ("SCE_Mem_Free(): trying to free an invalid pointer at"
                           " %s(%d).\n", file, line);
     }
+#endif
 }
 
 
