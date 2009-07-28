@@ -74,8 +74,7 @@ struct sce_ssceneentityinstance
     SCE_SLevelOfDetail *lod;         /**< LOD managment structure */
     SCE_SSceneEntity *entity;        /**< Entity used by the instance */
     SCE_SSceneEntityGroup *group;    /**< Group that contains the instance */
-    SCE_SListIterator iterator, iterator2;
-    SCE_SListIterator *it, *it2;     /**< Own iterators for fast add/remove */
+    SCE_SListIterator it, it2;       /**< Own iterators for fast add/remove */
 };
 
 /**
@@ -99,10 +98,7 @@ struct sce_ssceneentity
     SCE_SSceneEntityGroup *group; /**< Group of the entity */
     /** Used to determine if the instance is in the given frustum */
     int (*isinfrustumfunc)(SCE_SSceneEntityInstance*, SCE_SCamera*);
-#if SCE_LIST_ITERATOR_NO_MALLOC
-    SCE_SListIterator iterator;
-#endif
-    SCE_SListIterator *it;        /**< Own iterator for group */
+    SCE_SListIterator it;         /**< Own iterator for group */
 };
 
 /**

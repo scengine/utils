@@ -48,10 +48,10 @@ void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance *einst)
     einst->lod = NULL;
     einst->entity = NULL;
     einst->group = NULL;
-    einst->it = &einst->iterator;
-    SCE_List_InitIt (einst->it);
-    einst->it2 = &einst->iterator2;
-    SCE_List_InitIt (einst->it2);
+    SCE_List_InitIt (&einst->it);
+    SCE_List_SetData (&einst->it, einst);
+    SCE_List_InitIt (&einst->it2);
+    SCE_List_SetData (&einst->it2, einst);
 }
 
 /**
@@ -71,15 +71,6 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void)
         goto failure;
     if (!(einst->lod = SCE_Lod_Create ()))
         goto failure;
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-    if (!(einst->it = SCE_List_CreateIt ()))
-        goto failure;
-    if (!(einst->it2 = SCE_List_CreateIt ()))
-        goto failure;
-#endif
-    /* for compatibility with the entities manager */
-    SCE_List_SetData (einst->it, einst);
-    SCE_List_SetData (einst->it2, einst);
     /* see SCE_Scene_OnNodeMoved() */
     SCE_Node_SetData (einst->node, einst);
     /* see SCE_SceneEntity_ForEachInstanceInGroup() */
@@ -96,17 +87,12 @@ success:
     SCE_btend ();
     return einst;
 }
-
 void SCE_SceneEntity_DeleteInstance (SCE_SSceneEntityInstance *einst)
 {
-    if (einst)
-    {
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-        SCE_List_DeleteIt (einst->it);
-        SCE_List_DeleteIt (einst->it2);
-#endif
+    if (einst) {
         SCE_Lod_Delete (einst->lod);
         SCE_Instance_Delete (einst->instance);
+        /* TODO: kick this useless truenode */
         SCE_Node_Delete (einst->truenode);
         SCE_free (einst);
     }
@@ -120,8 +106,7 @@ SCE_SSceneEntityInstance*
 SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance *einst)
 {
     SCE_SSceneEntityInstance *new = NULL;
-    if (!(new = SCE_SceneEntity_CreateInstance ()))
-    {
+    if (!(new = SCE_SceneEntity_CreateInstance ())) {
         SCEE_LogSrc ();
         return NULL;
     }
@@ -156,11 +141,9 @@ void SCE_SceneEntity_Init (SCE_SSceneEntity *entity)
 
     entity->group = NULL;
     entity->isinfrustumfunc = SCE_SceneEntity_IsBSInFrustum;
-    entity->it = &entity->iterator;
-    SCE_List_InitIt (entity->it);
-    SCE_List_SetData (entity->it, entity);
+    SCE_List_InitIt (&entity->it);
+    SCE_List_SetData (&entity->it, entity);
 }
-
 SCE_SSceneEntity* SCE_SceneEntity_Create (void)
 {
     SCE_SSceneEntity *entity = NULL;
@@ -173,10 +156,9 @@ SCE_SSceneEntity* SCE_SceneEntity_Create (void)
         goto failure;
     if (!(entity->textures = SCE_List_Create (NULL)))
         goto failure;
-    /* resources don't manages their own iterator (not yet) */
+    /* NOTE: resources doesn't manage their own iterator (not yet) */
     SCE_List_CanDeleteIterators (entity->textures, SCE_TRUE);
     goto success;
-
 failure:
     SCE_SceneEntity_Delete (entity), entity = NULL;
     SCEE_LogSrc ();
@@ -184,11 +166,10 @@ success:
     SCE_btend ();
     return entity;
 }
-
 void SCE_SceneEntity_Delete (SCE_SSceneEntity *entity)
 {
-    if (entity)
-    {
+    if (entity) {
+        SCE_SceneEntity_RemoveEntity (entity);
         SCE_List_Delete (entity->textures);
         SCE_Instance_DeleteGroup (entity->igroup);
         SCE_free (entity);
@@ -228,8 +209,7 @@ success:
 
 void SCE_SceneEntity_DeleteGroup (SCE_SSceneEntityGroup *group)
 {
-    if (group)
-    {
+    if (group) {
         SCE_List_Delete (group->entities);
         SCE_free (group);
     }
@@ -243,7 +223,7 @@ void SCE_SceneEntity_AddEntity (SCE_SSceneEntityGroup *group,
                                 SCE_SSceneEntity *entity)
 {
     SCE_SceneEntity_RemoveEntity (entity);
-    SCE_List_Appendl (group->entities, entity->it); /* order defined */
+    SCE_List_Appendl (group->entities, &entity->it); /* order defined */
     entity->group = group;
     group->n_entities++;
 }
@@ -252,9 +232,8 @@ void SCE_SceneEntity_AddEntity (SCE_SSceneEntityGroup *group,
  */
 void SCE_SceneEntity_RemoveEntity (SCE_SSceneEntity *entity)
 {
-    if (entity->group)
-    {
-        SCE_List_Removel (entity->it);
+    if (entity->group) {
+        SCE_List_Removel (&entity->it);
         entity->group->n_entities--;
         entity->group = NULL;
     }
@@ -408,7 +387,7 @@ SCE_SceneEntity_GetInstanceLOD (SCE_SSceneEntityInstance *einst)
 SCE_SListIterator*
 SCE_SceneEntity_GetInstanceIterator1 (SCE_SSceneEntityInstance *einst)
 {
-    return einst->it;
+    return &einst->it;
 }
 /**
  * \brief Gets the second iterator of an instance (for models)
@@ -416,7 +395,7 @@ SCE_SceneEntity_GetInstanceIterator1 (SCE_SSceneEntityInstance *einst)
 SCE_SListIterator*
 SCE_SceneEntity_GetInstanceIterator2 (SCE_SSceneEntityInstance *einst)
 {
-    return einst->it2;
+    return &einst->it2;
 }
 
 

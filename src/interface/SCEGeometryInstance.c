@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 25/10/2008
-   updated: 27/02/2009 */
+   updated: 28/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -41,14 +41,32 @@ static SCE_FInstanceGroupRenderFunc renderfuncs[3] =
 void SCE_Instance_Init (SCE_SGeometryInstance *inst)
 {
     inst->m = NULL;
-    inst->group = NULL;
-#if SCE_LIST_ITERATOR_NO_MALLOC
-    SCE_List_InitIt (&inst->iterator);
-    inst->it = &inst->iterator;
-#else
-    inst->it = NULL;
-#endif
+    SCE_List_InitIt (&inst->it);
+    SCE_List_SetData (&inst->it, inst);
     inst->data = NULL;
+}
+SCE_SGeometryInstance* SCE_Instance_Create (void)
+{
+    SCE_SGeometryInstance *inst = NULL;
+
+    SCE_btstart ();
+    if (!(inst = SCE_malloc (sizeof *inst)))
+        goto failure;
+    SCE_Instance_Init (inst);
+    goto success;
+
+failure:
+    SCE_Instance_Delete (inst), inst = NULL;
+    SCEE_LogSrc ();
+success:
+    SCE_btend ();
+    return inst;
+}
+void SCE_Instance_Delete (SCE_SGeometryInstance *inst)
+{
+    if (inst) {
+        SCE_free (inst);
+    }
 }
 
 void SCE_Instance_InitGroup (SCE_SGeometryInstanceGroup *group)
@@ -60,50 +78,6 @@ void SCE_Instance_InitGroup (SCE_SGeometryInstanceGroup *group)
     group->attrib1 = 4;
     group->attrib1 = 5;
 }
-
-
-SCE_SGeometryInstance* SCE_Instance_Create (void)
-{
-    SCE_SGeometryInstance *inst = NULL;
-
-    SCE_btstart ();
-    if (!(inst = SCE_malloc (sizeof *inst)))
-        goto failure;
-    SCE_Instance_Init (inst);
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-    if (!(inst->it = SCE_List_CreateIt ()))
-        goto failure;
-#endif
-    /* for compatibility with the group functions */
-    SCE_List_SetData (inst->it, inst);
-    goto success;
-
-failure:
-    SCE_Instance_Delete (inst), inst = NULL;
-    SCEE_LogSrc ();
-success:
-    SCE_btend ();
-    return inst;
-}
-
-void SCE_Instance_Delete (SCE_SGeometryInstance *inst)
-{
-    if (inst)
-    {
-#if !SCE_LIST_ITERATOR_NO_MALLOC
-        SCE_List_DeleteIt (inst->it);
-#endif
-        SCE_free (inst);
-    }
-}
-
-/* used for SCE_List_Create() */
-static void SCE_Instance_YouDontHaveGroup (void *i)
-{
-    SCE_SGeometryInstance *inst = i;
-    inst->group = NULL;
-}
-
 SCE_SGeometryInstanceGroup* SCE_Instance_CreateGroup (void)
 {
     SCE_SGeometryInstanceGroup *group = NULL;
@@ -112,10 +86,8 @@ SCE_SGeometryInstanceGroup* SCE_Instance_CreateGroup (void)
     if (!(group = SCE_malloc (sizeof *group)))
         goto failure;
     SCE_Instance_InitGroup (group);
-    if (!(group->instances = SCE_List_Create (SCE_Instance_YouDontHaveGroup)))
+    if (!(group->instances = SCE_List_Create (NULL)))
         goto failure;
-    /* each instance manages its own iterator */
-    SCE_List_CanDeleteIterators (group->instances, SCE_FALSE);
     goto success;
 
 failure:
@@ -125,11 +97,9 @@ success:
     SCE_btend ();
     return group;
 }
-
 void SCE_Instance_DeleteGroup (SCE_SGeometryInstanceGroup *group)
 {
-    if (group)
-    {
+    if (group) {
         SCE_List_Delete (group->instances);
         SCE_free (group);
     }
@@ -145,8 +115,7 @@ void SCE_Instance_SetInstancingType (SCE_SGeometryInstanceGroup *group,
 {
     if (type != SCE_HARDWARE_INSTANCING || SCE_CHasCap (SCE_HW_INSTANCING))
         group->type = type;
-    else
-    {
+    else {
         group->type = SCE_SIMPLE_INSTANCING;
 #ifdef SCE_DEBUG
         SCEE_SendMsg ("hardware instancing is not supported,"
@@ -182,7 +151,7 @@ SCE_SList* SCE_Instance_GetInstancesList (SCE_SGeometryInstanceGroup *group)
 void SCE_Instance_AddInstance (SCE_SGeometryInstanceGroup *group,
                                SCE_SGeometryInstance *inst)
 {
-    SCE_List_Prependl (group->instances, inst->it);
+    SCE_List_Appendl (group->instances, &inst->it);
 }
 /**
  * \brief Removes an instance from its group
@@ -190,7 +159,7 @@ void SCE_Instance_AddInstance (SCE_SGeometryInstanceGroup *group,
  */
 void SCE_Instance_RemoveInstance (SCE_SGeometryInstance *inst)
 {
-    SCE_List_Removel (inst->it);
+    SCE_List_Removel (&inst->it);
 }
 
 /**
@@ -235,11 +204,6 @@ float* SCE_Instance_GetMatrix (SCE_SGeometryInstance *inst)
     return inst->m;
 }
 
-SCE_SGeometryInstanceGroup* SCE_Instance_GetGroup (SCE_SGeometryInstance *inst)
-{
-    return inst->group;
-}
-
 
 void SCE_Instance_SetData (SCE_SGeometryInstance *inst, void *data)
 {
@@ -259,8 +223,7 @@ static void SCE_Instance_RenderSimple (SCE_SGeometryInstanceGroup *group)
     /* bind geometry */
     SCE_Mesh_Use (group->mesh);
     /* then for each instance, render it */
-    SCE_List_ForEach (it, group->instances)
-    {
+    SCE_List_ForEach (it, group->instances) {
         inst = SCE_List_GetData (it);
         SCE_CPushMatrix ();
         SCE_CMultMatrix (inst->m);
@@ -281,8 +244,7 @@ static void SCE_Instance_RenderPseudo (SCE_SGeometryInstanceGroup *group)
     /* bind geometry */
     SCE_Mesh_Use (group->mesh);
     /* then for each instance, render it */
-    SCE_List_ForEach (it, group->instances)
-    {
+    SCE_List_ForEach (it, group->instances) {
         inst = SCE_List_GetData (it);
         /* compute final matrix */
         SCE_Matrix4_Mul (modelview, inst->m, final);

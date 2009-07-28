@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 25/10/2008
-   updated: 27/02/2009 */
+   updated: 28/07/2009 */
 
 #ifndef SCEGEOMETRYINSTANCE_H
 #define SCEGEOMETRYINSTANCE_H
@@ -50,11 +50,7 @@ typedef struct sce_sgeometryinstancegroup SCE_SGeometryInstanceGroup;
 struct sce_sgeometryinstance
 {
     float *m;                          /**< Instance's matrix */
-    SCE_SGeometryInstanceGroup *group; /**< Group of the instance */
-#if SCE_LIST_ITERATOR_NO_MALLOC
-    SCE_SListIterator iterator;
-#endif
-    SCE_SListIterator *it;             /**< Own iterator, used by the groups */
+    SCE_SListIterator it;              /**< Own iterator, used by the groups */
     void *data;                        /**< Used defined data */
 };
 

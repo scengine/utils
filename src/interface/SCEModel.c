@@ -79,8 +79,7 @@ SCE_Model_CreateEntityGroup (SCE_SSceneEntityGroup *g)
     if (!(group = SCE_malloc (sizeof *group)))
         goto fail;
     SCE_Model_InitEntityGroup (group);
-    if (!g)
-    {
+    if (!g) {
         if (!(g = SCE_SceneEntity_CreateGroup ()))
             goto fail;
         group->is_instance = SCE_FALSE;
@@ -94,10 +93,8 @@ fail:
 }
 static void SCE_Model_DeleteEntityGroup (SCE_SModelEntityGroup *group)
 {
-    if (group)
-    {
-        if (!group->is_instance)
-        {
+    if (group) {
+        if (!group->is_instance) {
             SCE_SceneEntity_DeleteGroup (group->group);
             SCE_free (group);
         }
@@ -136,13 +133,14 @@ fail:
 }
 void SCE_Model_Delete (SCE_SModel *mdl)
 {
-    if (mdl)
-    {
-        unsigned int i;
-        for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++)
-            SCE_List_Delete (mdl->entities[i]);
+    if (mdl) {
         SCE_List_Delete (mdl->instances);
-        SCE_List_Delete (mdl->groups);
+        if (mdl->instance_type != SCE_MODEL_HARD_INSTANCE) {
+            unsigned int i;
+            for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++)
+                SCE_List_Delete (mdl->entities[i]);
+            SCE_List_Delete (mdl->groups);
+        }
         if (!mdl->root_instance)
             SCE_Node_Delete (mdl->root);
         SCE_free (mdl);
@@ -430,15 +428,14 @@ static int SCE_Model_InstanciateSoft (SCE_SModel *mdl, SCE_SModel *mdl2)
     SCE_SListIterator *it = NULL;
     unsigned int i;
 
-    if (!mdl2->groups)
-    {
+    /* NOTE: mdl's groups will be added to those of mdl2 */
+    if (!mdl2->groups) {
         if (!(mdl2->groups = SCE_List_Create (
                   (SCE_FListFreeFunc)SCE_Model_DeleteEntityGroup)))
             goto fail;
     }
     /* duplicate SCE_SModelEntityGroup */
-    SCE_List_ForEach (it, mdl->groups)
-    {
+    SCE_List_ForEach (it, mdl->groups) {
         SCE_SModelEntityGroup *mgroup = NULL, *newg = NULL;
         mgroup = SCE_List_GetData (it);
         if (!(newg = SCE_Model_CreateEntityGroup (mgroup->group)))
@@ -446,18 +443,15 @@ static int SCE_Model_InstanciateSoft (SCE_SModel *mdl, SCE_SModel *mdl2)
         SCE_List_Appendl (mdl2->groups, &newg->it);
     }
 
-    for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++)
-    {
+    for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++) {
         if (!mdl->entities[i] || !SCE_List_HasElements (mdl->entities[i]))
             break;
-        if (!mdl2->entities[i])
-        {
+        if (!mdl2->entities[i]) {
             if (!(mdl2->entities[i] = SCE_List_Create (
                       (SCE_FListFreeFunc)SCE_Model_DeleteEntity)))
                 goto fail;
         }
-        SCE_List_ForEach (it, mdl->entities[i])
-        {
+        SCE_List_ForEach (it, mdl->entities[i]) {
             SCE_SModelEntity *entity = NULL;
             if (!(entity = SCE_Model_CopyDupEntity (SCE_List_GetData (it))))
                 goto fail;
@@ -475,8 +469,7 @@ fail:
 static int SCE_Model_InstanciateInstances (SCE_SModel *mdl, SCE_SModel *mdl2)
 {
     SCE_SListIterator *it = NULL;
-    SCE_List_ForEach (it, mdl->instances)
-    {
+    SCE_List_ForEach (it, mdl->instances) {
         SCE_SNode *node = NULL, *newnode = NULL;
         SCE_SSceneEntityInstance *einst = NULL, *new = NULL;
         einst = SCE_List_GetData (it);

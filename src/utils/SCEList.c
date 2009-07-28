@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 21/06/2009 */
+   updated: 29/07/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -103,8 +103,7 @@ SCE_SList* SCE_List_Create (SCE_FListFreeFunc f)
     SCE_SList *l = NULL;
     if (!(l = SCE_malloc (sizeof *l)))
         SCEE_LogSrc ();
-    else
-    {
+    else {
         SCE_List_Init (l);
         l->f = f;
     }
@@ -123,8 +122,7 @@ SCE_SList* SCE_List_Create2 (void *arg, SCE_FListFreeFunc2 f)
     SCE_SList *l = NULL;
     if (!(l = SCE_List_Create (NULL)))
         SCEE_LogSrc ();
-    else
-    {
+    else {
         l->f2 = f;
         l->f2arg = arg;
     }
@@ -136,8 +134,7 @@ SCE_SList* SCE_List_Create2 (void *arg, SCE_FListFreeFunc2 f)
  */
 void SCE_List_Flush (SCE_SList *l)
 {
-    if (SCE_List_HasElements (l))
-    {
+    if (SCE_List_HasElements (l)) {
         l->first.next->prev = NULL;
         l->last.prev->next = NULL;
 
@@ -160,7 +157,6 @@ void SCE_List_Clear (SCE_SList *l)
 {
     SCE_SListIterator *pro = NULL;
     SCE_SListIterator *it = NULL;
-
     SCE_List_ForEachProtected (pro, it, l)
         SCE_List_Erase (l, it);
 }
@@ -175,9 +171,9 @@ void SCE_List_Clear (SCE_SList *l)
  */
 void SCE_List_Delete (SCE_SList *l)
 {
-    if (l)
-    {
-        SCE_List_Clear (l);
+    if (l) {
+        if (l->f || l->f2 || l->canfree)
+            SCE_List_Clear (l);
         SCE_free (l);
     }
 }
@@ -272,8 +268,7 @@ void SCE_List_Appendl (SCE_SList *l, SCE_SListIterator *it)
 int SCE_List_PrependNew (SCE_SListIterator *i, void *d)
 {
     SCE_SListIterator *new = SCE_List_CreateIt ();
-    if (!new)
-    {
+    if (!new) {
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
@@ -293,8 +288,7 @@ int SCE_List_PrependNew (SCE_SListIterator *i, void *d)
 int SCE_List_AppendNew (SCE_SListIterator *i, void *d)
 {
     SCE_SListIterator *new = SCE_List_CreateIt ();
-    if (!new)
-    {
+    if (!new) {
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
@@ -314,8 +308,7 @@ int SCE_List_AppendNew (SCE_SListIterator *i, void *d)
 int SCE_List_PrependNewl (SCE_SList *l, void *d)
 {
     SCE_SListIterator *it = SCE_List_CreateIt ();
-    if (!it)
-    {
+    if (!it) {
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
@@ -334,8 +327,7 @@ int SCE_List_PrependNewl (SCE_SList *l, void *d)
 int SCE_List_AppendNewl (SCE_SList *l, void *d)
 {
     SCE_SListIterator *it = SCE_List_CreateIt ();
-    if (!it)
-    {
+    if (!it) {
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
@@ -506,8 +498,7 @@ void SCE_List_Insert (SCE_SList *l1, SCE_SList *l2)
 {
     if (!l1->last.next)
         SCE_List_Join (l1, l2);
-    else
-    {
+    else {
         SCE_SList *l3 = l1->last.next->data;
         SCE_List_BreakEnd (l1);
         SCE_List_Join (l1, l2);
@@ -580,12 +571,10 @@ void SCE_List_Extract (SCE_SList *l)
     SCE_SListIterator *prv, *nxt;
     prv = l->first.prev;
     nxt = l->last.next;
-    if (prv)
-    {
+    if (prv) {
         if (!nxt)
             SCE_List_InitLast (prv);
-        else
-        {
+        else {
             prv->next = nxt;
             prv->prev->next = nxt->next;
             nxt->prev = prv;
@@ -726,8 +715,7 @@ SCE_SListIterator* SCE_List_GetIterator (const SCE_SList *l, unsigned int n)
     SCE_SListIterator *it = NULL;
     unsigned int i = 0;
     
-    SCE_List_ForEach (it, l)
-    {
+    SCE_List_ForEach (it, l) {
         if (i == n)
             return it;
         i++;
@@ -750,8 +738,7 @@ SCE_SListIterator* SCE_List_LocateIterator (const SCE_SList *l, void *data,
                                             SCE_FListCompareData f)
 {
     SCE_SListIterator *i = NULL;
-    SCE_List_ForEach (i, l)
-    {
+    SCE_List_ForEach (i, l) {
         if ((f && f (data, i->data)) || data == i->data)
             return i;
     }
@@ -772,8 +759,7 @@ unsigned int SCE_List_LocateIndex (const SCE_SList *l, void *data,
 {
     unsigned int j = 0;
     SCE_SListIterator *i = NULL;
-    SCE_List_ForEach (i, l)
-    {
+    SCE_List_ForEach (i, l) {
         if ((f && f (data, i->data)) || data == i->data)
             return j;
         j++;
@@ -796,17 +782,14 @@ static size_t SCE_List_QuickSortPartition (SCE_SList *l,
                                            size_t start, size_t end,
                                            SCE_FListCompareData func)
 {
-    while (start < end)
-    {
-        while (start < end)
-        {
+    while (start < end) {
+        while (start < end) {
             SCE_SListIterator *it_s;
             SCE_SListIterator *it_e;
             
             it_s = SCE_List_GetIterator (l, start);
             it_e = SCE_List_GetIterator (l, end);
-            if (func (it_s->data, it_e->data) > 0)
-            {
+            if (func (it_s->data, it_e->data) > 0) {
                 void *tmp;
                 
                 /* FIXME: swap elements and not their data? */
@@ -817,15 +800,13 @@ static size_t SCE_List_QuickSortPartition (SCE_SList *l,
             }
             end --;
         }
-        while (start < end)
-        {
+        while (start < end) {
             SCE_SListIterator *it_s;
             SCE_SListIterator *it_e;
             
             it_s = SCE_List_GetIterator (l, start);
             it_e = SCE_List_GetIterator (l, end);
-            if (func (it_s->data, it_e->data) > 0)
-            {
+            if (func (it_s->data, it_e->data) > 0) {
                 void *tmp;
                 
                 /* FIXME: swap elements and not their data? */
@@ -854,8 +835,7 @@ static size_t SCE_List_QuickSortPartition (SCE_SList *l,
 void SCE_List_QuickSortRange (SCE_SList *l, size_t start, size_t end,
                               SCE_FListCompareData func)
 {
-    if (start < end)
-    {
+    if (start < end) {
         size_t p;
         
         p = SCE_List_QuickSortPartition (l, start, end-1, func);
