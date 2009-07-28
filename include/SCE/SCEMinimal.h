@@ -25,6 +25,9 @@
 #ifndef SCEMINIMAL_H
 #define SCEMINIMAL_H
 
+/* common macros, especially SCE_GNUC_* */
+#include <SCE/SCECommon.h>
+
 /* backtracer present par defaut */
 #include <SCE/utils/SCEBacktracer.h>
 

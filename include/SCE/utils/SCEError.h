@@ -26,18 +26,18 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <SCE/SCECommon.h>
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-/* TODO: sucks */
-#define SCE__FUNCTION__ __FUNCTION__
 
-#define SCEE_Log(c) SCE_Error_Log (__FILE__, SCE__FUNCTION__, __LINE__, c)
+#define SCEE_Log(c) SCE_Error_Log (__FILE__, SCE_FUNCTION, __LINE__, c)
 #define SCEE_LogFromErrno(a,c)\
-    SCE_Error_LogFromErrno(__FILE__, SCE__FUNCTION__, __LINE__, a, c)
-#define SCEE_LogSrc() SCE_Error_LogSrc(__FILE__, SCE__FUNCTION__, __LINE__)
+    SCE_Error_LogFromErrno(__FILE__, SCE_FUNCTION, __LINE__, a, c)
+#define SCEE_LogSrc() SCE_Error_LogSrc(__FILE__, SCE_FUNCTION, __LINE__)
 #define SCEE_LogMsg SCE_Error_LogMsg
 #define SCEE_LogSrcMsg SCE_Error_LogSrcMsg
 #define SCEE_SendMsg SCE_Error_SendMsg
@@ -73,13 +73,13 @@ int SCE_Init_Error (FILE*);
 void SCE_Error_Clear (void);
 
 void SCE_Error_Log (const char*, const char*, const int, int);
-void SCE_Error_LogMsg (const char*, ...);
+void SCE_Error_LogMsg (const char*, ...) SCE_GNUC_PRINTF (1, 2);
 void SCE_Error_LogFromErrno (const char*, const char*, const int, int,
                              const char*);
 
-void SCE_Error_SendMsg (const char*, ...);
+void SCE_Error_SendMsg (const char*, ...) SCE_GNUC_PRINTF (1, 2);
 void SCE_Error_LogSrc (const char*, const char*, const int);
-void SCE_Error_LogSrcMsg (const char*, ...);
+void SCE_Error_LogSrcMsg (const char*, ...) SCE_GNUC_PRINTF (1, 2);
 
 int SCE_Error_GetCode (void);
 void SCE_Error_GetCodeMsg (int, char*, size_t);
