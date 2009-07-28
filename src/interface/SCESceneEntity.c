@@ -217,7 +217,6 @@ SCE_SSceneEntityGroup* SCE_SceneEntity_CreateGroup (void)
     SCE_SceneEntity_InitGroup (group);
     if (!(group->entities = SCE_List_Create (SCE_SceneEntity_YouDontHaveGroup)))
         goto failure;
-    SCE_List_CanDeleteIterators (group->entities, SCE_TRUE);
     goto success;
 failure:
     SCE_SceneEntity_DeleteGroup (group), group = NULL;
