@@ -370,8 +370,8 @@ void SCE_List_Remove (SCE_SListIterator *it)
 void SCE_List_Removel (SCE_SListIterator *it)
 {
     it->next->prev = it->prev;
-    it->next = NULL;
     it->prev->next = it->next;
+    it->next = NULL;
     it->prev = NULL;
 }
 #endif
