@@ -23,6 +23,7 @@
 #define SCEMEMORY_H
 
 #include <stdlib.h>
+#include <SCE/SCECommon.h>
 #include <SCE/core/SCECTypes.h>
 
 #ifdef __cplusplus
@@ -79,12 +80,19 @@ extern "C"
 
 int SCE_Init_Mem (void);
 
-void* SCE_Mem_Alloc (const char*, unsigned int, size_t);
-void* SCE_Mem_Calloc (const char*, unsigned int, size_t, size_t);
-void* SCE_Mem_Realloc (const char*, unsigned int, void*, size_t);
+void* SCE_Mem_Alloc (const char*, unsigned int, size_t)
+    SCE_GNUC_MALLOC
+    SCE_GNUC_ALLOC_SIZE (3);
+void* SCE_Mem_Calloc (const char*, unsigned int, size_t, size_t)
+    SCE_GNUC_MALLOC
+    SCE_GNUC_ALLOC_SIZE2 (3, 4);
+void* SCE_Mem_Realloc (const char*, unsigned int, void*, size_t)
+    SCE_GNUC_ALLOC_SIZE (3);
 void SCE_Mem_Free (const char*, int, void*);
 
-void* SCE_Mem_Dup (const void*, size_t);
+void* SCE_Mem_Dup (const void*, size_t)
+    SCE_GNUC_MALLOC
+    SCE_GNUC_ALLOC_SIZE (2);
 
 void SCE_Mem_Convert (int, void*, int, const void*, size_t);
 void* SCE_Mem_ConvertDup (int, int, const void*, size_t);

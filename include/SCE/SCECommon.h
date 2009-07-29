@@ -125,6 +125,18 @@ extern "C"
 
 /* end of stolen GLib macros */
 
+#if   __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
+#  define SCE_GNUC_NONNULL              __attribute__((nonnull))
+#  define SCE_GNUC_NONNULL1(a)          __attribute__((nonnull (a)))
+#  define SCE_GNUC_NONNULL2(a, b)       __attribute__((nonnull (a, b)))
+#  define SCE_GNUC_NONNULL3(a, b, c)    __attribute__((nonnull (a, b, c)))
+#else
+#  define SCE_GNUC_NONNULL
+#  define SCE_GNUC_NONNULL1
+#  define SCE_GNUC_NONNULL2
+#  define SCE_GNUC_NONNULL3
+#endif
+
 
 #ifdef __cplusplus
 } /* extern "C" */

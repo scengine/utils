@@ -28,6 +28,7 @@
  */
 #include <string.h>
 #include <stdarg.h>
+#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -55,7 +56,7 @@ char* SCE_String_Dup (const char*);
 
 char* SCE_String_CatDup (const char*, const char*);
 
-char* SCE_String_CatDupMulti (const char* str, ...);
+char* SCE_String_CatDupMulti (const char* str, ...) SCE_GNUC_NULL_TERMINATED;
 
 #ifdef __cplusplus
 } /* extern "C" */

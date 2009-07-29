@@ -23,6 +23,7 @@
 #define SCEMATH_H
 
 #include <math.h>
+#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -49,15 +50,15 @@ extern "C"
  #define min(a, b) (a < b ? a : b)
 #endif
 
-float SCE_Math_Sqrt (float);
-float SCE_Math_InvSqrt (float);
+float SCE_Math_Sqrt (float) SCE_GNUC_PURE;
+float SCE_Math_InvSqrt (float) SCE_GNUC_PURE;
 
-int SCE_Math_Powi (int, unsigned int);
+int SCE_Math_Powi (int, unsigned int) SCE_GNUC_PURE;
 
-int SCE_Math_PowerOfTwo (int);
+int SCE_Math_PowerOfTwo (int) SCE_GNUC_PURE;
 
-int SCE_Math_Clamp (int, int, int);
-float SCE_Math_Clampf (float, float, float);
+int SCE_Math_Clamp (int, int, int) SCE_GNUC_PURE;
+float SCE_Math_Clampf (float, float, float) SCE_GNUC_PURE;
 
 #ifdef __cplusplus
 } /* extern "C" */
