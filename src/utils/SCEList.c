@@ -336,10 +336,27 @@ int SCE_List_AppendNewl (SCE_SList *l, void *d)
     return SCE_OK;
 }
 
+/**
+ * \brief Removes an element
+ * \param it the iterator to detach
+ *
+ * Removes the given element \p it if it is inserted. This function checks
+ * if the iterator is inserted before remove it.
+ * \sa SCE_List_Removel()
+ */
+void SCE_List_Remove (SCE_SListIterator *it)
+{
+    if (it->next)
+        it->next->prev = it->prev;
+    if (it->prev) {
+        it->prev->next = it->next;
+        it->prev = NULL;
+    }
+    it->next = NULL;
+}
 #if !SCE_LIST_ABUSIVE_MACRO
 /**
  * \brief Removes an element of a list
- * \param l the SCE_SList from where detach the iterator (can be NULL)
  * \param it the iterator to detach
  * 
  * This function removes the element represented by the iterator from the given
@@ -347,13 +364,14 @@ int SCE_List_AppendNewl (SCE_SList *l, void *d)
  * If you just want to remove an element and its data, use SCE_List_Erase().
  * \note This function will not work if the list if \p it is combined to other
  * lists and \p it is the first or the last iterator of its list.
- * \sa SCE_List_Erase(), SCE_List_RemoveFirst(), SCE_List_RemoveLast()
+ * \sa SCE_List_Remove(), SCE_List_Erase(), SCE_List_RemoveFirst(),
+ * SCE_List_RemoveLast()
  */
 void SCE_List_Removel (SCE_SListIterator *it)
 {
     it->next->prev = it->prev;
-    it->prev->next = it->next;
     it->next = NULL;
+    it->prev->next = it->next;
     it->prev = NULL;
 }
 #endif
@@ -362,7 +380,7 @@ void SCE_List_Removel (SCE_SListIterator *it)
  * \param l the SCE_SList from where detach data
  * \returns the removed iterator
  * 
- * This function calls SCE_List_Remove (\p l, SCE_List_GetFirst (\p l)).
+ * This function calls SCE_List_Removel (\p l, SCE_List_GetFirst (\p l)).
  * \sa SCE_List_Removel(), SCE_List_RemoveLast(), SCE_List_EraseFirst()
  */
 SCE_SListIterator* SCE_List_RemoveFirst (SCE_SList *l)

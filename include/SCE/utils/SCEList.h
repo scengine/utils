@@ -91,6 +91,7 @@ int SCE_List_AppendNew (SCE_SListIterator*, void*);
 int SCE_List_PrependNewl (SCE_SList*, void*);
 int SCE_List_AppendNewl (SCE_SList*, void*);
 
+void SCE_List_Remove (SCE_SListIterator*);
 void SCE_List_Removel (SCE_SListIterator*);
 SCE_SListIterator* SCE_List_RemoveFirst (SCE_SList*);
 SCE_SListIterator* SCE_List_RemoveLast (SCE_SList*);
