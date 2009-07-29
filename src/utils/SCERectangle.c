@@ -395,10 +395,10 @@ int SCE_Rectangle_Intersects (SCE_SIntRect *a, SCE_SIntRect *b)
     int end[2];
     SCE_SIntRect r;
     
-    start[0] = max (a->p1[0], b->p1[0]);
-    start[1] = max (a->p1[1], b->p1[1]);
-    end[0] = min (a->p2[0], b->p2[0]);
-    end[1] = min (a->p2[1], b->p2[1]);
+    start[0] = MAX (a->p1[0], b->p1[0]);
+    start[1] = MAX (a->p1[1], b->p1[1]);
+    end[0] = MIN (a->p2[0], b->p2[0]);
+    end[1] = MIN (a->p2[1], b->p2[1]);
     r.p1[0] = start[0];
     r.p1[1] = start[1];
     r.p2[0] = end[0];
@@ -426,10 +426,10 @@ int SCE_Rectangle_Intersectsf (SCE_SFloatRect *a, SCE_SFloatRect *b)
     SCE_TVector2 end;
     SCE_SFloatRect r;
     
-    start[0] = max (a->p1[0], b->p1[0]);
-    start[1] = max (a->p1[1], b->p1[1]);
-    end[0] = min (a->p2[0], b->p2[0]);
-    end[1] = min (a->p2[1], b->p2[1]);
+    start[0] = MAX (a->p1[0], b->p1[0]);
+    start[1] = MAX (a->p1[1], b->p1[1]);
+    end[0] = MIN (a->p2[0], b->p2[0]);
+    end[1] = MIN (a->p2[1], b->p2[1]);
     r.p1[0] = start[0];
     r.p1[1] = start[1];
     r.p2[0] = end[0];

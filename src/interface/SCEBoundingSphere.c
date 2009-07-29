@@ -114,14 +114,14 @@ void SCE_BoundingSphere_Push (SCE_SBoundingSphere *sphere, SCE_TMatrix4 m)
         /* TODO: wrong */
 #if 0
         /* find the highest scaling component */
-        highest = max (m[0], m[1]);
-        highest = max (highest, m[2]);
-        highest = max (highest, m[4]);
-        highest = max (highest, m[5]);
-        highest = max (highest, m[6]);
-        highest = max (highest, m[8]);
-        highest = max (highest, m[9]);
-        highest = max (highest, m[10]);
+        highest = MAX (m[0], m[1]);
+        highest = MAX (highest, m[2]);
+        highest = MAX (highest, m[4]);
+        highest = MAX (highest, m[5]);
+        highest = MAX (highest, m[6]);
+        highest = MAX (highest, m[8]);
+        highest = MAX (highest, m[9]);
+        highest = MAX (highest, m[10]);
         /* use it */
         sphere->radius *= highest;
 #endif

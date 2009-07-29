@@ -42,12 +42,12 @@ extern "C"
 #endif
 
 
-#ifndef max
- #define max(a, b) (a > b ? a : b)
+#ifndef MAX
+ #define MAX(a, b) (a > b ? a : b)
 #endif
 
-#ifndef min
- #define min(a, b) (a < b ? a : b)
+#ifndef MIN
+ #define MIN(a, b) (a < b ? a : b)
 #endif
 
 float SCE_Math_Sqrt (float) SCE_GNUC_PURE;
