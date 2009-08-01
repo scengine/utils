@@ -84,6 +84,8 @@ void SCE_CModifiedBufferData (SCE_CBufferData*, size_t*);
 
 void SCE_CAddBufferData (SCE_CBuffer*, SCE_CBufferData*);
 SCE_CBufferData* SCE_CAddBufferNewData (SCE_CBuffer*, size_t, void*);
+void SCE_CRemoveBufferData (SCE_CBufferData*);
+
 void SCE_CBuildBuffer (SCE_CBuffer*, SCEenum, SCEenum);
 void SCE_CUpdateBuffer (SCE_CBuffer*);
 void SCE_CUseBuffer (SCE_CBuffer*);

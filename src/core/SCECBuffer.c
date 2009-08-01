@@ -62,7 +62,7 @@ SCE_CBufferData* SCE_CCreateBufferData (void)
 }
 void SCE_CClearBufferData (SCE_CBufferData *data)
 {
-    SCE_List_Remove (&data->it);
+    SCE_CRemoveBufferData (data);
 }
 void SCE_CDeleteBufferData (SCE_CBufferData *data)
 {
@@ -72,21 +72,21 @@ void SCE_CDeleteBufferData (SCE_CBufferData *data)
     }
 }
 
-static void SCE_CDeleteBufferBufferData (void *d)
+static void SCE_CFreeBufferBufferData (void *d)
 {
     SCE_CBufferData *data = d;
-    if (!data->user)
-        SCE_CDeleteBufferData (data);
-    else
+    if (data->user)
         SCE_CClearBufferData (data);
+    else
+        SCE_CDeleteBufferData (data);
 }
 void SCE_CInitBuffer (SCE_CBuffer *buf)
 {
     glGenBuffers (1, &buf->id);
     SCE_List_Init (&buf->data);
-    SCE_List_SetFreeFunc (&buf->data, SCE_CDeleteBufferBufferData);
+    SCE_List_SetFreeFunc (&buf->data, SCE_CFreeBufferBufferData);
     SCE_List_Init (&buf->modified);
-    SCE_List_SetFreeFunc (&buf->modified, SCE_CDeleteBufferBufferData);
+    SCE_List_SetFreeFunc (&buf->modified, SCE_CFreeBufferBufferData);
     buf->mapptr = NULL;
 }
 SCE_CBuffer* SCE_CCreateBuffer (void)
@@ -159,6 +159,13 @@ SCE_CBufferData* SCE_CAddBufferNewData (SCE_CBuffer *buf, size_t s, void *p)
         SCE_CAddBufferData (buf, data);
     }
     return data;
+}
+void SCE_CRemoveBufferData (SCE_CBufferData *data)
+{
+    if (data->buf) {
+        SCE_List_Removel (&data->it);
+        data->buf = NULL;
+    }
 }
 
 void SCE_CBuildBuffer (SCE_CBuffer *buf, SCEenum target, SCEenum usage)
