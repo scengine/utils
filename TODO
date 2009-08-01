@@ -6,12 +6,8 @@ See the file ./doc/html/todo.html
 - Flipper l'image lors d'une conversion de format -> DXTC (à l'envers sinon).
 - Ajouter une fonction de flip d'images (flip et... euh, dans l'autre sens).
 - Corriger les bugs du support du Cg.
-- Ajouter le support des extensions aux fonctions de sauvegarde du
-  gestionnaire de médias.
 - Animations squelettales.
 - Gérer 'type' dans la fonction SCE_Texture_Load().
-- Améliorer la gestion des ressources dans le gestionnaire de shaders côté
-  interface (notamment lorsqu'on ajoute des sources).
 - Implémenter la détection d'ID d'attributs dans le gestionnaire de shaders Cg.
 - Corriger le bug au niveau des niveaux de mipmap sur les images DDS.
 - Rajouter une structure de données par état, càd un paramètre à fourguer aux
@@ -21,7 +17,6 @@ See the file ./doc/html/todo.html
 - Ajouter une fonction de tri des indices de vertex d'après le tuto :
   http://bakura.developpez.com/tutoriel/cpp/vertexcache/
 - Définir une constante pour un index de paramète de shader invalide.
-- Gérer le frustum culling sur les meshs de particules... :/
 - Rassemblement de toutes les mises a jour des vertex buffer pour une seule
   synchronisation CPU/GPU par frame. (__à tester__)
 - Système de "plans" pour le gestionnaire de scène, afin d'augmenter la
@@ -35,7 +30,6 @@ See the file ./doc/html/todo.html
   de visages. 
 
 - Prévoir des séquences de matrices de modification des coordonnées de texture.
-- Mipmapping manuel... ?
 - Geometry shaders.
 - Is glLinkProgram() a fast function? Can be called many times on each frame?
 - FBOs Multisampling.
@@ -44,7 +38,16 @@ See the file ./doc/html/todo.html
 - Ajouter une fonction reload() au gestionnaire de médias/ressources.
 - Ajouter une fonction qui permet de mettre à jour certaines parties de la scène
   via des flags SCE_Scene_Update (scene, a | b | c | d).
-- Gestion des terrains (wesh).
+- Gestion des terrains (wesh) :
+    Différents types de terrain :
+    - simple heightmap ;
+    - géométrie complexe : map de translation des sommets sur (x, y) ;
+    - géométrie dynamique : eau.
+    Fonctionnalités :
+    - geomipmapping ;
+    - pseudo mega textures... ?
+    - culling: frustum, occlusion, ... ;
+    - geometry clipmaps.
 - Virer un max d'appels à glEnable/glDisable si c'est pour ne rien changer.
 - Textures atlases manager.
 - Créer une fonction de mise en état d'un mode propice au "double-speed z-pass".
@@ -55,23 +58,28 @@ See the file ./doc/html/todo.html
 - Instaurer d'autres règles pour le changement d'entité d'une instance en plus
   du LOD (?).
 - API de shaders intégrée au moteur (noms similaires, uniforms définis, etc...).
-- Afficher un message d'erreur lorsque l'utilisateur tente de libérer (SCE_free)
-  de la mémoire qui ne lui appartient pas.
+    Cette fonctionnalité devient importante. Prévoir de gérer des trucs comme :
+    - textures comme support d'informations (skinning, instancing, ...)
+    - lier le module à tous les autres pour définir et récupérer les états :
+      - quel mode d'instancing est utilisé ;
+      - quelles textures représentent quelles données ;
+      - informations de scène, etc.
 - Paramétrage des entités par le gestionnaire de scènes (doit-on utiliser les
   textures pour ce rendu ? etc.).
 - Improve MulCopy() functions: DONT duplicate all the matrix.
 - Modifier les attributs d'un octree peu visible après une requête d'occlusion.
-- Déplacer la définition de SCE_TANGENT et SCE_BINORMAL dans SCEMesh.[ch].
 - Matrix_Mask() : applique un masque (multiplie chaque élément).
 - Désactivation des nœuds : non mise à jour de leur position dans l'octree, etc.
-- Merge SceneResource & Shader, Texture, etc. ?
 - VAO (OpenGL 3.1).
-- SCE_SSceneEntityInstanceGroup : group d'instances situées impérativement dans
+- SCE_SSceneEntityInstanceGroup : groupe d'instances situées impérativement dans
   le même bounding volume.
 - Ajouter un module de gestion de la géométrie (SCEGeometry) au lieu de tout
   fourrer dans SCEMesh.
 - Paramètres de ressources lors de l'utilisation : recharger la ressource de
   type SCE_SShader lorsque les paramètres à fourguer sont différents, mais
   instancier quand même le SCE_CShader.
+- Scinder le core pour la compatibilité avec les versions récentes d'OpenGL.
+- Renommer SCEQuad en SCEQuadMesh.
+- Renommer SCEGeometryInstance en SCEInstancing.
 
-- 46
+- 42
