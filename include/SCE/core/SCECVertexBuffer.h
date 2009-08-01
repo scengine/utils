@@ -81,7 +81,7 @@ struct sce_cvertexbuffer {
     SCE_SList data;             /**< CVertexBufferData, memory managed by the
                                  * vertex buffer */
     SCE_FUseVBFunc use;         /**< Setup function */
-    SCE_CBufferRenderMode build_mode; /**< Defined mode when built */
+    SCE_CBufferRenderMode rmode;/**< Render mode set when built */
     unsigned int n_vertices;    /**< Number of vertices in the vertex buffer */
 };
 /** \copydoc sce_cindexbuffer */
@@ -134,13 +134,19 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer*, SCE_CBufferRenderMode);
 void SCE_CUpdateVertexBuffer (SCE_CVertexBuffer*);
 void SCE_CUseVertexBuffer (SCE_CVertexBuffer*);
 void SCE_CRenderVertexBuffer (SCEenum);
+void SCE_CRenderVertexBufferInstanced (SCEenum, SCEuint);
 
 SCE_CBuffer* SCE_CGetIndexBufferBuffer (SCE_CIndexBuffer*);
+void SCE_CSetIndexBufferIndexArray (SCE_CIndexBuffer*, SCE_CIndexArray*,
+                                    SCEuint);
 void SCE_CSetIndexBufferIndices (SCE_CIndexBuffer*, SCEenum, unsigned int,
                                  void*);
 void SCE_CBuildIndexBuffer (SCE_CIndexBuffer*, SCEenum);
 void SCE_CUseIndexBuffer (SCE_CIndexBuffer*);
 void SCE_CRenderVertexBufferIndexed (SCEenum);
+void SCE_CRenderVertexBufferIndexedInstanced (SCEenum, SCEuint);
+
+void SCE_CFinishVertexBufferRender (void);
 
 #ifdef __cplusplus
 } /* extern "C" */

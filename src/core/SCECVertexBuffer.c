@@ -59,11 +59,18 @@ void SCE_CDeleteVertexBufferData (SCE_CVertexBufferData *data)
     }
 }
 
+static void SCE_CFreeVertexBufferData (void *vbd)
+{
+    /* not useless: CRemove set the vb pointer of vbd to NULL */
+    SCE_CRemoveVertexBufferData (vbd);
+}
 void SCE_CInitVertexBuffer (SCE_CVertexBuffer *vb)
 {
     SCE_CInitBuffer (&vb->buf);
     SCE_List_Init (&vb->data);
-    SCE_List_SetFreeFunc (&vb->data, NULL);
+    SCE_List_SetFreeFunc (&vb->data, SCE_CFreeVertexBufferData);
+    vb->use = NULL;
+    vb->rmode = SCE_VA_RENDER_MODE;
     vb->n_vertices = 0;
 }
 SCE_CVertexBuffer* SCE_CCreateVertexBuffer (void)
@@ -138,17 +145,22 @@ void SCE_CSetVertexBufferDataArrayData (SCE_CVertexBufferData *vbd,
 /**
  * \brief Set modified vertices range
  * \param range range of modified vertices, [0] is the first modified vertex
- * and [1] the number of modified vertices
+ * and [1] the number of modified vertices, if NULL the whole buffer data will
+ * be updated.
  * \sa SCE_CModifiedBufferData()
  */
 void SCE_CModifiedVertexBufferData (SCE_CVertexBufferData *vbd, size_t *range)
 {
-    size_t r[2];
-    SCE_CVertexArrayData *d = SCE_CGetVertexArrayData (&vbd->va);
-    r[0] = r[1] = d->size * SCE_CSizeof (d->type);
-    r[0] *= range[0];
-    r[1] *= range[1];
-    SCE_CModifiedBufferData (&vbd->data, r);
+    if (!range)
+        SCE_CModifiedBufferData (&vbd->data, NULL);
+    else {
+        size_t r[2];
+        SCE_CVertexArrayData *d = SCE_CGetVertexArrayData (&vbd->va);
+        r[0] = r[1] = d->size * SCE_CSizeof (d->type);
+        r[0] *= range[0];
+        r[1] *= range[1];
+        SCE_CModifiedBufferData (&vbd->data, r);
+    }
 }
 /**
  * \brief Enables the given vertex buffer data for the render
@@ -250,10 +262,8 @@ SCE_CVertexBufferData* SCE_CAddVertexBufferNewData (SCE_CVertexBuffer *vb,
  */
 void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData *data)
 {
-    if (data->vb) {
-        SCE_List_Removel (&data->it);
-        data->vb = NULL;
-    }
+    SCE_List_Remove (&data->it);
+    data->vb = NULL;
 }
 
 static void SCE_CUseVAMode (SCE_CVertexBuffer *vb)
@@ -289,10 +299,23 @@ static void SCE_CUseUnifiedVAOMode (SCE_CVertexBuffer *vb)
     data = SCE_List_GetData (SCE_List_GetFirst (&vb->data));
     SCE_CCallVertexArraySequence (&data->va);
 }
+static void SCE_CUseUnifiedVBOMode (SCE_CVertexBuffer *vb)
+{
+    /* the first vertex array contains the GL VAO sequence */
+    SCE_CVertexBufferData *data = NULL;
+    data = SCE_List_GetData (SCE_List_GetFirst (&vb->data));
+    SCE_CCallVertexArraySequence (&data->va);
+}
 /**
  * \brief Builds a vertex buffer
  * \param usage GL usage of the buffer
  * \param mode rendering method to use with the vertex buffer
+ *
+ * If \p mode is SCE_UNIFIED_VBO_RENDER_MODE, you may call
+ * SCE_CUseVertexBuffer()/SCE_CUseIndexBuffer() for each vertex/index buffer
+ * you want to link to \p vb and terminate with SCE_CEndVertexArraySequence().
+ * Then using \p vb will do the same as using one by one each vertex buffer you
+ * specified.
  * \sa SCE_CSetVertexBufferRenderMode(), SCE_CBufferRenderMode
  */
 void SCE_CBuildVertexBuffer (SCE_CVertexBuffer *vb, SCEenum usage,
@@ -300,7 +323,7 @@ void SCE_CBuildVertexBuffer (SCE_CVertexBuffer *vb, SCEenum usage,
 {
     SCE_CVertexBufferData *data = NULL;
 
-    vb->build_mode = mode;
+    vb->rmode = mode;
     if (mode >= SCE_VBO_RENDER_MODE)
         SCE_CBuildBuffer (&vb->buf, GL_ARRAY_BUFFER, usage);
 
@@ -320,6 +343,11 @@ void SCE_CBuildVertexBuffer (SCE_CVertexBuffer *vb, SCEenum usage,
         SCE_CBeginVertexArraySequence (&data->va);
         SCE_CUseVBOMode (vb);
         SCE_CEndVertexArraySequence ();
+    } else if (mode == SCE_UNIFIED_VBO_RENDER_MODE) {
+        /* use the first vertex array as the VAO container */
+        data = SCE_List_GetData (SCE_List_GetFirst (&vb->data));
+        SCE_CBeginVertexArraySequence (&data->va);
+        SCE_CUseVBOMode (vb);
     }
 }
 
@@ -347,38 +375,17 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer *vb,
             data->data = vbd->data.data;
         }
         break;
-
     case SCE_VBO_RENDER_MODE:
-#ifdef SCE_DEBUG
-        if (vb->build_mode < SCE_VBO_RENDER_MODE) {
-            SCEE_SendMsg ("render mode used to build the vertex buffer doesn't "
-                          "allow to switch to VBO render mode");
-            break;
-        }
-#endif
         fun = SCE_CUseVBOMode;
     case SCE_VAO_RENDER_MODE:
-        if (!fun) {
-#ifdef SCE_DEBUG
-            if (vb->build_mode != SCE_VAO_RENDER_MODE) {
-                SCEE_SendMsg ("render mode used to build the vertex buffer does"
-                              "n't allow to switch to VAO render mode");
-                break;
-            }
-#endif
+        if (!fun)
             fun = SCE_CUseVAOMode;
-        }
     case SCE_UNIFIED_VAO_RENDER_MODE:
-        if (!fun) {
-#ifdef SCE_DEBUG
-            if (vb->build_mode != SCE_UNIFIED_VAO_RENDER_MODE) {
-                SCEE_SendMsg ("render mode used to build the vertex buffer does"
-                              "n't allow to switch to unified VAO render mode");
-                break;
-            }
-#endif
+        if (!fun)
             fun = SCE_CUseUnifiedVAOMode;
-        }
+    case SCE_UNIFIED_VBO_RENDER_MODE:
+        if (!fun)
+            fun = SCE_CUseUnifiedVBOMode;
         SCE_List_ForEach (it, &vb->data) {
             SCE_CVertexArrayData *data = NULL;
             SCE_CVertexBufferData *vbd = SCE_List_GetData (it);
@@ -413,12 +420,20 @@ void SCE_CUseVertexBuffer (SCE_CVertexBuffer *vb)
     vb_bound = vb;
 }
 
+
 /**
  * \brief 
  */
 void SCE_CRenderVertexBuffer (SCEenum prim)
 {
     glDrawArrays (prim, 0, vb_bound->n_vertices);
+}
+/**
+ * \brief 
+ */
+void SCE_CRenderVertexBufferInstanced (SCEenum prim, SCEuint num)
+{
+    glDrawArraysInstanced (prim, 0, vb_bound->n_vertices, num);
 }
 
 
@@ -431,7 +446,26 @@ SCE_CBuffer* SCE_CGetIndexBufferBuffer (SCE_CIndexBuffer *ib)
 }
 
 /**
- * \brief 
+ * \brief Sets the array data of an index buffer
+ *
+ * The structure \p ia is copied into \p ib so don't worry about memory
+ * management, \p ia can be a static structure.
+ * \sa SCE_CSetIndexBufferIndices()
+ */
+void SCE_CSetIndexBufferIndexArray (SCE_CIndexBuffer *ib, SCE_CIndexArray *ia,
+                                    SCEuint n_indices)
+{
+    ib->data.size = n_indices * SCE_CSizeof (ia->type);
+    ib->data.data = ia->data;
+    ib->ia.type = ia->type;
+    /* don't set ib->ia.data, coz it's just an offset */
+    ib->n_indices = n_indices;
+}
+/**
+ * \brief Sets the index array of an index buffer
+ *
+ * \p indices will never be freed by the vertex buffer module.
+ * \sa SCE_CSetIndexBufferIndexArray()
  */
 void SCE_CSetIndexBufferIndices (SCE_CIndexBuffer *ib, SCEenum type,
                                  unsigned int n_indices, void *indices)
@@ -466,4 +500,32 @@ void SCE_CUseIndexBuffer (SCE_CIndexBuffer *ib)
 void SCE_CRenderVertexBufferIndexed (SCEenum prim)
 {
     SCE_CRenderIndexed (prim, &ib_bound->ia, ib_bound->n_indices);
+}
+/**
+ * \brief 
+ */
+void SCE_CRenderVertexBufferIndexedInstanced (SCEenum prim, SCEuint num)
+{
+    SCE_CRenderIndexedInstanced (prim, &ib_bound->ia, ib_bound->n_indices, num);
+}
+
+
+/**
+ * \brief Deactivate rendering states setup by SCE_CUseVertexBuffer() and
+ * SCE_CUseIndexBuffer()
+ * \note Useless in a pure GL 3 context
+ */
+void SCE_CFinishVertexBufferRender (void)
+{
+    SCE_CFinishVertexArrayRender ();
+    if (vb_bound->rmode == SCE_VBO_RENDER_MODE ||
+        vb_bound->rmode == SCE_VAO_RENDER_MODE) {
+        glBindBuffer (GL_ARRAY_BUFFER, 0);
+        /* otherwise there is no vertex buffer object or the VAO already
+           deactivated the vertex buffer */
+    }
+    if (ib_bound) /* if NULL, no index buffer or included in the VAO */
+        glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
+    ib_bound = NULL;
+    vb_bound = NULL;
 }
