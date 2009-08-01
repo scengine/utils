@@ -110,6 +110,7 @@ void SCE_CDeleteVertexBuffer (SCE_CVertexBuffer*);
 
 void SCE_CInitIndexBuffer (SCE_CIndexBuffer*);
 SCE_CIndexBuffer* SCE_CCreateIndexBuffer (void);
+void SCE_CClearIndexBuffer (SCE_CIndexBuffer*);
 void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer*);
 
 void SCE_CSetVertexBufferDataArrayData (SCE_CVertexBufferData*,
