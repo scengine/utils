@@ -65,15 +65,11 @@ typedef enum sce_ccapability SCE_CCap;
 
 /** @} */
 
-/* initialisation */
 int SCE_CSupportInit (void);
 
-/* cherche dans glGetString (GL_EXTENSIONS) */
 int SCE_CFindExtension (const char*);
-/* generic version (to use) */
 int SCE_CIsSupported (const char*);
 
-/* renvoie un booleen si l'extension est supportee */
 int SCE_CHasCap (SCE_CCap);
 
 #ifdef __cplusplus

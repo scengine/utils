@@ -44,9 +44,7 @@
 
 /** @{ */
 
-
 static unsigned char caps[SCE_NUM_CAPS];
-
 
 static void SCE_CCheckCaps (void)
 {
@@ -66,7 +64,7 @@ static void SCE_CCheckCaps (void)
     caps[SCE_TEX_S3TC] =
     SCE_CIsSupported ("GL_EXT_texture_compression_s3tc");
 
-    caps[SCE_TEX_3DC] = SCE_FALSE;
+    caps[SCE_TEX_3DC] = SCE_FALSE; /* TODO: onlz */
 
     caps[SCE_VBO] =
     SCE_CIsSupported ("GL_ARB_vertex_buffer_object");
@@ -77,18 +75,19 @@ static void SCE_CCheckCaps (void)
     SCE_CIsSupported ("GL_ATI_vertex_array_object");
 
     caps[SCE_FBO] =
+    SCE_CIsSupported ("GL_ARB_framebuffer_object") ||
     SCE_CIsSupported ("GL_EXT_framebuffer_object");
 
     caps[SCE_PBO] =
     SCE_CIsSupported ("GL_EXT_pixel_buffer_object") ||
     SCE_CIsSupported ("GL_ARB_pixel_buffer_object");
 
-    caps[SCE_VERTEX_SHADER_GLSL] =
+    caps[SCE_VERTEX_SHADER_GLSL] = /* TODO: obsolete */
     SCE_CIsSupported ("GL_ARB_vertex_shader") &&
     SCE_CIsSupported ("GL_ARB_shader_objects") &&
     SCE_CIsSupported ("GL_ARB_shading_language_100");
 
-    caps[SCE_FRAGMENT_SHADER_GLSL] =
+    caps[SCE_FRAGMENT_SHADER_GLSL] = /* TODO: obsolete */
     SCE_CIsSupported ("GL_ARB_fragment_shader") &&
     SCE_CIsSupported ("GL_ARB_shader_objects") &&
     SCE_CIsSupported ("GL_ARB_shading_language_100");
@@ -100,7 +99,8 @@ static void SCE_CCheckCaps (void)
     caps[SCE_CG_SHADERS] = 0;
 
     caps[SCE_OCCLUSION_QUERY] =
-    SCE_CIsSupported ("GL_ARB_occlusion_query");
+    SCE_CIsSupported ("GL_ARB_occlusion_query") ||
+    SCE_CIsSupported ("GL_NV_occlusion_query");
 
     caps[SCE_MRT] =
     SCE_CIsSupported ("GL_ARB_draw_buffers") ||
