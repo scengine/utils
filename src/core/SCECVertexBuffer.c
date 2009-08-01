@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 29/07/2009 */
+   updated: 01/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -68,13 +68,15 @@ SCE_CVertexBuffer* SCE_CCreateVertexBuffer (void)
         SCE_CInitVertexBuffer (vb);
     return vb;
 }
+void SCE_CClearVertexBuffer (SCE_CVertexBuffer *vb)
+{
+    SCE_List_Clear (&vb->data);
+    SCE_CClearBuffer (&vb->buf);
+}
 void SCE_CDeleteVertexBuffer (SCE_CVertexBuffer *vb)
 {
     if (vb) {
-        {
-            SCE_List_Clear (&vb->data);
-            SCE_CClearBuffer (&vb->buf);
-        }
+        SCE_CClearVertexBuffer (vb);
         SCE_free (vb);
     }
 }
@@ -108,6 +110,10 @@ void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer *ib)
 }
 
 
+/**
+ * \brief Specifies the array data of a vertex buffer data
+ * \sa SCE_CAddVertexBufferData
+ */
 void SCE_CSetVertexBufferDataArrayData (SCE_CVertexBufferData *vbd,
                                         SCE_CVertexArrayData *data,
                                         unsigned int n_vertices)
@@ -159,7 +165,9 @@ SCE_CBuffer* SCE_CGetVertexBufferBuffer (SCE_CVertexBuffer *vb)
 
 /**
  * \brief Adds data to a vertex buffer
- * \sa SCE_CAddVertexBufferArrayData(), SCE_CAddBufferData()
+ *
+ * The memory of \p d is never freed by module CVertexBuffer.
+ * \sa SCE_CSetVertexBufferDataArrayData(), SCE_CAddBufferData()
  */
 void SCE_CAddVertexBufferData (SCE_CVertexBuffer *vb, SCE_CVertexBufferData *d)
 {
@@ -168,10 +176,16 @@ void SCE_CAddVertexBufferData (SCE_CVertexBuffer *vb, SCE_CVertexBufferData *d)
     d->vb = vb;
 }
 /**
+ * \deprecated
+ * \todo useless, unlogical: better to manage a CVertexBufferData structure
+ * at this level, and use
  * \brief Adds a new vertex buffer data from vertex array data
  * \param data vertex buffer data will be build around these data
  * \param n_vertices number of vertices in \p data
- * \sa SCE_CAddVertexBufferData()
+ *
+ * Deprecated function, better to use SCE_CAddVertexBufferData() and
+ * SCE_CSetVertexBufferDataArrayData().
+ * \sa SCE_CSetVertexBufferDataArrayData(), SCE_CAddVertexBufferData()
  */
 SCE_CVertexBufferData* SCE_CAddVertexBufferArrayData(SCE_CVertexBuffer *vb,
                                                      SCE_CVertexArrayData *data,
@@ -194,9 +208,12 @@ SCE_CVertexBufferData* SCE_CAddVertexBufferArrayData(SCE_CVertexBuffer *vb,
 }
 /**
  * \deprecated
+ * \todo remove it
  * \brief Adds a new vertex array data built from the given arguments
  * \param attrib,type,size,p used to construct the vertex array data
- * \sa SCE_CAddVertexBufferArrayData()
+ * Deprecated function, better to use SCE_CAddVertexBufferData() and
+ * SCE_CSetVertexBufferDataArrayData().
+ * \sa SCE_CSetVertexBufferDataArrayData(), SCE_CAddVertexBufferData()
  */
 SCE_CVertexBufferData* SCE_CAddVertexBufferNewData (SCE_CVertexBuffer *vb,
                                                     unsigned int attrib,

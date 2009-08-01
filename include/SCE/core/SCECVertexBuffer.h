@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 29/07/2009 */
+   updated: 01/08/2009 */
 
 #ifndef SCECVERTEXBUFFER_H
 #define SCECVERTEXBUFFER_H
@@ -104,6 +104,7 @@ void SCE_CDeleteVertexBufferData (SCE_CVertexBufferData*);
 
 void SCE_CInitVertexBuffer (SCE_CVertexBuffer*);
 SCE_CVertexBuffer* SCE_CCreateVertexBuffer (void);
+void SCE_CClearVertexBuffer (SCE_CVertexBuffer*);
 void SCE_CDeleteVertexBuffer (SCE_CVertexBuffer*);
 
 void SCE_CInitIndexBuffer (SCE_CIndexBuffer*);
