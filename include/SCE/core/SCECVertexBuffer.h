@@ -100,6 +100,7 @@ struct sce_cindexbuffer {
 
 void SCE_CInitVertexBufferData (SCE_CVertexBufferData*);
 SCE_CVertexBufferData* SCE_CCreateVertexBufferData (void);
+void SCE_CClearVertexBufferData (SCE_CVertexBufferData*);
 void SCE_CDeleteVertexBufferData (SCE_CVertexBufferData*);
 
 void SCE_CInitVertexBuffer (SCE_CVertexBuffer*);
@@ -124,6 +125,8 @@ SCE_CVertexBufferData* SCE_CAddVertexBufferArrayData (SCE_CVertexBuffer*,
 SCE_CVertexBufferData* SCE_CAddVertexBufferNewData (SCE_CVertexBuffer*,
                                                     unsigned int, SCEenum, int,
                                                     unsigned int, void*);
+void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData*);
+
 void SCE_CBuildVertexBuffer (SCE_CVertexBuffer*, SCEenum,
                              SCE_CBufferRenderMode);
 void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer*, SCE_CBufferRenderMode);

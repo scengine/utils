@@ -45,9 +45,16 @@ SCE_CVertexBufferData* SCE_CCreateVertexBufferData (void)
         SCE_CInitVertexBufferData (data);
     return data;
 }
+void SCE_CClearVertexBufferData (SCE_CVertexBufferData *data)
+{
+    SCE_CRemoveVertexBufferData (data);
+    SCE_CClearVertexArray (&data->va);
+    SCE_CClearBufferData (&data->data);
+}
 void SCE_CDeleteVertexBufferData (SCE_CVertexBufferData *data)
 {
     if (data) {
+        SCE_CClearVertexBufferData (data);
         SCE_free (data);
     }
 }
@@ -99,12 +106,15 @@ SCE_CIndexBuffer* SCE_CCreateIndexBuffer (void)
         SCE_CInitIndexBuffer (ib);
     return ib;
 }
+void SCE_CClearIndexBuffer (SCE_CIndexBuffer *ib)
+{
+    SCE_CClearBufferData (&ib->data);
+    SCE_CClearBuffer (&ib->buf);
+}
 void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer *ib)
 {
     if (ib) {
-        {
-            SCE_CClearBuffer (&ib->buf);
-        }
+        SCE_CClearIndexBuffer (ib);
         SCE_free (ib);
     }
 }
@@ -112,7 +122,10 @@ void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer *ib)
 
 /**
  * \brief Specifies the array data of a vertex buffer data
- * \sa SCE_CAddVertexBufferData
+ *
+ * The structure \p data is given to the vertex array of \p vbd
+ * calling SCE_CSetVertexArrayData().
+ * \sa SCE_CSetVertexArrayData(), SCE_CAddVertexBufferData
  */
 void SCE_CSetVertexBufferDataArrayData (SCE_CVertexBufferData *vbd,
                                         SCE_CVertexArrayData *data,
@@ -230,6 +243,17 @@ SCE_CVertexBufferData* SCE_CAddVertexBufferNewData (SCE_CVertexBuffer *vb,
     if (!(data = SCE_CAddVertexBufferArrayData (vb, &array, n_vertices)))
         SCEE_LogSrc ();
     return data;
+}
+/**
+ * \brief Removes a vertex buffer data from its buffer
+ * \sa SCE_CAddVertexBufferData(), SCE_CClearVertexBufferData()
+ */
+void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData *data)
+{
+    if (data->vb) {
+        SCE_List_Removel (&data->it);
+        data->vb = NULL;
+    }
 }
 
 static void SCE_CUseVAMode (SCE_CVertexBuffer *vb)
