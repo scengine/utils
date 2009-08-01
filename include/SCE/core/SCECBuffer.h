@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 29/07/2009 */
+   updated: 01/08/2009 */
 
 #ifndef SCECBUFFER_H
 #define SCECBUFFER_H
@@ -72,10 +72,12 @@ struct sce_cbuffer {
 
 void SCE_CInitBufferData (SCE_CBufferData*);
 SCE_CBufferData* SCE_CCreateBufferData (void);
+void SCE_CClearBufferData (SCE_CBufferData*);
 void SCE_CDeleteBufferData (SCE_CBufferData*);
 
 void SCE_CInitBuffer (SCE_CBuffer*);
 SCE_CBuffer* SCE_CCreateBuffer (void);
+void SCE_CClearBuffer (SCE_CBuffer*);
 void SCE_CDeleteBuffer (SCE_CBuffer*);
 
 void SCE_CModifiedBufferData (SCE_CBufferData*, size_t*);

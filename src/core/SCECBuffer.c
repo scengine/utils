@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 29/07/2009 */
+   updated: 01/08/2009 */
 
 #include <string.h>             /* memcpy */
 #include <SCE/SCEMinimal.h>
@@ -60,24 +60,29 @@ SCE_CBufferData* SCE_CCreateBufferData (void)
         SCE_CInitBufferData (data);
     return data;
 }
+void SCE_CClearBufferData (SCE_CBufferData *data)
+{
+    SCE_List_Remove (&data->it);
+}
 void SCE_CDeleteBufferData (SCE_CBufferData *data)
 {
     if (data) {
+        SCE_CClearBufferData (data);
         SCE_free (data);
     }
 }
 
 static void SCE_CDeleteBufferBufferData (void *d)
 {
-    if (d) {
-        SCE_CBufferData *data = d;
-        if (!data->user)
-            SCE_CDeleteBufferData (data);
-    }
+    SCE_CBufferData *data = d;
+    if (!data->user)
+        SCE_CDeleteBufferData (data);
+    else
+        SCE_CClearBufferData (data);
 }
 void SCE_CInitBuffer (SCE_CBuffer *buf)
 {
-    buf->id = 0;
+    glGenBuffers (1, &buf->id);
     SCE_List_Init (&buf->data);
     SCE_List_SetFreeFunc (&buf->data, SCE_CDeleteBufferBufferData);
     SCE_List_Init (&buf->modified);
@@ -160,7 +165,6 @@ void SCE_CBuildBuffer (SCE_CBuffer *buf, SCEenum target, SCEenum usage)
 {
     SCE_CBufferData *data = NULL;
     SCE_SListIterator *it = NULL;
-    glGenBuffers (1, &buf->id);
     glBindBuffer (target, buf->id);
     glBufferData (target, buf->size, NULL, usage);
     SCE_List_ForEach (it, &buf->data) {
