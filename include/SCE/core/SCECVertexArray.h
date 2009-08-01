@@ -132,7 +132,7 @@ void SCE_CEndVertexArraySequence (void);
 void SCE_CUseVertexArray (SCE_CVertexArray*);
 void SCE_CRender (SCEenum, unsigned int);
 void SCE_CRenderIndexed (SCEenum, SCE_CIndexArray*, unsigned int);
-void SCE_CFinishRender (void);
+void SCE_CFinishVertexArrayRender (void);
 
 #ifdef __cplusplus
 } /* extern "C" */

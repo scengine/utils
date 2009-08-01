@@ -40,6 +40,7 @@
  */
 
 static SCE_SList vaused;
+static int vao_used = SCE_FALSE;
 
 int SCE_CVertexArrayInit (void)
 {
@@ -281,6 +282,7 @@ void SCE_CBeginVertexArraySequence (SCE_CVertexArray *va)
 void SCE_CCallVertexArraySequence (SCE_CVertexArray *va)
 {
     glBindVertexArray (va->id);
+    vao_used = SCE_TRUE;
 }
 /**
  * \brief Ends a setup sequence or a call
@@ -311,14 +313,16 @@ void SCE_CRenderIndexed (SCEenum prim, SCE_CIndexArray *ia,
 
 /**
  * \brief Call this function when the render of a group of vertex arrays is done
- *
- * Do not call this function if you done your render with
- * SCE_CCallVertexArraySequence(), use SCE_CEndVertexArraySequence() instead.
  * \sa SCE_CCallVertexArraySequence(), SCE_CEndVertexArraySequence()
  */
-void SCE_CFinishRender (void)
+void SCE_CFinishVertexArrayRender (void)
 {
     SCE_SListIterator *it = NULL;
+    if (vao_used) {
+        vao_used = SCE_FALSE;
+        glBindVertexArray (0);
+    }
+    /*else*/
     SCE_List_ForEach (it, &vaused) {
         SCE_CVertexArray *va = SCE_List_GetData (it);
         va->unset (&va->data);
