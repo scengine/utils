@@ -169,6 +169,14 @@ void SCE_Geometry_Delete (SCE_SGeometry *geom)
 }
 
 /**
+ * \brief Gets the geometry array that \p auser uses
+ */
+SCE_SGeometryArray* SCE_Geometry_GetUserArray (SCE_SGeometryArrayUser *auser)
+{
+    return auser->array;
+}
+
+/**
  * \brief Adds an user to a geometry array
  * \param u the user to add
  * \brief fun callback called when \p array is updated
@@ -448,6 +456,29 @@ void SCE_Geometry_SetNumIndices (SCE_SGeometry *geom, unsigned int n_indices)
 unsigned int SCE_Geometry_GetNumIndices (SCE_SGeometry *geom)
 {
     return geom->n_indices;
+}
+
+/**
+ * \brief Gets the arrays of a geometry (not including those who are modified)
+ *
+ * To get all the arrays of a geometry, use also those returned by
+ * SCE_Geometry_GetModifiedArrays().
+ * \sa SCE_Geometry_GetModifiedArrays()
+ */
+SCE_SList* SCE_Geometry_GetArrays (SCE_SGeometry *geom)
+{
+    return &geom->arrays;
+}
+/**
+ * \brief Gets the modified arrays of a geometry
+ *
+ * To get all the arrays of a geometry, use also those returned by
+ * SCE_Geometry_GetArrays().
+ * \sa SCE_Geometry_GetArrays()
+ */
+SCE_SList* SCE_Geometry_GetModifiedArrays (SCE_SGeometry *geom)
+{
+    return &geom->modified;
 }
 
 /**

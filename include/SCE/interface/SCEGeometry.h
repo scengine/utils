@@ -130,6 +130,8 @@ void SCE_Geometry_DeleteArrayUser (SCE_SGeometryArrayUser*);
 SCE_SGeometry* SCE_Geometry_Create (void);
 void SCE_Geometry_Delete (SCE_SGeometry*);
 
+SCE_SGeometryArray* SCE_Geometry_GetUserArray (SCE_SGeometryArrayUser*);
+
 void SCE_Geometry_AddUser (SCE_SGeometryArray*, SCE_SGeometryArrayUser*,
                            SCE_FUpdateGeometryArray, void*);
 void SCE_Geometry_RemoveUser (SCE_SGeometryArrayUser*);
@@ -163,6 +165,9 @@ void SCE_Geometry_SetNumVertices (SCE_SGeometry*, unsigned int);
 unsigned int SCE_Geometry_GetNumVertices (SCE_SGeometry*);
 void SCE_Geometry_SetNumIndices (SCE_SGeometry*, unsigned int);
 unsigned int SCE_Geometry_GetNumIndices (SCE_SGeometry*);
+
+SCE_SList* SCE_Geometry_GetArrays (SCE_SGeometry*);
+SCE_SList* SCE_Geometry_GetModifiedArrays (SCE_SGeometry*);
 
 int SCE_Geometry_IsModified (SCE_SGeometry*);
 
