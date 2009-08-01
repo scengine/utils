@@ -17,14 +17,13 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 31/01/2006
-   updated: 31/10/2008 */
+   updated: 01/08/2009 */
 
 #ifndef SCECSUPPORT_H
 #define SCECSUPPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -47,6 +46,7 @@ enum sce_ccapability {
     SCE_TEX_S3TC,               /**< S3TC texture compression format support */
     SCE_TEX_3DC,                /**< 3DC texture compression format support */
     SCE_VBO,                    /**< Vertex buffer objects (VBO) support */
+    SCE_VAO,                    /**< Vertex array objects (VAO) support */
     SCE_FBO,                    /**< Frame buffer objects (FB0) support */
     SCE_PBO,                    /**< Pixel buffer objects (PBO) support */
     SCE_VERTEX_SHADER_GLSL,     /**< GLSL vertex shader support */

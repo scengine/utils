@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 31/01/2006
-   updated: 31/10/2008 */
+   updated: 01/08/2009 */
 
 #include <string.h>
 #include <SCE/SCEMinimal.h>
@@ -70,6 +70,11 @@ static void SCE_CCheckCaps (void)
 
     caps[SCE_VBO] =
     SCE_CIsSupported ("GL_ARB_vertex_buffer_object");
+
+    caps[SCE_VAO] =
+    SCE_CIsSupported ("GL_ARB_vertex_array_object") ||
+    SCE_CIsSupported ("GL_EXT_vertex_array_object") || /* lol? */
+    SCE_CIsSupported ("GL_ATI_vertex_array_object");
 
     caps[SCE_FBO] =
     SCE_CIsSupported ("GL_EXT_framebuffer_object");
