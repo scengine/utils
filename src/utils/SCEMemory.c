@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 16/07/2009 */
+   updated: 01/08/2009 */
 
 #include <stdlib.h>
 #include <string.h>
@@ -44,7 +44,7 @@
 
 /** @{ */
 
-#define SCE_USE_MEMORY_MANAGER 0
+#define SCE_USE_MEMORY_MANAGER 1
 
 #define SCE_NUM_MEMORY_ARRAYS 128
 /* number of allocs per block */
@@ -55,8 +55,7 @@
  *
  * Used to know where a block was allocated.
  */
-typedef struct SCE_SMemAlloc
-{
+typedef struct SCE_SMemAlloc {
     const char *file;
     unsigned int line;
     size_t size;
@@ -65,14 +64,12 @@ typedef struct SCE_SMemAlloc
 } SCE_SMemAlloc;
 
 /*! Table of all allocations */
-static SCE_SMemAlloc allocs =
-{
+static SCE_SMemAlloc allocs = {
     "root allocations list", 0, 0, NULL, NULL, NULL
 };
 
 
-typedef struct SCE_SMemArrayBlock
-{
+typedef struct SCE_SMemArrayBlock {
     SCE_SMemAlloc *allocs[SCE_ARRAY_BLOCK_SIZE];
     SCE_SMemAlloc *freeallocs[SCE_ARRAY_BLOCK_SIZE];
     int nfree;         /* number of free allocs in 'allocs' */
@@ -80,8 +77,7 @@ typedef struct SCE_SMemArrayBlock
 } SCE_SMemArrayBlock;
 
 /* structure d'un tableau contenant une suite d'allocations de la meme taille */
-typedef struct SCE_SMemArray
-{
+typedef struct SCE_SMemArray {
     size_t alloc_size;         /* size of one allocation */
     SCE_SMemArrayBlock *root;  /* root block */
     SCE_SMemArrayBlock *last;  /* last block */
@@ -101,8 +97,7 @@ static void SCE_Mem_InitArray (SCE_SMemArray *a)
 int SCE_Init_Mem (void)
 {
     size_t i;
-    for (i = 0; i < SCE_NUM_MEMORY_ARRAYS; i++)
-    {
+    for (i = 0; i < SCE_NUM_MEMORY_ARRAYS; i++) {
         SCE_Mem_InitArray (&arrays[i]);
         arrays[i].alloc_size = i + 1;
     }
@@ -121,8 +116,7 @@ static void SCE_Mem_InitAlloc (SCE_SMemAlloc *m)
 static void SCE_Mem_InitBlock (SCE_SMemArrayBlock *b)
 {
     unsigned int i;
-    for (i = 0; i < SCE_ARRAY_BLOCK_SIZE; i++)
-    {
+    for (i = 0; i < SCE_ARRAY_BLOCK_SIZE; i++) {
         b->allocs[i] = NULL;
         b->freeallocs[i] = NULL;
     }
@@ -137,24 +131,21 @@ static SCE_SMemArrayBlock* SCE_Mem_CreateBlock (size_t size)
     SCE_SMemArrayBlock *b = malloc (sizeof *b);
     if (!b)
         SCEE_Log (SCE_OUT_OF_MEMORY);
-    else
-    {
+    else {
         size_t i;
         void *address = NULL;
         SCE_Mem_InitBlock (b);
         /* allocate the data */
         size += sizeof (SCE_SMemAlloc);
         b->allocs[0] = malloc (size * SCE_ARRAY_BLOCK_SIZE);
-        if (!b->allocs[0])
-        {
+        if (!b->allocs[0]) {
             SCEE_Log (SCE_OUT_OF_MEMORY);
             free (b);
             return NULL;
         }
         SCE_Mem_InitAlloc (b->allocs[0]);
         b->allocs[0]->block = b;
-        for (i=1; i<SCE_ARRAY_BLOCK_SIZE; i++)
-        {
+        for (i=1; i<SCE_ARRAY_BLOCK_SIZE; i++) {
             address = b->allocs[i-1];
             address = (void*)((size_t)address + size);
             b->freeallocs[i] = b->allocs[i] = address;
@@ -167,8 +158,7 @@ static SCE_SMemArrayBlock* SCE_Mem_CreateBlock (size_t size)
 
 static void SCE_Mem_DeleteBlock (SCE_SMemArrayBlock *b)
 {
-    if (b)
-    {
+    if (b) {
         free (b->allocs[0]);
         free (b);
     }
@@ -176,14 +166,11 @@ static void SCE_Mem_DeleteBlock (SCE_SMemArrayBlock *b)
 
 static int SCE_Mem_AddNewBlock (SCE_SMemArray *a)
 {
-    if (!a->last)
-    {
+    if (!a->last) {
         a->last = a->root = SCE_Mem_CreateBlock (a->alloc_size);
         if (!a->last)
             return -1;
-    }
-    else
-    {
+    } else {
         a->last->next = SCE_Mem_CreateBlock (a->alloc_size);
         if (!a->last->next)
             return -1;
@@ -232,8 +219,7 @@ static SCE_SMemAlloc* SCE_Mem_NewAllocFromArray (size_t size)
     SCE_SMemAlloc *m = NULL;
     /* considers this function is called with a good size */
     SCE_SMemArray *a = &arrays[size-1];
-    if (!(m = SCE_Mem_GetNextAlloc (a)))
-    {
+    if (!(m = SCE_Mem_GetNextAlloc (a))) {
         if (!(SCE_Mem_AddNewBlock (a) < 0))
             m = SCE_Mem_GetNextAlloc (a); /* can't fail */
     }
@@ -283,8 +269,7 @@ static SCE_SMemAlloc* SCE_Mem_LocateAllocFromPointer (void *p)
     SCE_SMemAlloc *i = NULL;
     SCE_SMemAlloc *al = p;
     al = &al[-1];
-    SCE_Mem_For (i)
-    {
+    SCE_Mem_For (i) {
         if (i == al)
             return i;
     }
@@ -345,8 +330,7 @@ void* SCE_Mem_Alloc (const char *file, unsigned int line, size_t s)
     SCE_SMemAlloc *mem = NULL;
 
     mem = SCE_Mem_NewAlloc (s);
-    if (!mem)
-    {
+    if (!mem) {
         SCEE_LogSrc ();
         return NULL;
     }
@@ -417,17 +401,14 @@ void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
 
     if (!p)
         return SCE_Mem_Alloc (file, line, s); /* nouvelle allocation */
-    else
-    {
+    else {
         mem = SCE_Mem_LocateAllocFromPointer (p);
-        if (!mem)
-        {
+        if (!mem) {
             SCEE_Log (SCE_INVALID_POINTER);
             return NULL;
         }
         mem = realloc (mem, sizeof *mem + s);
-        if (!mem)
-        {
+        if (!mem) {
             /* en cas d'echec realloc conserve la memoire deja alloue,
                donc on ne libere aucune memoire */
             SCEE_Log (SCE_OUT_OF_MEMORY);
@@ -451,8 +432,7 @@ void SCE_Mem_Free (const char *file, int line, void *p)
 #if !SCE_USE_MEMORY_MANAGER
     free (p);
 #else
-    if (p)
-    {
+    if (p) {
         SCE_SMemAlloc *m = SCE_Mem_LocateAllocFromPointer (p);
         if (m && m != &allocs)
             SCE_Mem_EraseAlloc (m);
@@ -493,8 +473,7 @@ void* SCE_Mem_Dup (const void *p, size_t size)
  */
 void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
 {
-    union SCE_UMemType
-    {
+    union SCE_UMemType {
         GLubyte *ub;
         GLbyte *b;
         GLushort *us;
@@ -518,8 +497,7 @@ void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
 #define SCE_MEM_SWITCH(type, namesrc)\
     case type:\
         tin.namesrc = (void*)src;\
-        switch (tdest)\
-        {\
+        switch (tdest) {\
         SCE_MEM_FOR (SCE_UNSIGNED_BYTE,  ub, namesrc)\
         SCE_MEM_FOR (SCE_BYTE,           b,  namesrc)\
         SCE_MEM_FOR (SCE_UNSIGNED_SHORT, us, namesrc)\
@@ -531,8 +509,7 @@ void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
         }\
         break;
 
-    switch (tsrc)
-    {
+    switch (tsrc) {
     SCE_MEM_SWITCH (SCE_UNSIGNED_BYTE,  ub)
     SCE_MEM_SWITCH (SCE_BYTE,           b)
     SCE_MEM_SWITCH (SCE_UNSIGNED_SHORT, us)
@@ -557,8 +534,7 @@ void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
     void *dest = NULL;
 
     /* TODO: mosh */
-    switch (tdest)
-    {
+    switch (tdest) {
     case SCE_DOUBLE:
         size = sizeof (GLdouble);
         break;
@@ -593,8 +569,7 @@ void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
         return SCE_Mem_Dup (src, size * n);
 
     dest = SCE_malloc (size * n);
-    if (!dest)
-    {
+    if (!dest) {
         SCEE_LogSrc ();
         return NULL;
     }
@@ -608,8 +583,7 @@ void SCE_Mem_List (void)
 {
     unsigned int n = 0;
     SCE_SMemAlloc *a = NULL;
-    SCE_Mem_For (a)
-    {
+    SCE_Mem_For (a) {
         SCEE_SendMsg ("- allocation in %s (%z): %z bytes.\n",
                       a->file, a->line, a->size);
         n++;
