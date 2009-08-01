@@ -25,8 +25,7 @@
 #include <SCE/utils/SCEList.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -114,6 +113,7 @@ void SCE_CDeleteVertexArrayData (SCE_CVertexArrayData*);
 
 void SCE_CInitVertexArray (SCE_CVertexArray*);
 SCE_CVertexArray* SCE_CCreateVertexArray (void);
+void SCE_CClearVertexArray (SCE_CVertexArray*);
 void SCE_CDeleteVertexArray (SCE_CVertexArray*);
 
 void SCE_CInitIndexArray (SCE_CIndexArray*);

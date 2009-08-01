@@ -150,15 +150,20 @@ SCE_CVertexArray* SCE_CCreateVertexArray (void)
         SCE_CInitVertexArray (va);
     return va;
 }
+void SCE_CClearVertexArray (SCE_CVertexArray *va)
+{
+    if (va->id != 0)
+        glDeleteArrays (1, &va->id);
+    /* NOTE: cannot remove the iterator safely, so NEVER clear a vertex array
+       on rendering stage */
+}
 /**
  * \brief
  */
 void SCE_CDeleteVertexArray (SCE_CVertexArray *va)
 {
     if (va) {
-        {
-            glDeleteArrays (1, &va->id);
-        }
+        SCE_CClearVertexArray (va);
         SCE_free (va);
     }
 }
@@ -205,7 +210,7 @@ SCE_CVertexArrayData* SCE_CGetVertexArrayData (SCE_CVertexArray *va)
 /**
  * \brief Defines data for a vertex array
  *
- * Copies \p data into \p va->data, so \p data can be a static structure
+ * Copies \p data into \p va->data, so \p data can be a static structure.
  * \sa SCE_CSetVertexArrayNewData(), SCE_CGetVertexArrayData()
  */
 void SCE_CSetVertexArrayData (SCE_CVertexArray *va, SCE_CVertexArrayData *data)
@@ -241,8 +246,8 @@ void SCE_CSetVertexArrayData (SCE_CVertexArray *va, SCE_CVertexArrayData *data)
     }
 }
 /**
- * \brief Like SCE_CSetVertexArrayData() but create a SCE_CVertexArrayData
- * structure based on given parameters
+ * \brief Like SCE_CSetVertexArrayData() but creates a static
+ * SCE_CVertexArrayData structure based on given parameters
  * \sa SCE_CSetVertexArrayData(), SCE_CGetVertexArrayData()
  */
 void SCE_CSetVertexArrayNewData (SCE_CVertexArray *va, unsigned int attrib,
@@ -253,7 +258,7 @@ void SCE_CSetVertexArrayNewData (SCE_CVertexArray *va, unsigned int attrib,
     data.type = type;
     data.size = size;
     data.data = p;
-    SCE_CAddVertexArrayData (va, &data);
+    SCE_CSetVertexArrayData (va, &data);
 }
 
 
