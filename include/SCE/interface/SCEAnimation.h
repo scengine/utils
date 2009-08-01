@@ -23,6 +23,7 @@
 #define SCEANIMATION_H
 
 #include <SCE/interface/SCESkeleton.h>
+#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -89,7 +90,7 @@ void SCE_Anim_ComputeCurrentKey (SCE_SAnimation*);
 
 void SCE_Anim_Start (SCE_SAnimation*);
 int SCE_Anim_Animate (SCE_SAnimation*, float);
-void SCE_Anim_End (SCE_SAnimation*);
+void SCE_Anim_End (SCE_SAnimation*) SCE_GNUC_DEPRECATED;
 
 SCE_SAnimation* SCE_Anim_Load (const char*);
 

@@ -34,6 +34,7 @@
 #include <SCE/interface/SCEShaders.h>
 #include <SCE/interface/SCETexture.h>
 #include <SCE/interface/SCEMaterial.h>
+#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -185,8 +186,10 @@ void SCE_SceneEntity_SetupBoundingVolume (SCE_SSceneEntity*, int);
 
 
 void SCE_SceneEntity_AttachInstance (SCE_SSceneEntityInstance*,
-                                     SCE_SSceneEntityInstance*);
-void SCE_SceneEntity_DetachInstance (SCE_SSceneEntityInstance*);
+                                     SCE_SSceneEntityInstance*)
+    SCE_GNUC_DEPRECATED;
+void SCE_SceneEntity_DetachInstance (SCE_SSceneEntityInstance*)
+    SCE_GNUC_DEPRECATED;
 
 
 void SCE_SceneEntity_DetermineInstanceLOD (SCE_SSceneEntityInstance*,

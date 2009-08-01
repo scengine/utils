@@ -26,6 +26,7 @@
 #include <SCE/utils/SCEMatrix.h>
 #include <SCE/utils/SCEList.h>
 #include <SCE/interface/SCEOctree.h>
+#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -115,7 +116,7 @@ void* SCE_Node_GetData (SCE_SNode*);
 #endif
 #define SCE_Node_GetData(n) (((SCE_SNode*)(n))->data)
 
-void SCE_Node_Use (SCE_SNode*);
+void SCE_Node_Use (SCE_SNode*) SCE_GNUC_DEPRECATED;
 
 #ifdef __cplusplus
 } /* extern "C" */

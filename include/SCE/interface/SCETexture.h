@@ -31,6 +31,7 @@
 #include <SCE/core/SCECFramebuffer.h>
 
 #include <SCE/interface/SCESceneResource.h>
+#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -101,7 +102,7 @@ int SCE_Init_Texture (void);
 void SCE_Quit_Texture (void);
 
 /* defini la texture active */
-void SCE_Texture_Bind (SCE_STexture*);
+void SCE_Texture_Bind (SCE_STexture*) SCE_GNUC_DEPRECATED;
 
 /* cree une texture en prenant son type */
 SCE_STexture* SCE_Texture_Create (SCEenum, int, int);
