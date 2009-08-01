@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 25/07/2009
-   updated: 31/07/2009 */
+   updated: 01/08/2009 */
 
 #ifndef SCEGEOMETRY_H
 #define SCEGEOMETRY_H
@@ -25,8 +25,7 @@
 #include <SCE/core/SCECVertexArray.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #if 0
@@ -58,12 +57,26 @@ enum {
 #define SCE_GEOMETRY_SORT_NEAR_TO_FAR 1
 #define SCE_GEOMETRY_SORT_FAR_TO_NEAR 2
 
-/** \brief Default (and HIGHLY recommanded) vertices data type */
+/**
+ * \brief Default (and HIGHLY recommanded for compatibility reasons) vertices
+ * data type
+ */
 typedef GLfloat SCEvertices;
+/**
+ * \brief Default (and HIGHLY recommanded for compatibility reasons) vertices
+ * data type
+ */
 #define SCE_VERTICES_TYPE SCE_FLOAT
 
-/** \brief Default (and HIGHLY recommanded) indices data type */
+/**
+ * \brief Default (and HIGHLY recommanded for compatibility reasons) indices
+ * data type
+ */
 typedef GLushort SCEindices;
+/**
+ * \brief Default (and HIGHLY recommanded for compatibility reasons) indices
+ * data type
+ */
 #define SCE_INDICES_TYPE SCE_UNSIGNED_SHORT
 
 /** \copydoc sce_sgeometry */
@@ -78,6 +91,8 @@ struct sce_sgeometryarray {
     int canfree_data;           /**< Can this structure free \c data.data ? */
     SCE_SListIterator it;
     SCE_SList users;            /**< SCE_SGeometryArrayUser */
+    size_t range[2];            /**< Modified vertices range */
+    size_t *rangeptr;          /**< Pointer to the range to use (can be NULL) */
     SCE_SGeometry *geom;
 };
 
@@ -88,7 +103,7 @@ typedef struct sce_sgeometryarrayuser SCE_SGeometryArrayUser;
  * (happens when its geometry is updated)
  * \sa SCE_SGeometryArrayUser, SCE_Geometry_Update()
  */
-typedef void (*SCE_FUpdateGeometryArray)(SCE_SGeometryArray*, void*);
+typedef void (*SCE_FUpdateGeometryArray)(void*, size_t*);
 /**
  * \brief User of a geometry
  * \sa SCE_SGeometryArray SCE_FUpdatedGeometryArray
@@ -136,7 +151,7 @@ void SCE_Geometry_AddUser (SCE_SGeometryArray*, SCE_SGeometryArrayUser*,
                            SCE_FUpdateGeometryArray, void*);
 void SCE_Geometry_RemoveUser (SCE_SGeometryArrayUser*);
 
-void SCE_Geometry_Modified (SCE_SGeometryArray*);
+void SCE_Geometry_Modified (SCE_SGeometryArray*, size_t*);
 void SCE_Geometry_UpdateArray (SCE_SGeometryArray*);
 void SCE_Geometry_Update (SCE_SGeometry*);
 

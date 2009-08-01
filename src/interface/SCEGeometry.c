@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 25/07/2009
-   updated: 31/07/2009 */
+   updated: 01/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -64,6 +64,8 @@ static void SCE_Geometry_InitArray (SCE_SGeometryArray *array)
     SCE_List_SetData (&array->it, array);
     SCE_List_Init (&array->users);
     SCE_List_SetFreeFunc (&array->users, SCE_Geometry_FreeArrayUser);
+    array->range[0] = array->range[1] = 0;
+    array->rangeptr = NULL;
     array->geom = NULL;
 }
 SCE_SGeometryArray* SCE_Geometry_CreateArray (void)
@@ -210,13 +212,25 @@ void SCE_Geometry_RemoveUser (SCE_SGeometryArrayUser *auser)
 
 /**
  * \brief Defines an array as modified
+ * \param range range of modified vertices, [0] is the first modified vertex
+ * and [1] the number of modified vertices, if NULL the whole buffer data will
+ * be updated.
  *
  * Stores the given geometry array in the modified arrays list of the array's
- * geometry
- * \sa SCE_Geometry_Update(), SCE_Geometry_UpdateArray(), SCE_Geometry_AddUser()
+ * geometry. The \p array user update callback is called when \p array is
+ * updated with SCE_Geometry_UpdateArray().
+ * \sa SCE_Geometry_Update(), SCE_Geometry_UpdateArray(),
+ * SCE_Geometry_AddUser(), SCE_CModifiedVertexBufferData()
  */
-void SCE_Geometry_Modified (SCE_SGeometryArray *array)
+void SCE_Geometry_Modified (SCE_SGeometryArray *array, size_t *range)
 {
+    if (!range)
+        array->rangeptr = NULL;
+    else {
+        array->range[0] = range[0];
+        array->range[1] = range[1];
+        array->rangeptr = array->range;
+    }
     SCE_List_Removel (&array->it);
     SCE_List_Appendl (&array->geom->modified, &array->it);
 }
@@ -226,14 +240,15 @@ void SCE_Geometry_Modified (SCE_SGeometryArray *array)
  * This function calls all the update callback of each \p arrays's user. It is
  * recommanded to use SCE_Geometry_Modified() and then update the whole
  * geometry by calling SCE_Geometry_Update().
- * \sa SCE_Geometry_Modified(), SCE_Geometry_AddUser(), SCE_Geometry_Update()
+ * \sa SCE_Geometry_Modified(), SCE_Geometry_AddUser(), SCE_Geometry_Update(),
+ * SCE_CMod()
  */
 void SCE_Geometry_UpdateArray (SCE_SGeometryArray *array)
 {
     SCE_SListIterator *it = NULL;
     SCE_List_ForEach (it, &array->users) {
         SCE_SGeometryArrayUser *auser = SCE_List_GetData (it);
-        auser->update (array, auser->arg);
+        auser->update (auser->arg, array->rangeptr);
     }
     /* move the array back to the main geometry's array list */
     SCE_List_Removel (&array->it);
