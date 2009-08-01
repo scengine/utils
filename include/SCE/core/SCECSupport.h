@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 31 janvier 2006
-   derniere modification le 31/10/2008 */
+/* created: 31/01/2006
+   updated: 31/10/2008 */
 
 #ifndef SCECSUPPORT_H
 #define SCECSUPPORT_H
@@ -26,9 +26,6 @@
 extern "C"
 {
 #endif
-
-/* nombre d'extensions */
-#define SCE_NUM_CAPS 17
 
 /**
  * \ingroup extenstionsupport
@@ -40,8 +37,7 @@ extern "C"
  * 
  * Constants about OpenGL's implementation capabilities
  */
-enum sce_ccapability
-{
+enum sce_ccapability {
     SCE_TEX_MULTI,              /**< multitexturing support */
     SCE_TEX_NON_POWER_OF_TWO,   /**< Non-power-of-two texture support */
     SCE_TEX_HW_GEN_MIPMAP,      /**< Hardware mipmapping generation support */
@@ -58,7 +54,8 @@ enum sce_ccapability
     SCE_CG_SHADERS,             /**< Cg shaders support */
     SCE_OCCLUSION_QUERY,        /**< Occlusion queries support */
     SCE_MRT,                    /**< Multiple render targets (MRT) support */
-    SCE_HW_INSTANCING           /**< Hardware instancing support */
+    SCE_HW_INSTANCING,          /**< Hardware instancing support */
+    SCE_NUM_CAPS
 };
 /**
  * \copydoc sce_ccapability

@@ -67,7 +67,6 @@ extern "C"
 #define SCE_ATTRIB15 115
 /* s'etend jusqu'au maximum supporte par ma machine, cf CBuffers.c */
 
-
 typedef void (*SCE_FSetDeclaration)(void);
 
 /** \copydoc sce_cvertexdeclaration */
@@ -80,13 +79,13 @@ typedef struct sce_cvertexdeclaration SCE_CVertexDeclaration;
 struct sce_cvertexdeclaration
 {
     SCE_FSetDeclaration set; /**< function to send the declaration to OpenGL */
-    int active;          /**< is vertex declaration actived ? */
-    unsigned int attrib; /**< vertices' type (SCE_POSITION, SCE_NORMAL, ...) */
+    int activated;           /**< Is vertex declaration activated ? */
+    unsigned int attrib;  /**< vertices' type (SCE_POSITION, SCE_NORMAL, ...) */
     SCEenum type;   /**< data type (SCE_FLOAT, SCE_INT, ...) */
     GLint size;     /**< number of dimensions of the vectors */
     GLint first;    /**< position of the first byte of data */
     GLsizei stride; /**< stride between two consecutive vertices (in bytes) */
-    int user;       /**< boolean wich indicates the owner of the declaration */
+    int user;       /**< Indicates the owner of the declaration */
 };
 
 

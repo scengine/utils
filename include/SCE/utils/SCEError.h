@@ -55,17 +55,19 @@ extern "C"
 
 enum sce_enum_error
 {
-    SCE_NO_ERROR = 0,      /* 0 is 'no error' */
+    SCE_NO_ERROR = 0,           /* 0 is 'no error' */
     SCE_OUT_OF_MEMORY,
     SCE_INVALID_OPERATION,
-    SCE_INVALID_POINTER,
+    SCE_INVALID_POINTER,        /* never used :( */
     SCE_INVALID_ARG,
-    SCE_INVALID_SIZE,
-    SCE_INVALID_ENUM,
+    SCE_INVALID_SIZE,           /* never used :( */
+    SCE_INVALID_ENUM,           /* never used :( */
     SCE_FILE_NOT_FOUND,
     SCE_BAD_FORMAT,
+    SCE_GL_ERROR,               /* do not define it here */
     SCE_NUM_ERRORS
 };
+/* TODO: use this type instead of 'int' */
 typedef enum sce_enum_error SCE_EError;
 
 int SCE_Init_Error (FILE*);

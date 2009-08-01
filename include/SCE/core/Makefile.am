@@ -1,4 +1,6 @@
-sce_include_core_HEADERS = SCECBuffers.h \
+sce_include_core_HEADERS = SCECBuffer.h \
+                           SCECVertexArray.h \
+                           SCECVertexBuffer.h \
                            SCECFramebuffer.h \
                            SCECImage.h \
                            SCECLight.h \

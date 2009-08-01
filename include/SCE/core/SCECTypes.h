@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/03/2007
-   updated: 01/11/2008 */
+   updated: 27/07/2009 */
 
 #ifndef SCECTYPES_H
 #define SCECTYPES_H
@@ -42,6 +42,7 @@ extern "C"
 typedef unsigned int    SCEflags;
 typedef GLenum          SCEenum;
 typedef GLbitfield      SCEbitfield;
+typedef GLsizei         SCEsizei;
 typedef GLint           SCEint;
 typedef GLuint          SCEuint;
 typedef GLfloat         SCEfloat;
@@ -51,7 +52,7 @@ typedef GLdouble        SCEdouble;
 /* constantes que peuvent renvoyer les fonctions du coeur
    (et autres) du SCEngine */
 #define SCE_OK 0
-#define SCE_ERROR -1
+#define SCE_ERROR (-1)
 #define SCE_TRUE 1
 #define SCE_FALSE 0
 
@@ -125,16 +126,11 @@ typedef GLdouble        SCEdouble;
 #define SCE_MAT_PROJECTION  GL_PROJECTION
 #define SCE_MAT_TEXTURE     GL_TEXTURE
 
-
-/* retourne la taille en octets d'un type d'opengl */
+#define SCE_CSizeof SCE_CSizeofType
 size_t SCE_CSizeofType (SCEenum);
 
-/* retourne un entier GL */
 int SCE_CGetInteger (SCEenum);
-/* retourne un flottant GL */
 float SCE_CGetFloat (SCEenum);
-
-/* versions vectorielles */
 void SCE_CGetIntegerv (SCEenum, int*);
 void SCE_CGetFloatv (SCEenum, float*);
 

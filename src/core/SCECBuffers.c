@@ -43,7 +43,7 @@
 
 /** @{ */
 
-#define SCE_BUFFER_OFFSET(p) ((char*)NULL + (p))
+
 
 static SCE_CVertexBuffer *vb_bound = NULL;
 static SCE_CIndexBuffer *ib_bound = NULL;
@@ -609,8 +609,8 @@ static void SCE_CAttribBufferFunc (void)
     {
         SCEE_Log (SCE_INVALID_SIZE);
         SCEE_LogMsg ("you can't set an vertex attribute "
-                       "if his index is greater than %d",
-                       /*max_attribs*/ 16);
+                     "if its index is greater than %d",
+                     /*max_attribs*/ 16);
     }
 #endif
 
@@ -648,26 +648,11 @@ void SCE_CBuildVertexDeclaration (SCE_CVertexDeclaration *dec)
  * \param dec the vertex declaration to add to \p vb
  * \note the vertex declaration will not be freed at \p vb's deletion
  */
-int SCE_CAddVertexDeclaration (SCE_CVertexBuffer *vb,
-                               SCE_CVertexDeclaration *dec)
+void SCE_CAddVertexDeclaration (SCE_CVertexBuffer *vb,
+                                SCE_CVertexDeclaration *dec)
 {
-    SCE_CDEFAULTVBFUNCR (int, SCE_CAddVertexDeclaration_ (dec))
-}
-int SCE_CAddVertexDeclaration_ (SCE_CVertexDeclaration *dec)
-{
-    SCE_btstart ();
-    if (dec)
-    {
-        if (SCE_List_PrependNewl (vb_bound->decs, dec) < 0)
-        {
-            SCEE_LogSrc ();
-            SCE_btend ();
-            return SCE_ERROR;
-        }
-        SCE_CBuildVertexDeclaration (dec);
-    }
-    SCE_btend ();
-    return SCE_OK;
+    SCE_List_Appendl (&vb->decs, &dec->it);
+    SCE_CBuildVertexDeclaration (dec);
 }
 
 /**

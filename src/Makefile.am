@@ -1,53 +1,7 @@
 AM_CPPFLAGS = -I$(srcdir)/../include
 lib_LTLIBRARIES = libSCE.la
 libSCE_la_LDFLAGS = -version-info @SCE_LIB_VERSION@
-libSCE_la_SOURCES = SCEngine.c \
-                    interface/SCEScene.c \
-                    interface/SCEBoundingBox.c \
-                    interface/SCEMesh.c \
-                    interface/SCECamera.c \
-                    interface/SCEFrustum.c \
-                    interface/SCE4FMLoader.c \
-                    interface/SCELevelOfDetail.c \
-                    interface/SCEShaders.c \
-                    interface/SCEGeometryInstance.c \
-                    interface/SCEBatch.c \
-                    interface/SCESceneEntity.c \
-                    interface/SCEOctree.c \
-                    interface/SCELight.c \
-                    interface/SCECollide.c \
-                    interface/SCEQuad.c \
-                    interface/SCETexture.c \
-                    interface/SCEOBJLoader.c \
-                    interface/SCESkybox.c \
-                    interface/SCESceneResource.c \
-                    interface/SCEMaterial.c \
-                    interface/SCENode.c \
-                    interface/SCEJoint.c \
-                    interface/SCESkeleton.c \
-                    interface/SCEAnimatedMesh.c \
-                    interface/SCEAnimation.c \
-                    interface/SCEMD5Loader.c \
-                    interface/SCEBoundingSphere.c \
-                    interface/SCESphereMesh.c \
-                    interface/SCEModel.c \
-                    interface/libwar.c \
-                    interface/lib4fm.c \
-                    SCEGLee.c \
-                    core/SCECTypes.c \
-                    core/SCECLight.c \
-                    core/SCECSupport.c \
-                    core/SCECPointSprite.c \
-                    core/SCECMatrix.c \
-                    core/SCECBuffers.c \
-                    core/SCECShader.c \
-                    core/SCECore.c \
-                    core/SCECFramebuffer.c \
-                    core/SCECMaterial.c \
-                    core/SCECImage.c \
-                    core/SCECOcclusionQuery.c \
-                    core/SCECTexture.c \
-                    utils/SCELine.c \
+libSCE_la_SOURCES = utils/SCELine.c \
                     utils/SCEVector.c \
                     utils/SCEMemory.c \
                     utils/SCEUtils.c \
@@ -64,4 +18,52 @@ libSCE_la_SOURCES = SCEngine.c \
                     utils/SCEQuaternion.c \
                     utils/SCETime.c \
                     utils/SCEList.c \
-                    utils/SCEBacktracer.c
+                    utils/SCEBacktracer.c \
+                    core/SCECTypes.c \
+                    core/SCECLight.c \
+                    core/SCECSupport.c \
+                    core/SCECPointSprite.c \
+                    core/SCECMatrix.c \
+                    core/SCECBuffer.c \
+                    core/SCECVertexArray.c \
+                    core/SCECVertexBuffer.c \
+                    core/SCECShader.c \
+                    core/SCECore.c \
+                    core/SCECFramebuffer.c \
+                    core/SCECMaterial.c \
+                    core/SCECImage.c \
+                    core/SCECOcclusionQuery.c \
+                    core/SCECTexture.c \
+                    SCEGLee.c \
+                    interface/libwar.c \
+                    interface/lib4fm.c \
+                    interface/SCENode.c \
+                    interface/SCECamera.c \
+                    interface/SCEBoundingBox.c \
+                    interface/SCEBoundingSphere.c \
+                    interface/SCECollide.c \
+                    interface/SCEFrustum.c \
+                    interface/SCELight.c \
+                    interface/SCEGeometry.c \
+                    interface/SCEOBJLoader.c \
+                    interface/SCE4FMLoader.c \
+                    interface/SCEMesh.c \
+                    interface/SCESphereMesh.c \
+                    interface/SCEQuad.c \
+                    interface/SCEGeometryInstance.c \
+                    interface/SCEBatch.c \
+                    interface/SCEOctree.c \
+                    interface/SCESceneResource.c \
+                    interface/SCEMaterial.c \
+                    interface/SCETexture.c \
+                    interface/SCEShaders.c \
+                    interface/SCESceneEntity.c \
+                    interface/SCESkybox.c \
+                    interface/SCEJoint.c \
+                    interface/SCESkeleton.c \
+                    interface/SCEAnimatedMesh.c \
+                    interface/SCEAnimation.c \
+                    interface/SCEMD5Loader.c \
+                    interface/SCEModel.c \
+                    interface/SCEScene.c \
+                    SCEngine.c

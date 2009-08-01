@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 7 mars 2006
-   derniere modification le 16/06/2007 */
+/* created: 07/03/2006
+   updated: 16/06/2007 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -29,57 +29,43 @@ size_t SCE_CSizeofType (SCEenum type)
     {
     case SCE_DOUBLE:
         return sizeof (GLdouble);
-
     case SCE_FLOAT:
         return sizeof (GLfloat);
-
     case SCE_INT:
     case SCE_UNSIGNED_INT:
         return sizeof (GLint);
-
     case SCE_SHORT:
     case SCE_UNSIGNED_SHORT:
         return sizeof (GLshort);
-
     case SCE_BYTE:
     case SCE_UNSIGNED_BYTE:
         return sizeof (GLbyte);
-
 #ifdef SCE_DEBUG
     default:
         SCEE_Log (SCE_INVALID_ARG);
-        SCEE_LogMsg ("unknown data type");
+        SCEE_LogMsg ("unknown data type %d", type);
 #endif
     }
-
     return 0;
 }
 
-
-/* ajoute le 16/06/2007 */
 int SCE_CGetInteger (SCEenum t)
 {
     int v;
     glGetIntegerv (t, &v);
     return v;
 }
-
-/* ajoute le 16/06/2007 */
 float SCE_CGetFloat (SCEenum t)
 {
     float v;
     glGetFloatv (t, &v);
     return v;
 }
-
-/* ajoute le 16/06/2007 */
 void SCE_CGetIntegerv (SCEenum t, int *v)
 {
     glGetIntegerv (t, v);
 }
-
-/* ajoute le 16/06/2007 */
-void SCE_CGetFloatv(SCEenum t, float *v)
+void SCE_CGetFloatv (SCEenum t, float *v)
 {
     glGetFloatv (t, v);
 }

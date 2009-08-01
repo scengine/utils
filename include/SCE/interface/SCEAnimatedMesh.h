@@ -26,8 +26,7 @@
 #include <SCE/interface/SCEMesh.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define SCE_MAX_ANIMATED_VERTEX_ATTRIBUTES 4
