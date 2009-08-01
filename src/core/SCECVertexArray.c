@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 29/07/2009 */
+   updated: 02/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -251,7 +251,8 @@ void SCE_CSetVertexArrayData (SCE_CVertexArray *va, SCE_CVertexArrayData *data)
  * SCE_CVertexArrayData structure based on given parameters
  * \sa SCE_CSetVertexArrayData(), SCE_CGetVertexArrayData()
  */
-void SCE_CSetVertexArrayNewData (SCE_CVertexArray *va, unsigned int attrib,
+void SCE_CSetVertexArrayNewData (SCE_CVertexArray *va,
+                                 SCE_CVertexAttributeType attrib,
                                  SCEenum type, SCEint size, void *p)
 {
     SCE_CVertexArrayData data;
@@ -301,14 +302,23 @@ void SCE_CUseVertexArray (SCE_CVertexArray *va)
     va->set (&va->data);
     SCE_List_Appendl (&vaused, &va->it);
 }
-void SCE_CRender (SCEenum prim, unsigned int n_vertices)
+void SCE_CRender (SCEenum prim, SCEuint n_vertices)
 {
     glDrawArrays (prim, 0, n_vertices);
 }
+void SCE_CRenderInstanced (SCEenum prim, SCEuint n_vertices, SCEuint n_inst)
+{
+    glDrawArraysInstanced (prim, 0, n_vertices, n_inst);
+}
 void SCE_CRenderIndexed (SCEenum prim, SCE_CIndexArray *ia,
-                         unsigned int n_indices)
+                         SCEuint n_indices)
 {
     glDrawElements (prim, n_indices, ia->type, ia->data);
+}
+void SCE_CRenderIndexedInstanced (SCEenum prim, SCE_CIndexArray *ia,
+                                  SCEuint n_indices, SCEuint n_instances)
+{
+    glDrawElementsInstanced (prim, n_indices, ia->type, ia->data, n_instances);
 }
 
 /**

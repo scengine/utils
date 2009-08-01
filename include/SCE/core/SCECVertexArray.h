@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 29/07/2009 */
+   updated: 02/08/2009 */
 
 #ifndef SCECVERTEXARRAY_H
 #define SCECVERTEXARRAY_H
@@ -122,16 +122,18 @@ void SCE_CDeleteIndexArray (SCE_CIndexArray*);
 
 SCE_CVertexArrayData* SCE_CGetVertexArrayData (SCE_CVertexArray*);
 void SCE_CSetVertexArrayData (SCE_CVertexArray*, SCE_CVertexArrayData*);
-void SCE_CSetVertexArrayNewData (SCE_CVertexArray*, unsigned int, SCEenum,
-                                 SCEint, void*);
+void SCE_CSetVertexArrayNewData (SCE_CVertexArray*, SCE_CVertexAttributeType,
+                                 SCEenum, SCEint, void*);
 
 void SCE_CBeginVertexArraySequence (SCE_CVertexArray*);
 void SCE_CCallVertexArraySequence (SCE_CVertexArray*);
 void SCE_CEndVertexArraySequence (void);
 
 void SCE_CUseVertexArray (SCE_CVertexArray*);
-void SCE_CRender (SCEenum, unsigned int);
-void SCE_CRenderIndexed (SCEenum, SCE_CIndexArray*, unsigned int);
+void SCE_CRender (SCEenum, SCEuint);
+void SCE_CRenderInstanced (SCEenum, SCEuint, SCEuint);
+void SCE_CRenderIndexed (SCEenum, SCE_CIndexArray*, SCEuint);
+void SCE_CRenderIndexedInstanced (SCEenum, SCE_CIndexArray*, SCEuint, SCEuint);
 void SCE_CFinishVertexArrayRender (void);
 
 #ifdef __cplusplus
