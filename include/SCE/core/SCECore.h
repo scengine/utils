@@ -16,16 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 15 decembre 2006
-   derniere modification le 25/09/2008 */
+/* created: 15/12/2006
+   updated: 02/08/2009 */
 
 #ifndef SCECORE_H
 #define SCECORE_H
 
-/* inclusion des en-tetes de tous les modules du coeur */
 #include <SCE/core/SCECSupport.h>
 #include <SCE/core/SCECMatrix.h>
-#include <SCE/core/SCECBuffers.h>
+#include <SCE/core/SCECBuffer.h>
+#include <SCE/core/SCECVertexArray.h>
+#include <SCE/core/SCECVertexBuffer.h>
 #include <SCE/core/SCECTexture.h>
 #include <SCE/core/SCECFramebuffer.h>
 #include <SCE/core/SCECShader.h>
@@ -35,28 +36,19 @@
 #include <SCE/core/SCECPointSprite.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-/* flags d'initialisation du coeur */
 #define SCE_CINIT_CG_SHADERS (0x00000001)
 
-/* fonction d'initialisation du coeur et d'opengl et ses extensions.
-   initialise les modules tiers (Cg) par demande explicite via ses flags */
 int SCE_CInit (SCEflags);
-/* quitte le coeur du SCEngine (desactive tous les modules du core) */
 void SCE_CQuit (void);
 
-/* specifie les valeurs de vidange */
 void SCE_CClearColor (float, float, float, float);
 void SCE_CClearDepth (float);
-/* fonction de vidange d'un ou plusieurs tampons d'image */
 void SCE_CClear (const SCEbitfield);
-/* glFlush */
 void SCE_CFlush (void);
 
-/* positionne un (ou plusieurs) etat opengl suivant la valeur booleenne (int) */
 void SCE_CSetState (SCEenum, int);
 void SCE_CSetState2 (SCEenum, SCEenum, int);
 void SCE_CSetState3 (SCEenum, SCEenum, SCEenum, int);
