@@ -37,33 +37,35 @@
  * @{
  */
 
+static int is_init = SCE_FALSE;
+
 int SCE_CInit (SCEflags flags)
 {
-    SCE_btstart ();
-#define SCE_COREASSERT(c)\
-    if (c)\
-    {\
-        SCE_CQuit ();\
-        SCEE_LogSrc ();\
-        SCE_btend ();\
-        return SCE_ERROR;\
-    }
+    if (is_init)
+        return SCE_OK;
 
-    SCE_COREASSERT (SCE_CSupportInit () < 0)
-    if (!SCE_CHasCap (SCE_VBO))
-    {
+    if (SCE_CSupportInit () < 0)
+        goto fail;
+    if (!SCE_CHasCap (SCE_VBO)) {
         SCEE_Log (-1);
         SCEE_LogMsg ("your hardware doesn't support vertex buffer object "
-                     "extension: initialization aborted.");
-        return SCE_ERROR;
+                     "extension");
+        goto fail;
     }
-
-    SCE_COREASSERT (SCE_CBufferInit () < 0)
-    SCE_COREASSERT (SCE_CImageInit () < 0)
-    SCE_COREASSERT (SCE_CTextureInit () < 0)
-    SCE_COREASSERT (SCE_CFramebufferInit () < 0)
-    SCE_COREASSERT (SCE_CShaderInit (flags & SCE_CINIT_CG_SHADERS) < 0)
-    SCE_COREASSERT (SCE_COcclusionQueryInit () < 0)
+    if (SCE_CBufferInit () < 0)
+        goto fail;
+    if (SCE_CVertexArrayInit () < 0)
+        goto fail;
+    if (SCE_CImageInit () < 0)
+        goto fail;
+    if (SCE_CTextureInit () < 0)
+        goto fail;
+    if (SCE_CFramebufferInit () < 0)
+        goto fail;
+    if (SCE_CShaderInit (flags & SCE_CINIT_CG_SHADERS) < 0)
+        goto fail;
+    if (SCE_COcclusionQueryInit () < 0)
+        goto fail;
 
     SCE_CUseMaterial (NULL);
 
@@ -71,20 +73,29 @@ int SCE_CInit (SCEflags flags)
     glEnable (GL_NORMALIZE);
     glEnable (GL_CULL_FACE);
     glEnable (GL_DEPTH_TEST);
-    /*glEnable (GL_ALPHA_TEST);*/
 
-    SCE_btend ();
+    is_init = SCE_TRUE;
     return SCE_OK;
+fail:
+    SCE_CQuit ();
+    SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to initialize core");
+    return SCE_ERROR;
 }
 
 void SCE_CQuit (void)
 {
-    SCE_btstart ();
+    if (!is_init)
+        return;
     SCE_COcclusionQueryQuit ();
     SCE_CShaderQuit ();
+    SCE_CFramebufferQuit ();
     SCE_CTextureQuit ();
     SCE_CImageQuit ();
-    SCE_btend ();
+    SCE_CVertexArrayQuit ();
+    SCE_CBufferQuit ();
+    SCE_CSupportQuit ();
+    is_init = SCE_FALSE;
 }
 
 
