@@ -386,6 +386,9 @@ SCE_CVertexArrayData* SCE_Geometry_GetArrayData (SCE_SGeometryArray *array)
 
 /**
  * \brief Adds a vertex array to a geometry
+ *
+ * The pointer \p array will be freed when SCE_Geometry_Delete() called under
+ * \p geom.
  * \sa SCE_Geometry_AddArrayDup(), SCE_Geometry_RemoveArray(),
  * SCE_Geometry_SetIndexArray()
  */
@@ -396,6 +399,8 @@ void SCE_Geometry_AddArray (SCE_SGeometry *geom, SCE_SGeometryArray *array)
 }
 /**
  * \brief Duplicates and adds an array to a geometry
+ * \param canfree can the data pointer of \p array be freed by
+ * SCE_Geometry_Delete() ?
  *
  * Does the same of SCE_Geometry_AddArray() except it duplicates the
  * geometry array before add it. The duplicated array is not authorized
@@ -404,7 +409,8 @@ void SCE_Geometry_AddArray (SCE_SGeometry *geom, SCE_SGeometryArray *array)
  * \sa SCE_Geometry_AddArray(), SCE_Geometry_SetArrayData()
  */
 SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry *geom,
-                                              SCE_SGeometryArray *array)
+                                              SCE_SGeometryArray *array,
+                                              int canfree)
 {
     SCE_SGeometryArray *new = NULL;
     if (!(new = SCE_Geometry_CreateArray ()))
@@ -439,6 +445,15 @@ void SCE_Geometry_SetIndexArray (SCE_SGeometry *geom, SCE_SGeometryArray *array,
     geom->index_array = array;
     geom->canfree_index = (array ? canfree : SCE_FALSE);
 }
+/**
+ * \brief Gets the index array of a geometry
+ * \sa SCE_Geometry_SetIndexArray()
+ */
+SCE_SGeometryArray* SCE_Geometry_GetIndexArray (SCE_SGeometry *geom)
+{
+    return geom->index_array;
+}
+
 
 /**
  * \brief Sets the number of vertices of a geometry

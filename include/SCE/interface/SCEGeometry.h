@@ -171,10 +171,11 @@ SCE_CVertexArrayData* SCE_Geometry_GetArrayData (SCE_SGeometryArray*);
 
 void SCE_Geometry_AddArray (SCE_SGeometry*, SCE_SGeometryArray*);
 SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry*,
-                                              SCE_SGeometryArray*);
+                                              SCE_SGeometryArray*, int);
 void SCE_Geometry_RemoveArray (SCE_SGeometryArray*);
 
 void SCE_Geometry_SetIndexArray (SCE_SGeometry*, SCE_SGeometryArray*, int);
+SCE_SGeometryArray* SCE_Geometry_GetIndexArray (SCE_SGeometry*);
 
 void SCE_Geometry_SetNumVertices (SCE_SGeometry*, unsigned int);
 unsigned int SCE_Geometry_GetNumVertices (SCE_SGeometry*);
