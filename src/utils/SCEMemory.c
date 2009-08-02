@@ -523,9 +523,14 @@ void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
 
 /**
  * \brief Converts data and allocates memory for them
+ * \param tdest destination type
+ * \param tsrc source type
+ * \param src data to convert
+ * \param n number of variables into \p src
  *
  * This function is a combination of SCE_Mem_Dup() and SCE_Mem_Convert(). It
  * allocates memory for the further converted data, and calls SCE_Mem_Convert().
+ * Total size of \p src is \p n * SCE_CSizeof (\p tsrc).
  * \sa SCE_Mem_Dup(), SCE_Mem_Convert()
  */
 void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
@@ -538,25 +543,20 @@ void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
     case SCE_DOUBLE:
         size = sizeof (GLdouble);
         break;
-
     case SCE_FLOAT:
         size = sizeof (GLfloat);
         break;
-
     case SCE_INT:
     case SCE_UNSIGNED_INT:
         size = sizeof (GLint);
         break;
-
     case SCE_SHORT:
     case SCE_UNSIGNED_SHORT:
         size = sizeof (GLshort);
         break;
-
     case SCE_BYTE:
     case SCE_UNSIGNED_BYTE:
         size = sizeof (GLbyte);
-
     default:
 #ifdef SCE_DEBUG
         SCEE_Log (SCE_INVALID_ARG);
