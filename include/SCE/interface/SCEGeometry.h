@@ -186,15 +186,18 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry*,
                                                  SCE_SGeometryArray*, int);
 void SCE_Geometry_RemoveArray (SCE_SGeometryArray*);
 
-void SCE_Geometry_SetPrimitiveType (SCE_SGeometry*, SCEenum);
-SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry*);
-
 void SCE_Geometry_SetIndexArray (SCE_SGeometry*, SCE_SGeometryArray*, int);
 SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDup (SCE_SGeometry*,
                                                    SCE_SGeometryArray*, int);
 SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDupDup (SCE_SGeometry*,
                                                       SCE_SGeometryArray*, int);
 SCE_SGeometryArray* SCE_Geometry_GetIndexArray (SCE_SGeometry*);
+
+int SCE_Geometry_SetData (SCE_SGeometry*, SCEvertices*, SCEvertices*,
+                          SCEvertices*, SCEindices*, SCEuint, SCEuint);
+
+void SCE_Geometry_SetPrimitiveType (SCE_SGeometry*, SCEenum);
+SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry*);
 
 void SCE_Geometry_SetNumVertices (SCE_SGeometry*, unsigned int);
 unsigned int SCE_Geometry_GetNumVertices (SCE_SGeometry*);

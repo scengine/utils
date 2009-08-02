@@ -436,6 +436,9 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry *geom,
  * \param array the array to duplicate
  * \param keep keep the data type as in \p array, otherwise they are converted to
  * an optimized data type (SCE_VERTICES_TYPE)
+ * \note This function requires that the number of vertices have been yet
+ * specified to \p geom (see SCE_Geometry_SetNumVertices()).
+ * \sa SCE_Geometry_SetIndexArrayDupDup(), SCE_Geometry_SetData()
  */
 SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry *geom,
                                                  SCE_SGeometryArray *array,
@@ -476,24 +479,6 @@ void SCE_Geometry_RemoveArray (SCE_SGeometryArray *array)
 {
     SCE_List_Removel (&array->it);
     array->geom = NULL;
-}
-
-
-/**
- * \brief Sets primitive type of a geometry
- * \sa SCE_Geometry_GetPrimitiveType()
- */
-void SCE_Geometry_SetPrimitiveType (SCE_SGeometry *geom, SCEenum prim)
-{
-    geom->prim = prim;
-}
-/**
- * \brief Gets primitive type of a geometry
- * \sa SCE_Geometry_SetPrimitiveType()
- */
-SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry *geom)
-{
-    return geom->prim;
 }
 
 /**
@@ -537,8 +522,10 @@ SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDup (SCE_SGeometry *geom,
  * \param array the index array to duplicate
  * \param keep keep data type as in \p array, otherwise they are converted to
  * an optimized data type (SCE_INDICES_TYPE)
- * \sa SCE_Geometry_SetIndexArrayDup(), SCE_Geometry_SetIndexArray(),
- * SCE_Geometry_SetArraDataDup()
+ * \note This function requires that the number of indices have been yet
+ * specified to \p geom (see SCE_Geometry_SetNumIndices()).
+ * \sa SCE_Geomtry_AddArrayDupDup(), SCE_Geometry_SetIndexArrayDup(),
+ * SCE_Geometry_SetIndexArray(), SCE_Geometry_SetArraDataDup()
  */
 SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDupDup (SCE_SGeometry *geom,
                                                       SCE_SGeometryArray *array,
@@ -580,6 +567,85 @@ SCE_SGeometryArray* SCE_Geometry_GetIndexArray (SCE_SGeometry *geom)
     return geom->index_array;
 }
 
+
+/**
+ * \brief User-friendly function to quickly defined data of a geometry
+ * \param pos,nor,tex vertex data, can be NULL if non-defined, but \p pos
+ * must be given. all these pointer will be freed by SCE_Geometry_Delete().
+ * \param index if specified, set as indices of the geometry
+ * \returns SCE_ERROR on error, SCE_OK otherwise
+ * \sa SCE_Geometry_AddArray(), SCE_Geometry_SetIndexArray(),
+ * SCE_Geometry_SetArrayData()
+ */
+int SCE_Geometry_SetData (SCE_SGeometry *geom, SCEvertices *pos,
+                          SCEvertices *nor, SCEvertices *tex, SCEindices *index,
+                          SCEuint n_vertices, SCEuint n_indices)
+{
+    int i;
+    SCE_SGeometryArray array, *arrays[3];
+
+    for (i = 0; i < 3; i++)
+        arrays[i] = NULL;
+    i = 0;
+    SCE_Geometry_SetNumVertices (geom, n_vertices);
+    SCE_Geometry_SetNumIndices (geom, n_indices);
+
+    SCE_Geometry_InitArray (&array);
+    SCE_Geometry_SetArrayPosition (&array, 3, pos, SCE_TRUE);
+    if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
+        goto fail;
+    i++;
+    if (nor) {
+        SCE_Geometry_InitArray (&array);
+        SCE_Geometry_SetArrayNormal (&array, nor, SCE_TRUE);
+        if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
+            goto fail;
+        i++;
+    }
+    if (tex) {
+        SCE_Geometry_InitArray (&array);
+        SCE_Geometry_SetArrayTexCoord (&array, 0, 2, tex, SCE_TRUE);
+        if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
+            goto fail;
+        i++;
+    }
+    if (index) {
+        SCE_Geometry_InitArray (&array);
+        SCE_Geometry_SetArrayData (&array, 0, SCE_INDICES_TYPE, 0, index,
+                                   SCE_TRUE);
+        if (!(arrays[i] = SCE_Geometry_SetIndexArrayDup (geom, &array,
+                                                         SCE_TRUE)))
+            goto fail;
+        i++;
+    }
+
+    return SCE_OK;
+fail:
+    for (; i >= 0; i--) {
+        arrays[i]->canfree_data = SCE_FALSE;
+        SCE_Geometry_DeleteArray (arrays[i]);
+    }
+    SCEE_LogSrc ();
+    return SCE_ERROR;
+}
+
+
+/**
+ * \brief Sets primitive type of a geometry
+ * \sa SCE_Geometry_GetPrimitiveType()
+ */
+void SCE_Geometry_SetPrimitiveType (SCE_SGeometry *geom, SCEenum prim)
+{
+    geom->prim = prim;
+}
+/**
+ * \brief Gets primitive type of a geometry
+ * \sa SCE_Geometry_SetPrimitiveType()
+ */
+SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry *geom)
+{
+    return geom->prim;
+}
 
 /**
  * \brief Sets the number of vertices of a geometry
