@@ -56,7 +56,7 @@ static void SCE_Geometry_FreeArrayUser (void *auser)
 {
     SCE_Geometry_ClearArrayUser (auser);
 }
-static void SCE_Geometry_InitArray (SCE_SGeometryArray *array)
+void SCE_Geometry_InitArray (SCE_SGeometryArray *array)
 {
     SCE_CInitVertexArrayData (&array->data);
     array->canfree_data = SCE_FALSE;
@@ -98,6 +98,14 @@ void SCE_Geometry_DeleteArray (SCE_SGeometryArray *array)
         SCE_List_Clear (&array->users);
         SCE_free (array);
     }
+}
+/**
+ * \brief Copies \p a2 into \p a1, it doesn't copy users of \p a2 and doesn't
+ * put \p a1 into the geometry of \p a2
+ */
+void SCE_Geometry_CopyArray (SCE_SGeometryArray *a1, SCE_SGeometryArray *a2)
+{
+    a1->data = a2->data;
 }
 
 void SCE_Geometry_InitArrayUser (SCE_SGeometryArrayUser *auser)
@@ -416,9 +424,47 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry *geom,
     if (!(new = SCE_Geometry_CreateArray ()))
         SCEE_LogSrc ();
     else {
-        new->data = array->data; /* transfert vertex array data */
+        SCE_Geometry_CopyArray (new, array);
         new->canfree_data = SCE_FALSE;
         SCE_Geometry_AddArray (geom, array);
+    }
+    return new;
+}
+/**
+ * \todo Merge it with SCE_Geometry_SetIndexArrayDupDup() ?
+ * \brief Duplicates an array and its vertex data and adds it to a geometry
+ * \param array the array to duplicate
+ * \param keep keep the data type as in \p array, otherwise they are converted to
+ * an optimized data type (SCE_VERTICES_TYPE)
+ */
+SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry *geom,
+                                                 SCE_SGeometryArray *array,
+                                                 int keep)
+{
+    SCE_SGeometryArray *new = NULL;
+    void *newdata = NULL;
+    SCEenum type = SCE_VERTICES_TYPE;
+    if (keep) {
+        type = array->data.type;
+        newdata = SCE_Mem_Dup (array->data.data, geom->n_indices *
+                               SCE_CSizeof(array->data.type)* array->data.size);
+    } else {
+        /* TODO: not according to definition of SCEvertices, may be greater */
+        newdata = SCE_Mem_ConvertDup (type, array->data.type, array->data.data,
+                                      geom->n_vertices * array->data.size);
+    }
+    if (!newdata)
+        SCEE_LogSrc ();
+    else {
+        if (!(new = SCE_Geometry_CreateArray ())) {
+            SCEE_LogSrc ();
+            SCE_free (newdata);
+        } else {
+            new->data.data = newdata;
+            new->data.type = type;
+            new->canfree_data = SCE_TRUE;
+            SCE_Geometry_AddArray (geom, new);
+        }
     }
     return new;
 }
@@ -432,10 +478,29 @@ void SCE_Geometry_RemoveArray (SCE_SGeometryArray *array)
     array->geom = NULL;
 }
 
+
+/**
+ * \brief Sets primitive type of a geometry
+ * \sa SCE_Geometry_GetPrimitiveType()
+ */
+void SCE_Geometry_SetPrimitiveType (SCE_SGeometry *geom, SCEenum prim)
+{
+    geom->prim = prim;
+}
+/**
+ * \brief Gets primitive type of a geometry
+ * \sa SCE_Geometry_SetPrimitiveType()
+ */
+SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry *geom)
+{
+    return geom->prim;
+}
+
 /**
  * \brief Sets the index array of a geometry
  * \param array the index array to set, NULL if you want to remove the current
  * one of \p geom
+ * \param canfree if SCE_TRUE, SCE_Geometry_Delete() will free \p array
  * \sa SCE_Geometry_AddArray(), SCE_Geometry_SetArrayData()
  */
 void SCE_Geometry_SetIndexArray (SCE_SGeometry *geom, SCE_SGeometryArray *array,
@@ -444,6 +509,67 @@ void SCE_Geometry_SetIndexArray (SCE_SGeometry *geom, SCE_SGeometryArray *array,
     SCE_Geometry_DeleteIndexArray (geom);
     geom->index_array = array;
     geom->canfree_index = (array ? canfree : SCE_FALSE);
+}
+/**
+ * \brief Duplicates and set an index array
+ * \returns the new array, duplicated from \p array
+ *
+ * Duplicates \p array but not its vertex data. \p canfree indicates if
+ * SCE_Geometry_Delete() will free the vertex data of \p array.
+ * \sa SCE_Geometry_SetIndexArray(), SCE_Geometry_GetIndexArray()
+ */
+SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDup (SCE_SGeometry *geom,
+                                                   SCE_SGeometryArray *array,
+                                                   int canfree)
+{
+    SCE_SGeometryArray *new = NULL;
+    if (!(new = SCE_Geometry_CreateArray ()))
+        SCEE_LogSrc ();
+    else {
+        SCE_Geometry_CopyArray (new, array);
+        new->canfree_data = canfree;
+        SCE_Geometry_SetIndexArray (geom, new, SCE_TRUE);
+    }
+    return new;
+}
+/**
+ * \brief Duplicates an index array and its data and set it to a geometry
+ * \param array the index array to duplicate
+ * \param keep keep data type as in \p array, otherwise they are converted to
+ * an optimized data type (SCE_INDICES_TYPE)
+ * \sa SCE_Geometry_SetIndexArrayDup(), SCE_Geometry_SetIndexArray(),
+ * SCE_Geometry_SetArraDataDup()
+ */
+SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDupDup (SCE_SGeometry *geom,
+                                                      SCE_SGeometryArray *array,
+                                                      int keep)
+{
+    SCE_SGeometryArray *new = NULL;
+    void *newdata = NULL;
+    SCEenum type = SCE_INDICES_TYPE;
+    if (keep) {
+        type = array->data.type;
+        newdata = SCE_Mem_Dup (array->data.data, geom->n_indices *
+                               SCE_CSizeof (array->data.type));
+    } else {
+        /* TODO: not according to definition of SCEindices, may be greater */
+        newdata = SCE_Mem_ConvertDup (type, array->data.type, array->data.data,
+                                      geom->n_indices);
+    }
+    if (!newdata)
+        SCEE_LogSrc ();
+    else {
+        if (!(new = SCE_Geometry_CreateArray ())) {
+            SCEE_LogSrc ();
+            SCE_free (newdata);
+        } else {
+            new->data.data = newdata;
+            new->data.type = type;
+            new->canfree_data = SCE_TRUE;
+            SCE_Geometry_SetIndexArray (geom, new, SCE_TRUE);
+        }
+    }
+    return new;
 }
 /**
  * \brief Gets the index array of a geometry

@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 25/07/2009
-   updated: 01/08/2009 */
+   updated: 02/08/2009 */
 
 #ifndef SCEGEOMETRY_H
 #define SCEGEOMETRY_H
@@ -27,6 +27,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * \ingroup geometry
+ * @{
+ */
 
 #if 0
 enum {
@@ -120,6 +125,7 @@ struct sce_sgeometryarrayuser {
  * \sa SCE_SMesh
  */
 struct sce_sgeometry {
+    SCEenum prim;
     SCE_SList arrays;                 /**< All vertex arrays */
     SCE_SList modified;               /**< Modified vertex arrays */
     SCE_SGeometryArray *index_array;  /**< Index array */
@@ -127,15 +133,19 @@ struct sce_sgeometry {
     unsigned int n_vertices, n_indices;
 };
 
+/** @} */
+
 int SCE_Init_Geometry (void);
 void SCE_Quit_Geometry (void);
 
 int SCE_Geometry_GetResourceType (void);
 
+void SCE_Geometry_InitArray (SCE_SGeometryArray*);
 SCE_SGeometryArray* SCE_Geometry_CreateArray (void);
 SCE_SGeometryArray* SCE_Geometry_CreateArrayFrom (SCE_CVertexAttributeType,
                                                   int, int, void*, int);
 void SCE_Geometry_DeleteArray (SCE_SGeometryArray*);
+void SCE_Geometry_CopyArray (SCE_SGeometryArray*, SCE_SGeometryArray*);
 
 void SCE_Geometry_InitArrayUser (SCE_SGeometryArrayUser*);
 SCE_SGeometryArrayUser* SCE_Geometry_CreateArrayUser (void);
@@ -172,9 +182,18 @@ SCE_CVertexArrayData* SCE_Geometry_GetArrayData (SCE_SGeometryArray*);
 void SCE_Geometry_AddArray (SCE_SGeometry*, SCE_SGeometryArray*);
 SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry*,
                                               SCE_SGeometryArray*, int);
+SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry*,
+                                                 SCE_SGeometryArray*, int);
 void SCE_Geometry_RemoveArray (SCE_SGeometryArray*);
 
+void SCE_Geometry_SetPrimitiveType (SCE_SGeometry*, SCEenum);
+SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry*);
+
 void SCE_Geometry_SetIndexArray (SCE_SGeometry*, SCE_SGeometryArray*, int);
+SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDup (SCE_SGeometry*,
+                                                   SCE_SGeometryArray*, int);
+SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDupDup (SCE_SGeometry*,
+                                                      SCE_SGeometryArray*, int);
 SCE_SGeometryArray* SCE_Geometry_GetIndexArray (SCE_SGeometry*);
 
 void SCE_Geometry_SetNumVertices (SCE_SGeometry*, unsigned int);
