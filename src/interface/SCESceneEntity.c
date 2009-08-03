@@ -345,12 +345,11 @@ void SCE_SceneEntity_RemoveInstanceFromEntity (SCE_SSceneEntityInstance *einst)
 
 /**
  * \brief Flushs the instances list of the group of \p entity
- * \sa SCE_SSceneEntity::igroup
+ * \sa SCE_Instance_FlushInstancesList(), SCE_SSceneEntity::igroup
  */
 void SCE_SceneEntity_Flush (SCE_SSceneEntity *entity)
 {
-    /* muhahaha */
-    SCE_List_Flush (SCE_Instance_GetInstancesList (entity->igroup));
+    SCE_Instance_FlushInstancesList (entity->igroup);
 }
 
 /**
@@ -610,6 +609,7 @@ static int SCE_SceneEntity_IsBBInFrustum (SCE_SSceneEntityInstance *einst,
     SCE_SBoundingBox *box = &einst->entity->box;
 
     SCE_BoundingBox_Push (box, SCE_Node_GetFinalMatrix (einst->node));
+    SCE_BoundingBox_MakePlanes (box); /* very important. */
     result = SCE_Frustum_BoundingBoxInBool (SCE_Camera_GetFrustum (cam), box);
     SCE_BoundingBox_Pop (box);
 
