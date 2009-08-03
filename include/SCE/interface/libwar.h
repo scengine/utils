@@ -39,6 +39,7 @@ typedef int WAint4;             /* doit faire 4 octets */
 
 typedef struct WarMesh {
     int canfree;     /* autorisation de detruire les donnees */
+    int canfree_indices;
 
     WAfloat4 *pos;
     WAfloat4 *tex;
@@ -57,6 +58,6 @@ void war_canfree (WarMesh*, int);
 void war_clear (WarMesh*);
 void war_free (WarMesh*);
 
-WarMesh** war_read (FILE*, int, int*);
+WarMesh* war_read (FILE*, int, unsigned int);
 
 #endif /* guard */

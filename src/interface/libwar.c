@@ -2,9 +2,9 @@
     SCEngine - A 3D real time rendering engine written in the C language
     Copyright (C) 2006-2009  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
-    This program is free software: you can redistribute it and/or modify
+    This program is SCE_free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    the SCE_Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 
+#include <SCE/SCEMinimal.h>
 #include <SCE/interface/libwar.h>
 
 static char error[256] = {0};
@@ -48,28 +49,18 @@ const char* war_getversionstring (void)
     return WAR_VERSION_STRING;
 }
 
-/*** fonction de gestion des allocations memoire ***/
-static void* my_alloc (size_t size)
-{
-    void *p = malloc (size);
-    if (!p)
-        war_error ("can't allocate memory!");
-    return p;
-}
-
-#define malloc(s) my_alloc (s)
-
 /*** fonctions de manipulation d'une structure WarMesh ***/
 static void war_init (WarMesh *m)
 {
     m->pos = m->tex = m->nor = NULL;
     m->vcount = m->icount = 0;
     m->indices = NULL;
-    m->canfree  = 0;
+    m->canfree = SCE_FALSE;
+    m->canfree_indices = SCE_FALSE;
 }
 WarMesh* war_new (void)
 {
-    WarMesh *m = malloc (sizeof *m);
+    WarMesh *m = SCE_malloc (sizeof *m);
     if (m)
         war_init (m);
     return m;
@@ -78,14 +69,20 @@ void war_canfree (WarMesh *m, int c)
 {
     m->canfree = c;
 }
+void war_canfreeindices (WarMesh *m, int c)
+{
+    m->canfree_indices = c;
+}
 void war_clear (WarMesh *m)
 {
     if (m) {
         if (m->canfree) {
-            free (m->pos);
-            free (m->tex);
-            free (m->nor);
-            free (m->indices);
+            SCE_free (m->pos);
+            SCE_free (m->tex);
+            SCE_free (m->nor);
+        }
+        if (m->canfree_indices) {
+            SCE_free (m->indices);
         }
         m->pos = NULL;
         m->tex = NULL;
@@ -96,7 +93,7 @@ void war_clear (WarMesh *m)
 void war_free (WarMesh *m)
 {
     war_clear (m);
-    free (m);
+    SCE_free (m);
 }
 
 
@@ -471,17 +468,64 @@ static int war_readindexline (FILE *fp, WAint4 *indices)
     /* 'numstr' vaut maintenant le nombre de "cases" de 'indices' remplies */
     return numstr;
 }
+static int war_readfakeindexline (FILE *fp, WAint4 *indices)
+{
+    int c;
+    WAuint i, j;
+    WAuint p = 0; /* position dans 'indices' */
+    WAint4 index[4][3] = {{0}};
+    WAuint numstr;
+
+    /* algorithme de lecture des donnees dans 'fp' */
+    numstr = war_strsinline (fp, 1);
+    for (i = 0; i < numstr; i++) {
+        war_jumpspaces (fp);
+        for (j=0; j<3; j++) {
+            war_readuint (fp, &index[i][j]);
+            c = fgetc (fp);
+            if (c == '/') {
+                c = fgetc (fp);
+                if (c == '/')
+                    j++;
+                else
+                    fseek (fp, -1, SEEK_CUR);
+            } else {
+                fseek (fp, -1, SEEK_CUR);
+                break;
+            }
+        }
+    }
+
+    switch (numstr) {
+    case 2:
+    case 3:
+        numstr = 9;
+        break;
+    case 4:
+        numstr = 18;
+    /* pas la peine de verifier via default si une mauvaise valeur a ete lue,
+       la fonction de lecture de la taille des indices s'en charge */
+    }
+
+    return numstr;
+}
 
 static void war_readindices (FILE *fp, WAint4 *indices)
 {
     int c;
     size_t pos = 0; /* initialisation importante */
+    int (*readindexlinefunc)(FILE*, WAint4*);
+
+    if (indices)
+        readindexlinefunc = war_readindexline;
+    else
+        readindexlinefunc = war_readfakeindexline;
 
     do {
         c = fgetc (fp);
-        if (c == 'f')
-            pos += war_readindexline (fp, &indices[pos]);
-        else if (c == 'o') /* definition d'un autre objet, arret */
+        if (c == 'f') {
+            pos += readindexlinefunc (fp, &indices[pos]);
+        } else if (c == 'o') /* definition d'un autre objet, arret */
             break;
         else if (c != '\n')
             war_jumpline (fp);
@@ -506,26 +550,26 @@ static int war_makeindices (WarMesh *me)
     WAuint n_triangles = me->icount / 9;
     WAint4 *index = me->indices;
 
-    indices = malloc (n_triangles * 3 * sizeof *indices);
+    indices = SCE_malloc (n_triangles * 3 * sizeof *indices);
     if (!indices)
         return -1;
 
     /* taille reelle impossible a evaluer, on prend la taille maximale */
-    if (!(pos = malloc (n_triangles * 9 * sizeof *pos))) {
-        free (indices);
+    if (!(pos = SCE_malloc (n_triangles * 9 * sizeof *pos))) {
+        SCE_free (indices);
         return -1;
     }
     if (index[2])
-        if (!(nor = malloc (n_triangles * 9 * sizeof *nor))) {
-            free (pos);
-            free (indices);
+        if (!(nor = SCE_malloc (n_triangles * 9 * sizeof *nor))) {
+            SCE_free (pos);
+            SCE_free (indices);
             return -1;
         }
     if (index[1])
-        if (!(tex = malloc (n_triangles * 6 * sizeof *tex))) {
-            free (nor);
-            free (pos);
-            free (indices);
+        if (!(tex = SCE_malloc (n_triangles * 6 * sizeof *tex))) {
+            SCE_free (nor);
+            SCE_free (pos);
+            SCE_free (indices);
             return -1;
         }
 
@@ -599,17 +643,17 @@ static int war_makevertices (WarMesh *me)
     /* icount = nombre de variables dans le tableau d'indices, mais
        etant donne que les indices sont intrelaces (*3 pour
        3 types de donnees par sommet), pas besoin de multiplier par 3  */
-    if (!(pos = malloc (me->icount * sizeof *pos)))
+    if (!(pos = SCE_malloc (me->icount * sizeof *pos)))
         return -1;
     if (me->indices[2])
-        if (!(nor = malloc (me->icount * sizeof *nor))) {
-            free (pos);
+        if (!(nor = SCE_malloc (me->icount * sizeof *nor))) {
+            SCE_free (pos);
             return -1;
         }
     if (me->indices[1])
-        if (!(tex = malloc ((me->icount/3)*2 * sizeof *tex))) {
-            free (nor);
-            free (pos);
+        if (!(tex = SCE_malloc ((me->icount/3)*2 * sizeof *tex))) {
+            SCE_free (nor);
+            SCE_free (pos);
             return -1;
         }
 
@@ -641,63 +685,47 @@ static int war_makevertices (WarMesh *me)
     return 0;
 }
 
-WarMesh** war_read (FILE *fp, int gen_indices, int *n_objs)
+WarMesh* war_read (FILE *fp, int gen_indices, unsigned int lod_level)
 {
+    int ret = SCE_OK;
     int i = 0;
-    WarMesh **meshs = NULL;
+    unsigned int num_indices = 0;
+    WarMesh *mesh = NULL;
     size_t v, vt, vn;
     int (*make)(WarMesh*) = NULL;
     int o_first = 1;
-
-#define WAR_ASSERT(c)\
-    if ((c)) {\
-        for (i=0; i<*n_objs; i++)\
-            war_free (meshs[i]);\
-        free (meshs);\
-        return NULL;\
-    }
+    unsigned int n_objs = 0;
 
     /* lecture des informations generales */
-    war_readinfos (fp, n_objs, &v, &vt, &vn);
+    war_readinfos (fp, &n_objs, &v, &vt, &vn);
     if (v == 0 && vt == 0 && vn == 0) {
         war_error ("bad file format : can't read some valid OBJ data");
         return NULL;
     } else if (n_objs == 0)
-        *n_objs = 1;
+        n_objs = 1;
     rewind (fp);
-
-    /* allocation du tableau d'objets */
-    meshs = malloc (*n_objs * sizeof *meshs);
-    if (!meshs)
-        return NULL;
-    /* initialisation des pointeurs a NULL pour rendre
-       possible l'utilisation de WAR_ASSERT */
-    for (i = 0; i < *n_objs; i++)
-        meshs[i] = NULL;
 
     /* creation du premier objet */
-    WAR_ASSERT (!(meshs[0] = war_new ()))
-    war_canfree (meshs[0], 1);
+    if (!(mesh = war_new ()))
+        goto fail;
+    war_canfree (mesh, SCE_TRUE);
+    war_canfreeindices (mesh, SCE_TRUE);
 
     /* allocation des tableaux de donnees */
-    WAR_ASSERT (!(meshs[0]->pos = malloc (v * sizeof *meshs[0]->pos)))
-    WAR_ASSERT (!(meshs[0]->tex = malloc (vt * sizeof *meshs[0]->tex)))
-    WAR_ASSERT (!(meshs[0]->nor = malloc (vn * sizeof *meshs[0]->nor)))
-
-    /* creation des autres objets */
-    for (i = 1; i < *n_objs; i++) {
-        WAR_ASSERT (!(meshs[i] = war_new ()))
-        meshs[i]->pos = meshs[0]->pos;
-        meshs[i]->tex = meshs[0]->tex;
-        meshs[i]->nor = meshs[0]->nor;
-    }
+    if (!(mesh->pos = SCE_malloc (v * sizeof *mesh->pos)))
+        goto fail;
+    if (!(mesh->tex = SCE_malloc (vt * sizeof *mesh->tex)))
+        goto fail;
+    if (!(mesh->nor = SCE_malloc (vn * sizeof *mesh->nor)))
+        goto fail;
 
     /* lecture des donnees de sommet */
-    war_readdata (fp, meshs[0]->pos, meshs[0]->tex, meshs[0]->nor);
+    war_readdata (fp, mesh->pos, mesh->tex, mesh->nor);
     rewind (fp);
 
-    switch (war_readnumindices (fp)) { /* pour aller jusqu'au prochain 'o' */
-    case -1: WAR_ASSERT (1)
+    num_indices = war_readnumindices (fp);
+    switch (num_indices) { /* pour aller jusqu'au prochain 'o' */
+    case -1: goto fail;
     case 0: break;
     default:
         /* donnees detectees avant le premier 'o', on considere donc que
@@ -705,34 +733,47 @@ WarMesh** war_read (FILE *fp, int gen_indices, int *n_objs)
         rewind (fp);
         o_first = 0;
     }
-    /* lecture de la taille des tableaux d'indices et allocations */
-    for (i = 0; i < *n_objs; i++) {
-        WAR_ASSERT ((meshs[i]->icount = war_readnumindices (fp)) < 0)
-        if (meshs[i]->icount == 0) {
+    /* lecture de la taille des tableaux d'indices et allocation sur le bon */
+    for (i = 0; i < n_objs; i++) {
+        if ((mesh->icount = war_readnumindices (fp)) < 0)
+            goto fail;
+        if (mesh->icount == 0) {
             war_error ("bad file format : 0 value read for index count");
-            WAR_ASSERT (1)
+            goto fail;
         }
-        meshs[i]->indices = malloc (meshs[i]->icount*sizeof *meshs[i]->indices);
-        WAR_ASSERT (!meshs[i]->indices)
+        if (i == lod_level) {
+            mesh->indices = SCE_malloc (mesh->icount * sizeof *mesh->indices);
+            if (!mesh->indices)
+                goto fail;
+            break;
+        }
     }
     rewind (fp);
-    if (o_first)
-        WAR_ASSERT (war_readnumindices (fp) < 0) /* pour aller jusqu'au prochain 'o' */
+    if (o_first) {
+        if (war_readnumindices (fp) < 0) /* pour aller jusqu'au prochain 'o' */
+            goto fail;
+    }
     /* lecture des indices */
-    for (i=0; i<*n_objs; i++)
-        war_readindices (fp, meshs[i]->indices);
+    for (i = 0; i < n_objs; i++) {
+        if (i == lod_level) {
+            war_readindices (fp, mesh->indices);
+            break;
+        } else                    /* fake read, just jump */
+            war_readindices (fp, NULL);
+    }
 
     /* construction des meshs */
     if (gen_indices)
-        make = war_makeindices;
+        ret = war_makeindices (mesh);
     else
-        make = war_makevertices;
-    for (i = 1; i < *n_objs; i++)
-        WAR_ASSERT (make (meshs[i]) < 0)
-
-    /* on construit le premier en dernier car on l'a autorise
-       a supprimer les donnees de sommet a sa suppression (canfree) */
-    WAR_ASSERT (make (meshs[0]) < 0)
-
-    return meshs;
+        ret = war_makevertices (mesh);
+    if (ret < 0)
+        goto fail;
+    return mesh;
+fail:
+    if (!SCEE_HaveError ())
+        SCEE_Log (SCE_BAD_FORMAT);
+    SCEE_LogSrc ();
+    war_free (mesh);
+    return NULL;
 }
