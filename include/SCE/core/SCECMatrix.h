@@ -22,6 +22,8 @@
 #ifndef SCECMATRIX_H
 #define SCECMATRIX_H
 
+#include <SCE/SCECommon.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -51,18 +53,18 @@ void SCE_CGetMatrix (int, float*);
 
 
 /* translation */
-void SCE_CTranslateMatrix (float, float, float);
+void SCE_CTranslateMatrix (float, float, float) SCE_GNUC_DEPRECATED;
 
 /* rotation */
-void SCE_CRotateMatrix (float, float, float, float);
+void SCE_CRotateMatrix (float, float, float, float) SCE_GNUC_DEPRECATED;
 
 /* echelle */
-void SCE_CScaleMatrix (float, float, float);
+void SCE_CScaleMatrix (float, float, float) SCE_GNUC_DEPRECATED;
 
 /* versions vectorielles */
-void SCE_CTranslateMatrixv (float*);
-void SCE_CRotateMatrixv (float, float*);
-void SCE_CScaleMatrixv (float*);
+void SCE_CTranslateMatrixv (float*) SCE_GNUC_DEPRECATED;
+void SCE_CRotateMatrixv (float, float*) SCE_GNUC_DEPRECATED;
+void SCE_CScaleMatrixv (float*) SCE_GNUC_DEPRECATED;
 /***/
 
 #if 0

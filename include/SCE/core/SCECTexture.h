@@ -25,6 +25,7 @@
 #include <stdarg.h>
 #include <SCE/utils/SCEList.h>
 #include <SCE/core/SCECImage.h>
+#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -95,7 +96,7 @@ void SCE_CTextureQuit (void);
 int SCE_CGetTextureResourceType (void);
 
 /* defini la texture active */
-void SCE_CBindTexture (SCE_CTexture*);
+void SCE_CBindTexture (SCE_CTexture*) SCE_GNUC_DEPRECATED;
 
 /* initialise une structure de donnees d'une texture */
 void SCE_CInitTexData (SCE_CTexData*);
