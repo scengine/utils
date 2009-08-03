@@ -1,6 +1,5 @@
 sce_include_interface_HEADERS = lib4fm.h \
                                 libwar.h \
-                                SCE4FMLoader.h \
                                 SCEBatch.h \
                                 SCEBoundingBox.h \
                                 SCEBoundingSphere.h \

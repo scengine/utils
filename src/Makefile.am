@@ -46,7 +46,6 @@ libSCE_la_SOURCES = utils/SCELine.c \
                     interface/SCELight.c \
                     interface/SCEGeometry.c \
                     interface/SCEOBJLoader.c \
-                    interface/SCE4FMLoader.c \
                     interface/SCEMesh.c \
                     interface/SCESphereMesh.c \
                     interface/SCEQuad.c \
