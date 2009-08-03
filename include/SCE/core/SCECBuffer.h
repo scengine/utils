@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 01/08/2009 */
+   updated: 02/08/2009 */
 
 #ifndef SCECBUFFER_H
 #define SCECBUFFER_H
@@ -26,8 +26,7 @@
 #include <SCE/core/SCECVertexArray.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -35,8 +34,27 @@ extern "C"
  * @{
  */
 
+/**
+ * \brief Usage modes for a buffer
+ */
+enum sce_cbufferusage {
+    SCE_BUFFER_STREAM_DRAW = GL_STREAM_DRAW,
+    SCE_BUFFER_STREAM_READ = GL_STREAM_READ,
+    SCE_BUFFER_STREAM_COPY = GL_STREAM_COPY,
+    SCE_BUFFER_STATIC_DRAW = GL_STATIC_DRAW,
+    SCE_BUFFER_STATIC_READ = GL_STATIC_READ,
+    SCE_BUFFER_STATIC_COPY = GL_STATIC_COPY,
+    SCE_BUFFER_DYNAMIC_DRAW = GL_DYNAMIC_DRAW,
+    SCE_BUFFER_DYNAMIC_READ = GL_DYNAMIC_READ,
+    SCE_BUFFER_DYNAMIC_COPY = GL_DYNAMIC_COPY
+};
+/** \copydoc sce_cbufferusage */
+typedef enum sce_cbufferusage SCE_CBufferUsage;
+
+/** \copydoc sce_cbuffer */
 typedef struct sce_cbuffer SCE_CBuffer;
 
+/** \copydoc sce_cbufferdata */
 typedef struct sce_cbufferdata SCE_CBufferData;
 /**
  * \brief Data of a buffer
@@ -70,6 +88,9 @@ struct sce_cbuffer {
 
 /** @} */
 
+int SCE_CBufferInit (void);
+void SCE_CBufferQuit (void);
+
 void SCE_CInitBufferData (SCE_CBufferData*);
 SCE_CBufferData* SCE_CCreateBufferData (void);
 void SCE_CClearBufferData (SCE_CBufferData*);
@@ -86,8 +107,8 @@ void SCE_CAddBufferData (SCE_CBuffer*, SCE_CBufferData*);
 SCE_CBufferData* SCE_CAddBufferNewData (SCE_CBuffer*, size_t, void*);
 void SCE_CRemoveBufferData (SCE_CBufferData*);
 
-void SCE_CBuildBuffer (SCE_CBuffer*, SCEenum, SCEenum);
-void SCE_CUpdateBuffer (SCE_CBuffer*);
+void SCE_CBuildBuffer (SCE_CBuffer*, SCEenum, SCE_CBufferUsage);
+extern void SCE_CUpdateBuffer (SCE_CBuffer*);
 void SCE_CUseBuffer (SCE_CBuffer*);
 
 #ifdef __cplusplus
