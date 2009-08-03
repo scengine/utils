@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 12/10/2006
-   updated: 01/07/2009 */
+   updated: 03/08/2009 */
 
 #ifndef SCENGINE_H
 #define SCENGINE_H
@@ -27,21 +27,21 @@
 #include <SCE/utils/SCEUtils.h>
 #include <SCE/core/SCECore.h>
 
-#include <SCE/interface/SCEOBJLoader.h>
-#include <SCE/interface/SCE4FMLoader.h>
-#include <SCE/interface/SCEMD5Loader.h>
 #include <SCE/interface/SCENode.h>
 #include <SCE/interface/SCEBoundingBox.h>
 #include <SCE/interface/SCEBoundingSphere.h>
 #include <SCE/interface/SCEFrustum.h>
-#include <SCE/interface/SCEQuad.h>
-#include <SCE/interface/SCEMesh.h>
-#include <SCE/interface/SCESphereMesh.h>
-/*#include <SCE/interface/SCECubeMesh.h>*/
+#include <SCE/interface/SCEGeometry.h>
+#include <SCE/interface/SCEOBJLoader.h>
+#include <SCE/interface/SCEMD5Loader.h>
+#include <SCE/interface/SCESphereGeometry.h>
+/*#include <SCE/interface/SCECubeGeometry.h>*/
 #include <SCE/interface/SCEJoint.h>
 #include <SCE/interface/SCESkeleton.h>
 #include <SCE/interface/SCEAnimatedMesh.h>
 #include <SCE/interface/SCEAnimation.h>
+#include <SCE/interface/SCEQuad.h>
+#include <SCE/interface/SCEMesh.h>
 
 #include <SCE/interface/SCELight.h>
 #include <SCE/interface/SCECamera.h>
@@ -56,8 +56,7 @@
 
 /* set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 int SCE_Init (FILE*, SCEflags);

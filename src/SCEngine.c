@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 12/10/2006
-   updated: 08/07/2009 */
+   updated: 03/08/2009 */
 
 #include <config.h>
 #include <SCE/SCEngine.h>
@@ -50,85 +50,43 @@ int SCE_Init (FILE *outlog, SCEflags flags)
     int code = SCE_OK;
     SCE_btstart ();
     if (SCE_Init_Utils (outlog) < 0)
-    {
-        SCE_btend ();
-        return SCE_ERROR;
-    }
+        goto fail;
 
     if (SCE_CInit (flags) < 0)
-    {
-        SCEE_LogSrcMsg ("can't initialize core!");
-        goto failure;
-    }
-
+        goto fail;
     if (SCE_Init_Texture () < 0)
-    {
-        SCEE_LogSrcMsg ("can't initialize textures manager");
-        goto failure;
-    }
+        goto fail;
     if (SCE_Init_Shader () < 0)
-    {
-        SCEE_LogSrcMsg ("can't initialize shaders manager");
-        goto failure;
-    }
+        goto fail;
     if (SCE_Init_Mesh () < 0)
-    {
-        SCEE_LogSrcMsg ("can't initialize meshs manager");
-        goto failure;
-    }
+        goto fail;
     {
         if (SCE_Init_OBJ () < 0)
-        {
-            SCEE_LogSrcMsg ("can't initialize .obj loader");
-            goto failure;
-        }
-        if (SCE_Init_4FM () < 0)
-        {
-            SCEE_LogSrcMsg ("can't initialize .4fm loader");
-            goto failure;
-        }
+            goto fail;
     }
     if (SCE_Init_AnimMesh () < 0)
-    {
-        SCEE_LogSrcMsg ("can't initialize animated meshs manager");
-        goto failure;
-    }
+        goto fail;
     if (SCE_Init_Anim () < 0)
-    {
-        SCEE_LogSrcMsg ("can't initialize animations manager");
-        goto failure;
-    }
+        goto fail;
     {
         if (SCE_Init_idTechMD5 () < 0)
-        {
-            SCEE_LogSrcMsg ("can't initialize .md5mesh/anim loader");
-            goto failure;
-        }
+            goto fail;
     }
 #if 0
     if (SCE_Init_State () < 0)
-    {
-        SCEE_LogSrcMsg ("can't initialize states manager");
-        goto failure;
-    }
+        goto fail;
 #endif
     if (SCE_Init_Quad () < 0)
-    {
-        SCEE_LogSrcMsg ("can't initialize quads manager");
-        goto failure;
-    }
+        goto fail;
     if (SCE_Init_Scene () < 0)
-    {
-        SCEE_LogSrcMsg ("can't initialize scenes manager");
-        goto failure;
-    }
-    goto success;
-failure:
+        goto fail;
+
+    return SCE_OK;
+fail:
     SCE_Quit ();
-    code = SCE_ERROR;
-success:
-    SCE_btend ();
-    return code;
+    SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to initialize SCEngine");
+    return SCE_ERROR;
 }
 
 /**
