@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 01/08/2009 */
+   updated: 02/08/2009 */
 
 #ifndef SCECVERTEXBUFFER_H
 #define SCECVERTEXBUFFER_H
@@ -27,8 +27,7 @@
 #include <SCE/core/SCECVertexArray.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -50,6 +49,8 @@ enum sce_cbufferrendermode {
                                  * of the vertex buffer (see
                                  * SCE_CEnableVertexBufferData()) but improves
                                  * performances when rendering it. */
+    /* TODO: not really needed and add code design complexity (and hacks) */
+    /** \deprecated */
     SCE_UNIFIED_VBO_RENDER_MODE /**< Use one single vertex array object for
                                  * for many vertex buffers. */
 };
@@ -128,7 +129,7 @@ SCE_CVertexBufferData* SCE_CAddVertexBufferNewData (SCE_CVertexBuffer*,
                                                     unsigned int, void*);
 void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData*);
 
-void SCE_CBuildVertexBuffer (SCE_CVertexBuffer*, SCEenum,
+void SCE_CBuildVertexBuffer (SCE_CVertexBuffer*, SCE_CBufferUsage,
                              SCE_CBufferRenderMode);
 void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer*, SCE_CBufferRenderMode);
 void SCE_CUpdateVertexBuffer (SCE_CVertexBuffer*);
@@ -141,7 +142,7 @@ void SCE_CSetIndexBufferIndexArray (SCE_CIndexBuffer*, SCE_CIndexArray*,
                                     SCEuint);
 void SCE_CSetIndexBufferIndices (SCE_CIndexBuffer*, SCEenum, unsigned int,
                                  void*);
-void SCE_CBuildIndexBuffer (SCE_CIndexBuffer*, SCEenum);
+void SCE_CBuildIndexBuffer (SCE_CIndexBuffer*, SCE_CBufferUsage);
 void SCE_CUseIndexBuffer (SCE_CIndexBuffer*);
 void SCE_CRenderVertexBufferIndexed (SCEenum);
 void SCE_CRenderVertexBufferIndexedInstanced (SCEenum, SCEuint);

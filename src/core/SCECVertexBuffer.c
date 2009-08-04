@@ -318,7 +318,7 @@ static void SCE_CUseUnifiedVBOMode (SCE_CVertexBuffer *vb)
  * specified.
  * \sa SCE_CSetVertexBufferRenderMode(), SCE_CBufferRenderMode
  */
-void SCE_CBuildVertexBuffer (SCE_CVertexBuffer *vb, SCEenum usage,
+void SCE_CBuildVertexBuffer (SCE_CVertexBuffer *vb, SCE_CBufferUsage usage,
                              SCE_CBufferRenderMode mode)
 {
     SCE_CVertexBufferData *data = NULL;
@@ -480,7 +480,7 @@ void SCE_CSetIndexBufferIndices (SCE_CIndexBuffer *ib, SCEenum type,
 /**
  * \brief 
  */
-void SCE_CBuildIndexBuffer (SCE_CIndexBuffer *ib, SCEenum usage)
+void SCE_CBuildIndexBuffer (SCE_CIndexBuffer *ib, SCE_CBufferUsage usage)
 {
     SCE_CBuildBuffer (&ib->buf, GL_ELEMENT_ARRAY_BUFFER, usage);
 }
