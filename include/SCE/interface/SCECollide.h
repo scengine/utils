@@ -17,35 +17,33 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 08/01/2009
-   updated: 16/06/2009 */
+   updated: 04/08/2009 */
 
 #ifndef SCECOLLIDE_H
 #define SCECOLLIDE_H
 
-#include <SCE/utils/SCERectangle.h>
+/*#include <SCE/utils/SCERectangle.h>*/
 #include <SCE/utils/SCEPlane.h>
 #include <SCE/interface/SCEBoundingBox.h>
 #include <SCE/interface/SCEBoundingSphere.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define SCE_COLLIDE_OUT 0
 #define SCE_COLLIDE_IN 1
 #define SCE_COLLIDE_PARTIALLY 2
 
-int SCE_Collide_PlanesWithPoint (SCE_SPlane*, unsigned int, float, float,float);
-int SCE_Collide_PlanesWithPointv (SCE_SPlane*, unsigned int, SCE_TVector3);
+int SCE_Collide_PlanesWithPoint (SCE_SPlane*, size_t, float, float,float);
+int SCE_Collide_PlanesWithPointv (SCE_SPlane*, size_t, SCE_TVector3);
 
-int SCE_Collide_PlanesWithBB (SCE_SPlane*, unsigned int, SCE_SBoundingBox*);
-int SCE_Collide_PlanesWithBBBool (SCE_SPlane*, unsigned int, SCE_SBoundingBox*);
-int SCE_Collide_PlanesWithBS (SCE_SPlane*, unsigned int, SCE_SBoundingSphere*);
-int SCE_Collide_PlanesWithBSBool (SCE_SPlane*, unsigned int,
-                                  SCE_SBoundingSphere*);
+int SCE_Collide_PlanesWithBB (SCE_SPlane*, size_t, SCE_SBoundingBox*);
+int SCE_Collide_PlanesWithBBBool (SCE_SPlane*, size_t, SCE_SBoundingBox*);
+int SCE_Collide_PlanesWithBS (SCE_SPlane*, size_t, SCE_SBoundingSphere*);
+int SCE_Collide_PlanesWithBSBool (SCE_SPlane*, size_t, SCE_SBoundingSphere*);
 
-int SCE_Collide_RectWithBS (SCE_SFloatRect*, SCE_SBoundingSphere*);
+/*int SCE_Collide_RectWithBS (SCE_SFloatRect*, SCE_SBoundingSphere*);*/
 
 int SCE_Collide_AABBWithPoint (SCE_SBoundingBox*, float, float, float);
 int SCE_Collide_AABBWithPointv (SCE_SBoundingBox*, SCE_TVector3);

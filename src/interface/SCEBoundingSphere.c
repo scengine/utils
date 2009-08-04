@@ -17,10 +17,11 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/01/2009
-   updated: 14/01/2009 */
+   updated: 04/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/interface/SCEBox.h>
 #include <SCE/interface/SCEBoundingSphere.h>
 
 /**
@@ -45,108 +46,68 @@
  */
 void SCE_BoundingSphere_Init (SCE_SBoundingSphere *sphere)
 {
-    SCE_Vector3_Set (sphere->center, 0.0, 0.0, 0.0);
-    SCE_Vector3_Set (sphere->ocenter, 0.0, 0.0, 0.0);
-
-    sphere->radius = sphere->oradius = 1.0;
-#if 0
-    SCE_Vector3_Set (sphere->x, sphere->radius, 0.0, 0.0);
-    SCE_Vector3_Set (sphere->ox, sphere->radius, 0.0, 0.0);
-    SCE_Vector3_Set (sphere->y, 0.0, sphere->radius, 0.0);
-    SCE_Vector3_Set (sphere->oy, 0.0, sphere->radius, 0.0);
-    SCE_Vector3_Set (sphere->z, 0.0, 0.0, sphere->radius);
-    SCE_Vector3_Set (sphere->oz, 0.0, 0.0, sphere->radius);
-#endif
-    sphere->pushed = SCE_FALSE;
+    SCE_BoundingSphere_Set (sphere, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void SCE_BoundingSphere_Set (SCE_SBoundingSphere *sphere,
                              float x, float y, float z, float radius)
 {
-    SCE_Vector3_Set (sphere->center, x, y, z);
-    sphere->radius = radius;
+    SCE_Vector3_Set (sphere->sphere.center, x, y, z);
+    sphere->sphere.radius = radius;
 }
 void SCE_BoundingSphere_Setv (SCE_SBoundingSphere *sphere,
                               SCE_TVector3 center, float radius)
 {
-    SCE_Vector3_Copy (sphere->center, center);
-    sphere->radius = radius;
+    SCE_Vector3_Copy (sphere->sphere.center, center);
+    sphere->sphere.radius = radius;
 }
 
-void SCE_BoundingSphere_SetCenter (SCE_SBoundingSphere *sphere,
-                                   float x, float y, float z)
+SCE_SSphere* SCE_BoundingSphere_GetSphere (SCE_SBoundingSphere *sphere)
 {
-    SCE_Vector3_Set (sphere->center, x, y, z);
+    return &sphere->sphere;
 }
-void SCE_BoundingSphere_SetCenterv (SCE_SBoundingSphere *sphere,
-                                    SCE_TVector3 center)
-{
-    SCE_Vector3_Copy (sphere->center, center);
-}
-void SCE_BoundingSphere_SetRadius (SCE_SBoundingSphere *sphere, float radius)
-{
-    sphere->radius = radius;
-}
-
 float* SCE_BoundingSphere_GetCenter (SCE_SBoundingSphere *sphere)
 {
-    return sphere->center;
-}
-void SCE_BoundingSphere_GetCenterv (SCE_SBoundingSphere *sphere,
-                                    SCE_TVector3 center)
-{
-    SCE_Vector3_Copy (center, sphere->center);
+    return sphere->sphere.center;
 }
 float SCE_BoundingSphere_GetRadius (SCE_SBoundingSphere *sphere)
 {
-    return sphere->radius;
+    return sphere->sphere.radius;
 }
 
-void SCE_BoundingSphere_Push (SCE_SBoundingSphere *sphere, SCE_TMatrix4 m)
+static void SCE_BoundingSphere_MakeBoxFrom (SCE_SSphere *sphere, SCE_SBox *box)
 {
-    if (!sphere->pushed)
-    {
-        float highest;
-        /* 1st: saves the current data */
-        SCE_Vector3_Copy (sphere->ocenter, sphere->center);
-        sphere->oradius = sphere->radius;
-        /* 2nd: apply the matrix */
-        /* TODO: wrong */
-#if 0
-        /* find the highest scaling component */
-        highest = MAX (m[0], m[1]);
-        highest = MAX (highest, m[2]);
-        highest = MAX (highest, m[4]);
-        highest = MAX (highest, m[5]);
-        highest = MAX (highest, m[6]);
-        highest = MAX (highest, m[8]);
-        highest = MAX (highest, m[9]);
-        highest = MAX (highest, m[10]);
-        /* use it */
-        sphere->radius *= highest;
-#endif
-        /* apply the matrix to the center vector */
-        SCE_Matrix4_MulV3Copy (m, sphere->center);
-        sphere->pushed = SCE_TRUE;
-    }
+    SCE_Box_SetFromCenterv (box, sphere->center, sphere->radius,
+                            sphere->radius, sphere->radius);
 }
-void SCE_BoundingSphere_Pop (SCE_SBoundingSphere *sphere)
+static void SCE_BoundingSphere_ApplyMatrix (SCE_SSphere *sphere,
+                                            SCE_TMatrix4x3 m)
 {
-    if (sphere->pushed)
-    {
-        SCE_Vector3_Copy (sphere->center, sphere->ocenter);
-        sphere->radius = sphere->oradius;
-        sphere->pushed = SCE_FALSE;
-    }
+    float highest, h, d;
+    SCE_SBox box;
+
+    /* use box to determine highest radius after transformation */
+    SCE_BoundingSphere_MakeBoxFrom (sphere, &box);
+    SCE_Box_ApplyMatrix4x3 (&box, m);
+    highest = SCE_Box_GetWidth (&box);
+    h = SCE_Box_GetHeight (&box);
+    d = SCE_Box_GetDepth (&box);
+    highest = max (highest, h);
+    highest = max (highest, d);
+    /* apply the matrix to the center vector */
+    SCE_Matrix4x3_MulV3Copy (m, sphere->center);
+    sphere->radius = highest;
 }
 
-/**
- * \brief Indicates if a bounding sphere is in "pushed" state
- * \sa SCE_BoundingSphere_Push(), SCE_BoundingSphere_Pop()
- */
-int SCE_BoundingSphere_IsPushed (SCE_SBoundingSphere *sphere)
+void SCE_BoundingSphere_Push (SCE_SBoundingSphere *sphere, SCE_TMatrix4x3 m,
+                              SCE_SSphere *old)
 {
-    return sphere->pushed;
+    SCE_Sphere_Copy (old, &sphere->sphere);
+    SCE_BoundingSphere_ApplyMatrix (&sphere->sphere, m);
+}
+void SCE_BoundingSphere_Pop (SCE_SBoundingSphere *sphere, SCE_SSphere *old)
+{
+    SCE_Sphere_Copy (&sphere->sphere, old);
 }
 
 /** @} */

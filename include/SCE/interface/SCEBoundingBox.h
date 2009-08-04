@@ -17,62 +17,37 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 27/02/2008
-   updated: 21/06/2009 */
+   updated: 03/08/2009 */
 
 #ifndef SCEBOUNDINGBOX_H
 #define SCEBOUNDINGBOX_H
 
 #include <SCE/utils/SCEMatrix.h>
-#include <SCE/utils/SCEVector.h>
 #include <SCE/utils/SCEPlane.h>
+#include <SCE/interface/SCEBox.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef struct sce_sboundingbox SCE_SBoundingBox;
-struct sce_sboundingbox
-{
-    SCE_TVector3 p[8];
-    SCE_TVector3 olds[8];
+struct sce_sboundingbox {
+    SCE_SBox box;
     SCE_SPlane planes[6];
-    int pushed;
 };
-
 
 void SCE_BoundingBox_Init (SCE_SBoundingBox*);
 
-void SCE_BoundingBox_Set (SCE_SBoundingBox*, SCE_TVector3, float, float, float);
-void SCE_BoundingBox_Setv (SCE_SBoundingBox*, SCE_TVector3, SCE_TVector3);
-void SCE_BoundingBox_SetFromCenter (SCE_SBoundingBox*, SCE_TVector3,
-                                    float, float, float);
-
-void SCE_BoundingBox_SetSize (SCE_SBoundingBox*, float, float, float);
-
-void SCE_BoundingBox_SetCenter (SCE_SBoundingBox*, float, float, float);
-void SCE_BoundingBox_SetCenterv (SCE_SBoundingBox*, SCE_TVector3);
-
-void SCE_BoundingBox_GetCenterv (SCE_SBoundingBox*, SCE_TVector3);
-float* SCE_BoundingBox_GetOrigin (SCE_SBoundingBox*);
-void SCE_BoundingBox_GetOriginv (SCE_SBoundingBox*, SCE_TVector3);
+SCE_SBox* SCE_BoundingBox_GetBox (SCE_SBoundingBox*);
 
 float* SCE_BoundingBox_GetPoints (SCE_SBoundingBox*);
-void SCE_BoundingBox_GetPointsv (SCE_SBoundingBox*, SCE_TVector3*);
 
 void SCE_BoundingBox_MakePlanes (SCE_SBoundingBox*);
 SCE_SPlane* SCE_BoundingBox_GetPlanes (SCE_SBoundingBox*);
 void SCE_BoundingBox_GetPlanesv (SCE_SBoundingBox*, SCE_SPlane*);
 
-float SCE_BoundingBox_GetWidth (SCE_SBoundingBox*);
-float SCE_BoundingBox_GetHeight (SCE_SBoundingBox*);
-float SCE_BoundingBox_GetDepth (SCE_SBoundingBox*);
-void SCE_BoundingBox_GetDimensionsv (SCE_SBoundingBox*, float*, float*, float*);
-
-void SCE_BoundingBox_Push (SCE_SBoundingBox*, SCE_TMatrix4);
-void SCE_BoundingBox_Pop (SCE_SBoundingBox*);
-
-int SCE_BoundingBox_IsPushed (SCE_SBoundingBox*);
+void SCE_BoundingBox_Push (SCE_SBoundingBox*, SCE_TMatrix4, SCE_SBox*);
+void SCE_BoundingBox_Pop (SCE_SBoundingBox*, SCE_SBox*);
 
 #ifdef __cplusplus
 } /* extern "C" */

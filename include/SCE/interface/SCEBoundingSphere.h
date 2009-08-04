@@ -24,20 +24,15 @@
 
 #include <SCE/utils/SCEMatrix.h>
 #include <SCE/utils/SCEVector.h>
+#include <SCE/interface/SCESphere.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef struct sce_sboundingsphere SCE_SBoundingSphere;
-struct sce_sboundingsphere
-{
-    /* 'o' says 'old' */
-    SCE_TVector3 center, ocenter;
-    /*SCE_TVector3 x, y, z, ox, oy, oz;*/
-    float radius, oradius;
-    int pushed;
+struct sce_sboundingsphere {
+    SCE_SSphere sphere;
 };
 
 void SCE_BoundingSphere_Init (SCE_SBoundingSphere*);
@@ -45,18 +40,12 @@ void SCE_BoundingSphere_Init (SCE_SBoundingSphere*);
 void SCE_BoundingSphere_Set (SCE_SBoundingSphere*, float, float, float, float);
 void SCE_BoundingSphere_Setv (SCE_SBoundingSphere*, SCE_TVector3, float);
 
-void SCE_BoundingSphere_SetCenter (SCE_SBoundingSphere*, float, float, float);
-void SCE_BoundingSphere_SetCenterv (SCE_SBoundingSphere*, SCE_TVector3);
-void SCE_BoundingSphere_SetRadius (SCE_SBoundingSphere*, float);
-
+SCE_SSphere* SCE_BoundingSphere_GetSphere (SCE_SBoundingSphere*);
 float* SCE_BoundingSphere_GetCenter (SCE_SBoundingSphere*);
-void SCE_BoundingSphere_GetCenterv (SCE_SBoundingSphere*, SCE_TVector3);
 float SCE_BoundingSphere_GetRadius (SCE_SBoundingSphere*);
 
-void SCE_BoundingSphere_Push (SCE_SBoundingSphere*, SCE_TMatrix4);
-void SCE_BoundingSphere_Pop (SCE_SBoundingSphere*);
-
-int SCE_BoundingSphere_IsPushed (SCE_SBoundingSphere*);
+void SCE_BoundingSphere_Push (SCE_SBoundingSphere*, SCE_TMatrix4, SCE_SSphere*);
+void SCE_BoundingSphere_Pop (SCE_SBoundingSphere*, SCE_SSphere*);
 
 #ifdef __cplusplus
 } /* extern "C" */
