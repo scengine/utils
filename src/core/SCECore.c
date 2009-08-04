@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 15/12/2006
-   updated: 19/01/2009 */
+   updated: 03/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -46,12 +46,6 @@ int SCE_CInit (SCEflags flags)
 
     if (SCE_CSupportInit () < 0)
         goto fail;
-    if (!SCE_CHasCap (SCE_VBO)) {
-        SCEE_Log (-1);
-        SCEE_LogMsg ("your hardware doesn't support vertex buffer object "
-                     "extension");
-        goto fail;
-    }
     if (SCE_CBufferInit () < 0)
         goto fail;
     if (SCE_CVertexArrayInit () < 0)
