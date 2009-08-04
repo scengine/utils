@@ -21,11 +21,7 @@
 
 #include <SCE/SCEMinimal.h>
 
-#include <SCE/utils/SCEResource.h>
-
 #include <SCE/core/SCECMatrix.h>
-
-#include <SCE/interface/SCEMesh.h>
 #include <SCE/interface/SCEQuad.h>
 
 /**
@@ -43,71 +39,49 @@
 
 /** @{ */
 
-/**
- * \brief created quad
- * \internal
- */
 static SCE_SMesh *mesh = NULL;
-/**
- * \internal
- */
-static SCE_SMesh *ptr[2];
 
 int SCE_Init_Quad (void)
 {
+    SCE_SGeometry *geom = NULL;
     /*SCEvertices vertices[] = {-1., -1.,  1., -1.,  1., 1.,  -1., 1.};*/
-    SCEvertices vertices[] = {0., 0.,  1., 0.,  1., 1.,  0., 1.};
-    /*SCEvertices texcoord[] = {0., 0.,  1., 0.,  1., 1.,  0., 1.};*/
+    SCEvertices vertices[] = {0., 0.,  1., 0.,  1., 1., 0., 1.};
+    SCEvertices texcoord[] = {0., 0.,  1., 0.,  1., 1.,  0., 1.};
     SCEvertices normals[] =  {0.,0.,1.,  0.,0.,1., 0.,0.,1., 0.,0.,1.};
     SCEvertices colors[] = {1., 1., 1., 1.,  1., 1., 1., 1.,
                             1., 1., 1., 1.,  1., 1., 1., 1.};
-    SCE_btstart ();
+    SCEindices indices[] = {1, 0, 2, 2, 0, 3};
+
+    if (!(geom = SCE_Geometry_Create ()))
+        goto fail;
     if (!(mesh = SCE_Mesh_Create ()))
         goto fail;
-    if (SCE_Resource_Add (SCE_Mesh_GetResourceType (),
-                          SCE_QUAD_MESH_NAME, mesh) < 0)
+    SCE_Geometry_SetPrimitiveType (geom, SCE_TRIANGLES);
+    if (SCE_Geometry_SetDataDup (geom, vertices, normals, texcoord, indices,
+                                 4, 6) < 0)
         goto fail;
-    if (SCE_Mesh_AddVertices (mesh, 0, SCE_POSITION, SCE_VERTICES_TYPE, 2, 4,
-                              vertices, SCE_FALSE) < 0)
+    if (SCE_Mesh_SetGeometry (mesh, geom, SCE_TRUE) < 0)
         goto fail;
-    if (SCE_Mesh_AddVertices (mesh, 0, SCE_TEXCOORD0, SCE_VERTICES_TYPE, 2, 4,
-                              vertices, SCE_FALSE) < 0)
-        goto fail;
-    if (SCE_Mesh_AddVertices (mesh, 0, SCE_NORMAL, SCE_VERTICES_TYPE, 3, 4,
-                              normals, SCE_FALSE) < 0)
-        goto fail;
-    if (SCE_Mesh_AddVertices (mesh, 0, SCE_COLOR, SCE_VERTICES_TYPE, 4, 4,
-                              colors, SCE_FALSE) < 0)
-        goto fail;
-    SCE_Mesh_ActivateVB (mesh, 0, SCE_TRUE);
-    SCE_Mesh_SetRenderMode (mesh, SCE_QUADS);
-    if (SCE_Mesh_Build (mesh) < 0)
+    if (SCE_Mesh_Build (mesh, SCE_GLOBAL_VERTEX_BUFFER,
+                        SCE_UNIFIED_VBO_RENDER_MODE, SCE_FALSE) < 0)
         goto fail;
 
-    ptr[0] = mesh;
-    ptr[1] = NULL;
-
-    /* log resource */
-    if (SCE_Resource_Add (SCE_Mesh_GetResourceType (),
-                          SCE_QUAD_MESHS_NAME, ptr) < 0)
-        goto fail;
-    SCE_btend ();
     return SCE_OK;
 fail:
     SCE_Mesh_Delete (mesh);
     SCEE_LogSrc ();
-    SCE_btend ();
     return SCE_ERROR;
 }
 void SCE_Quit_Quad (void)
 {
-    SCE_Resource_Free (ptr);
     SCE_Mesh_Delete (mesh), mesh = NULL;
 }
 
 void SCE_Quad_DrawDefault (void)
 {
-    SCE_Mesh_Render (mesh);
+    SCE_Mesh_Use (mesh);
+    SCE_Mesh_Render ();
+    SCE_Mesh_Unuse ();
 }
 
 void SCE_Quad_MakeMatrix (SCE_TMatrix4 mat, float x, float y, float w, float h)
@@ -132,7 +106,7 @@ void SCE_Quad_Draw (float x, float y, float w, float h)
     SCE_CPushMatrix ();
     SCE_Quad_MakeMatrix (mat, x, y, w, h);
     SCE_CMultMatrix (mat);
-    SCE_Mesh_Render (mesh);
+    SCE_Quad_DrawDefault ();
     SCE_CPopMatrix ();
 }
 
