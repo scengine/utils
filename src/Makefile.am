@@ -38,16 +38,18 @@ libSCE_la_SOURCES = utils/SCELine.c \
                     interface/libwar.c \
                     interface/lib4fm.c \
                     interface/SCENode.c \
-                    interface/SCECamera.c \
+                    interface/SCEBox.c \
+                    interface/SCESphere.c \
                     interface/SCEBoundingBox.c \
                     interface/SCEBoundingSphere.c \
                     interface/SCECollide.c \
                     interface/SCEFrustum.c \
+                    interface/SCECamera.c \
                     interface/SCELight.c \
                     interface/SCEGeometry.c \
                     interface/SCEOBJLoader.c \
                     interface/SCEMesh.c \
-                    interface/SCESphereMesh.c \
+                    interface/SCESphereGeometry.c \
                     interface/SCEQuad.c \
                     interface/SCEGeometryInstance.c \
                     interface/SCEBatch.c \

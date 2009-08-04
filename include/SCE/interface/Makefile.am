@@ -1,17 +1,19 @@
 sce_include_interface_HEADERS = lib4fm.h \
                                 libwar.h \
                                 SCEBatch.h \
+                                SCENode.h \
+                                SCEBox.h \
+                                SCESphere.h \
                                 SCEBoundingBox.h \
                                 SCEBoundingSphere.h \
-                                SCECamera.h \
                                 SCECollide.h \
                                 SCEFrustum.h \
+                                SCECamera.h \
                                 SCEGeometryInstance.h \
                                 SCELevelOfDetail.h \
                                 SCELight.h \
                                 SCEMaterial.h \
                                 SCEMesh.h \
-                                SCENode.h \
                                 SCEOBJLoader.h \
                                 SCEOctree.h \
                                 SCEQuad.h \
@@ -25,6 +27,6 @@ sce_include_interface_HEADERS = lib4fm.h \
                                 SCESceneResource.h \
                                 SCEShaders.h \
                                 SCESkybox.h \
-                                SCESphereMesh.h \
+                                SCESphereGeometry.h \
                                 SCEModel.h \
                                 SCETexture.h
