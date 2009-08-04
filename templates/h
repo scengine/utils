@@ -23,13 +23,11 @@
 #define _H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef struct sce_s SCE_S;
-struct sce_s
-{
+struct sce_s {
     
 };
 
