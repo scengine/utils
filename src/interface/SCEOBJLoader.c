@@ -17,92 +17,98 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 08/07/2007
-   updated: 07/07/2009 */
+   updated: 02/08/2009 */
 
 #include <stdlib.h>
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEMedia.h>
-#include <SCE/interface/SCEMesh.h>
+#include <SCE/interface/SCEGeometry.h>
 #include <SCE/interface/SCEOBJLoader.h>
 #include <SCE/interface/libwar.h>
 
+static int is_init = SCE_FALSE;
 static int gen_indices = SCE_FALSE;
+static unsigned int load_lod_level = 0; /* default LOD level to load */
+
+static void* SCE_OBJ_Load (FILE*, const char*, void*);
 
 int SCE_Init_OBJ (void)
 {
+    if (is_init)
+        return SCE_OK;
     /* register loader */
-    if (SCE_Media_Register (SCE_Mesh_GetResourceType(), "."WAR_FILE_EXTENSION,
-                            SCE_OBJ_Load, NULL) < 0)
-    {
+    if (SCE_Media_Register (SCE_Geometry_GetResourceType(),
+                            "."WAR_FILE_EXTENSION, SCE_OBJ_Load, NULL) < 0) {
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
+    is_init = SCE_TRUE;
     return SCE_OK;
 }
+void SCE_Quit_OBJ (void)
+{
+    is_init = SCE_FALSE;
+}
 
+/**
+ * \brief Generates GL indices on loading?
+ */
 void SCE_OBJ_ActivateIndicesGeneration (int activated)
 {
     gen_indices = activated;
 }
-
-void* SCE_OBJ_Load (FILE *fp, const char *fname, void *unused)
+/**
+ * \brief Considering that one .obj object is a level of detail, this function
+ * selects which one load
+ */
+void SCE_OBJ_LoadLOD (unsigned int level)
 {
-    int i = -1;
-    int n_meshs;
-    SCE_SMesh **m = NULL;
-    WarMesh **me = NULL;
+    load_lod_level = level;
+}
+
+static void* SCE_OBJ_Load (FILE *fp, const char *fname, void *unused)
+{
+    SCE_SGeometry *geom = NULL;
+    WarMesh *me = NULL;
 
     SCE_btstart ();
     (void)unused;
-#define SCE_OBJ_ASSERT(c)\
-        if ((c))\
-        {\
-            for (i++; i>0; i--)\
-                SCE_Mesh_Delete (m[i-1]);\
-            for (i=0; i<n_meshs; i++)\
-                war_free (me[i]);\
-            free (me);\
-            SCEE_LogSrc ();\
-            SCE_btend ();\
-            return NULL;\
-        }
 
-    me = war_read (fp, gen_indices, &n_meshs);
-    if (!me)
-    {
-        SCEE_Log (-1);
-        SCEE_LogMsg ("libwar can't load '%s': %s", fname, war_geterror ());
+    me = war_read (fp, gen_indices, load_lod_level);
+    if (!me) {
+        SCEE_LogSrc ();
+        SCEE_LogSrcMsg ("libwar can't load '%s': %s", fname, war_geterror ());
         SCE_btend ();
         return NULL;
     }
 
-    SCE_OBJ_ASSERT (!(m = SCE_malloc ((n_meshs + 1) * sizeof *m)))
-    m[n_meshs] = NULL;
+    if (!(geom = SCE_Geometry_Create ()))
+        goto fail;
 
-    for (i = 0; i < n_meshs; i++)
-    {
-        SCE_OBJ_ASSERT (!(m[i] = SCE_Mesh_Create ()))
-        SCE_OBJ_ASSERT (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_POSITION,
-                        SCE_FLOAT, 3, me[i]->vcount, me[i]->pos) < 0)
-        if (me[i]->tex)
-            SCE_OBJ_ASSERT (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_TEXCOORD0,
-                            SCE_FLOAT, 2, me[i]->vcount, me[i]->tex) < 0)
-        if (me[i]->nor)
-            SCE_OBJ_ASSERT (SCE_Mesh_AddVerticesDup (m[i], 0, SCE_NORMAL,
-                            SCE_FLOAT, 3, me[i]->vcount, me[i]->nor) < 0)
-        if (me[i]->indices)
-            SCE_OBJ_ASSERT (SCE_Mesh_SetIndicesDup (m[i], 0, SCE_UNSIGNED_INT,
-                            me[i]->icount, me[i]->indices) < 0)
+    SCE_Geometry_SetPrimitiveType (geom, SCE_TRIANGLES);
 
-        SCE_Mesh_SetRenderMode (m[i], SCE_TRIANGLES);
-        SCE_OBJ_ASSERT (SCE_Mesh_Build (m[i]) < 0)
+    if (SCE_Geometry_SetData (geom, me->pos, me->nor, me->tex, NULL,
+                              me->vcount, me->icount) < 0)
+        goto fail;
+    me->pos = me->nor = me->tex = NULL;
+    if (me->indices) {
+        SCE_SGeometryArray array;
+        SCE_Geometry_InitArray (&array);
+        SCE_Geometry_SetArrayData (&array, 0, SCE_UNSIGNED_INT, 0, me->indices,
+                                   SCE_TRUE);
+        if (SCE_Geometry_SetIndexArrayDupDup (geom, &array, SCE_TRUE) < 0)
+            goto fail;
+        me->indices = NULL;
     }
 
-    for (i = 0; i < n_meshs; i++)
-        war_free (me[i]);
-    free (me);
-
+    war_free (me);
     SCE_btend ();
-    return m;
+    return geom;
+fail:
+    war_free (me);
+    SCE_Geometry_Delete (geom);
+    SCEE_LogSrc ();
+    SCE_btend ();
+    return NULL;
 }

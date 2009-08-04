@@ -17,21 +17,20 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 08/07/2007
-   updated: 07/07/2009 */
+   updated: 02/08/2009 */
 
 #ifndef SCEOBJLOADER_H
 #define SCEOBJLOADER_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 int SCE_Init_OBJ (void);
+void SCE_Quit_OBJ (void);
 
 void SCE_OBJ_ActivateIndicesGeneration (int);
-
-void* SCE_OBJ_Load (FILE*, const char*, void*);
+void SCE_OBJ_LoadLOD (unsigned int);
 
 #ifdef __cplusplus
 } /* extern "C" */
