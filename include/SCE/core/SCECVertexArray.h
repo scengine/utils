@@ -107,6 +107,9 @@ struct sce_cindexarray {
 
 /** @} */
 
+int SCE_CVertexArrayInit (void);
+void SCE_CVertexArrayQuit (void);
+
 void SCE_CInitVertexArrayData (SCE_CVertexArrayData*);
 SCE_CVertexArrayData* SCE_CCreateVertexArrayData (void);
 void SCE_CDeleteVertexArrayData (SCE_CVertexArrayData*);
