@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/05/2008
-   updated: 20/06/2009 */
+   updated: 04/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -35,9 +35,8 @@
  * \defgroup octree Octree managment
  * \ingroup interface
  * \brief Octree managment
+ * @{
  */
-
-/** @{ */
 
 static void SCE_Octree_InsertLoose (SCE_SOctree*, SCE_SOctreeElement*);
 static void SCE_Octree_InsertNormal (SCE_SOctree*, SCE_SOctreeElement*);
@@ -45,8 +44,8 @@ static void SCE_Octree_Insert (SCE_SOctree*, SCE_SOctreeElement*);
 
 static void SCE_Octree_Init (SCE_SOctree *tree)
 {
-    int i;
-    for (i=0; i<8; i++)
+    size_t i;
+    for (i = 0; i < 8; i++)
         tree->child[i] = NULL;
     tree->visible = SCE_FALSE;
     tree->partially = SCE_FALSE;
@@ -84,9 +83,8 @@ success:
  */
 void SCE_Octree_Clear (SCE_SOctree *tree)
 {
-    if (tree->child[0])
-    {
-        unsigned int i;
+    if (tree->child[0]) {
+        size_t i;
         for (i = 0; i < 8; i++)
             tree->child[i]->parent = NULL;
     }
@@ -100,8 +98,7 @@ void SCE_Octree_Clear (SCE_SOctree *tree)
  */
 void SCE_Octree_Delete (SCE_SOctree *tree)
 {
-    if (tree)
-    {
+    if (tree) {
         SCE_Octree_Clear (tree);
         SCE_List_Delete (tree->elements);
         SCE_free (tree);
@@ -116,11 +113,9 @@ void SCE_Octree_Delete (SCE_SOctree *tree)
  */
 void SCE_Octree_DeleteRecursive (SCE_SOctree *tree)
 {
-    if (tree)
-    {
-        unsigned int i;
-        for (i = 0; i < 8; i++)
-        {
+    if (tree) {
+        size_t i;
+        for (i = 0; i < 8; i++) {
             SCE_Octree_DeleteRecursive (tree->child[i]);
             tree->child[i] = NULL;
         }
@@ -164,8 +159,7 @@ success:
  */
 void SCE_Octree_DeleteElement (SCE_SOctreeElement *el)
 {
-    if (el)
-    {
+    if (el) {
         SCE_Octree_RemoveElement (el);
         SCE_free (el);
     }
@@ -180,7 +174,7 @@ void SCE_Octree_DeleteElement (SCE_SOctreeElement *el)
  */
 void SCE_Octree_SetCenter (SCE_SOctree *tree, float x, float y, float z)
 {
-    SCE_BoundingBox_SetCenter (&tree->box, x, y, z);
+    SCE_Box_SetCenter (SCE_BoundingBox_GetBox (&tree->box), x, y, z);
 }
 /**
  * \brief Sets the center point of an octree
@@ -190,7 +184,7 @@ void SCE_Octree_SetCenter (SCE_SOctree *tree, float x, float y, float z)
  */
 void SCE_Octree_SetCenterv (SCE_SOctree *tree, SCE_TVector3 c)
 {
-    SCE_BoundingBox_SetCenterv (&tree->box, c);
+    SCE_Box_SetCenterv (SCE_BoundingBox_GetBox (&tree->box), c);
 }
 /**
  * \brief Gets the center point of an octree
@@ -199,7 +193,7 @@ void SCE_Octree_SetCenterv (SCE_SOctree *tree, SCE_TVector3 c)
  */
 void SCE_Octree_GetCenterv (SCE_SOctree *tree, SCE_TVector3 c)
 {
-    SCE_BoundingBox_GetCenterv (&tree->box, c);
+    SCE_Box_GetCenterv (SCE_BoundingBox_GetBox (&tree->box), c);
 }
 /**
  * \brief Sets the size of an octree
@@ -208,39 +202,16 @@ void SCE_Octree_GetCenterv (SCE_SOctree *tree, SCE_TVector3 c)
  */
 void SCE_Octree_SetSize (SCE_SOctree *tree, float w, float h, float d)
 {
-    SCE_BoundingBox_SetSize (&tree->box, w, h, d);
-}
-/**
- * \brief Gets the width of an octree
- * \param tree an octree
- * \returns the width of the given octree
- * \see SCE_Octree_GetHeight(), SCE_Octree_GetDepth()
- */
-float SCE_Octree_GetWidth (SCE_SOctree *tree)
-{
-    return SCE_BoundingBox_GetWidth (&tree->box);
-}
-/**
- * \brief Gets the height of an octree
- * \param tree an octree
- * \returns the height of the given octree
- * \see SCE_Octree_GetWidth(), SCE_Octree_GetDepth()
- */
-float SCE_Octree_GetHeight (SCE_SOctree *tree)
-{
-    return SCE_BoundingBox_GetHeight (&tree->box);
-}
-/**
- * \brief Gets the depth of an octree
- * \param tree an octree
- * \returns the depth of the given octree
- * \see SCE_Octree_GetWidth(), SCE_Octree_GetHeight()
- */
-float SCE_Octree_GetDepth (SCE_SOctree *tree)
-{
-    return SCE_BoundingBox_GetDepth (&tree->box);
+    SCE_Box_SetSize (SCE_BoundingBox_GetBox (&tree->box), w, h, d);
 }
 
+/**
+ * \brief Returns the box of an octree
+ */
+SCE_SBox* SCE_Octree_GetBox (SCE_SOctree *tree)
+{
+    return SCE_BoundingBox_GetBox (&tree->box);
+}
 /**
  * \brief Returns the bounding box of an octree
  */
@@ -321,18 +292,19 @@ SCE_SOctree** SCE_Octree_GetChildren (SCE_SOctree *tree)
  */
 int SCE_Octree_MakeChildren (SCE_SOctree *tree, int useloose, float ratio)
 {
-    unsigned int i;
+    size_t i;
     SCE_TVector3 origins[8];
-    float *origin = SCE_BoundingBox_GetOrigin (&tree->box);
-    float w = SCE_BoundingBox_GetWidth (&tree->box);
-    float h = SCE_BoundingBox_GetHeight (&tree->box);
-    float d = SCE_BoundingBox_GetDepth (&tree->box);
-    float w2 = w / 2.0;
-    float h2 = h / 2.0;
-    float d2 = 0.0;
+    float *origin, w, h, d, w2, h2, d2 = 0.0;
+    SCE_SBox *box = SCE_BoundingBox_GetBox (&tree->box);
 
-    for (i = 0; i < 8; i += 4)
-    {
+    origin = SCE_Box_GetOrigin (box);
+    w = SCE_Box_GetWidth (box);
+    h = SCE_Box_GetHeight (box);
+    d = SCE_Box_GetDepth (box);
+    w2 = w / 2.0;
+    h2 = h / 2.0;
+
+    for (i = 0; i < 8; i += 4) {
         SCE_Vector3_Copy (origins[i], origin);
         origins[i][2] += d2 * (1.0 - ratio);
         SCE_Vector3_Copy (origins[i+1], origin);
@@ -347,11 +319,9 @@ int SCE_Octree_MakeChildren (SCE_SOctree *tree, int useloose, float ratio)
         origins[i+3][2] += d2 * (1.0 - ratio);
         d2 = d / 2.;
     }
-    for (i = 0; i < 8; i++)
-    {
+    for (i = 0; i < 8; i++) {
         tree->child[i] = SCE_Octree_Create ();
-        if (!tree->child[i])
-        {
+        if (!tree->child[i]) {
             SCEE_LogSrc ();
             return SCE_ERROR;
         }
@@ -359,7 +329,10 @@ int SCE_Octree_MakeChildren (SCE_SOctree *tree, int useloose, float ratio)
         w2 *= (1.0 + ratio);
         h2 *= (1.0 + ratio);
         d2 *= (1.0 + ratio);
-        SCE_BoundingBox_Set (&tree->child[i]->box, origins[i], w2, h2, d2);
+        SCE_Box_Set (SCE_BoundingBox_GetBox (&tree->child[i]->box),
+                     origins[i], w2, h2, d2);
+        /* make planes once for all */
+        SCE_BoundingBox_MakePlanes (&tree->child[i]->box);
     }
     if (useloose)
         tree->insert = SCE_Octree_InsertLoose;
@@ -387,19 +360,15 @@ int SCE_Octree_RecursiveMake (SCE_SOctree *tree, unsigned int rec,
                               SCE_FOctreeLimitFunc stop, void *param,
                               int useloose, float ratio)
 {
-    if ((!stop || !stop (tree, param)) && rec != 0)
-    {
-        unsigned int i;
-        if (SCE_Octree_MakeChildren (tree, useloose, ratio) < 0)
-        {
+    if ((!stop || !stop (tree, param)) && rec != 0) {
+        size_t i;
+        if (SCE_Octree_MakeChildren (tree, useloose, ratio) < 0) {
             SCEE_LogSrc ();
             return SCE_ERROR;
         }
-        for (i = 0; i < 8; i++)
-        {
+        for (i = 0; i < 8; i++) {
             if (SCE_Octree_RecursiveMake (tree->child[i], rec-1,
-                                          stop, param, useloose, ratio) < 0)
-            {
+                                          stop, param, useloose, ratio) < 0) {
                 SCEE_LogSrc ();
                 return SCE_ERROR;
             }
@@ -420,12 +389,10 @@ void SCE_Octree_DefaultInsertFunc (SCE_SOctree *tree, SCE_SOctreeElement *el)
 
 static void SCE_Octree_InsertLoose (SCE_SOctree *tree, SCE_SOctreeElement *el)
 {
-    unsigned int i;
-    for (i = 0; i < 8; i++)
-    {
+    size_t i;
+    for (i = 0; i < 8; i++) {
         if (SCE_Collide_AABBWithBS (&tree->child[i]->box, el->sphere)
-            == SCE_COLLIDE_IN)
-        {
+            == SCE_COLLIDE_IN) {
             tree->child[i]->insert (tree->child[i], el);
             return;
         }
@@ -435,15 +402,13 @@ static void SCE_Octree_InsertLoose (SCE_SOctree *tree, SCE_SOctreeElement *el)
 
 static void SCE_Octree_InsertNormal (SCE_SOctree *tree, SCE_SOctreeElement *el)
 {
-    unsigned int i;
+    size_t i;
     int r;
-    for (i = 0; i < 8; i++)
-    {
+    for (i = 0; i < 8; i++) {
         r = SCE_Collide_AABBWithBS (&tree->child[i]->box, el->sphere);
         if (r == SCE_COLLIDE_PARTIALLY)
             break;
-        else if (r == SCE_COLLIDE_IN)
-        {
+        else if (r == SCE_COLLIDE_IN) {
             tree->child[i]->insert (tree->child[i], el);
             return;
         }
@@ -482,11 +447,9 @@ void SCE_Octree_InsertElement (SCE_SOctree *tree, SCE_SOctreeElement *el)
 void SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
 {
     SCE_SOctree *parent = el->octree;
-    do
-    {
+    do {
         if (SCE_Collide_AABBWithBS (&parent->box, el->sphere) ==
-            SCE_COLLIDE_IN)
-        {
+            SCE_COLLIDE_IN) {
             SCE_List_Removel (&el->it);
             SCE_Octree_InsertElement (parent, el);
             break;
@@ -495,8 +458,7 @@ void SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
     }
     while (parent);
 #ifdef SCE_DEBUG
-    if (!parent)
-    {
+    if (!parent) {
         /* element hasn't be inserted lol. */
         SCEE_SendMsg ("octree element reinsertion failure: out of the box!");
     }
@@ -508,8 +470,7 @@ void SCE_Octree_ReinsertElement (SCE_SOctreeElement *el)
  */
 void SCE_Octree_RemoveElement (SCE_SOctreeElement *el)
 {
-    if (el->octree)
-    {
+    if (el->octree) {
         SCE_List_Removel (&el->it);
         el->octree = NULL;
     }
@@ -523,9 +484,8 @@ static void SCE_Octree_RecMark (SCE_SOctree *tree, int visible, int partially)
     tree->partially = partially;
     /* useless... ? */
 #if 0
-    if (tree->child[0])
-    {
-        unsigned int i;
+    if (tree->child[0]) {
+        size_t i;
         for (i = 0; i < 8; i++)
             SCE_Octree_RecMark (tree->child[i], visible, partially);
     }
@@ -543,10 +503,8 @@ void SCE_Octree_MarkVisibles (SCE_SOctree *tree, SCE_SFrustum *frustum)
         SCE_Octree_RecMark (tree, SCE_FALSE, SCE_FALSE);
     else if (state == SCE_COLLIDE_IN)
         SCE_Octree_RecMark (tree, SCE_TRUE, SCE_FALSE);
-    else
-    {
-        if (tree->child[0])
-        {
+    else {
+        if (tree->child[0]) {
             unsigned int i;
             for (i = 0; i < 8; i++)
                 SCE_Octree_MarkVisibles (tree->child[i], frustum);

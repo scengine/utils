@@ -70,16 +70,23 @@ See the file ./doc/html/todo.html
 - Modifier les attributs d'un octree peu visible après une requête d'occlusion.
 - Matrix_Mask() : applique un masque (multiplie chaque élément).
 - Désactivation des nœuds : non mise à jour de leur position dans l'octree, etc.
-- VAO (OpenGL 3.1).
+- VAO (OpenGL 3.1) (need tests).
 - SCE_SSceneEntityInstanceGroup : groupe d'instances situées impérativement dans
   le même bounding volume.
 - Ajouter un module de gestion de la géométrie (SCEGeometry) au lieu de tout
-  fourrer dans SCEMesh.
+  fourrer dans SCEMesh (en cours).
 - Paramètres de ressources lors de l'utilisation : recharger la ressource de
   type SCE_SShader lorsque les paramètres à fourguer sont différents, mais
   instancier quand même le SCE_CShader.
 - Scinder le core pour la compatibilité avec les versions récentes d'OpenGL.
-- Renommer SCEQuad en SCEQuadMesh.
 - Renommer SCEGeometryInstance en SCEInstancing.
+- Add documentation for SCECBuffer.
+- Stream based system for mesh manager.
+- Create SCEBoxGeometry module and use it in SCESkybox.
+- Move old SCEMesh functions to SCEGeometry.
+- Update SCEAnimatedGeometry.
+- Use enum for GL tokens in appropriated file.
+- Texture buffers.
+- Uniform buffers.
 
-- 42
+- 49

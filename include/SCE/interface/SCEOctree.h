@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/05/2008
-   updated: 10/03/2009 */
+   updated: 04/08/2009 */
 
 #ifndef SCEOCTREE_H
 #define SCEOCTREE_H
@@ -29,8 +29,7 @@
 #include <SCE/interface/SCEFrustum.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -48,8 +47,7 @@ typedef struct sce_soctree SCE_SOctree;
  */
 typedef void (*SCE_FOctreeInsertFunc)(SCE_SOctree *tree,SCE_SOctreeElement *el);
 
-struct sce_soctreeelement
-{
+struct sce_soctreeelement {
     SCE_SListIterator it;
     SCE_FOctreeInsertFunc insert;/**< Insert function */
     SCE_SOctree *octree;         /**< Octree */
@@ -75,8 +73,7 @@ typedef int (*SCE_FOctreeLimitFunc)(SCE_SOctree *tree, void *param);
  * \warning You shouldn't directly access to any of the members of this
  *          structure.
  */
-struct sce_soctree
-{
+struct sce_soctree {
     SCE_SOctree *child[8];  /**< Array of octree's children */
     int visible;            /**< Is octree visible? */
     int partially;          /**< Is octree partially visible? */
@@ -102,10 +99,8 @@ void SCE_Octree_SetCenter (SCE_SOctree*, float, float, float);
 void SCE_Octree_SetCenterv (SCE_SOctree*, SCE_TVector3);
 void SCE_Octree_GetCenterv (SCE_SOctree*, SCE_TVector3);
 void SCE_Octree_SetSize (SCE_SOctree*, float, float, float);
-float SCE_Octree_GetWidth (SCE_SOctree*);
-float SCE_Octree_GetHeight (SCE_SOctree*);
-float SCE_Octree_GetDepth (SCE_SOctree*);
 
+SCE_SBox* SCE_Octree_GetBox (SCE_SOctree*);
 SCE_SBoundingBox* SCE_Octree_GetBoundingBox (SCE_SOctree*);
 
 void SCE_Octree_SetData (SCE_SOctree*, void*);
