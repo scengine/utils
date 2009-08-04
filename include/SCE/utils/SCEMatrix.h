@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 07/04/2009 */
+   updated: 04/08/2009 */
 
 #ifndef SCEMATRIX_H
 #define SCEMATRIX_H
@@ -26,8 +26,7 @@
 #include <SCE/utils/SCEQuaternion.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef float SCE_TMatrix4[16];
@@ -150,13 +149,21 @@ void SCE_Matrix3_ToQuaternion (SCE_TMatrix3, SCE_TQuaternion);
 void SCE_Matrix4x3_ToQuaternion (SCE_TMatrix4x3, SCE_TQuaternion);
 
 void SCE_Matrix4_MulV3 (SCE_TMatrix4, SCE_TVector3, SCE_TVector3);
+void SCE_Matrix4_MulV3w (SCE_TMatrix4, SCE_TVector3, float, SCE_TVector3);
 void SCE_Matrix4_MulV3Copy (SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix4_MulV3Copyw (SCE_TMatrix4, SCE_TVector3, float);
 void SCE_Matrix4_MulV4 (SCE_TMatrix4, SCE_TVector4, SCE_TVector4);
 void SCE_Matrix4_MulV4Copy (SCE_TMatrix4, SCE_TVector4);
+
 void SCE_Matrix3_MulV3 (SCE_TMatrix4, SCE_TVector3, SCE_TVector3);
 void SCE_Matrix3_MulV3Copy (SCE_TMatrix4, SCE_TVector3);
+
 void SCE_Matrix4x3_MulV3 (SCE_TMatrix4x3, SCE_TVector3, SCE_TVector3);
+void SCE_Matrix4x3_MulV3w (SCE_TMatrix4x3, SCE_TVector3, float, SCE_TVector3);
+void SCE_Matrix4x3_MulV3Add (SCE_TMatrix4x3, SCE_TVector3, SCE_TVector3);
+void SCE_Matrix4x3_MulV3Addw (SCE_TMatrix4x3, SCE_TVector3, float,SCE_TVector3);
 void SCE_Matrix4x3_MulV3Copy (SCE_TMatrix4x3, SCE_TVector3);
+void SCE_Matrix4x3_MulV3Copyw (SCE_TMatrix4x3, SCE_TVector3, float);
 void SCE_Matrix4x3_MulV4 (SCE_TMatrix4x3, SCE_TVector4, SCE_TVector3);
 void SCE_Matrix4x3_MulV4Add (SCE_TMatrix4x3, SCE_TVector4, SCE_TVector3);
 void SCE_Matrix4x3_MulV4Copy (SCE_TMatrix4x3, SCE_TVector4);

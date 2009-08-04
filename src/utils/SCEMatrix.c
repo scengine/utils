@@ -844,12 +844,28 @@ void SCE_Matrix4_MulV3 (SCE_TMatrix4 m, SCE_TVector3 v, SCE_TVector3 v2)
     v2[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7];
     v2[2] = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11];
 }
+void SCE_Matrix4_MulV3w (SCE_TMatrix4 m, SCE_TVector3 v, float w,
+                         SCE_TVector3 v2)
+{
+    v2[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3] * w;
+    v2[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7] * w;
+    v2[2] = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11] * w;
+}
 void SCE_Matrix4_MulV3Copy (SCE_TMatrix4 m, SCE_TVector3 v)
 {
     float tv[2];
     tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3];
     tv[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7];
     v[2]  = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11];
+    v[0]  = tv[0];
+    v[1]  = tv[1];
+}
+void SCE_Matrix4_MulV3Copyw (SCE_TMatrix4 m, SCE_TVector3 v, float w)
+{
+    float tv[2];
+    tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3] * w;
+    tv[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7] * w;
+    v[2]  = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11] * w;
     v[0]  = tv[0];
     v[1]  = tv[1];
 }
@@ -892,12 +908,41 @@ void SCE_Matrix4x3_MulV3 (SCE_TMatrix4x3 m, SCE_TVector3 v, SCE_TVector3 v2)
     v2[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7];
     v2[2] = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11];
 }
+void SCE_Matrix4x3_MulV3w (SCE_TMatrix4x3 m, SCE_TVector3 v, float w,
+                           SCE_TVector3 v2)
+{
+    v2[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3] * w;
+    v2[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7] * w;
+    v2[2] = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11] * w;
+}
+void SCE_Matrix4x3_MulV3Add (SCE_TMatrix4x3 m, SCE_TVector3 v, SCE_TVector3 v2)
+{
+    v2[0] += m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3];
+    v2[1] += m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7];
+    v2[2] += m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11];
+}
+void SCE_Matrix4x3_MulV3Addw (SCE_TMatrix4x3 m, SCE_TVector3 v, float w,
+                              SCE_TVector3 v2)
+{
+    v2[0] += m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3] * w;
+    v2[1] += m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7] * w;
+    v2[2] += m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11] * w;
+}
 void SCE_Matrix4x3_MulV3Copy (SCE_TMatrix4x3 m, SCE_TVector3 v)
 {
     float tv[2];
     tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2] + m[3];
     tv[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2] + m[7];
     v[2]  = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11];
+    v[0]  = tv[0];
+    v[1]  = tv[1];
+}
+void SCE_Matrix4x3_MulV3Copyw (SCE_TMatrix4x3 m, SCE_TVector3 v, float w)
+{
+    float tv[2];
+    tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2] + m[3] * w;
+    tv[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2] + m[7] * w;
+    v[2]  = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11] * w;
     v[0]  = tv[0];
     v[1]  = tv[1];
 }
