@@ -56,6 +56,7 @@ def find_deprecated (filename):
         function = '???'
         #~ print '%s:%d::%s()' % (filename, line_num, function)
         for line in fp:
+          line_num += 1
           res = func_re.match (line)
           if res:
             function = res.group (1)
@@ -63,8 +64,8 @@ def find_deprecated (filename):
           elif dep_re.match (line):
             raise ValueError ('Unrecognised input at line %d, deprecation found '
                               'before function name.' % line_num)
-          line_num += 1
-        printv ('  %s:%d::%s()' % (filename, found_line, function))
+        printv ('  %s:%d::%s() (deprecated at line %d)' %
+                (filename, line_num, function, found_line))
         deprecateds.append (function)
       line_num += 1
     fp.close ()
@@ -88,23 +89,24 @@ def check_deprecated (filename, deprecateds):
           #~ print 'deprecation found on %s:%d' % (filename, line_num)
           n_matches += 1
           found = False
+          dep_line = line_num
           res = func_re.match (line)
           if res:
             if res.group (1):
               found = True
           else:
             for line in fp:
+              line_num += 1
               res = func_re.match (line)
               if res:
                 if res.group (1):
                   found = True
                 break
-              line_num += 1
           if not found:
             printerr ('  %s:%d::%s() not marked as deprecated' %
-                      (filename, line_num, dep))
+                      (filename, dep_line, dep))
           else:
-            printv ('  OK for %s:%d::%s()' % (filename, line_num, dep))
+            printv ('  OK for %s:%d::%s()' % (filename, dep_line, dep))
       line_num += 1
   
   return n_matches
