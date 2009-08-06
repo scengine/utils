@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 29/01/2009 */
+   updated: 07/08/2009 */
 
 #ifndef SCECTEXTURE_H
 #define SCECTEXTURE_H
@@ -28,8 +28,7 @@
 #include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -38,8 +37,62 @@ extern "C"
  */
 
 /**
- * \copydoc sce_ctexdata
+ * \brief GL texture units enum
  */
+enum sce_ctexunit {
+    SCE_TEX0 = GL_TEXTURE0,
+    SCE_TEX1 = GL_TEXTURE1,
+    SCE_TEX2 = GL_TEXTURE2,
+    SCE_TEX3 = GL_TEXTURE3,
+    SCE_TEX4 = GL_TEXTURE4,
+    SCE_TEX5 = GL_TEXTURE5,
+    SCE_TEX6 = GL_TEXTURE6,
+    SCE_TEX7 = GL_TEXTURE7,
+    SCE_TEX8 = GL_TEXTURE8,
+    SCE_TEX9 = GL_TEXTURE9,
+    SCE_TEX10 = GL_TEXTURE10,
+    SCE_TEX11 = GL_TEXTURE11
+};
+typedef enum sce_ctexunit SCE_CTexUnit;
+
+/**
+ * \brief Types of texture
+ */
+enum sce_ctextype {
+    SCE_TEX_1D = GL_TEXTURE_1D,
+    SCE_TEX_2D = GL_TEXTURE_2D,
+    SCE_TEX_3D = GL_TEXTURE_3D,
+    SCE_TEX_CUBE = GL_TEXTURE_CUBE_MAP
+};
+typedef enum sce_ctextype SCE_CTexType;
+
+/**
+ * \brief Faces for a cube map texture
+ */
+enum sce_ctexcubeface {
+    SCE_TEX_POSX = GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    SCE_TEX_NEGX = GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+    SCE_TEX_POSY = GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    SCE_TEX_NEGY = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+    SCE_TEX_POSZ = GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+    SCE_TEX_NEGZ = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+};
+typedef enum sce_ctexcubeface SCE_CTexCubeFace;
+
+/**
+ * \brief Filters for a texture
+ */
+enum sce_ctexfilter {
+    SCE_TEX_NEAREST = GL_NEAREST,
+    SCE_TEX_LINEAR = GL_LINEAR,
+    SCE_TEX_BILINEAR = GL_LINEAR_MIPMAP_NEAREST,
+    SCE_TEX_TRILINEAR = GL_LINEAR_MIPMAP_LINEAR,
+    SCE_TEX_MAG_FILTER = GL_TEXTURE_MAG_FILTER,
+    SCE_TEX_MIN_FILTER = GL_TEXTURE_MIN_FILTER
+};
+typedef enum sce_ctexfilter SCE_CTexFilter;
+
+/** \copydoc sce_ctexdata */
 typedef struct sce_ctexdata SCE_CTexData;
 /**
  * \brief A SCE texture data
@@ -63,9 +116,7 @@ struct sce_ctexdata
     int comp;         /**< Is \c pxf a compressed pixel format ? */
 };
 
-/**
- * \copydoc sce_ctexture
- */
+/** \copydoc sce_ctexture */
 typedef struct sce_ctexture SCE_CTexture;
 /**
  * \brief A SCE core texture

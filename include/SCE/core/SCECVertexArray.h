@@ -34,6 +34,16 @@ extern "C" {
  */
 
 /**
+ * \brief Primitive types
+ */
+enum sce_cprimitivetype {
+    SCE_POINTS = GL_POINTS,
+    SCE_LINES = GL_LINES,
+    SCE_TRIANGLES = GL_TRIANGLES
+};
+typedef enum sce_cprimitivetype SCE_CPrimitiveType;
+
+/**
  * \brief Vertex attributes
  */
 enum sce_cvertexattributetype {
@@ -133,10 +143,11 @@ void SCE_CCallVertexArraySequence (SCE_CVertexArray*);
 void SCE_CEndVertexArraySequence (void);
 
 void SCE_CUseVertexArray (SCE_CVertexArray*);
-void SCE_CRender (SCEenum, SCEuint);
-void SCE_CRenderInstanced (SCEenum, SCEuint, SCEuint);
-void SCE_CRenderIndexed (SCEenum, SCE_CIndexArray*, SCEuint);
-void SCE_CRenderIndexedInstanced (SCEenum, SCE_CIndexArray*, SCEuint, SCEuint);
+void SCE_CRender (SCE_CPrimitiveType, SCEuint);
+void SCE_CRenderInstanced (SCE_CPrimitiveType, SCEuint, SCEuint);
+void SCE_CRenderIndexed (SCE_CPrimitiveType, SCE_CIndexArray*, SCEuint);
+void SCE_CRenderIndexedInstanced (SCE_CPrimitiveType, SCE_CIndexArray*,
+                                  SCEuint, SCEuint);
 void SCE_CFinishVertexArrayRender (void);
 
 #ifdef __cplusplus
