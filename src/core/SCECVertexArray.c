@@ -302,20 +302,21 @@ void SCE_CUseVertexArray (SCE_CVertexArray *va)
     va->set (&va->data);
     SCE_List_Appendl (&vaused, &va->it);
 }
-void SCE_CRender (SCEenum prim, SCEuint n_vertices)
+void SCE_CRender (SCE_CPrimitiveType prim, SCEuint n_vertices)
 {
     glDrawArrays (prim, 0, n_vertices);
 }
-void SCE_CRenderInstanced (SCEenum prim, SCEuint n_vertices, SCEuint n_inst)
+void SCE_CRenderInstanced (SCE_CPrimitiveType prim, SCEuint n_vertices,
+                           SCEuint n_inst)
 {
     glDrawArraysInstanced (prim, 0, n_vertices, n_inst);
 }
-void SCE_CRenderIndexed (SCEenum prim, SCE_CIndexArray *ia,
+void SCE_CRenderIndexed (SCE_CPrimitiveType prim, SCE_CIndexArray *ia,
                          SCEuint n_indices)
 {
     glDrawElements (prim, n_indices, ia->type, ia->data);
 }
-void SCE_CRenderIndexedInstanced (SCEenum prim, SCE_CIndexArray *ia,
+void SCE_CRenderIndexedInstanced (SCE_CPrimitiveType prim, SCE_CIndexArray *ia,
                                   SCEuint n_indices, SCEuint n_instances)
 {
     glDrawElementsInstanced (prim, n_indices, ia->type, ia->data, n_instances);
