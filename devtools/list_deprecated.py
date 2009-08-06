@@ -74,6 +74,7 @@ def find_deprecated (filename):
 
 def check_deprecated (filename, deprecateds):
   n_matches = 0
+  n_wrong = 0
   
   try:
     fp = open (filename)
@@ -105,11 +106,12 @@ def check_deprecated (filename, deprecateds):
           if not found:
             printerr ('  %s:%d::%s() not marked as deprecated' %
                       (filename, dep_line, dep))
+            n_wrong += 1
           else:
             printv ('  OK for %s:%d::%s()' % (filename, dep_line, dep))
       line_num += 1
   
-  return n_matches
+  return (n_matches, n_wrong)
 
 def walk (deprecateds, dirname, fnames):
   #~ print dirname
@@ -137,7 +139,9 @@ def walk2 (args, dirname, fnames):
       #~ print f
       file = os.path.join (dirname, f)
       try:
-        args[1] += check_deprecated (file, args[0])
+        result = check_deprecated (file, args[0])
+        args[1] += result[0]
+        args[2] += result[1]
       except IOError, ex:
         printerr ("* I/O error when trying to read '%s':" % file, ex)
 
@@ -163,10 +167,10 @@ def main (args=()):
   print ('Done, %d deprecation(s) found.' % (n_deprecateds))
   if len (deprecateds) > 0:
     print ('Checking for corresponding code deprecations...')
-    args = [deprecateds, 0]
+    args = [deprecateds, 0, 0]
     os.path.walk (root_headir, walk2, args)
-    print ('Done, %d matches found (%d missing).' % 
-          (args[1], n_deprecateds - args[1]))
+    print ('Done, %d matches found (%d missing), %d missing deprecation(s).' % 
+          (args[1], n_deprecateds - args[1], args[2]))
   
   return 0
 
