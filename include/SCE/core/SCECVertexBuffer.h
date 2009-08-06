@@ -25,6 +25,7 @@
 #include <SCE/utils/SCEList.h>
 #include <SCE/core/SCECBuffer.h>
 #include <SCE/core/SCECVertexArray.h>
+#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -123,10 +124,12 @@ void SCE_CDisableVertexBufferData (SCE_CVertexBufferData*);
 SCE_CBuffer* SCE_CGetVertexBufferBuffer (SCE_CVertexBuffer*);
 SCE_CVertexBufferData* SCE_CAddVertexBufferArrayData (SCE_CVertexBuffer*,
                                                       SCE_CVertexArrayData*,
-                                                      unsigned int);
+                                                      unsigned int)
+    SCE_GNUC_DEPRECATED;
 SCE_CVertexBufferData* SCE_CAddVertexBufferNewData (SCE_CVertexBuffer*,
                                                     unsigned int, SCEenum, int,
-                                                    unsigned int, void*);
+                                                    unsigned int, void*)
+    SCE_GNUC_DEPRECATED;
 void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData*);
 
 void SCE_CBuildVertexBuffer (SCE_CVertexBuffer*, SCE_CBufferUsage,
