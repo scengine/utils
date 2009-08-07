@@ -13,13 +13,14 @@ sce_include_interface_HEADERS = lib4fm.h \
                                 SCELevelOfDetail.h \
                                 SCELight.h \
                                 SCEMaterial.h \
+                                SCEGeometry.h \
                                 SCEMesh.h \
                                 SCEOBJLoader.h \
                                 SCEOctree.h \
                                 SCEQuad.h \
                                 SCEJoint.h \
                                 SCESkeleton.h \
-                                SCEAnimatedMesh.h \
+                                SCEAnimatedGeometry.h \
                                 SCEAnimation.h \
                                 SCEMD5Loader.h \
                                 SCESceneEntity.h \

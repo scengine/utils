@@ -62,7 +62,7 @@ libSCE_la_SOURCES = utils/SCELine.c \
                     interface/SCESkybox.c \
                     interface/SCEJoint.c \
                     interface/SCESkeleton.c \
-                    interface/SCEAnimatedMesh.c \
+                    interface/SCEAnimatedGeometry.c \
                     interface/SCEAnimation.c \
                     interface/SCEMD5Loader.c \
                     interface/SCEModel.c \
