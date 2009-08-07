@@ -6,3 +6,5 @@ EXTRA_DIST = $(pkgconfig_DATA)
 
 doc:
 	@DOC_TARGET@
+
+ACLOCAL_AMFLAGS = -I build/m4

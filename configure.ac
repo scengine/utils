@@ -3,7 +3,8 @@
 # prelude
 AC_INIT([SCE], [0.1.0])
 AC_CONFIG_SRCDIR([src/SCEngine.c])
-AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_AUX_DIR([build/aux])
+AC_CONFIG_MACRO_DIR([build/m4])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # check for programs
