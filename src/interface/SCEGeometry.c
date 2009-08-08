@@ -447,7 +447,8 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry *geom,
     SCE_SGeometryArray *new = NULL;
     void *newdata = NULL;
     SCEenum type = SCE_VERTICES_TYPE;
-    if (keep) {
+    /* do not convert if the type is the same */
+    if (keep || type == array->data.type) {
         type = array->data.type;
         newdata = SCE_Mem_Dup (array->data.data, geom->n_indices *
                                SCE_CSizeof(array->data.type)* array->data.size);
@@ -574,6 +575,8 @@ SCE_SGeometryArray* SCE_Geometry_GetIndexArray (SCE_SGeometry *geom)
  * must be given. all these pointer will be freed by SCE_Geometry_Delete().
  * \param index if specified, set as indices of the geometry
  * \returns SCE_ERROR on error, SCE_OK otherwise
+ *
+ * Considers the size of \p pos, \p nor and \p tex are 3, 3 and 2, respectively.
  * \sa SCE_Geometry_AddArray(), SCE_Geometry_SetIndexArray(),
  * SCE_Geometry_SetArrayData()
  */
@@ -625,6 +628,43 @@ fail:
         arrays[i]->canfree_data = SCE_FALSE;
         SCE_Geometry_DeleteArray (arrays[i]);
     }
+    SCEE_LogSrc ();
+    return SCE_ERROR;
+}
+/**
+ * \brief Does like SCE_Geometry_SetData() but duplicates the data
+ */
+int SCE_Geometry_SetDataDup (SCE_SGeometry *geom, SCEvertices *pos,
+                             SCEvertices *nor, SCEvertices *tex,
+                             SCEindices *index, SCEuint n_vertices,
+                             SCEuint n_indices)
+{
+    SCEvertices *newpos = NULL, *newnor = NULL, *newtex = NULL;
+    SCEindices *newindex = NULL;
+    size_t size = n_vertices * sizeof (SCEvertices);
+    if (!(newpos = SCE_Mem_Dup (pos, size * 3)))
+        goto fail;
+    if (nor) {
+        if (!(newnor = SCE_Mem_Dup (nor, size * 3)))
+            goto fail;
+    }
+    if (tex) {
+        if (!(newtex = SCE_Mem_Dup (tex, size * 2)))
+            goto fail;
+    }
+    if (index) {
+        if (!(newindex = SCE_Mem_Dup (index, n_indices * sizeof (SCEindices))))
+            goto fail;
+    }
+    if (SCE_Geometry_SetData (geom, newpos, newnor, newtex, newindex,
+                              n_vertices, n_indices) < 0)
+        goto fail;
+    return SCE_OK;
+fail:
+    SCE_free (index);
+    SCE_free (tex);
+    SCE_free (nor);
+    SCE_free (pos);
     SCEE_LogSrc ();
     return SCE_ERROR;
 }

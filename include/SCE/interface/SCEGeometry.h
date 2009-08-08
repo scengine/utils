@@ -195,6 +195,8 @@ SCE_SGeometryArray* SCE_Geometry_GetIndexArray (SCE_SGeometry*);
 
 int SCE_Geometry_SetData (SCE_SGeometry*, SCEvertices*, SCEvertices*,
                           SCEvertices*, SCEindices*, SCEuint, SCEuint);
+int SCE_Geometry_SetDataDup (SCE_SGeometry*, SCEvertices*, SCEvertices*,
+                             SCEvertices*, SCEindices*, SCEuint, SCEuint);
 
 void SCE_Geometry_SetPrimitiveType (SCE_SGeometry*, SCEenum);
 SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry*);
