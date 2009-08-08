@@ -23,14 +23,17 @@
 
 #include <SCE/utils/SCEMedia.h>
 #include <SCE/interface/SCEJoint.h>
-#include <SCE/interface/SCEAnimatedMesh.h>
+#include <SCE/interface/SCEAnimatedGeometry.h>
 #include <SCE/interface/SCEAnimation.h>
 #include <SCE/interface/SCEMD5Loader.h>
 
+static int is_init = SCE_FALSE;
 
 int SCE_Init_idTechMD5 (void)
 {
-    if (SCE_Media_Register (SCE_AnimMesh_GetResourceType (),
+    if (is_init)
+        return SCE_OK;
+    if (SCE_Media_Register (SCE_AnimGeom_GetResourceType (),
                             "."SCE_MD5MESH_FILE_EXTENSION,
                             SCE_idTechMD5_LoadMesh, NULL) < 0)
         goto fail;
@@ -38,10 +41,15 @@ int SCE_Init_idTechMD5 (void)
                             "."SCE_MD5ANIM_FILE_EXTENSION,
                             SCE_idTechMD5_LoadAnim, NULL) < 0)
         goto fail;
+    is_init = SCE_TRUE;
     return SCE_OK;
 fail:
     SCEE_LogSrc ();
     return SCE_ERROR;
+}
+void SCE_Quit_idTechMD5 (void)
+{
+    is_init = SCE_FALSE;
 }
 
 void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
@@ -49,8 +57,7 @@ void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
     char buff[512];
     int version;
     int i;
-    SCE_SAnimatedMesh *amesh = NULL;
-    SCE_SMesh *mesh = NULL;
+    SCE_SAnimatedGeometry *ageom = NULL;
     SCE_SSkeleton *baseskel = NULL;
     int n_joints = 0, n_meshes = 0;
     int n_verts = 0, n_weights = 0, n_tris = 0;
@@ -61,36 +68,26 @@ void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
     if (!(baseskel = SCE_Skeleton_Create ()))
         goto failure;
 
-    while (!feof (fp))
-    {
+    while (!feof (fp)) {
         fgets (buff, sizeof (buff), fp);
-        if (sscanf (buff, " MD5Version %d", &version) == 1)
-        {
+        if (sscanf (buff, " MD5Version %d", &version) == 1) {
             if (version != 10)
                 goto failure;
         }
-        else if (sscanf (buff, " numJoints %d", &n_joints) == 1)
-        {
-            if (n_joints > 0)
-            {
+        else if (sscanf (buff, " numJoints %d", &n_joints) == 1) {
+            if (n_joints > 0) {
                 if (SCE_Skeleton_AllocateJoints (baseskel, n_joints) < 0)
                     goto failure;
                 if (SCE_Skeleton_AllocateMatrices (baseskel, 0) < 0)
                     goto failure;
             }
-        }
-        else if (sscanf (buff, " numMeshes %d", &n_meshes) == 1)
-	{
-            if (n_meshes > 0)
-	    {
+        } else if (sscanf (buff, " numMeshes %d", &n_meshes) == 1) {
+            if (n_meshes > 0) {
                 /* ok cool */
-	    }
-	}
-        else if (strncmp (buff, "joints {", 8) == 0)
-	{
+            }
+        } else if (strncmp (buff, "joints {", 8) == 0) {
             SCE_SJoint *joints = SCE_Skeleton_GetJoints (baseskel);
-            for (i = 0; i < n_joints; ++i)
-	    {
+            for (i = 0; i < n_joints; ++i) {
                 SCE_SJoint *joint = &joints[i];
                 char useless[64];
                 fgets (buff, sizeof (buff), fp);
@@ -101,10 +98,8 @@ void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
                             &joint->orientation[0], &joint->orientation[1],
                             &joint->orientation[2]) == 8)
                     SCE_Quaternion_ComputeW (joint->orientation);
-	    }
-	}
-        else if (strncmp (buff, "mesh {", 6) == 0 && !amesh)
-	{
+            }
+        } else if (strncmp (buff, "mesh {", 6) == 0 && !ageom) {
             int vert_index = 0;
             int tri_index = 0;
             int w_index = 0;
@@ -112,98 +107,79 @@ void* SCE_idTechMD5_LoadMesh (FILE *fp, const char *fname, void *unused)
             int idata[3];
             char shader[42];
 
-            if (!(amesh = SCE_AnimMesh_Create()))
+            if (!(ageom = SCE_AnimGeom_Create()))
                 goto failure;
 
-            while ((buff[0] != '}') && !feof (fp))
-	    {
+            while ((buff[0] != '}') && !feof (fp)) {
                 fgets (buff, sizeof (buff), fp);
 
-                if (sscanf (buff, " numverts %d", &n_verts) == 1)
-		{
-                    if (n_verts > max_verts)
-		    {
+                if (sscanf (buff, " numverts %d", &n_verts) == 1) {
+                    if (n_verts > max_verts) {
                         max_verts = n_verts;
-                        if (SCE_AnimMesh_AllocateVertices (amesh, n_verts) < 0)
+                        if (SCE_AnimGeom_AllocateVertices (ageom, n_verts) < 0)
                             goto failure;
-		    }
-		}
-                else if (sscanf (buff, " numtris %d", &n_tris) == 1)
-		{
-                    if (n_tris > max_tris)
-                    {
+                    }
+                } else if (sscanf (buff, " numtris %d", &n_tris) == 1) {
+                    if (n_tris > max_tris) {
                         max_tris = n_tris;
                         SCE_free (indices);
                         if (!(indices = SCE_malloc(max_tris*3*sizeof *indices)))
                             goto failure;
-		    }
-		}
-                else if (sscanf (buff, " numweights %d", &n_weights) == 1)
-		{
-                    if (n_weights > 0)
-		    {
+                    }
+                } else if (sscanf (buff, " numweights %d", &n_weights) == 1) {
+                    if (n_weights > 0) {
                         /* allocate memory for vertex weights */
-                        if (SCE_AnimMesh_AllocateWeights (amesh, n_weights) < 0)
+                        if (SCE_AnimGeom_AllocateWeights (ageom, n_weights) < 0)
                             goto failure;
-                        if (SCE_AnimMesh_AllocateBaseVertices (amesh,
+                        if (SCE_AnimGeom_AllocateBaseVertices (ageom,
                                                                SCE_POSITION,
                                                                SCE_TRUE) < 0)
                             goto failure;
-		    }
-		}
-                else if (sscanf (buff, " vert %d ( %f %f ) %d %d", &vert_index,
-                               &fdata[0], &fdata[1], &idata[0], &idata[1]) == 5)
-		{
+                    }
+                } else if (sscanf (buff, " vert %d ( %f %f ) %d %d",
+                                   &vert_index, &fdata[0], &fdata[1],
+                                   &idata[0], &idata[1]) == 5) {
                     /* copy vertex data */
-                    SCE_SVertex *verts = SCE_AnimMesh_GetVertices (amesh);
+                    SCE_SVertex *verts = SCE_AnimGeom_GetVertices (ageom);
                     verts[vert_index].weight_id = idata[0];
                     verts[vert_index].weight_count = idata[1];
-		}
-                else if (sscanf (buff, " tri %d %d %d %d", &tri_index,
-                                 &idata[0], &idata[1], &idata[2]) == 4)
-		{
+                } else if (sscanf (buff, " tri %d %d %d %d", &tri_index,
+                                   &idata[0], &idata[1], &idata[2]) == 4) {
                     /* copy triangle data */
                     indices[tri_index * 3 + 0] = idata[0];
                     indices[tri_index * 3 + 1] = idata[1];
                     indices[tri_index * 3 + 2] = idata[2];
-		}
-                else if (sscanf (buff, " weight %d %d %f ( %f %f %f )",
-                                 &w_index, &idata[0], &fdata[3],
-                                 &fdata[0], &fdata[1], &fdata[2]) == 6)
-		{
+                } else if (sscanf (buff, " weight %d %d %f ( %f %f %f )",
+                                   &w_index, &idata[0], &fdata[3],
+                                   &fdata[0], &fdata[1], &fdata[2]) == 6) {
                     /* copy vertex data */
-                    SCE_SVertexWeight *weights = SCE_AnimMesh_GetWeights (amesh);
+                    SCE_SVertexWeight *weights = SCE_AnimGeom_GetWeights (ageom);
                     SCEvertices *base =
-                        SCE_AnimMesh_GetBaseVertices (amesh, SCE_POSITION);
+                        SCE_AnimGeom_GetBaseVertices (ageom, SCE_POSITION);
                     weights[w_index].joint_id  = idata[0];
                     weights[w_index].weight    = fdata[3];
                     base[w_index * 4 + 0] = fdata[0] * fdata[3];
                     base[w_index * 4 + 1] = fdata[1] * fdata[3];
                     base[w_index * 4 + 2] = fdata[2] * fdata[3];
                     base[w_index * 4 + 3] = fdata[3];
-		}
-	    }
-	}
+                }
+            }
+        }
     }
 
-    SCE_AnimMesh_SetIndices (amesh, indices, n_tris * 3);
-    if (SCE_AnimMesh_BuildMesh (amesh, SCE_INDEPENDANT_VERTEX_BUFFER, NULL) < 0)
-        goto failure;
-    mesh = SCE_AnimMesh_GetMesh (amesh);
-    if (SCE_Mesh_Build (mesh) < 0)
-        goto failure;
+    SCE_AnimGeom_SetIndices (ageom, n_tris * 3, indices, SCE_TRUE);
 
     SCE_Skeleton_ComputeMatrices (baseskel, 0);
-    SCE_AnimMesh_SetBaseSkeleton (amesh, baseskel, SCE_TRUE);
+    SCE_AnimGeom_SetBaseSkeleton (ageom, baseskel, SCE_TRUE);
 
     goto success;
 failure:
     SCE_Skeleton_Delete (baseskel);
-    SCE_AnimMesh_Delete (amesh), amesh = NULL;
+    SCE_AnimGeom_Delete (ageom), ageom = NULL;
     SCEE_LogSrc ();
 success:
     SCE_btend ();
-    return amesh;
+    return ageom;
 }
 
 
@@ -223,8 +199,7 @@ static void SCE_idTechMD5_BuildSkel (SCE_SMD5JointInfo *joint_infos,
 {
     int i;
 
-    for (i = 0; i < n_joints; i++)
-    {
+    for (i = 0; i < n_joints; i++) {
         SCE_TVector3 apos;
         SCE_TQuaternion aorient;
         size_t offset = 0;
@@ -243,28 +218,23 @@ static void SCE_idTechMD5_BuildSkel (SCE_SMD5JointInfo *joint_infos,
         SCE_Quaternion_Identity (aorient);
 #endif
 
-        if (joint_infos[i].flags & 1) /* Tx */
-        {
+        if (joint_infos[i].flags & 1) { /* Tx */
             apos[0] = anim_frame_data[joint_infos[i].startIndex + offset];
             offset++;
         }
-        if (joint_infos[i].flags & 2) /* Ty */
-        {
+        if (joint_infos[i].flags & 2) { /* Ty */
             apos[1] = anim_frame_data[joint_infos[i].startIndex + offset];
             offset++;
         }
-        if (joint_infos[i].flags & 4) /* Tz */
-        {
+        if (joint_infos[i].flags & 4) { /* Tz */
             apos[2] = anim_frame_data[joint_infos[i].startIndex + offset];
             offset++;
         }
-        if (joint_infos[i].flags & 8) /* Qx */
-        {
+        if (joint_infos[i].flags & 8) { /* Qx */
             aorient[0] = anim_frame_data[joint_infos[i].startIndex + offset];
             offset++;
         }
-        if (joint_infos[i].flags & 16) /* Qy */
-        {
+        if (joint_infos[i].flags & 16) { /* Qy */
             aorient[1] = anim_frame_data[joint_infos[i].startIndex + offset];
             offset++;
         }
@@ -303,30 +273,21 @@ void* SCE_idTechMD5_LoadAnim (FILE *fp, const char *fname, void *un)
     if (!(baseskel = SCE_Skeleton_Create ()))
         goto failure;
 
-    while (!feof (fp))
-    {
+    while (!feof (fp)) {
         fgets (buff, sizeof (buff), fp);
 
-        if (sscanf (buff, " MD5Version %d", &version) == 1)
-        {
+        if (sscanf (buff, " MD5Version %d", &version) == 1) {
             if (version != 10)
                 goto failure;
-        }
-        else if (sscanf (buff, " numFrames %d", &n_frames) == 1)
-        {
-/*            if (n_joints > 0)
-            {
+        } else if (sscanf (buff, " numFrames %d", &n_frames) == 1) {
+/*            if (n_joints > 0) {
                 if (SCE_Anim_AllocateKeys (anim, n_frames, n_joints) < 0)
                     goto failure;
             }
 */
-        }
-        else if (sscanf (buff, " numJoints %d", &n_joints) == 1)
-        {
-            if (n_joints > 0)
-            {
-                if (n_frames > 0)
-                {
+        } else if (sscanf (buff, " numJoints %d", &n_joints) == 1) {
+            if (n_joints > 0) {
+                if (n_frames > 0) {
                     if (SCE_Anim_AllocateKeys (anim, n_frames, n_joints) < 0)
                         goto failure;
                 }
@@ -335,33 +296,25 @@ void* SCE_idTechMD5_LoadAnim (FILE *fp, const char *fname, void *un)
                 joint_infos = SCE_malloc (n_joints * sizeof *joint_infos);
                 base_joints = SCE_malloc (n_joints * sizeof *base_joints);
             }
-        }
-        else if (sscanf (buff, " frameRate %d", &frame_rate) == 1);
-        else if (sscanf (buff, " numAnimatedComponents %d", &n_animated_components) == 1)
-        {
-            if (n_animated_components > 0)
-            {
+        } else if (sscanf (buff, " frameRate %d", &frame_rate) == 1) {
+        } else if (sscanf (buff, " numAnimatedComponents %d",
+                           &n_animated_components) == 1) {
+            if (n_animated_components > 0) {
                 int j;
                 anim_frame_data = SCE_malloc (n_animated_components *
                                               sizeof *anim_frame_data);
                 for (j = 0; j < n_animated_components; j++)
                     anim_frame_data[j] = 0.0;
             }
-        }
-        else if (strncmp (buff, "hierarchy {", 11) == 0)
-        {
-            for (i = 0; i < n_joints; ++i)
-            {
+        } else if (strncmp (buff, "hierarchy {", 11) == 0) {
+            for (i = 0; i < n_joints; ++i) {
                 fgets (buff, sizeof (buff), fp);
                 sscanf (buff, " %s %d %d %d", joint_infos[i].name,
                         &joint_infos[i].parent, &joint_infos[i].flags,
                         &joint_infos[i].startIndex);
             }
-        }
-        else if (strncmp (buff, "bounds {", 8) == 0)
-        {
-            for (i = 0; i < n_frames; ++i)
-            {
+        } else if (strncmp (buff, "bounds {", 8) == 0) {
+            for (i = 0; i < n_frames; ++i) {
                 fgets (buff, sizeof (buff), fp);
 /*                sscanf (buff, " ( %f %f %f ) ( %f %f %f )",
                         &anim->bboxes[i].min[0], &anim->bboxes[i].min[1],
@@ -369,11 +322,8 @@ void* SCE_idTechMD5_LoadAnim (FILE *fp, const char *fname, void *un)
                         &anim->bboxes[i].max[1], &anim->bboxes[i].max[2]);
 */
             }
-        }
-        else if (strncmp (buff, "baseframe {", 11) == 0)
-        {
-            for (i = 0; i < n_joints; ++i)
-            {
+        } else if (strncmp (buff, "baseframe {", 11) == 0) {
+            for (i = 0; i < n_joints; ++i) {
                 fgets (buff, sizeof (buff), fp);
                 if (sscanf (buff, " ( %f %f %f ) ( %f %f %f )",
                      &base_joints[i].position[0], &base_joints[i].position[1],
@@ -382,9 +332,7 @@ void* SCE_idTechMD5_LoadAnim (FILE *fp, const char *fname, void *un)
                      &base_joints[i].orientation[2]) == 6)
                     SCE_Quaternion_ComputeW (base_joints[i].orientation);
             }
-        }
-        else if (sscanf (buff, " frame %d", &frame_index) == 1)
-        {
+        } else if (sscanf (buff, " frame %d", &frame_index) == 1) {
             SCE_SSkeleton **keys = SCE_Anim_GetKeys (anim);
             for (i = 0; i < n_animated_components; ++i)
                 fscanf (fp, "%f", &anim_frame_data[i]);
