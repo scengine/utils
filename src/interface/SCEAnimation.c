@@ -17,12 +17,11 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 09/04/2009
-   updated: 13/05/2009 */
+   updated: 06/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEResource.h>
-#include <SCE/interface/SCEMD5Loader.h>
 #include <SCE/interface/SCEAnimation.h>
 
 /**
@@ -30,9 +29,8 @@
  * \ingroup interface
  * \internal
  * \brief Skeletal animations
+ * @{
  */
-
-/** @{ */
 
 static int is_init = SCE_FALSE;
 static int resource_type = 0;
@@ -44,16 +42,15 @@ static int resource_type = 0;
 int SCE_Init_Anim (void)
 {
     SCE_btstart ();
-    if (!is_init)
-    {
-        resource_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
-        if (resource_type < 0)
-        {
-            SCEE_LogSrc ();
-            SCE_btend ();
-            return SCE_ERROR;
-        }
+    if (is_init)
+        return SCE_TRUE;
+    resource_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
+    if (resource_type < 0) {
+        SCEE_LogSrc ();
+        SCE_btend ();
+        return SCE_ERROR;
     }
+    is_init = SCE_TRUE;
     SCE_btend ();
     return SCE_OK;
 }
@@ -99,13 +96,11 @@ SCE_SAnimation* SCE_Anim_Create (void)
     SCE_btstart ();
     if (!(anim = SCE_malloc (sizeof *anim)))
         SCEE_LogSrc ();
-    else
-    {
+    else {
         SCE_Anim_Init (anim);
-        if (!(anim->key = SCE_Skeleton_Create ()))
-        {
-            SCEE_LogSrc ();
+        if (!(anim->key = SCE_Skeleton_Create ())) {
             SCE_Anim_Delete (anim), anim = NULL;
+            SCEE_LogSrc ();
         }
     }
     SCE_btend ();
@@ -126,8 +121,7 @@ static void SCE_Anim_DeleteKeys (SCE_SAnimation *anim)
  */
 void SCE_Anim_Delete (SCE_SAnimation *anim)
 {
-    if (anim)
-    {
+    if (anim) {
         if (anim->canfree_baseskel)
             SCE_Skeleton_Delete (anim->baseskel);
         SCE_Anim_DeleteKeys (anim);
@@ -175,8 +169,7 @@ int SCE_Anim_SetKeys (SCE_SAnimation *anim, SCE_SSkeleton **keys,
     anim->keys = keys;
     anim->n_keys = n_keys;
     n = SCE_Skeleton_GetNumJoints (keys[0]);
-    if (n > 0)
-    {
+    if (n > 0) {
         if (SCE_Skeleton_AllocateJoints (anim->key, n) < 0)
             goto failure;
         if (SCE_Skeleton_AllocateMatrices (anim->key, 0) < 0)
@@ -222,12 +215,10 @@ int SCE_Anim_AllocateKeys (SCE_SAnimation *anim, unsigned int n_keys,
 
     if (!(keys = SCE_malloc (n_keys * sizeof *keys)))
         goto failure;
-    for (i = 0; i < n_keys; i++)
-    {
+    for (i = 0; i < n_keys; i++) {
         if (!(keys[i] = SCE_Skeleton_Create ()))
             goto failure;
-        if (n_joints > 0)
-        {
+        if (n_joints > 0) {
             if (SCE_Skeleton_AllocateJoints (keys[i], n_joints) < 0)
                 goto failure;
             if (SCE_Skeleton_AllocateMatrices (keys[i], 0) < 0)
@@ -272,8 +263,7 @@ void SCE_Anim_SetUpdateFrequency (SCE_SAnimation *anim, float freq)
 void SCE_Anim_SetInterpolationMode (SCE_SAnimation *anim, int mode)
 {
     anim->interp_mode = mode;
-    switch (mode)
-    {
+    switch (mode) {
     case SCE_LINEAR_INTERPOLATION:
         anim->interp_func = SCE_Skeleton_InterpolateLinear;
         break;

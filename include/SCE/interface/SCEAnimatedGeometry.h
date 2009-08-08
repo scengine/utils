@@ -52,7 +52,7 @@ struct sce_sanimatedgeometry {
     SCE_SGeometry *geom;
     SCE_SSkeleton *baseskel;    /* bind pose skeleton */
     SCE_SSkeleton *animskel;    /* current interpolated frame */
-    int canfree_baseskel, canfree_animskel;
+    int canfree_baseskel, canfree_animskel, canfree_indices;
 
     SCE_SVertex *vertices;
     SCE_SVertexWeight *weights;
@@ -85,8 +85,8 @@ void SCE_AnimGeom_SetAnimSkeleton (SCE_SAnimatedGeometry*, SCE_SSkeleton*, int);
 SCE_SSkeleton* SCE_AnimGeom_GetAnimSkeleton (SCE_SAnimatedGeometry*);
 int SCE_AnimGeom_AllocateAnimSkeleton (SCE_SAnimatedGeometry*);
 
-int SCE_AnimGeom_AllocateVertices (SCE_SAnimatedGeometry*, unsigned int);
-int SCE_AnimGeom_AllocateWeights (SCE_SAnimatedGeometry*, unsigned int);
+int SCE_AnimGeom_AllocateVertices (SCE_SAnimatedGeometry*, size_t);
+int SCE_AnimGeom_AllocateWeights (SCE_SAnimatedGeometry*, size_t);
 int SCE_AnimGeom_AllocateBaseVertices (SCE_SAnimatedGeometry*,
                                        SCE_CVertexAttributeType, int);
 
@@ -103,9 +103,9 @@ void SCE_AnimGeom_ApplyAnimSkeleton (SCE_SAnimatedGeometry*);
 /*void SCE_AnimGeom_SetLocal (SCE_SAnimatedGeometry*, SCE_SSkeleton*);*/
 int SCE_AnimGeom_SetGlobal (SCE_SAnimatedGeometry*);
 
-int SCE_AnimGeom_BuildGeometry (SCE_SAnimatedGeometry*, int, int*);
+int SCE_AnimGeom_BuildGeometry (SCE_SAnimatedGeometry*);
 
-SCE_SAnimatedGeometry* SCE_AnimGeom_Load (const char*, const char*);
+SCE_SAnimatedGeometry* SCE_AnimGeom_Load (const char*, int);
 
 #ifdef __cplusplus
 } /* extern "C" */
