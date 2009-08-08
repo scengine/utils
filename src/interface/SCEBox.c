@@ -64,14 +64,14 @@ void SCE_Box_Set (SCE_SBox *box, SCE_TVector3 o,
 }
 /**
  * \brief Vectorial version of SCE_Box_Set()
- * \param bx a box
+ * \param box a box
  * \param o origin vector of the box
  * \param d dimension vector of the bouding box
  * \see SCE_Box_Set()
  */
-void SCE_Box_Setv (SCE_SBox *bx, SCE_TVector3 o, SCE_TVector3 d)
+void SCE_Box_Setv (SCE_SBox *box, SCE_TVector3 o, SCE_TVector3 d)
 {
-    SCE_Box_Set (bx, o, d[0], d[1], d[2]);
+    SCE_Box_Set (box, o, d[0], d[1], d[2]);
 }
 /*
  *  4_____________5
@@ -79,9 +79,9 @@ void SCE_Box_Setv (SCE_SBox *bx, SCE_TVector3 o, SCE_TVector3 d)
  *  | \          | \
  *  |  \         |  \
  *  |   \        |   \
- *  |    \3______|____\2
- *  |    |       |    |         z   y
- *  |7___|_______|6   |          \ |
+ *  |    \3___________\2
+ *  |    |            |         z   y
+ *  |7__ | ______|6   |          \ |
  *   \   |        \   |           \|__ x
  *    \  |         \  |
  *     \ |          \ |
