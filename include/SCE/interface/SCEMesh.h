@@ -76,9 +76,9 @@ void SCE_Mesh_ClearArray (SCE_SMeshArray*);
 void SCE_Mesh_DeleteArray (SCE_SMeshArray*);
 
 void SCE_Mesh_InitBuffer (SCE_SMeshBuffer*);
-/*SCE_SMeshBuffer* SCE_Mesh_CreateBuffer (void);*/
+SCE_SMeshBuffer* SCE_Mesh_CreateBuffer (void);
 void SCE_Mesh_ClearBuffer (SCE_SMeshBuffer*);
-/*void SCE_Mesh_DeleteBuffer (SCE_SMeshBuffer*);*/
+void SCE_Mesh_DeleteBuffer (SCE_SMeshBuffer*);
 
 void SCE_Mesh_Init (SCE_SMesh*);
 SCE_SMesh* SCE_Mesh_Create (void);
@@ -86,18 +86,17 @@ SCE_SMesh* SCE_Mesh_CreateFrom (SCE_SGeometry*);
 void SCE_Mesh_Delete (SCE_SMesh*);
 
 int SCE_Mesh_SetGeometry (SCE_SMesh*, SCE_SGeometry*, int);
-int SCE_Mesh_Build (SCE_SMesh*, SCE_EMeshBuildMode, SCE_CBufferRenderMode);
+int SCE_Mesh_Build (SCE_SMesh*, SCE_EMeshBuildMode, SCE_CBufferRenderMode, int);
 int SCE_Mesh_AutoBuild (SCE_SMesh*, int);
-void SCE_Mesh_SetRenderMode (SCE_SMesh*, SCE_CBufferRenderMode);
 
 int SCE_Mesh_Update (SCE_SMesh*);
 
 SCE_SMesh* SCE_Mesh_Load (const char*, int);
 
-void SCE_Mesh_Bind (SCE_SMesh*);
+void SCE_Mesh_Use (SCE_SMesh*);
 void SCE_Mesh_Render (void);
 void SCE_Mesh_RenderInstanced (SCEuint);
-void SCE_Mesh_Unbind (void);
+void SCE_Mesh_Unuse (void);
 
 #ifdef __cplusplus
 } /* extern "C" */

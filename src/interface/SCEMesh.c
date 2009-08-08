@@ -95,20 +95,17 @@ void SCE_Mesh_InitBuffer (SCE_SMeshBuffer *mbuf)
     SCE_List_InitIt (&mbuf->it);
     SCE_List_SetData (&mbuf->it, mbuf);
 }
-#if 0
 SCE_SMeshBuffer* SCE_Mesh_CreateBuffer (void)
 {
     SCE_SMeshBuffer *mbuf = NULL;
     return mbuf;
 }
-#endif
 static void SCE_Mesh_RemoveBuffer (SCE_SMeshBuffer*);
 void SCE_Mesh_ClearBuffer (SCE_SMeshBuffer *mbuf)
 {
     SCE_CClearVertexBuffer (&mbuf->vb);
     SCE_Mesh_RemoveBuffer (mbuf);
 }
-#if 0
 void SCE_Mesh_DeleteBuffer (SCE_SMeshBuffer *buf)
 {
     if (buf) {
@@ -116,7 +113,6 @@ void SCE_Mesh_DeleteBuffer (SCE_SMeshBuffer *buf)
         SCE_free (buf);
     }
 }
-#endif
 
 static void SCE_Mesh_FreeArray (void *marray)
 {
@@ -124,7 +120,7 @@ static void SCE_Mesh_FreeArray (void *marray)
 }
 static void SCE_Mesh_FreeBuffer (void *mbuf)
 {
-    SCE_Mesh_RemoveBuffer (mbuf);
+    SCE_Mesh_DeleteBuffer (mbuf);
 }
 void SCE_Mesh_Init (SCE_SMesh *mesh)
 {
@@ -239,7 +235,7 @@ static void SCE_Mesh_RemoveArray (SCE_SMeshArray *marray)
 }
 
 /**
- * \brief Sets the geometry for a mesh
+ * \brief Sets the geometry of a mesh
  * \sa SCE_Mesh_CreateFrom(), SCE_Mesh_Build(), SCE_SGeometry
  */
 int SCE_Mesh_SetGeometry (SCE_SMesh *mesh, SCE_SGeometry *geom, int canfree)
@@ -271,6 +267,7 @@ int SCE_Mesh_SetGeometry (SCE_SMesh *mesh, SCE_SGeometry *geom, int canfree)
                                             SCE_Geometry_GetNumIndices (geom));
         mesh->use_ib = SCE_TRUE;
     }
+    mesh->prim = SCE_Geometry_GetPrimitiveType (geom);
     mesh->geom = geom;
     mesh->canfree_geom = canfree;
     return SCE_OK;
@@ -362,14 +359,22 @@ static int SCE_Mesh_MakeGlobalVB (SCE_SMesh *mesh)
     return SCE_OK;
 }
 
-static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferRenderMode mode)
+/**
+ * \internal
+ * \todo remove "usage" parameter, defines specific usage for each stream
+ * according to mesh usage (animated or not)
+ */
+static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferRenderMode mode,
+                                   SCE_CBufferUsage usage)
 {
     SCE_SListIterator *it = NULL;
 
+    if (mesh->use_ib)
+        SCE_CBuildIndexBuffer (&mesh->ib, SCE_BUFFER_STATIC_DRAW);
     if (mode != SCE_UNIFIED_VBO_RENDER_MODE) {
         SCE_List_ForEach (it, &mesh->buffers) {
             SCE_SMeshBuffer *mbuf = SCE_List_GetData (it);
-            SCE_CBuildVertexBuffer (&mbuf->vb, mode);
+            SCE_CBuildVertexBuffer (&mbuf->vb, usage, mode);
         }
     } else {
         SCE_SMeshBuffer *rootbuf = NULL;
@@ -379,18 +384,38 @@ static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferRenderMode mode)
         it = it2 = SCE_List_GetNext (it);
         SCE_List_ForEachNext (it) {
             SCE_SMeshBuffer *mbuf = SCE_List_GetData (it);
-            SCE_CBuildVertexBuffer (&mbuf->vb, SCE_VBO_RENDER_MODE);
+            SCE_CBuildVertexBuffer (&mbuf->vb, usage, SCE_VBO_RENDER_MODE);
         }
-        SCE_CBuildVertexBuffer (&rootbuf->vb, mode);
+        SCE_CBuildVertexBuffer (&rootbuf->vb, usage, mode);
         SCE_List_ForEachNext (it2)
             SCE_CUseVertexBuffer (SCE_List_GetData (it));
+        if (mesh->use_ib)
+            SCE_CUseIndexBuffer (&mesh->ib);
         SCE_CFinishVertexBufferRender (); /* it calls CEndVertexArraySequence */
     }
 }
+/**
+ * \brief Builds a mesh by creating vertex buffers with requested modes
+ *
+ * If \p rmode is not supported (according to SCE_VAO and SCE_VBO, declared in
+ * SCECSupport), a more common render mode is used (generally simple vertex
+ * arrays).
+ * \sa SCE_Mesh_AutoBuild()
+ * \todo use stream concept, so kick \p bmode param
+ */
 int SCE_Mesh_Build (SCE_SMesh *mesh, SCE_EMeshBuildMode bmode,
-                    SCE_CBufferRenderMode rmode)
+                    SCE_CBufferRenderMode rmode, int animated)
 {
     int err = SCE_ERROR;
+
+    /* SCE_Mesh_Unbuild (mesh); */
+
+    /* manage extension support */
+    if (rmode > SCE_VBO_RENDER_MODE && !SCE_CHasCap (SCE_VAO))
+        rmode = SCE_VBO_RENDER_MODE;
+    if (rmode == SCE_VBO_RENDER_MODE && !SCE_CHasCap (SCE_VBO))
+        rmode = SCE_VA_RENDER_MODE;
+/*     if (rmode == SCE_VA_RENDER_MODE && !SCE_CHasCap (SCE_VA)) */ /* lulz */
     switch (bmode) {
     case SCE_INDEPENDANT_VERTEX_BUFFER:
         err = SCE_Mesh_MakeIndependantVB (mesh);
@@ -401,7 +426,11 @@ int SCE_Mesh_Build (SCE_SMesh *mesh, SCE_EMeshBuildMode bmode,
     }
     if (err < 0)
         goto fail;
-    SCE_Mesh_BuildBuffers (mesh, rmode);
+    {
+        SCE_CBufferUsage usage;
+        usage = (animated ? SCE_BUFFER_DYNAMIC_DRAW : SCE_BUFFER_STATIC_DRAW);
+        SCE_Mesh_BuildBuffers (mesh, rmode, usage);
+    }
     mesh->bmode = bmode;
     mesh->rmode = rmode;
     return SCE_OK;
@@ -411,6 +440,7 @@ fail:
 }
 
 /**
+ * \todo use stream instead of "buffers"
  * \brief Uses default value for mesh build mode and determine the best buffer
  * render mode
  *
@@ -419,15 +449,14 @@ fail:
  * situations that needs specific mesh data structure.
  * \sa SCE_Mesh_Build()
  */
-int SCE_Mesh_AutoBuild (SCE_SMesh *mesh, int mode)
+int SCE_Mesh_AutoBuild (SCE_SMesh *mesh, int animated)
 {
-    /* TODO: use mode to determine what kind of vertex buffer structure to use*/
     if (SCE_CHasCap (SCE_VAO))
         return SCE_Mesh_Build (mesh, SCE_INDEPENDANT_VERTEX_BUFFER,
-                               SCE_UNIFIED_VAO_RENDER_MODE);
+                               SCE_UNIFIED_VAO_RENDER_MODE, animated);
     else
         return SCE_Mesh_Build (mesh, SCE_INDEPENDANT_VERTEX_BUFFER,
-                               SCE_VBO_RENDER_MODE);
+                               SCE_VBO_RENDER_MODE, animated);
 }
 
 /* why change mode on live? */
@@ -437,6 +466,9 @@ void SCE_Mesh_SetRenderMode (SCE_SMesh *mesh, SCE_CBufferRenderMode rmode)
 }
 #endif
 
+/* why se breaker les balls, les fonctions inutiles c'est chiant
+ * TODO: ah non spas inutile, apres generation TBN, besoin de mettre a jour */
+#if 0
 /**
  * \brief Takes new (if any) arrays from the geometry of a mesh, and rebuild it
  * \sa SCE_Mesh_SetGeometry(), SCE_Mesh_Build()
@@ -445,6 +477,7 @@ int SCE_Mesh_Update (SCE_SMesh *mesh)
 {
     /* not yet implemented, trop difficulte. (et trop chiant) */
 }
+#endif
 
 /**
  * \internal
@@ -483,15 +516,15 @@ fail:
  */
 SCE_SMesh* SCE_Mesh_Load (const char *fname, int force)
 {
-    return SCE_Resource_Load (resource_type, fname, force);
+    return SCE_Resource_Load (resource_type, fname, force, NULL);
 }
 
 
 /**
  * \brief Declares a mesh as activated for rendering
- * \sa SCE_Mesh_Render(), SCE_Mesh_RenderInstanced(), SCE_Mesh_Unbind()
+ * \sa SCE_Mesh_Render(), SCE_Mesh_RenderInstanced(), SCE_Mesh_Unuse()
  */
-void SCE_Mesh_Bind (SCE_SMesh *mesh)
+void SCE_Mesh_Use (SCE_SMesh *mesh)
 {
     if (mesh->rmode == SCE_UNIFIED_VBO_RENDER_MODE) {
         SCE_SMeshBuffer *mbuf = NULL;
@@ -515,8 +548,8 @@ void SCE_Mesh_Bind (SCE_SMesh *mesh)
     mesh_bound = mesh;
 }
 /**
- * \brief Render an instance of the mesh bound with SCE_Mesh_Bind()
- * \sa SCE_Mesh_Bind(), SCE_Mesh_RenderInstanced(), SCE_Mesh_Unbind()
+ * \brief Render an instance of the mesh bound with SCE_Mesh_Use()
+ * \sa SCE_Mesh_Use(), SCE_Mesh_RenderInstanced(), SCE_Mesh_Unuse()
  */
 void SCE_Mesh_Render (void)
 {
@@ -524,8 +557,8 @@ void SCE_Mesh_Render (void)
 }
 /**
  * \brief Render \p n_instances instances of the mesh bound with
- * SCE_Mesh_Bind() using hardware geometry instancing
- * \sa SCE_Mesh_Bind(), SCE_Mesh_Render(), SCE_Mesh_Unbind()
+ * SCE_Mesh_Use() using hardware geometry instancing
+ * \sa SCE_Mesh_Use(), SCE_Mesh_Render(), SCE_Mesh_Unuse()
  */
 void SCE_Mesh_RenderInstanced (SCEuint n_instances)
 {
@@ -534,10 +567,10 @@ void SCE_Mesh_RenderInstanced (SCEuint n_instances)
 /**
  * \brief Kicks the bound mesh
  * \note Useless in a pure GL 3 context
- * \sa SCE_Mesh_Bind(), SCE_Mesh_Render(), SCE_Mesh_RenderInstanced(),
+ * \sa SCE_Mesh_Use(), SCE_Mesh_Render(), SCE_Mesh_RenderInstanced(),
  * SCE_CFinishVertexBufferRender()
  */
-void SCE_Mesh_Unbind (void)
+void SCE_Mesh_Unuse (void)
 {
     if (SCE_TRUE/*non_full_gl3*/)
         SCE_CFinishVertexBufferRender ();
