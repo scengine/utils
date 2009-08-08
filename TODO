@@ -88,5 +88,7 @@ See the file ./doc/html/todo.html
 - Use enum for GL tokens in appropriated file.
 - Texture buffers.
 - Uniform buffers.
+- GetMappedAddress (buffer, data, range).
+- Manage modified vertices range in skeletal animation.
 
-- 49
+- 51
