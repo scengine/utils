@@ -38,7 +38,7 @@
 #include <SCE/interface/SCEBoxGeometry.h>
 #include <SCE/interface/SCEJoint.h>
 #include <SCE/interface/SCESkeleton.h>
-#include <SCE/interface/SCEAnimatedMesh.h>
+#include <SCE/interface/SCEAnimatedGeometry.h>
 #include <SCE/interface/SCEAnimation.h>
 #include <SCE/interface/SCEQuad.h>
 #include <SCE/interface/SCEMesh.h>
