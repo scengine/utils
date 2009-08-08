@@ -108,7 +108,8 @@ SCE_CBufferData* SCE_CAddBufferNewData (SCE_CBuffer*, size_t, void*);
 void SCE_CRemoveBufferData (SCE_CBufferData*);
 
 void SCE_CBuildBuffer (SCE_CBuffer*, SCEenum, SCE_CBufferUsage);
-extern void SCE_CUpdateBuffer (SCE_CBuffer*);
+extern void (*SCE_CUpdateBuffer) (SCE_CBuffer*);
+/*extern void SCE_CUpdateBuffer (SCE_CBuffer*);*/
 void SCE_CUseBuffer (SCE_CBuffer*);
 
 #ifdef __cplusplus

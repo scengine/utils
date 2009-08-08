@@ -65,7 +65,7 @@ enum sce_ctype {
     SCE_FLOAT = GL_FLOAT,
     SCE_DOUBLE = GL_DOUBLE
 };
-typedef sce_ctype SCE_CType;
+typedef enum sce_ctype SCE_CType;
 
 /* types de culling */
 #define SCE_FRONT           GL_FRONT
