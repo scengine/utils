@@ -29,9 +29,8 @@
  * \ingroup interface
  * \internal
  * \brief 
+ * @{
  */
-
-/** @{ */
 
 static void SCE_Skybox_Init (SCE_SSkybox *skybox)
 {
@@ -40,9 +39,6 @@ static void SCE_Skybox_Init (SCE_SSkybox *skybox)
     skybox->mode = SCE_FALSE;
     skybox->textype = 0;        /* NOTE: what if SCE_TEX_* is 0 ? */
     skybox->shader = NULL;
-#if 0
-    skybox->group = NULL;
-#endif
     skybox->entity = NULL;
     skybox->instance = NULL;
 }
@@ -56,30 +52,21 @@ SCE_SSkybox* SCE_Skybox_Create (void)
     SCE_SSkybox *skybox = NULL;
     SCE_btstart ();
     if (!(skybox = SCE_malloc (sizeof *skybox)))
-        goto failure;
+        goto fail;
     SCE_Skybox_Init (skybox);
     if (!(skybox->mesh = SCE_Mesh_Create ()))
-        goto failure;
-#if 0
-    if (!(skybox->group = SCE_SceneEntity_CreateGroup ()))
-        goto failure;
-#endif
+        goto fail;
     if (!(skybox->entity = SCE_SceneEntity_Create ()))
-        goto failure;
+        goto fail;
     if (!(skybox->instance = SCE_SceneEntity_CreateInstance ()))
-        goto failure;
-#if 0
-    SCE_SceneEntity_AddEntity (skybox->group, skybox->entity);
-    SCE_SceneEntity_AddInstance (skybox->group, skybox->instance);
-#else
+        goto fail;
     SCE_SceneEntity_AddInstanceToEntity (skybox->entity, skybox->instance);
-#endif
     props = SCE_SceneEntity_GetProperties (skybox->entity);
     props->cullface = SCE_FALSE;
     props->depthtest = SCE_FALSE;
     props->alphatest = SCE_FALSE;
     goto success;
-failure:
+fail:
     SCE_Skybox_Delete (skybox), skybox = NULL;
     SCEE_LogSrc ();
 success:
@@ -91,8 +78,7 @@ success:
  */
 void SCE_Skybox_Delete (SCE_SSkybox *skybox)
 {
-    if (skybox)
-    {
+    if (skybox) {
         SCE_SceneEntity_DeleteInstance (skybox->instance);
         SCE_SceneEntity_Delete (skybox->entity);
         SCE_Mesh_Delete (skybox->mesh);
@@ -116,113 +102,52 @@ void SCE_Skybox_SetSize (SCE_SSkybox *skybox, float size)
  * \brief Defines the texture of a skybox
  * \param skybox a skybox
  * \param tex the texture to set
- * \param mode the mode for using the 2D texture
+ * \param mode see SCE_BoxGeom_Generate()
  * \returns SCE_ERROR on error, SCE_OK otherwise
- *
- * This function modify the texture coordinates of the mesh of \p skybox
- * according to the type of \p tex. If the texture \p tex is a cubemap
- * (SCE_TEX_CUBE) then indices are set and vertices not duplicated, if the type
- * is a 2D texture (SCE_TEX_2D) then the same texture is used on each face of
- * the skybox, unless you are using the parameter \p mode to specify that
- * the 2D texture contains all the six images of the faces. \p mode can be
- * SCE_TRUE or SCE_FALSE. If it is SCE_TRUE the texture \p tex has all the
- * images ordered in an array W = 3 and H = 2. The order is POSX, NEGX, POSY,
- * etc.
  * \sa SCE_Skybox_SetShader(), SCE_SceneEntity_AddTexture()
- * \warning \p mode not yet supported
- * \todo badly documented
  */
-int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_STexture *tex, int mode)
+int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_STexture *tex,
+                           SCE_EBoxGeomTexCoordMode mode)
 {
-    int code = SCE_OK, type;
-    SCEvertices v[72];
-    SCE_TVector3 origin = {-0.5, -0.5, -0.5};
+    SCE_TVector3 center = {0.0f, 0.0f, 0.0f};
+    SCE_SBox box;
+    int type;
+    SCE_SGeometry *geom = NULL;
 
-    SCE_btstart ();
     /* remove the previous one */
     if (skybox->tex)
         SCE_SceneEntity_RemoveTexture (skybox->entity, skybox->tex);
     SCE_SceneEntity_AddTexture (skybox->entity, tex);
     skybox->tex = tex;
 
+    SCE_Box_Init (&box);
+    SCE_Box_Set (&box, center, 1.0f, 1.0f, 1.0f);
+
     type = SCE_Texture_GetType (tex);
     if (type == SCE_TEX_CUBE || type == SCE_RENDER_COLOR_CUBE ||
-        type == SCE_RENDER_DEPTH_CUBE)
-    {
-        unsigned int i;
-        SCEindices *indices;
-        if (type == skybox->textype)
-            goto success;
-        SCE_Mesh_GenerateIndexedCubeVertices (v, origin, 1.0, 1.0, 1.0);
-        indices = (SCEindices*)SCE_Mesh_GetIndexedCubeIndices ();
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_POSITION,
-                                     SCE_VERTICES_TYPE, 3, 8, v) < 0)
-            goto failure;
-        /* normalize the vectors */
-        for (i = 0; i < 8; i++)
-            SCE_Vector3_Normalize (&v[i*3]);
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_TEXCOORD0,
-                                     SCE_VERTICES_TYPE, 3, 8, v) < 0)
-        if (SCE_Mesh_SetIndicesDup (skybox->mesh, 0, SCE_INDICES_TYPE,
-                                    24, indices) < 0)
-            goto failure;
-        SCE_Mesh_ActivateIB (skybox->mesh, SCE_TRUE);
+        type == SCE_RENDER_DEPTH_CUBE) {
+        geom = SCE_BoxGeom_Create (&box, SCE_TRIANGLES,
+                                   SCE_BOX_CUBEMAP_TEXCOORD);
+    } else {
+        geom = SCE_BoxGeom_Create (&box, SCE_TRIANGLES, mode);
     }
-    else if (mode)
-    {
-        SCEvertices texcoord[] =
-        {
-            /* lol */
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
 
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
-            0., 0.,  1., 0.,  1., 1.,  0., 1.
-        };
-        SCE_Mesh_GenerateCubeVertices (v, origin, 1.0, 1.0, 1.0);
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_POSITION,
-                                     SCE_VERTICES_TYPE, 3, 24, v) < 0)
-            goto failure;
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_TEXCOORD0,
-                                     SCE_VERTICES_TYPE, 2, 24, texcoord) < 0)
-            goto failure;
-        SCE_Mesh_ActivateIB (skybox->mesh, SCE_FALSE);
-    }
-    else
-    {
-        SCEvertices texcoord[] =
-        {
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
-            0., 0.,  1., 0.,  1., 1.,  0., 1.,
-            0., 0.,  1., 0.,  1., 1.,  0., 1.
-        };
-        SCE_Mesh_GenerateCubeVertices (v, origin, 1.0, 1.0, 1.0);
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_POSITION,
-                                     SCE_VERTICES_TYPE, 3, 24, v) < 0)
-            goto failure;
-        if (SCE_Mesh_AddVerticesDup (skybox->mesh, 0, SCE_TEXCOORD0,
-                                     SCE_VERTICES_TYPE, 2, 24, texcoord) < 0)
-            goto failure;
-        SCE_Mesh_ActivateIB (skybox->mesh, SCE_FALSE);
-    }
-    SCE_Mesh_SetRenderMode (skybox->mesh, SCE_QUADS);
-    if (SCE_Mesh_Build (skybox->mesh) < 0)
-        goto failure;
+    if (!geom)
+        goto fail;
+    SCE_Mesh_SetGeometry (skybox->mesh, geom, SCE_TRUE);
+    geom = NULL;
+    if (SCE_Mesh_Build (skybox->mesh, SCE_GLOBAL_VERTEX_BUFFER,
+                        SCE_UNIFIED_VBO_RENDER_MODE, SCE_FALSE) < 0)
+        goto fail;
     SCE_SceneEntity_SetMesh (skybox->entity, skybox->mesh);
     skybox->mode = mode;
     skybox->textype = type;
-    goto success;
-failure:
+
+    return SCE_OK;
+fail:
+    SCE_Geometry_Delete (geom);
     SCEE_LogSrc ();
-    code = SCE_ERROR;
-success:
-    SCE_btend ();
-    return code;
+    return SCE_ERROR;
 }
 /**
  * \brief Defines the shader of a skybox
@@ -235,16 +160,6 @@ void SCE_Skybox_SetShader (SCE_SSkybox *skybox, SCE_SShader *shader)
     skybox->shader = shader;
 }
 
-#if 0
-/**
- * \brief Gets the scene entity group of a skybox
- * \sa SCE_Skybox_GetEntity(), SCE_SSceneEntityGroup
- */
-SCE_SSceneEntityGroup* SCE_Skybox_GetEntityGroup (SCE_SSkybox *skybox)
-{
-    return skybox->group;
-}
-#endif
 /**
  * \brief Gets the scene entity of a skybox
  * \sa SCE_Skybox_GetEntityGroup(), SCE_SSceneEntity

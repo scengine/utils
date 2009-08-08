@@ -22,11 +22,11 @@
 #ifndef SCESKYBOX_H
 #define SCESKYBOX_H
 
+#include <SCE/interface/SCEBoxGeometry.h>
 #include <SCE/interface/SCESceneEntity.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -39,16 +39,12 @@ typedef struct sce_sskybox SCE_SSkybox;
 /**
  * \brief A skybox, represented by its resources and its entity instance
  */
-struct sce_sskybox
-{
+struct sce_sskybox {
     SCE_SMesh *mesh;                    /**< Skybox cube mesh */
     SCE_STexture *tex;                  /**< Texture */
-    int mode;                           /**< Texture mode */
+    SCE_EBoxGeomTexCoordMode mode;
     int textype;
     SCE_SShader *shader;                /**< Shader */
-#if 0
-    SCE_SSceneEntityGroup *group;       /**< Entity group */
-#endif
     SCE_SSceneEntity *entity;           /**< Entity */
     SCE_SSceneEntityInstance *instance; /**< Instance */
 };
@@ -59,12 +55,10 @@ SCE_SSkybox* SCE_Skybox_Create (void);
 void SCE_Skybox_Delete (SCE_SSkybox*);
 
 void SCE_Skybox_SetSize (SCE_SSkybox*, float);
-int SCE_Skybox_SetTexture (SCE_SSkybox*, SCE_STexture*, int);
+int SCE_Skybox_SetTexture (SCE_SSkybox*, SCE_STexture*,
+                           SCE_EBoxGeomTexCoordMode);
 void SCE_Skybox_SetShader (SCE_SSkybox*, SCE_SShader*);
 
-#if 0
-SCE_SSceneEntityGroup* SCE_Skybox_GetEntityGroup (SCE_SSkybox*);
-#endif
 SCE_SSceneEntity* SCE_Skybox_GetEntity (SCE_SSkybox*);
 SCE_SSceneEntityInstance* SCE_Skybox_GetInstance (SCE_SSkybox*);
 
