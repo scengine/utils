@@ -340,7 +340,7 @@ void SCE_Scene_RemoveElement (SCE_SOctreeElement *el)
  */
 void SCE_Scene_AddNodeElement (SCE_SScene *scene, SCE_SNode *node)
 {
-    SCE_SBox old;
+    SCE_SSphere old;
     SCE_SOctreeElement *el = SCE_Node_GetElement (node);
     SCE_BoundingSphere_Push (el->sphere, SCE_Node_GetFinalMatrix (node), &old);
     SCE_Scene_AddElement (scene, el);
