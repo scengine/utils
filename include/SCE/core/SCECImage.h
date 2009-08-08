@@ -26,20 +26,32 @@
 #include <SCE/utils/SCEList.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-/* formats de pixel */
-#define SCE_PXF_LUMINANCE GL_LUMINANCE
-#define SCE_PXF_LUMINANCE_ALPHA GL_LUMINANCE_ALPHA
-#define SCE_PXF_RGB GL_RGB
-#define SCE_PXF_RGBA GL_RGBA
-#define SCE_PXF_BGR GL_BGR
-#define SCE_PXF_BGRA GL_BGRA
-#define SCE_PXF_DXT1 GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
-#define SCE_PXF_DXT3 GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
-#define SCE_PXF_DXT5 GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+/**
+ * \brief Types of texture
+ */
+enum sce_ctextype {
+    SCE_TEX_1D = GL_TEXTURE_1D,
+    SCE_TEX_2D = GL_TEXTURE_2D,
+    SCE_TEX_3D = GL_TEXTURE_3D,
+    SCE_TEX_CUBE = GL_TEXTURE_CUBE_MAP
+};
+typedef enum sce_ctextype SCE_CTexType;
+
+enum sce_cpixelformat {
+    SCE_PXF_LUMINANCE = GL_LUMINANCE,
+    SCE_PXF_LUMINANCE_ALPHA = GL_LUMINANCE_ALPHA,
+    SCE_PXF_RGB = GL_RGB,
+    SCE_PXF_RGBA = GL_RGBA,
+    SCE_PXF_BGR = GL_BGR,
+    SCE_PXF_BGRA = GL_BGRA,
+    SCE_PXF_DXT1 = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+    SCE_PXF_DXT3 = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+    SCE_PXF_DXT5 = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+};
+typedef enum sce_cpixelformat SCE_CPixelFormat;
 
 /* TODO: tmp hack, GLee doesn't support this extension */
 #define SCE_PXF_3DC /*GL_COMPRESSED_RGB_3DC_ATI*/ 0

@@ -56,17 +56,6 @@ enum sce_ctexunit {
 typedef enum sce_ctexunit SCE_CTexUnit;
 
 /**
- * \brief Types of texture
- */
-enum sce_ctextype {
-    SCE_TEX_1D = GL_TEXTURE_1D,
-    SCE_TEX_2D = GL_TEXTURE_2D,
-    SCE_TEX_3D = GL_TEXTURE_3D,
-    SCE_TEX_CUBE = GL_TEXTURE_CUBE_MAP
-};
-typedef enum sce_ctextype SCE_CTexType;
-
-/**
  * \brief Faces for a cube map texture
  */
 enum sce_ctexcubeface {
