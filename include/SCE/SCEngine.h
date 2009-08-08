@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 12/10/2006
-   updated: 03/08/2009 */
+   updated: 08/08/2009 */
 
 #ifndef SCENGINE_H
 #define SCENGINE_H
@@ -35,7 +35,7 @@
 #include <SCE/interface/SCEOBJLoader.h>
 #include <SCE/interface/SCEMD5Loader.h>
 #include <SCE/interface/SCESphereGeometry.h>
-/*#include <SCE/interface/SCECubeGeometry.h>*/
+#include <SCE/interface/SCEBoxGeometry.h>
 #include <SCE/interface/SCEJoint.h>
 #include <SCE/interface/SCESkeleton.h>
 #include <SCE/interface/SCEAnimatedMesh.h>
