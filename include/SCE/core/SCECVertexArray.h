@@ -88,6 +88,7 @@ typedef struct sce_cvertexarraydata SCE_CVertexArrayData;
 struct sce_cvertexarraydata {
     SCE_CVertexAttributeType attrib; /**< Vertices' attribute */
     SCEenum type;         /**< Data type (SCE_FLOAT, SCE_INT, ...) */
+    SCEsizei stride;      /**< Stride between two consecutive vertices */
     SCEint size;          /**< Number of dimensions of the vectors */
     void *data;           /**< User is always the owner of the data */
 };
@@ -136,7 +137,7 @@ void SCE_CDeleteIndexArray (SCE_CIndexArray*);
 SCE_CVertexArrayData* SCE_CGetVertexArrayData (SCE_CVertexArray*);
 void SCE_CSetVertexArrayData (SCE_CVertexArray*, SCE_CVertexArrayData*);
 void SCE_CSetVertexArrayNewData (SCE_CVertexArray*, SCE_CVertexAttributeType,
-                                 SCEenum, SCEint, void*);
+                                 SCEenum, SCEsizei, SCEint, void*);
 
 void SCE_CBeginVertexArraySequence (SCE_CVertexArray*);
 void SCE_CCallVertexArraySequence (SCE_CVertexArray*);

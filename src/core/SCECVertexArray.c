@@ -56,6 +56,7 @@ void SCE_CInitVertexArrayData (SCE_CVertexArrayData *data)
 {
     data->attrib = SCE_POSITION;
     data->type = SCE_FLOAT;
+    data->stride = 0;
     data->size = 3;
     data->data = NULL;
 }
@@ -79,7 +80,7 @@ void SCE_CDeleteVertexArrayData (SCE_CVertexArrayData *data)
 static void SCE_CSetVAPos (SCE_CVertexArrayData *data)
 {
     glEnableClientState (GL_VERTEX_ARRAY);
-    glVertexPointer (data->size, data->type, 0, data->data);
+    glVertexPointer (data->size, data->type, data->stride, data->data);
 }
 static void SCE_CUnsetVAPos (SCE_CVertexArrayData *data)
 {
@@ -88,7 +89,7 @@ static void SCE_CUnsetVAPos (SCE_CVertexArrayData *data)
 static void SCE_CSetVANor (SCE_CVertexArrayData *data)
 {
     glEnableClientState (GL_NORMAL_ARRAY);
-    glNormalPointer (data->type, 0, data->data);
+    glNormalPointer (data->type, data->stride, data->data);
 }
 static void SCE_CUnsetVANor (SCE_CVertexArrayData *data)
 {
@@ -97,7 +98,7 @@ static void SCE_CUnsetVANor (SCE_CVertexArrayData *data)
 static void SCE_CSetVACol (SCE_CVertexArrayData *data)
 {
     glEnableClientState (GL_COLOR_ARRAY);
-    glColorPointer (data->size, data->type, 0, data->data);
+    glColorPointer (data->size, data->type, data->stride, data->data);
 }
 static void SCE_CUnsetVACol (SCE_CVertexArrayData *data)
 {
@@ -107,7 +108,7 @@ static void SCE_CSetVATex (SCE_CVertexArrayData *data)
 {
     glClientActiveTexture (GL_TEXTURE0 + data->attrib - SCE_TEXCOORD0);
     glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer (data->size, data->type, 0, data->data);
+    glTexCoordPointer (data->size, data->type, data->stride, data->data);
 }
 static void SCE_CUnsetVATex (SCE_CVertexArrayData *data)
 {
@@ -120,7 +121,8 @@ static void SCE_CSetVAAtt (SCE_CVertexArrayData *data)
     /* hope that data->attrib isn't too large */
     int attrib = data->attrib - SCE_ATTRIB0;
     glEnableVertexAttribArray (attrib);
-    glVertexAttribPointer (attrib, data->size, data->type, 0, 0, data->data);
+    glVertexAttribPointer (attrib, data->size, data->type, 0,
+                           data->stride, data->data);
 }
 static void SCE_CUnsetVAAtt (SCE_CVertexArrayData *data)
 {
@@ -252,12 +254,13 @@ void SCE_CSetVertexArrayData (SCE_CVertexArray *va, SCE_CVertexArrayData *data)
  * \sa SCE_CSetVertexArrayData(), SCE_CGetVertexArrayData()
  */
 void SCE_CSetVertexArrayNewData (SCE_CVertexArray *va,
-                                 SCE_CVertexAttributeType attrib,
-                                 SCEenum type, SCEint size, void *p)
+                                 SCE_CVertexAttributeType attrib, SCEenum type,
+                                 SCEsizei stride, SCEint size, void *p)
 {
     SCE_CVertexArrayData data;
     data.attrib = attrib;
     data.type = type;
+    data.stride = stride;
     data.size = size;
     data.data = p;
     SCE_CSetVertexArrayData (va, &data);
