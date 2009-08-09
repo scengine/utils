@@ -76,7 +76,7 @@ void SCE_CDeleteVertexArrayData (SCE_CVertexArrayData *data)
     }
 }
 
-/* TODO: These functions are not in GL 3.1 */
+/* TODO: These functions are no longer in GL 3.1 */
 static void SCE_CSetVAPos (SCE_CVertexArrayData *data)
 {
     glEnableClientState (GL_VERTEX_ARRAY);
@@ -140,6 +140,8 @@ void SCE_CInitVertexArray (SCE_CVertexArray *va)
     SCE_CInitVertexArrayData (&va->data);
     SCE_List_InitIt (&va->it);
     SCE_List_SetData (&va->it, va);
+    SCE_List_InitIt (&va->it2);
+    SCE_List_SetData (&va->it2, va);
 }
 /**
  * \brief
@@ -201,6 +203,14 @@ void SCE_CDeleteIndexArray (SCE_CIndexArray *ia)
     }
 }
 
+
+/**
+ * \brief Gets the public iterator of a vertex array
+ */
+SCE_SListIterator SCE_CGetVertexArrayIterator (SCE_CVertexArray *va)
+{
+    return &va->it2;
+}
 
 /**
  * \brief Gets \p &va->data

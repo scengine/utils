@@ -104,7 +104,7 @@ struct sce_cvertexarray {
     SCEuint id;                 /**< Vertex array object identifier */
     SCE_FSetVA set, unset;      /**< Functions to set/unset the vertex array */
     SCE_CVertexArrayData data;
-    SCE_SListIterator it;       /**< Own iterator */
+    SCE_SListIterator it, it2;  /**< Own iterators */
 };
 
 typedef struct sce_cindexarray SCE_CIndexArray;
@@ -133,6 +133,8 @@ void SCE_CDeleteVertexArray (SCE_CVertexArray*);
 void SCE_CInitIndexArray (SCE_CIndexArray*);
 SCE_CIndexArray* SCE_CCreateIndexArray (void);
 void SCE_CDeleteIndexArray (SCE_CIndexArray*);
+
+SCE_SListIterator SCE_CGetVertexArrayIterator (SCE_CVertexArray*);
 
 SCE_CVertexArrayData* SCE_CGetVertexArrayData (SCE_CVertexArray*);
 void SCE_CSetVertexArrayData (SCE_CVertexArray*, SCE_CVertexArrayData*);
