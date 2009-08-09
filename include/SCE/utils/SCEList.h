@@ -17,18 +17,17 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 07/03/2009 */
+   updated: 09/08/2009 */
 
 #ifndef SCELIST_H
 #define SCELIST_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
- * \ingroup memory
+ * \ingroup list
  * @{
  */
 
@@ -36,8 +35,7 @@ extern "C"
 typedef struct sce_slist SCE_SList;
 typedef struct sce_slistiterator SCE_SListIterator;
 
-struct sce_slistiterator
-{
+struct sce_slistiterator {
     SCE_SListIterator *next, *prev;
     void *data;
 };
@@ -52,8 +50,7 @@ typedef int (*SCE_FListCompareData)(const void*, const void*);
 /**
  * \brief A list structure
  */
-struct sce_slist
-{
+struct sce_slist {
     SCE_SListIterator first;  /**< First iterator of the list */
     SCE_SListIterator last;   /**< Last iterator of the list */
     SCE_FListFreeFunc f;      /**< Free function */
