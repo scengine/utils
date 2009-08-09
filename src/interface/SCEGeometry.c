@@ -674,7 +674,8 @@ fail:
  * \brief Sets primitive type of a geometry
  * \sa SCE_Geometry_GetPrimitiveType()
  */
-void SCE_Geometry_SetPrimitiveType (SCE_SGeometry *geom, SCEenum prim)
+void SCE_Geometry_SetPrimitiveType (SCE_SGeometry *geom,
+                                    SCE_CPrimitiveType prim)
 {
     geom->prim = prim;
 }
@@ -691,34 +692,68 @@ SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry *geom)
  * \brief Sets the number of vertices of a geometry
  * \sa SCE_Geometry_GetNumvertices(), SCE_Geometry_SetNumIndices()
  */
-void SCE_Geometry_SetNumVertices (SCE_SGeometry *geom, unsigned int n_vertices)
+void SCE_Geometry_SetNumVertices (SCE_SGeometry *geom, size_t n_vertices)
 {
     geom->n_vertices = n_vertices;
-}
-/**
- * \brief Gets the number of vertices of a geometry
- * \sa SCE_Geometry_SetNumVertices(), SCE_Geometry_GetNumIndices()
- */
-unsigned int SCE_Geometry_GetNumVertices (SCE_SGeometry *geom)
-{
-    return geom->n_vertices;
 }
 /**
  * \brief Sets the number of indices of a geometry
  * \sa SCE_Geometry_GetNumIndices(), SCE_Geometry_SetNumVertices()
  */
-void SCE_Geometry_SetNumIndices (SCE_SGeometry *geom, unsigned int n_indices)
+void SCE_Geometry_SetNumIndices (SCE_SGeometry *geom, size_t n_indices)
 {
     geom->n_indices = n_indices;
+}
+
+/**
+ * \brief Gets the number of vertices of a geometry
+ * \sa SCE_Geometry_SetNumVertices(), SCE_Geometry_GetNumIndices()
+ */
+size_t SCE_Geometry_GetNumVertices (SCE_SGeometry *geom)
+{
+    return geom->n_vertices;
 }
 /**
  * \brief Gets the number of indices of a geometry
  * \sa SCE_Geometry_SetNumIndices(), SCE_Geometry_GetNumVertices()
  */
-unsigned int SCE_Geometry_GetNumIndices (SCE_SGeometry *geom)
+size_t SCE_Geometry_GetNumIndices (SCE_SGeometry *geom)
 {
     return geom->n_indices;
 }
+/**
+ * \brief Gets the number of vertices used for each primitive (or 'face'),
+ * 3 for triangles, 2 for lines, etc.
+ * \sa SCE_Geometry_GetNumPrimitives()
+ */
+size_t SCE_Geometry_GetNumVerticesPerPrimitive (SCE_SGeometry *geom)
+{
+    size_t vpf = 0;
+    switch (geom->prim) {
+    case SCE_POINTS:         vpf = 1; break;
+    case SCE_LINES:          vpf = 2; break;
+    case SCE_TRIANGLES:      vpf = 3; break;
+#ifdef SCE_DEBUG
+        break;
+    default:
+        SCEE_SendMsg ("unsupported primitive type to compute the "
+                      "number of vertices per primitive");
+#endif
+    }
+    return vpf;
+}
+/**
+ * \brief Gets the total number of primitives of a geometry
+ * \sa SCE_Geometry_GetNumVerticesPerPrimitive()
+ */
+size_t SCE_Geometry_GetNumPrimitives (SCE_SGeometry *geom)
+{
+    if (geom->index_array)
+        return geom->n_indices / SCE_Geometry_GetNumVerticesPerPrimitive (geom);
+    else
+        return geom->n_vertices / SCE_Geometry_GetNumVerticesPerPrimitive(geom);
+}
+
 
 /**
  * \brief Gets the arrays of a geometry (not including those who are modified)

@@ -122,15 +122,15 @@ struct sce_sgeometryarrayuser {
 
 /**
  * \brief Contains geometry of a mesh
- * \sa SCE_SMesh
+ * \sa SCE_SGeometryArray, SCE_SGeometryArrayUser, SCE_SMesh
  */
 struct sce_sgeometry {
-    SCEenum prim;
+    SCE_CPrimitiveType prim;
     SCE_SList arrays;                 /**< All vertex arrays */
     SCE_SList modified;               /**< Modified vertex arrays */
     SCE_SGeometryArray *index_array;  /**< Index array */
     int canfree_index;
-    unsigned int n_vertices, n_indices;
+    size_t n_vertices, n_indices;
 };
 
 /** @} */
@@ -198,13 +198,16 @@ int SCE_Geometry_SetData (SCE_SGeometry*, SCEvertices*, SCEvertices*,
 int SCE_Geometry_SetDataDup (SCE_SGeometry*, SCEvertices*, SCEvertices*,
                              SCEvertices*, SCEindices*, SCEuint, SCEuint);
 
-void SCE_Geometry_SetPrimitiveType (SCE_SGeometry*, SCEenum);
+void SCE_Geometry_SetPrimitiveType (SCE_SGeometry*, SCE_CPrimitiveType);
 SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry*);
 
-void SCE_Geometry_SetNumVertices (SCE_SGeometry*, unsigned int);
-unsigned int SCE_Geometry_GetNumVertices (SCE_SGeometry*);
-void SCE_Geometry_SetNumIndices (SCE_SGeometry*, unsigned int);
-unsigned int SCE_Geometry_GetNumIndices (SCE_SGeometry*);
+void SCE_Geometry_SetNumVertices (SCE_SGeometry*, size_t);
+void SCE_Geometry_SetNumIndices (SCE_SGeometry*, size_t);
+
+size_t SCE_Geometry_GetNumVertices (SCE_SGeometry*);
+size_t SCE_Geometry_GetNumIndices (SCE_SGeometry*);
+size_t SCE_Geometry_GetNumVerticesPerPrimitive (SCE_SGeometry*);
+size_t SCE_Geometry_GetNumPrimitives (SCE_SGeometry*);
 
 SCE_SList* SCE_Geometry_GetArrays (SCE_SGeometry*);
 SCE_SList* SCE_Geometry_GetModifiedArrays (SCE_SGeometry*);
