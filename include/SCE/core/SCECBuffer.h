@@ -67,6 +67,7 @@ struct sce_cbufferdata {
                                  *   offset and \c range[1] the number of
                                  *   modified bytes */
     SCE_SListIterator it;
+    int modified;               /**< Is this buffer data waiting for update? */
     SCE_CBuffer *buf;
     int user;
 };
@@ -84,6 +85,7 @@ struct sce_cbuffer {
                                  *   (min/max of \c modified).
                                  *   Used for glMapBufferRange() */
     void *mapptr;               /**< Buffer address saved here on locking */
+    SCE_SListIterator it;       /**< Own iterator for modified buffers list */
 };
 
 /** @} */
@@ -102,6 +104,7 @@ void SCE_CClearBuffer (SCE_CBuffer*);
 void SCE_CDeleteBuffer (SCE_CBuffer*);
 
 void SCE_CModifiedBufferData (SCE_CBufferData*, size_t*);
+void SCE_CUnmodifiedBufferData (SCE_CBufferData*);
 
 void SCE_CAddBufferData (SCE_CBuffer*, SCE_CBufferData*);
 SCE_CBufferData* SCE_CAddBufferNewData (SCE_CBuffer*, size_t, void*);
@@ -109,7 +112,7 @@ void SCE_CRemoveBufferData (SCE_CBufferData*);
 
 void SCE_CBuildBuffer (SCE_CBuffer*, SCEenum, SCE_CBufferUsage);
 extern void (*SCE_CUpdateBuffer) (SCE_CBuffer*);
-/*extern void SCE_CUpdateBuffer (SCE_CBuffer*);*/
+void SCE_CUpdateModifiedBuffers (void);
 void SCE_CUseBuffer (SCE_CBuffer*);
 
 #ifdef __cplusplus

@@ -40,6 +40,8 @@
  * @{
  */
 
+static SCE_SList modified;      /* all modified buffers */
+
 void (*SCE_CUpdateBuffer) (SCE_CBuffer*);
 static void SCE_CUpdateBufferMapClassic (SCE_CBuffer*);
 static void SCE_CUpdateBufferMapRange (SCE_CBuffer*);
@@ -50,9 +52,11 @@ int SCE_CBufferInit (void)
         SCE_CUpdateBuffer = SCE_CUpdateBufferMapRange;
     else
         SCE_CUpdateBuffer = SCE_CUpdateBufferMapClassic;
+    SCE_List_Init (&modified);
 }
 void SCE_CQuitBuffer (void)
 {
+    SCE_List_Flush (&modified);
 }
 
 void SCE_CInitBufferData (SCE_CBufferData *data)
@@ -63,6 +67,7 @@ void SCE_CInitBufferData (SCE_CBufferData *data)
     data->range[0] = data->range[1] = 0;
     SCE_List_InitIt (&data->it);
     SCE_List_SetData (&data->it, data);
+    data->modified = SCE_FALSE;
     data->buf = NULL;
     data->user = SCE_TRUE;
 }
@@ -140,21 +145,50 @@ static void SCE_CUpdateBufferRange (SCE_CBuffer *buf, SCE_CBufferData *data)
     buf->range[0] = min (buf->range[0], offset);
     buf->range[1] = max (buf->range[1], offset + data->range[1]);
 }
-
+/**
+ * \brief Defines a buffer data as modified
+ * \param range modified range in bytes, NULL means 'all'
+ * \sa SCE_CUpdateModifiedBuffers(), SCE_CUpdateBuffer(),
+ * SCE_CUnmodifiedBufferData()
+ */
 void SCE_CModifiedBufferData (SCE_CBufferData *data, size_t *range)
 {
     SCE_List_Removel (&data->it);
     SCE_List_Appendl (&data->buf->modified, &data->it);
     if (range) {
-        data->range[0] = range[0];
-        data->range[1] = range[1];
+        /* if already modified, get the largest range */
+        if (data->modified) {
+            data->range[0] = min (data->range[0], range[0]);
+            data->range[1] = max (data->range[1], range[1]);
+        } else {
+            data->range[0] = range[0];
+            data->range[1] = range[1];
+        }
     } else {
         data->range[0] = 0;
         data->range[1] = data->size;
     }
     SCE_CUpdateBufferRange (data->buf, data);
+    data->modified = SCE_TRUE;
+    /* add the buffer to the modified buffers list */
+    SCE_List_Remove (&data->buf->it);
+    SCE_List_Appendl (&modified, &data->buf->it);
+}
+/**
+ * \brief Defines a buffer data as unmodified (will not be updated)
+ * \sa SCE_CModifiedBufferData()
+ */
+void SCE_CUnmodifiedBufferData (SCE_CBufferData *data)
+{
+    SCE_List_Removel (&data->it);
+    SCE_List_Appendl (&data->buf->data, &data->it);
+    data->modified = SCE_FALSE;
 }
 
+/**
+ * \brief Adds a buffer data to a buffer
+ * \sa SCE_CAddBufferNewData(), SCE_CRemoveBufferData()
+ */
 void SCE_CAddBufferData (SCE_CBuffer *buf, SCE_CBufferData *data)
 {
     SCE_List_Appendl (&buf->data, &data->it);
@@ -162,6 +196,12 @@ void SCE_CAddBufferData (SCE_CBuffer *buf, SCE_CBufferData *data)
     data->first = buf->size;
     buf->size += data->size;
 }
+/**
+ * \brief Create and adds a new buffer data
+ * \param s size of the new buffer data in bytes
+ * \param p pointer to the data of the buffer data
+ * \sa SCE_CAddBufferData(), SCE_CRemoveBufferData()
+ */
 SCE_CBufferData* SCE_CAddBufferNewData (SCE_CBuffer *buf, size_t s, void *p)
 {
     SCE_CBufferData *data = NULL;
@@ -175,6 +215,10 @@ SCE_CBufferData* SCE_CAddBufferNewData (SCE_CBuffer *buf, size_t s, void *p)
     }
     return data;
 }
+/**
+ * \brief Removes a buffer data from its buffer
+ * \sa SCE_CAddBufferData(), SCE_CAddBufferNewData()
+ */
 void SCE_CRemoveBufferData (SCE_CBufferData *data)
 {
     if (data->buf) {
@@ -183,6 +227,11 @@ void SCE_CRemoveBufferData (SCE_CBufferData *data)
     }
 }
 
+/**
+ * \brief Builds a buffer
+ * \param target type of the buffer (todo: use an enum)
+ * \param usage buffer usage
+ */
 void SCE_CBuildBuffer (SCE_CBuffer *buf, SCEenum target, SCE_CBufferUsage usage)
 {
     SCE_CBufferData *data = NULL;
@@ -219,8 +268,7 @@ static void SCE_CUpdateBufferMapClassic (SCE_CBuffer *buf)
         memcpy (&((char*)ptr)[bd->range[0] + bd->first],
                 &((char*)bd->data)[bd->range[0]],
                 bd->range[1]);
-        SCE_List_Removel (it);
-        SCE_List_Appendl (&buf->data, it);
+        SCE_CUnmodifiedBufferData (bd);
     }
     glUnmapBuffer (target);
     glBindBuffer (target, 0);
@@ -254,8 +302,7 @@ static void SCE_CUpdateBufferMapRange (SCE_CBuffer *buf)
         memcpy (&((char*)ptr)[offset],
                 &((char*)bd->data)[bd->range[0]],
                 length);
-        SCE_List_Removel (it);
-        SCE_List_Appendl (&buf->data, it);
+        SCE_CUnmodifiedBufferData (bd);
         /* give to the GL the modified subrange */
         glFlushMappedBufferRange (target, offset, length);
     }
@@ -264,6 +311,21 @@ static void SCE_CUpdateBufferMapRange (SCE_CBuffer *buf)
     SCE_CResetBufferRange (buf);
 }
 
+/**
+ * \brief Updates all buffers containing modified buffer data
+ * \sa SCE_CModifiedBufferData(), SCE_CUpdateBuffer()
+ */
+void SCE_CUpdateModifiedBuffers (void)
+{
+    SCE_SListIterator *it;
+    SCE_List_ForEach (it, &modified)
+        SCE_CUpdateBuffer (SCE_List_GetData (it));
+    SCE_List_Flush (&modified);
+}
+
+/**
+ * \brief Sets up a buffer as activated
+ */
 void SCE_CUseBuffer (SCE_CBuffer *buf)
 {
     glBindBuffer (buf->target, buf->id);
