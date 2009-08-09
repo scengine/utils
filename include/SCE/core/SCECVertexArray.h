@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 02/08/2009 */
+   updated: 09/08/2009 */
 
 #ifndef SCECVERTEXARRAY_H
 #define SCECVERTEXARRAY_H
@@ -101,7 +101,6 @@ typedef struct sce_cvertexarray SCE_CVertexArray;
  * \brief A vertex array
  */
 struct sce_cvertexarray {
-    SCEuint id;                 /**< Vertex array object identifier */
     SCE_FSetVA set, unset;      /**< Functions to set/unset the vertex array */
     SCE_CVertexArrayData data;
     SCE_SListIterator it, it2;  /**< Own iterators */
@@ -114,6 +113,15 @@ typedef struct sce_cindexarray SCE_CIndexArray;
 struct sce_cindexarray {
     SCEenum type;
     void *data;
+};
+
+/** \copydoc sce_cvertexarraysequence */
+typedef struct sce_cvertexarraysequence SCE_CVertexArraySequence;
+/**
+ * \brief Vertex array setup sequence using GL vertex array objects
+ */
+struct sce_cvertexarraysequence {
+    GLint id;                   /**< Teh GL ID */
 };
 
 /** @} */
@@ -134,16 +142,14 @@ void SCE_CInitIndexArray (SCE_CIndexArray*);
 SCE_CIndexArray* SCE_CCreateIndexArray (void);
 void SCE_CDeleteIndexArray (SCE_CIndexArray*);
 
-SCE_SListIterator SCE_CGetVertexArrayIterator (SCE_CVertexArray*);
+void SCE_CInitVertexArraySequence (SCE_CVertexArraySequence*);
+
+SCE_SListIterator* SCE_CGetVertexArrayIterator (SCE_CVertexArray*);
 
 SCE_CVertexArrayData* SCE_CGetVertexArrayData (SCE_CVertexArray*);
 void SCE_CSetVertexArrayData (SCE_CVertexArray*, SCE_CVertexArrayData*);
 void SCE_CSetVertexArrayNewData (SCE_CVertexArray*, SCE_CVertexAttributeType,
                                  SCEenum, SCEsizei, SCEint, void*);
-
-void SCE_CBeginVertexArraySequence (SCE_CVertexArray*);
-void SCE_CCallVertexArraySequence (SCE_CVertexArray*);
-void SCE_CEndVertexArraySequence (void);
 
 void SCE_CUseVertexArray (SCE_CVertexArray*);
 void SCE_CRender (SCE_CPrimitiveType, SCEuint);
@@ -152,6 +158,11 @@ void SCE_CRenderIndexed (SCE_CPrimitiveType, SCE_CIndexArray*, SCEuint);
 void SCE_CRenderIndexedInstanced (SCE_CPrimitiveType, SCE_CIndexArray*,
                                   SCEuint, SCEuint);
 void SCE_CFinishVertexArrayRender (void);
+
+/* bonus API for GL VAO */
+void SCE_CBeginVertexArraySequence (SCE_CVertexArraySequence*);
+void SCE_CCallVertexArraySequence (SCE_CVertexArraySequence);
+void SCE_CEndVertexArraySequence (void);
 
 #ifdef __cplusplus
 } /* extern "C" */

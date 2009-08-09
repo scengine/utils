@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 02/08/2009 */
+   updated: 09/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -134,7 +134,6 @@ static void SCE_CUnsetVAAtt (SCE_CVertexArrayData *data)
  */
 void SCE_CInitVertexArray (SCE_CVertexArray *va)
 {
-    va->id = 0;
     va->set = SCE_CSetVAPos;
     va->unset = SCE_CUnsetVAPos;
     SCE_CInitVertexArrayData (&va->data);
@@ -203,6 +202,10 @@ void SCE_CDeleteIndexArray (SCE_CIndexArray *ia)
     }
 }
 
+void SCE_CInitVertexArraySequence (SCE_CVertexArraySequence *seq)
+{
+    seq->id = 0;
+}
 
 /**
  * \brief Gets the public iterator of a vertex array
@@ -276,37 +279,6 @@ void SCE_CSetVertexArrayNewData (SCE_CVertexArray *va,
     SCE_CSetVertexArrayData (va, &data);
 }
 
-
-/**
- * \brief Mark the beginning of a vertex array setup sequence using the
- * OpenGL Vertex Array Objects
- * \sa SCE_CEndVertexArraySequence(), SCE_CCallVertexArraySequence()
- */
-void SCE_CBeginVertexArraySequence (SCE_CVertexArray *va)
-{
-    if (va->id != 0)
-        glDeleteArrays (1, &va->id); /* reset and create new */
-    glGenVertexArrays (1, &va->id);
-    glBindVertexArray (va->id);
-}
-/**
- * \brief Calls the registered sequence of the given vertex array
- * \sa SCE_CBeginVertexArraySequence(), SCE_CEndVertexArraySequence()
- */
-void SCE_CCallVertexArraySequence (SCE_CVertexArray *va)
-{
-    glBindVertexArray (va->id);
-    vao_used = SCE_TRUE;
-}
-/**
- * \brief Ends a setup sequence or a call
- * \sa SCE_CBeginVertexArraySequence(), SCE_CCallVertexArraySequence()
- */
-void SCE_CEndVertexArraySequence (void)
-{
-    glBindVertexArray (0);
-}
-
 /**
  * \brief GL calls to make the given vertex array active for the render
  */
@@ -352,6 +324,38 @@ void SCE_CFinishVertexArrayRender (void)
         va->unset (&va->data);
     }
     SCE_List_Flush (&vaused);
+}
+
+
+/* bonus API */
+/**
+ * \brief Mark the beginning of a vertex array setup sequence using the
+ * OpenGL Vertex Array Objects
+ * \sa SCE_CEndVertexArraySequence(), SCE_CCallVertexArraySequence()
+ */
+void SCE_CBeginVertexArraySequence (SCE_CVertexArraySequence *seq)
+{
+    if (seq->id != 0)
+        glDeleteArrays (1, &seq->id); /* reset and create new */
+    glGenVertexArrays (1, &seq->id);
+    glBindVertexArray (seq->id);
+}
+/**
+ * \brief Calls the given sequence
+ * \sa SCE_CBeginVertexArraySequence(), SCE_CEndVertexArraySequence()
+ */
+void SCE_CCallVertexArraySequence (SCE_CVertexArraySequence seq)
+{
+    glBindVertexArray (seq.id);
+    vao_used = SCE_TRUE;
+}
+/**
+ * \brief Ends a sequence setup or a sequence call
+ * \sa SCE_CBeginVertexArraySequence(), SCE_CCallVertexArraySequence()
+ */
+void SCE_CEndVertexArraySequence (void)
+{
+    glBindVertexArray (0);
 }
 
 /** @} */
