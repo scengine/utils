@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 01/08/2009 */
+   updated: 11/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -31,7 +31,9 @@ static SCE_CIndexBuffer *ib_bound = NULL;
 void SCE_CInitVertexBufferData (SCE_CVertexBufferData *data)
 {
     SCE_CInitBufferData (&data->data);
-    SCE_CInitVertexArray (&data->va);
+    SCE_CInitVertexArraySequence (&data->seq);
+    SCE_List_Init (&data->arrays);
+    data->stride = 0;
     SCE_List_InitIt (&data->it);
     SCE_List_SetData (&data->it, data);
     data->vb = NULL;
@@ -48,7 +50,7 @@ SCE_CVertexBufferData* SCE_CCreateVertexBufferData (void)
 void SCE_CClearVertexBufferData (SCE_CVertexBufferData *data)
 {
     SCE_CRemoveVertexBufferData (data);
-    SCE_CClearVertexArray (&data->va);
+    SCE_List_Clear (&data->arrays);
     SCE_CClearBufferData (&data->data);
 }
 void SCE_CDeleteVertexBufferData (SCE_CVertexBufferData *data)
@@ -66,6 +68,7 @@ static void SCE_CFreeVertexBufferData (void *vbd)
 }
 void SCE_CInitVertexBuffer (SCE_CVertexBuffer *vb)
 {
+    SCE_CInitVertexArraySequence (&vb->seq);
     SCE_CInitBuffer (&vb->buf);
     SCE_List_Init (&vb->data);
     SCE_List_SetFreeFunc (&vb->data, SCE_CFreeVertexBufferData);
@@ -134,13 +137,23 @@ void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer *ib)
  * calling SCE_CSetVertexArrayData().
  * \sa SCE_CSetVertexArrayData(), SCE_CAddVertexBufferData
  */
-void SCE_CSetVertexBufferDataArrayData (SCE_CVertexBufferData *vbd,
-                                        SCE_CVertexArrayData *data,
-                                        unsigned int n_vertices)
+void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData *vbd,
+                                    SCE_CVertexArray *va,
+                                    size_t n_vertices)
 {
-    vbd->data.data = data->data;
-    vbd->data.size = SCE_CSizeof (data->type) * data->size * n_vertices;
-    SCE_CSetVertexArrayData (&vbd->va, data);
+    SCE_CVertexArrayData *data;
+    SCE_List_Appendl (&vbd->arrays, SCE_CGetVertexArrayIterator (va));
+    /* get main pointer of the interleaved array */
+    data = SCE_CGetVertexArrayData (va)->data;
+    if (!vbd->data.data)
+        vbd->data.data = data->data;
+    else {
+        vbd->data.data = (data->data < vbd->data.data ?
+                          data->data : vbd->data.data);
+    }
+    vbd->stride += SCE_CSizeof (data->type) * data->size;
+    vbd->data.size += SCE_CSizeof (data->type) * data->size * n_vertices;
+    vbd->vb->n_vertices = n_vertices;
 }
 /**
  * \brief Set modified vertices range
@@ -154,20 +167,21 @@ void SCE_CModifiedVertexBufferData (SCE_CVertexBufferData *vbd, size_t *range)
     if (!range)
         SCE_CModifiedBufferData (&vbd->data, NULL);
     else {
+        /* consider all arrays */
         size_t r[2];
-        SCE_CVertexArrayData *d = SCE_CGetVertexArrayData (&vbd->va);
-        r[0] = r[1] = d->size * SCE_CSizeof (d->type);
-        r[0] *= range[0];
-        r[1] *= range[1];
+        r[0] = range[0] * vbd->stride;
+        r[1] = range[1] * vbd->stride;
         SCE_CModifiedBufferData (&vbd->data, r);
     }
 }
+#if 0
 /**
  * \brief Enables the given vertex buffer data for the render
  * \sa SCE_CSetVertexBufferRenderMode()
  */
 void SCE_CEnableVertexBufferData (SCE_CVertexBufferData *vbd)
 {
+    SCE_List_Remove (&vbd->it);
     SCE_List_Appendl (&vbd->vb->data, &vbd->it);
 }
 /**
@@ -176,8 +190,9 @@ void SCE_CEnableVertexBufferData (SCE_CVertexBufferData *vbd)
  */
 void SCE_CDisableVertexBufferData (SCE_CVertexBufferData *vbd)
 {
-    SCE_List_Removel (&vbd->it);
+    SCE_List_Remove (&vbd->it);
 }
+#endif
 
 
 /**
@@ -201,77 +216,26 @@ void SCE_CAddVertexBufferData (SCE_CVertexBuffer *vb, SCE_CVertexBufferData *d)
     d->vb = vb;
 }
 /**
- * \deprecated
- * \todo useless, unlogical: better to manage a CVertexBufferData structure
- * at this level, and use
- * \brief Adds a new vertex buffer data from vertex array data
- * \param data vertex buffer data will be build around these data
- * \param n_vertices number of vertices in \p data
- *
- * Deprecated function, better to use SCE_CAddVertexBufferData() and
- * SCE_CSetVertexBufferDataArrayData().
- * \sa SCE_CSetVertexBufferDataArrayData(), SCE_CAddVertexBufferData()
- */
-SCE_CVertexBufferData* SCE_CAddVertexBufferArrayData(SCE_CVertexBuffer *vb,
-                                                     SCE_CVertexArrayData *data,
-                                                     unsigned int n_vertices)
-{
-    SCE_CVertexBufferData *vbd = NULL;
-    if (!(vbd = SCE_CCreateVertexBufferData ()))
-        SCEE_LogSrc ();
-    else {
-        SCE_CSetVertexBufferDataArrayData (vbd, data, n_vertices);
-        SCE_CAddVertexBufferData (vb, vbd);
-#ifdef SCE_DEBUG
-        if (vb->n_vertices != 0 && vb->n_vertices != n_vertices) {
-            SCEE_SendMsg ("number of given vertices differs from VB's number");
-        }
-#endif
-        vb->n_vertices = n_vertices;
-    }
-    return vbd;
-}
-/**
- * \deprecated
- * \todo remove it
- * \brief Adds a new vertex array data built from the given arguments
- * \param attrib,type,size,p used to construct the vertex array data
- * Deprecated function, better to use SCE_CAddVertexBufferData() and
- * SCE_CSetVertexBufferDataArrayData().
- * \sa SCE_CSetVertexBufferDataArrayData(), SCE_CAddVertexBufferData()
- */
-SCE_CVertexBufferData* SCE_CAddVertexBufferNewData (SCE_CVertexBuffer *vb,
-                                                    unsigned int attrib,
-                                                    SCEenum type, int size,
-                                                    unsigned int n_vertices,
-                                                    void *p)
-{
-    SCE_CVertexBufferData *data = NULL;
-    SCE_CVertexArrayData array;
-    array.attrib = attrib;
-    array.type = type;
-    array.size = size;
-    array.data = p;
-    if (!(data = SCE_CAddVertexBufferArrayData (vb, &array, n_vertices)))
-        SCEE_LogSrc ();
-    return data;
-}
-/**
  * \brief Removes a vertex buffer data from its buffer
  * \sa SCE_CAddVertexBufferData(), SCE_CClearVertexBufferData()
  */
 void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData *data)
 {
-    SCE_List_Remove (&data->it);
-    data->vb = NULL;
+    if (data->vb) {
+        SCE_CRemoveBufferData (&data->data);
+        SCE_List_Removel (&data->it);
+        data->vb = NULL;
+    }
 }
 
 static void SCE_CUseVAMode (SCE_CVertexBuffer *vb)
 {
     SCE_SListIterator *it = NULL;
     SCE_List_ForEach (it, &vb->data) {
+        SCE_SListIterator *it2;
         SCE_CVertexBufferData *data = SCE_List_GetData (it);
-        SCE_CUseVertexArray (&data->va);
+        SCE_List_ForEach (it2, &data->arrays)
+            SCE_CUseVertexArray (SCE_List_GetData (it2));
     }
 }
 static void SCE_CUseVBOMode (SCE_CVertexBuffer *vb)
@@ -279,32 +243,25 @@ static void SCE_CUseVBOMode (SCE_CVertexBuffer *vb)
     SCE_SListIterator *it = NULL;
     glBindBuffer (GL_ARRAY_BUFFER, vb->buf.id);
     SCE_List_ForEach (it, &vb->data) {
+        SCE_SListIterator *it2;
         SCE_CVertexBufferData *data = SCE_List_GetData (it);
-        SCE_CUseVertexArray (&data->va);
+        SCE_List_ForEach (it2, &data->arrays)
+            SCE_CUseVertexArray (SCE_List_GetData (it2));
     }
 }
+/* TODO: deprecated too... ? */
 static void SCE_CUseVAOMode (SCE_CVertexBuffer *vb)
 {
     SCE_SListIterator *it = NULL;
     glBindBuffer (GL_ARRAY_BUFFER, vb->buf.id);
     SCE_List_ForEach (it, &vb->data) {
         SCE_CVertexBufferData *data = SCE_List_GetData (it);
-        SCE_CCallVertexArraySequence (&data->va);
+        SCE_CCallVertexArraySequence (data->seq);
     }
 }
 static void SCE_CUseUnifiedVAOMode (SCE_CVertexBuffer *vb)
 {
-    /* the first vertex array contains the GL VAO sequence */
-    SCE_CVertexBufferData *data = NULL;
-    data = SCE_List_GetData (SCE_List_GetFirst (&vb->data));
-    SCE_CCallVertexArraySequence (&data->va);
-}
-static void SCE_CUseUnifiedVBOMode (SCE_CVertexBuffer *vb)
-{
-    /* the first vertex array contains the GL VAO sequence */
-    SCE_CVertexBufferData *data = NULL;
-    data = SCE_List_GetData (SCE_List_GetFirst (&vb->data));
-    SCE_CCallVertexArraySequence (&data->va);
+    SCE_CCallVertexArraySequence (vb->seq);
 }
 /**
  * \brief Builds a vertex buffer
@@ -324,30 +281,27 @@ void SCE_CBuildVertexBuffer (SCE_CVertexBuffer *vb, SCE_CBufferUsage usage,
     SCE_CVertexBufferData *data = NULL;
 
     vb->rmode = mode;
+    if (usage == SCE_BUFFER_DEFAULT_USAGE)
+        usage = SCE_BUFFER_STREAM_DRAW;
     if (mode >= SCE_VBO_RENDER_MODE)
         SCE_CBuildBuffer (&vb->buf, GL_ARRAY_BUFFER, usage);
 
     SCE_CSetVertexBufferRenderMode (vb, mode);
     if (mode == SCE_VAO_RENDER_MODE) {
         SCE_SListIterator *it = NULL;
-        /* create one VAO for each vertex array in the vertex buffer */
+        /* create one VAO for each vertex buffer data in the vertex buffer */
         SCE_List_ForEach (it, &vb->data) {
+            SCE_SListIterator *it2;
             data = SCE_List_GetData (it);
-            SCE_CBeginVertexArraySequence (&data->va);
-            SCE_CUseVertexArray (&data->va);
+            SCE_CBeginVertexArraySequence (&data->seq);
+            SCE_List_ForEach (it2, &data->arrays)
+                SCE_CUseVertexArray (SCE_List_GetData (it2));
             SCE_CEndVertexArraySequence ();
         }
     } else if (mode == SCE_UNIFIED_VAO_RENDER_MODE) {
-        /* use the first vertex array as the VAO container */
-        data = SCE_List_GetData (SCE_List_GetFirst (&vb->data));
-        SCE_CBeginVertexArraySequence (&data->va);
+        SCE_CBeginVertexArraySequence (&vb->seq);
         SCE_CUseVBOMode (vb);
         SCE_CEndVertexArraySequence ();
-    } else if (mode == SCE_UNIFIED_VBO_RENDER_MODE) {
-        /* use the first vertex array as the VAO container */
-        data = SCE_List_GetData (SCE_List_GetFirst (&vb->data));
-        SCE_CBeginVertexArraySequence (&data->va);
-        SCE_CUseVBOMode (vb);
     }
 }
 
@@ -367,12 +321,20 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer *vb,
 
     switch (mode) {
     case SCE_VA_RENDER_MODE:
-        vb->use = SCE_CUseVAMode;
+        fun = SCE_CUseVAMode;
         SCE_List_ForEach (it, &vb->data) {
-            SCE_CVertexArrayData *data = NULL;
+            SCE_SListIterator *it2;
             SCE_CVertexBufferData *vbd = SCE_List_GetData (it);
-            data = SCE_CGetVertexArrayData (&vbd->va);
-            data->data = vbd->data.data;
+            SCE_List_ForEach (it2, &vbd->arrays) {
+                SCE_CVertexArrayData *data;
+                data = SCE_CGetVertexArrayData (SCE_List_GetData (it2));
+#if 1
+                data->data = &((char*)vbd->data.data)[(size_t)data->data];
+#else
+                /* TODO: WTF?? */
+                data->data = (char*)vbd->data.data + (char*)data->data;
+#endif
+            }
         }
         break;
     case SCE_VBO_RENDER_MODE:
@@ -383,14 +345,17 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer *vb,
     case SCE_UNIFIED_VAO_RENDER_MODE:
         if (!fun)
             fun = SCE_CUseUnifiedVAOMode;
-    case SCE_UNIFIED_VBO_RENDER_MODE:
-        if (!fun)
-            fun = SCE_CUseUnifiedVBOMode;
         SCE_List_ForEach (it, &vb->data) {
+            SCE_SListIterator *it2;
             SCE_CVertexArrayData *data = NULL;
             SCE_CVertexBufferData *vbd = SCE_List_GetData (it);
-            data = SCE_CGetVertexArrayData (&vbd->va);
-            data->data = SCE_BUFFER_OFFSET (vbd->data.first);
+            SCE_List_ForEach (it2, &vbd->arrays) {
+                data = SCE_CGetVertexArrayData (SCE_List_GetData (it2));
+                data->data = SCE_BUFFER_OFFSET (vbd->data.first
+                                                + (char*)data->data
+                                                - (char*)vbd->data.data);
+                data->stride = vbd->stride;
+            }
         }
         break;
     default:
@@ -513,7 +478,7 @@ void SCE_CRenderVertexBufferIndexedInstanced (SCEenum prim, SCEuint num)
 /**
  * \brief Deactivate rendering states setup by SCE_CUseVertexBuffer() and
  * SCE_CUseIndexBuffer()
- * \note Useless in a pure GL 3 context
+ * \note Useless in a pure GL 3 context.. and for Unbind index buffer?
  */
 void SCE_CFinishVertexBufferRender (void)
 {
@@ -524,7 +489,7 @@ void SCE_CFinishVertexBufferRender (void)
         /* otherwise there is no vertex buffer object or the VAO already
            deactivated the vertex buffer */
     }
-    if (ib_bound) /* if NULL, no index buffer or included in the VAO */
+    if (ib_bound) /* if NULL, no index buffer */
         glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
     ib_bound = NULL;
     vb_bound = NULL;

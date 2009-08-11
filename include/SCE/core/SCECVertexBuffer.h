@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 02/08/2009 */
+   updated: 11/08/2009 */
 
 #ifndef SCECVERTEXBUFFER_H
 #define SCECVERTEXBUFFER_H
@@ -50,10 +50,6 @@ enum sce_cbufferrendermode {
                                  * of the vertex buffer (see
                                  * SCE_CEnableVertexBufferData()) but improves
                                  * performances when rendering it. */
-    /* TODO: not really needed and add code design complexity (and hacks) */
-    /** \deprecated */
-    SCE_UNIFIED_VBO_RENDER_MODE /**< Use one single vertex array object for
-                                 * for many vertex buffers. */
 };
 /** \copydoc sce_cbufferrendermode */
 typedef enum sce_cbufferrendermode SCE_CBufferRenderMode;
@@ -68,7 +64,9 @@ typedef struct sce_cvertexbufferdata SCE_CVertexBufferData;
  */
 struct sce_cvertexbufferdata {
     SCE_CBufferData data;       /**< Buffer data */
-    SCE_CVertexArray va;        /**< Vertex array */
+    SCE_CVertexArraySequence seq; /**< Global setup sequence (VAO) */
+    SCE_SList arrays;           /**< Vertex arrays (many means interleaved) */
+    size_t stride;              /**< Final stride */
     SCE_SListIterator it;       /**< Used to store the structure into a vertex
                                  * buffer */
     SCE_CVertexBuffer *vb;      /**< The vertex buffer using this structure */
@@ -79,6 +77,7 @@ typedef void (*SCE_FUseVBFunc)(SCE_CVertexBuffer*);
  * \brief A vertex buffer
  */
 struct sce_cvertexbuffer {
+    SCE_CVertexArraySequence seq; /**< Global setup sequence (VAO) */
     SCE_CBuffer buf;            /**< Core buffer */
     SCE_SList data;             /**< CVertexBufferData, memory managed by the
                                  * vertex buffer */
@@ -115,21 +114,18 @@ SCE_CIndexBuffer* SCE_CCreateIndexBuffer (void);
 void SCE_CClearIndexBuffer (SCE_CIndexBuffer*);
 void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer*);
 
-void SCE_CSetVertexBufferDataArrayData (SCE_CVertexBufferData*,
-                                        SCE_CVertexArrayData*, unsigned int);
+void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData*,
+                                    SCE_CVertexArray*, size_t);
+SCE_CVertexArray* SCE_CAddVertexBufferDataNewArray (SCE_CVertexBufferData*,
+                                                    SCE_CVertexArrayData*);
 void SCE_CModifiedVertexBufferData (SCE_CVertexBufferData*, size_t*);
+#if 0
 void SCE_CEnableVertexBufferData (SCE_CVertexBufferData*);
 void SCE_CDisableVertexBufferData (SCE_CVertexBufferData*);
+#endif
 
 SCE_CBuffer* SCE_CGetVertexBufferBuffer (SCE_CVertexBuffer*);
-SCE_CVertexBufferData* SCE_CAddVertexBufferArrayData (SCE_CVertexBuffer*,
-                                                      SCE_CVertexArrayData*,
-                                                      unsigned int)
-    SCE_GNUC_DEPRECATED;
-SCE_CVertexBufferData* SCE_CAddVertexBufferNewData (SCE_CVertexBuffer*,
-                                                    unsigned int, SCEenum, int,
-                                                    unsigned int, void*)
-    SCE_GNUC_DEPRECATED;
+void SCE_CAddVertexBufferData (SCE_CVertexBuffer*, SCE_CVertexBufferData*);
 void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData*);
 
 void SCE_CBuildVertexBuffer (SCE_CVertexBuffer*, SCE_CBufferUsage,
