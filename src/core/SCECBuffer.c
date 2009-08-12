@@ -124,6 +124,7 @@ void SCE_CClearBuffer (SCE_CBuffer *buf)
     buf->id = 0;
     SCE_List_Clear (&buf->modified);
     SCE_List_Clear (&buf->data);
+    SCE_List_Remove (&buf->it);
 }
 void SCE_CDeleteBuffer (SCE_CBuffer *buf)
 {
@@ -133,17 +134,43 @@ void SCE_CDeleteBuffer (SCE_CBuffer *buf)
     }
 }
 
+
+/* prout */
 static void SCE_CResetBufferRange (SCE_CBuffer *buf)
 {
     buf->range[0] = buf->size;
     buf->range[1] = 0;
 }
-static void SCE_CUpdateBufferRange (SCE_CBuffer *buf, SCE_CBufferData *data)
+/* only used into CModifiedBuffer() */
+static void SCE_CUpdateBufferRange (SCE_CBuffer *buf, const size_t *range)
 {
     /* offset from the main buffer */
-    size_t offset = data->range[0] + data->first;
+    size_t offset = range[0];
     buf->range[0] = min (buf->range[0], offset);
-    buf->range[1] = max (buf->range[1], offset + data->range[1]);
+    buf->range[1] = max (buf->range[1], offset + range[1]);
+}
+/**
+ * \brief Sets the modified range of an entire buffer, useful for index buffers
+ */
+void SCE_CModifiedBuffer (SCE_CBuffer *buf, const size_t *range)
+{
+    size_t r[2];
+    if (!range) {
+        r[0] = 0;
+        r[1] = buf->size;
+        range = r;
+    }
+    SCE_CUpdateBufferRange (buf, range);
+}
+/**
+ * \brief Mark a buffer as unmodified: will not be updated by
+ * SCE_CUpdateModifiedBuffers()
+ * \sa SCE_CModifiedBuffer(), SCE_CModifiedBufferData()
+ */
+void SCE_CUnmodifiedBuffer (SCE_CBuffer *buf)
+{
+    SCE_CResetBufferRange (buf);
+    SCE_List_Remove (&buf->it);
 }
 /**
  * \brief Defines a buffer data as modified
@@ -151,7 +178,7 @@ static void SCE_CUpdateBufferRange (SCE_CBuffer *buf, SCE_CBufferData *data)
  * \sa SCE_CUpdateModifiedBuffers(), SCE_CUpdateBuffer(),
  * SCE_CUnmodifiedBufferData()
  */
-void SCE_CModifiedBufferData (SCE_CBufferData *data, size_t *range)
+void SCE_CModifiedBufferData (SCE_CBufferData *data, const size_t *range)
 {
     SCE_List_Removel (&data->it);
     SCE_List_Appendl (&data->buf->modified, &data->it);
@@ -168,7 +195,12 @@ void SCE_CModifiedBufferData (SCE_CBufferData *data, size_t *range)
         data->range[0] = 0;
         data->range[1] = data->size;
     }
-    SCE_CUpdateBufferRange (data->buf, data);
+    {
+        size_t r[2];
+        r[0] = data->range[0] + data->first;
+        r[1] = data->range[1];
+        SCE_CModifiedBuffer (data->buf, r);
+    }
     data->modified = SCE_TRUE;
     /* add the buffer to the modified buffers list */
     SCE_List_Remove (&data->buf->it);
@@ -247,11 +279,44 @@ void SCE_CBuildBuffer (SCE_CBuffer *buf, SCEenum target, SCE_CBufferUsage usage)
     SCE_CResetBufferRange (buf);
 }
 
+#if 0
+void* SCE_CLockBufferClassic (SCE_CBuffer *buf, size_t *range,
+                              SCE_CLockBufferFlags flags)
+{
+    SCEenum mode;
+    if (flags & SCE_BUFFER_WRITE_LOCK && flags & SCE_BUFFER_READ_LOCK)
+        mode = GL_READ_WRITE;
+    else if (flags & SCE_BUFFER_WRITE_LOCK)
+        mode = GL_WRITE_ONLY;
+    else if (flags & SCE_BUFFER_READ_LOCK)
+        mode = GL_READ_ONLY;
+    glBindBuffer (buf->target, buf->id);
+    glMapBuffer (buf->target, mode);
+}
+void* SCE_CLockBufferRange (SCE_CBuffer *buf, size_t *range,
+                            SCE_CLockBufferFlags flags)
+{
+    SCEbitfield mode = 0;
+    if (flags & SCE_BUFFER_WRITE_LOCK)
+        mode |= GL_MAP_WRITE_BIT;
+    if (flags & SCE_BUFFER_READ_LOCK)
+        mode |= GL_MAP_READ_BIT;
+    glBindBuffer (buf->target, buf->id);
+    glMapBuffer (buf->target, mode);
+}
+void SCE_CUnlockBuffer (SCE_CBuffer *buf)
+{
+    glBindBuffer (buf->target, buf->id);
+    glUnmapBuffer (buf->target);
+}
+#endif
+
 static void SCE_CUpdateBufferMapClassic (SCE_CBuffer *buf)
 {
     void *ptr = NULL;
     SCE_SListIterator *pro = NULL, *it = NULL;
     SCEenum target = buf->target;
+    /* TODO: do it all in one? */
     glBindBuffer (target, buf->id);
     ptr = glMapBuffer (target, GL_WRITE_ONLY);
 #ifdef SCE_DEBUG
@@ -279,6 +344,7 @@ static void SCE_CUpdateBufferMapRange (SCE_CBuffer *buf)
     void *ptr = NULL;
     SCE_SListIterator *pro = NULL, *it = NULL;
     SCEenum target = buf->target;
+    /* TODO: do it all in one? */
     glBindBuffer (target, buf->id);
     ptr = glMapBufferRange (target, buf->range[0], buf->range[1],
                             GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);

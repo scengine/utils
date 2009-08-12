@@ -38,6 +38,7 @@ extern "C" {
  * \brief Usage modes for a buffer
  */
 enum sce_cbufferusage {
+    SCE_BUFFER_DEFAULT_USAGE = 0, /* hope that GL enums are non-zero */
     SCE_BUFFER_STREAM_DRAW = GL_STREAM_DRAW,
     SCE_BUFFER_STREAM_READ = GL_STREAM_READ,
     SCE_BUFFER_STREAM_COPY = GL_STREAM_COPY,
@@ -103,7 +104,9 @@ SCE_CBuffer* SCE_CCreateBuffer (void);
 void SCE_CClearBuffer (SCE_CBuffer*);
 void SCE_CDeleteBuffer (SCE_CBuffer*);
 
-void SCE_CModifiedBufferData (SCE_CBufferData*, size_t*);
+void SCE_CModifiedBuffer (SCE_CBuffer*, const size_t*);
+void SCE_CUnmodifiedBuffer (SCE_CBuffer*);
+void SCE_CModifiedBufferData (SCE_CBufferData*, const size_t*);
 void SCE_CUnmodifiedBufferData (SCE_CBufferData*);
 
 void SCE_CAddBufferData (SCE_CBuffer*, SCE_CBufferData*);
