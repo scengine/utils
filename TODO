@@ -64,8 +64,8 @@ See the file ./doc/html/todo.html
       - quel mode d'instancing est utilisé ;
       - quelles textures représentent quelles données ;
       - informations de scène, etc.
-- Paramétrage des entités par le gestionnaire de scènes (doit-on utiliser les
-  textures pour ce rendu ? etc.).
+- Paramétrage global des entités par le gestionnaire de scènes (doit-on
+  utiliser les textures pour ce rendu ? etc.).
 - Improve MulCopy() functions: DONT duplicate all the matrix.
 - Modifier les attributs d'un octree peu visible après une requête d'occlusion.
 - Matrix_Mask() : applique un masque (multiplie chaque élément).
@@ -73,8 +73,6 @@ See the file ./doc/html/todo.html
 - VAO (OpenGL 3.1) (need tests).
 - SCE_SSceneEntityInstanceGroup : groupe d'instances situées impérativement dans
   le même bounding volume.
-- Ajouter un module de gestion de la géométrie (SCEGeometry) au lieu de tout
-  fourrer dans SCEMesh (en cours).
 - Paramètres de ressources lors de l'utilisation : recharger la ressource de
   type SCE_SShader lorsque les paramètres à fourguer sont différents, mais
   instancier quand même le SCE_CShader.
@@ -82,13 +80,19 @@ See the file ./doc/html/todo.html
 - Renommer SCEGeometryInstance en SCEInstancing.
 - Add documentation for SCECBuffer.
 - Stream based system for mesh manager.
-- Create SCEBoxGeometry module and use it in SCESkybox.
-- Move old SCEMesh functions to SCEGeometry.
-- Update SCEAnimatedGeometry.
+- Move old SCEMesh functions to SCEGeometry (work in progress).
 - Use enum for GL tokens in appropriated file.
 - Texture buffers.
 - Uniform buffers.
+- Pixel buffers (video).
 - GetMappedAddress (buffer, data, range).
-- Manage modified vertices range in skeletal animation.
+- Manage modified vertices range in skeletal animation:
+    create range-specific skeletons.
+- Setup interleaved arrays (stride come back) in:
+  - vertex arrays;
+  - vertex buffers;
+  - geometry;
+  - animated geometry.
+- Transform feedback.
 
 - 51
