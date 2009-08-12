@@ -160,9 +160,11 @@ void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData *vbd,
  * \param range range of modified vertices, [0] is the first modified vertex
  * and [1] the number of modified vertices, if NULL the whole buffer data will
  * be updated.
+ * \note the vertex buffer of \p vbd must be built before calling this function
  * \sa SCE_CModifiedBufferData()
  */
-void SCE_CModifiedVertexBufferData (SCE_CVertexBufferData *vbd, size_t *range)
+void SCE_CModifiedVertexBufferData (SCE_CVertexBufferData *vbd,
+                                    const size_t *range)
 {
     if (!range)
         SCE_CModifiedBufferData (&vbd->data, NULL);
@@ -368,8 +370,10 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer *vb,
 }
 
 /**
+ * \deprecated
  * \brief Calls SCE_CUpdateBuffer() under the buffer of the given vertex buffer
  * \sa SCE_CUpdateBuffer()
+ * \todo what the use of such a function?
  */
 void SCE_CUpdateVertexBuffer (SCE_CVertexBuffer *vb)
 {
@@ -402,6 +406,23 @@ void SCE_CRenderVertexBufferInstanced (SCEenum prim, SCEuint num)
 }
 
 
+/**
+ * \brief Sets the modified range of an index buffer
+ * \param range range of modified indices
+ * \sa SCE_CModifiedVertexBufferData(), SCE_CModifiedBuffer()
+ */
+void SCE_CModifiedIndexBuffer (SCE_CIndexBuffer *ib, const size_t *range)
+{
+    if (!range)
+        SCE_CModifiedBuffer (&ib->buf, NULL);
+    else {
+        size_t r[2];
+        size_t size = SCE_CSizeof (ib->ia.type);
+        r[0] = range[0] * size;
+        r[1] = range[1] * size;
+        SCE_CModifiedBuffer (&ib->buf, r);
+    }
+}
 /**
  * \brief Gets the core buffer of an index buffer
  */
@@ -447,6 +468,8 @@ void SCE_CSetIndexBufferIndices (SCE_CIndexBuffer *ib, SCEenum type,
  */
 void SCE_CBuildIndexBuffer (SCE_CIndexBuffer *ib, SCE_CBufferUsage usage)
 {
+    if (usage == SCE_BUFFER_DEFAULT_USAGE)
+        usage = SCE_BUFFER_STATIC_DRAW;
     SCE_CBuildBuffer (&ib->buf, GL_ELEMENT_ARRAY_BUFFER, usage);
 }
 

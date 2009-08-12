@@ -118,7 +118,7 @@ void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData*,
                                     SCE_CVertexArray*, size_t);
 SCE_CVertexArray* SCE_CAddVertexBufferDataNewArray (SCE_CVertexBufferData*,
                                                     SCE_CVertexArrayData*);
-void SCE_CModifiedVertexBufferData (SCE_CVertexBufferData*, size_t*);
+void SCE_CModifiedVertexBufferData (SCE_CVertexBufferData*, const size_t*);
 #if 0
 void SCE_CEnableVertexBufferData (SCE_CVertexBufferData*);
 void SCE_CDisableVertexBufferData (SCE_CVertexBufferData*);
@@ -131,11 +131,12 @@ void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData*);
 void SCE_CBuildVertexBuffer (SCE_CVertexBuffer*, SCE_CBufferUsage,
                              SCE_CBufferRenderMode);
 void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer*, SCE_CBufferRenderMode);
-void SCE_CUpdateVertexBuffer (SCE_CVertexBuffer*);
+void SCE_CUpdateVertexBuffer (SCE_CVertexBuffer*) SCE_GNUC_DEPRECATED;
 void SCE_CUseVertexBuffer (SCE_CVertexBuffer*);
 void SCE_CRenderVertexBuffer (SCEenum);
 void SCE_CRenderVertexBufferInstanced (SCEenum, SCEuint);
 
+void SCE_CModifiedIndexBuffer (SCE_CIndexBuffer*, const size_t*);
 SCE_CBuffer* SCE_CGetIndexBufferBuffer (SCE_CIndexBuffer*);
 void SCE_CSetIndexBufferIndexArray (SCE_CIndexBuffer*, SCE_CIndexArray*,
                                     SCEuint);
