@@ -93,43 +93,11 @@ void SCE_Mesh_DeleteArray (SCE_SMeshArray *marray)
     }
 }
 
-#if 0
-void SCE_Mesh_InitBuffer (SCE_SMeshBuffer *mbuf)
-{
-    SCE_CInitVertexBuffer (&mbuf->vb);
-    SCE_List_InitIt (&mbuf->it);
-    SCE_List_SetData (&mbuf->it, mbuf);
-}
-SCE_SMeshBuffer* SCE_Mesh_CreateBuffer (void)
-{
-    SCE_SMeshBuffer *mbuf = NULL;
-    return mbuf;
-}
-static void SCE_Mesh_RemoveBuffer (SCE_SMeshBuffer*);
-void SCE_Mesh_ClearBuffer (SCE_SMeshBuffer *mbuf)
-{
-    SCE_CClearVertexBuffer (&mbuf->vb);
-    SCE_Mesh_RemoveBuffer (mbuf);
-}
-void SCE_Mesh_DeleteBuffer (SCE_SMeshBuffer *buf)
-{
-    if (buf) {
-        SCE_Mesh_ClearBuffer (buf);
-        SCE_free (buf);
-    }
-}
-#endif
 
 static void SCE_Mesh_FreeArray (void *marray)
 {
     SCE_Mesh_RemoveArray (marray);
 }
-#if 0
-static void SCE_Mesh_FreeBuffer (void *mbuf)
-{
-    SCE_Mesh_DeleteBuffer (mbuf);
-}
-#endif
 void SCE_Mesh_Init (SCE_SMesh *mesh)
 {
     size_t i;
@@ -138,16 +106,13 @@ void SCE_Mesh_Init (SCE_SMesh *mesh)
     mesh->prim = SCE_POINTS;    /* do not take any risk. */
     SCE_List_Init (&mesh->arrays);
     SCE_List_SetFreeFunc (&mesh->arrays, SCE_Mesh_FreeArray);
-#if 0
-    SCE_List_Init (&mesh->buffers);
-    SCE_List_SetFreeFunc (&mesh->buffers, SCE_Mesh_FreeBuffer);
-#endif
     for (i = 0; i < SCE_MESH_NUM_STREAMS; i++)
         SCE_CInitVertexBuffer (&mesh->streams[i]);
     SCE_CInitIndexBuffer (&mesh->ib);
     mesh->use_ib = SCE_FALSE;
+    SCE_Geometry_InitArrayUser (&mesh->index_auser);
     mesh->rmode = SCE_VA_RENDER_MODE;
-    mesh->bmode = 0;            /* TODO: will do. */
+    mesh->bmode = SCE_INDEPENDANT_VERTEX_BUFFER;
 }
 SCE_SMesh* SCE_Mesh_Create (void)
 {
@@ -281,6 +246,10 @@ static void SCE_Mesh_RemoveArray (SCE_SMeshArray *marray)
     SCE_List_Remove (&marray->it);
 }
 
+static void SCE_Mesh_UpdateIndexArrayCallback (void *ib, size_t *range)
+{
+    SCE_CUpdateIndexBuffer (ib, range);
+}
 /**
  * \brief Sets the geometry of a mesh
  * \sa SCE_Mesh_CreateFrom(), SCE_Mesh_Build(), SCE_SGeometry
@@ -291,6 +260,10 @@ int SCE_Mesh_SetGeometry (SCE_SMesh *mesh, SCE_SGeometry *geom, int canfree)
     SCE_SGeometryArray *index_array = NULL;
     SCE_SListIterator *it = NULL;
     SCE_SList *arrays = NULL;
+
+    /* TODO: adding the 'user' structures before build the vertex buffers
+       may update some invalid buffers if the geometry is updated and
+       SCE_CUpdateModifiedBuffers() called before SCE_Mesh_Build() */
 
     n_vertices = SCE_Geometry_GetNumVertices (geom);
     arrays = SCE_Geometry_GetArrays (geom);
@@ -319,6 +292,9 @@ int SCE_Mesh_SetGeometry (SCE_SMesh *mesh, SCE_SGeometry *geom, int canfree)
         SCE_CSetIndexBufferIndexIndexArray (&mesh->ib, ia,
                                             SCE_Geometry_GetNumIndices (geom));
         mesh->use_ib = SCE_TRUE;
+        SCE_Geometry_AddUser (index_array, &mesh->index_auser,
+                              SCE_Mesh_UpdateIndexArrayCallback, &mesh->ib);
+
     }
     mesh->prim = SCE_Geometry_GetPrimitiveType (geom);
     mesh->geom = geom;

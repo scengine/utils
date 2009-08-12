@@ -68,6 +68,7 @@ struct sce_smesh {
     int used_streams[SCE_MESH_NUM_STREAMS];
     SCE_CIndexBuffer ib;
     int use_ib;
+    SCE_SGeometryArrayUser index_auser;
     SCE_CBufferRenderMode rmode;/**< Render mode */
     SCE_EMeshBuildMode bmode;   /**< Build mode */
 };
@@ -79,12 +80,7 @@ void SCE_Mesh_InitArray (SCE_SMeshArray*);
 SCE_SMeshArray* SCE_Mesh_CreateArray (void);
 void SCE_Mesh_ClearArray (SCE_SMeshArray*);
 void SCE_Mesh_DeleteArray (SCE_SMeshArray*);
-#if 0
-void SCE_Mesh_InitStream (SCE_SMeshStream*);
-SCE_SMeshStream* SCE_Mesh_CreateStream (void);
-void SCE_Mesh_ClearStream (SCE_SMeshStream*);
-void SCE_Mesh_DeleteStream (SCE_SMeshStream*);
-#endif
+
 void SCE_Mesh_Init (SCE_SMesh*);
 SCE_SMesh* SCE_Mesh_Create (void);
 SCE_SMesh* SCE_Mesh_CreateFrom (SCE_SGeometry*);
