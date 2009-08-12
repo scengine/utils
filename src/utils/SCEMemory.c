@@ -482,10 +482,16 @@ void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
         GLint *i;
         GLfloat *f;
         GLdouble *d;
+        size_t *st;
     };
 
     size_t i;
     union SCE_UMemType tin, tout;
+
+    if (tdest == tsrc) {
+        memcpy (dest, src, n * SCE_CSizeof (tdest));
+        return;
+    }
 
 #define SCE_MEM_FOR(type, namedest, namesrc)\
     case type:\
@@ -506,6 +512,7 @@ void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
         SCE_MEM_FOR (SCE_INT,            i,  namesrc)\
         SCE_MEM_FOR (SCE_FLOAT,          f,  namesrc)\
         SCE_MEM_FOR (SCE_DOUBLE,         d,  namesrc)\
+        SCE_MEM_FOR (SCE_SIZE_T,         st, namesrc)\
         }\
         break;
 
@@ -518,6 +525,7 @@ void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
     SCE_MEM_SWITCH (SCE_INT,            i)
     SCE_MEM_SWITCH (SCE_FLOAT,          f)
     SCE_MEM_SWITCH (SCE_DOUBLE,         d)
+    SCE_MEM_SWITCH (SCE_SIZE_T,         st)
     }
 }
 
