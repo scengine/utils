@@ -63,7 +63,8 @@ enum sce_ctype {
     SCE_INT = GL_INT,
     SCE_UNSIGNED_INT = GL_UNSIGNED_INT,
     SCE_FLOAT = GL_FLOAT,
-    SCE_DOUBLE = GL_DOUBLE
+    SCE_DOUBLE = GL_DOUBLE,
+    SCE_SIZE_T
 };
 typedef enum sce_ctype SCE_CType;
 
