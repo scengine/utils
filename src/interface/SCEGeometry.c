@@ -17,10 +17,11 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 25/07/2009
-   updated: 01/08/2009 */
+   updated: 09/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/utils/SCEVector.h>
 #include <SCE/utils/SCEResource.h>
 #include <SCE/interface/SCEGeometry.h>
 
@@ -58,10 +59,15 @@ static void SCE_Geometry_FreeArrayUser (void *auser)
 }
 void SCE_Geometry_InitArray (SCE_SGeometryArray *array)
 {
-    SCE_CInitVertexArrayData (&array->data);
+    SCE_CInitVertexArray (&array->array);
+    array->root = array->child = NULL;
     array->canfree_data = SCE_FALSE;
     SCE_List_InitIt (&array->it);
     SCE_List_SetData (&array->it, array);
+#if 0
+    SCE_List_InitIt (&array->it2);
+    SCE_List_SetData (&array->it2, array);
+#endif
     SCE_List_Init (&array->users);
     SCE_List_SetFreeFunc (&array->users, SCE_Geometry_FreeArrayUser);
     array->range[0] = array->range[1] = 0;
@@ -78,14 +84,15 @@ SCE_SGeometryArray* SCE_Geometry_CreateArray (void)
     return array;
 }
 SCE_SGeometryArray*
-SCE_Geometry_CreateArrayFrom (SCE_CVertexAttributeType attrib, int type,
-                              int size, void *data, int canfree)
+SCE_Geometry_CreateArrayFrom (SCE_CVertexAttributeType attrib, SCE_CType type,
+                              size_t stride, int size, void *data, int canfree)
 {
     SCE_SGeometryArray *array = NULL;
     if (!(array = SCE_Geometry_CreateArray ()))
         SCEE_LogSrc ();
     else
-        SCE_Geometry_SetArrayData (array, attrib, type, size, data, canfree);
+        SCE_Geometry_SetArrayData (array, attrib, type, stride, size,
+                                   data, canfree);
     return array;
 }
 void SCE_Geometry_DeleteArray (SCE_SGeometryArray *array)
@@ -93,19 +100,24 @@ void SCE_Geometry_DeleteArray (SCE_SGeometryArray *array)
     if (array) {
         if (array->geom)
             SCE_List_Removel (&array->it);
-        if (array->canfree_data)
-            SCE_free (array->data.data);
+        /* having a root means our data pointer is just an offset of the main
+           pointer which is in and will be freed by the root array */
+        if (array->canfree_data && !array->root)
+            SCE_free (SCE_CGetVertexArrayData (&array->array)->data);
         SCE_List_Clear (&array->users);
         SCE_free (array);
     }
 }
 /**
- * \brief Copies \p a2 into \p a1, it doesn't copy users of \p a2 and doesn't
- * put \p a1 into the geometry of \p a2
+ * \brief Copies vertex array data of \p a2 into \p a1
+ *
+ * This function doesn't copy users of \p a2, doesn't put \p a1 into the
+ * geometry of \p a2 and doesn't insert \p a1 into any interleaved arrays list
+ * (so just used for AddDup*() functions). Just copies data of the vertex arrays
  */
 void SCE_Geometry_CopyArray (SCE_SGeometryArray *a1, SCE_SGeometryArray *a2)
 {
-    a1->data = a2->data;
+    SCE_CSetVertexArrayData (&a1->array, SCE_CGetVertexArrayData (&a2->array));
 }
 
 void SCE_Geometry_InitArrayUser (SCE_SGeometryArrayUser *auser)
@@ -153,6 +165,13 @@ static void SCE_Geometry_Init (SCE_SGeometry *geom)
     geom->index_array = NULL;
     geom->canfree_index = SCE_FALSE;
     geom->n_vertices = geom->n_indices = 0;
+
+    geom->pos_array = geom->nor_array = geom->tex_array = NULL;
+    geom->pos_data = geom->nor_data = geom->tex_data = NULL;
+    geom->index_data = NULL;
+
+    geom->sorted = NULL;
+    geom->sorted_length = 0;
 }
 SCE_SGeometry* SCE_Geometry_Create (void)
 {
@@ -184,6 +203,35 @@ void SCE_Geometry_Delete (SCE_SGeometry *geom)
 SCE_SGeometryArray* SCE_Geometry_GetUserArray (SCE_SGeometryArrayUser *auser)
 {
     return auser->array;
+}
+/**
+ * \brief Attach an array to another, this means they are interleaved
+ *
+ * Since \p a1 has an attached array, it is marked as root and must always be
+ * the first parameter of this function.
+ * \sa SCE_Geometry_GetRoot(), SCE_Geometry_GetChild()
+ */
+void SCE_Geometry_AttachArray (SCE_SGeometryArray *a1, SCE_SGeometryArray *a2)
+{
+    a2->child = a1->child;
+    a2->root = a1;
+    a1->child = a2;
+}
+/**
+ * \brief Gets the root array of an array
+ * \sa SCE_Geometry_AttachArray(), SCE_Geometry_GetChild()
+ */
+SCE_SGeometryArray* SCE_Geometry_GetRoot (SCE_SGeometryArray *array)
+{
+    return array->root;
+}
+/**
+ * \brief Gets the child of an array
+ * \sa SCE_Geometry_AttachArray(), SCE_Geometry_GetRoot()
+ */
+SCE_SGeometryArray* SCE_Geometry_GetChild (SCE_SGeometryArray *array)
+{
+    return array->child;
 }
 
 /**
@@ -226,21 +274,40 @@ void SCE_Geometry_RemoveUser (SCE_SGeometryArrayUser *auser)
  *
  * Stores the given geometry array in the modified arrays list of the array's
  * geometry. The \p array user update callback is called when \p array is
- * updated with SCE_Geometry_UpdateArray().
+ * updated with SCE_Geometry_UpdateArray(). If \p array is a child of a root
+ * array, then this functions acts on the root.
  * \sa SCE_Geometry_Update(), SCE_Geometry_UpdateArray(),
  * SCE_Geometry_AddUser(), SCE_CModifiedVertexBufferData()
  */
 void SCE_Geometry_Modified (SCE_SGeometryArray *array, size_t *range)
 {
+    if (array->root)
+        array = array->root;
     if (!range)
         array->rangeptr = NULL;
     else {
-        array->range[0] = range[0];
-        array->range[1] = range[1];
-        array->rangeptr = array->range;
+        if (array->rangeptr) {
+            /* increase range */
+            array->range[0] = MIN (range[0], array->range[0]);
+            array->range[1] = MAX (range[1], array->range[1]);
+        } else {
+            array->range[0] = range[0];
+            array->range[1] = range[1];
+            array->rangeptr = array->range;
+        }
     }
     SCE_List_Removel (&array->it);
     SCE_List_Appendl (&array->geom->modified, &array->it);
+}
+/**
+ * \brief Defines an array as unmodified
+ * \sa SCE_Geometry_Modified(), SCE_Geometry_UpdateArray()
+ */
+void SCE_Geometry_Unmodified (SCE_SGeometryArray *array)
+{
+    SCE_List_Removel (&array->it);
+    SCE_List_Appendl (&array->geom->arrays, &array->it);
+    array->rangeptr = NULL;
 }
 /**
  * \brief Updates an array
@@ -259,8 +326,7 @@ void SCE_Geometry_UpdateArray (SCE_SGeometryArray *array)
         auser->update (auser->arg, array->rangeptr);
     }
     /* move the array back to the main geometry's array list */
-    SCE_List_Removel (&array->it);
-    SCE_List_Appendl (&array->geom->arrays, &array->it);
+    SCE_Geometry_Unmodified (array);
 }
 /**
  * \brief Updates a geometry
@@ -279,7 +345,7 @@ void SCE_Geometry_Update (SCE_SGeometry *geom)
 /**
  * \brief Sets data for an array
  * \param attrib vertex attribute of the data
- * \param type data type (SCE_FLOAT, etc. SCE_VERTICES_TYPE is recommanded)
+ * \param type data type (SCE_VERTICES_TYPE is recommanded)
  * \param size vertex vector's length (usually 3 for position, 2 for texcoord)
  * \param data pointer to the vertex data
  * \param canfree can \p array free \p data when SCE_Geometry_DeleteArray()
@@ -291,13 +357,11 @@ void SCE_Geometry_Update (SCE_SGeometry *geom)
  */
 void SCE_Geometry_SetArrayData (SCE_SGeometryArray *array,
                                 SCE_CVertexAttributeType attrib,
-                                int type, int size, void *data, int canfree)
+                                SCE_CType type, size_t stride, int size,
+                                void *data, int canfree)
 {
-    SCE_CVertexArrayData *d = &array->data;
-    d->attrib = attrib;
-    d->type = type;
-    d->size = size;
-    d->data = data;
+    SCE_CSetVertexArrayNewData (&array->array, attrib, type, stride,
+                                size, data);
     array->canfree_data = canfree;
 }
 /**
@@ -305,11 +369,11 @@ void SCE_Geometry_SetArrayData (SCE_SGeometryArray *array,
  * SCE_VERTICES_TYPE, \p size, \p data, \p canfree).
  * \sa SCE_Geometry_SetArrayData(), SCE_Geometry_SetArrayNormal()
  */
-void SCE_Geometry_SetArrayPosition (SCE_SGeometryArray *array, int size,
-                                    SCEvertices *data, int canfree)
+void SCE_Geometry_SetArrayPosition (SCE_SGeometryArray *array, size_t stride,
+                                    int size, SCEvertices *data, int canfree)
 {
-    SCE_Geometry_SetArrayData (array, SCE_POSITION, SCE_VERTICES_TYPE, size,
-                               data, canfree);
+    SCE_Geometry_SetArrayData (array, SCE_POSITION, SCE_VERTICES_TYPE, stride,
+                               size, data, canfree);
 }
 /**
  * \brief Calls SCE_Geometry_SetArrayData (\p array, SCE_TEXCOORD0 + \p unit,
@@ -317,22 +381,22 @@ void SCE_Geometry_SetArrayPosition (SCE_SGeometryArray *array, int size,
  * \sa SCE_Geometry_SetArrayData(), SCE_Geometry_SetArrayPosition()
  */
 void SCE_Geometry_SetArrayTexCoord (SCE_SGeometryArray *array,
-                                    unsigned int unit, int size,
+                                    unsigned int unit, size_t stride, int size,
                                     SCEvertices *data, int canfree)
 {
     SCE_Geometry_SetArrayData (array, SCE_TEXCOORD0 + unit, SCE_VERTICES_TYPE,
-                               size, data, canfree);
+                               stride, size, data, canfree);
 }
 /**
  * \brief Calls SCE_Geometry_SetArrayData (\p array, SCE_NORMAL,
  * SCE_VERTICES_TYPE, 3, \p data, \p canfree).
  * \sa SCE_Geometry_SetArrayData(), SCE_Geometry_SetArrayPosition()
  */
-void SCE_Geometry_SetArrayNormal (SCE_SGeometryArray *array, SCEvertices *data,
-                                  int canfree)
+void SCE_Geometry_SetArrayNormal (SCE_SGeometryArray *array, size_t stride,
+                                  SCEvertices *data, int canfree)
 {
     /* it is useless to specify the parameter 'size' (not used by the GL) */
-    SCE_Geometry_SetArrayData (array, SCE_NORMAL, SCE_VERTICES_TYPE, 3,
+    SCE_Geometry_SetArrayData (array, SCE_NORMAL, SCE_VERTICES_TYPE, stride, 3,
                                data, canfree);
 }
 /**
@@ -340,39 +404,40 @@ void SCE_Geometry_SetArrayNormal (SCE_SGeometryArray *array, SCEvertices *data,
  * SCE_VERTICES_TYPE, 3, \p data, \p canfree).
  * \sa SCE_Geometry_SetArrayData(), SCE_Geometry_SetArrayNormal()
  */
-void SCE_Geometry_SetArrayTangent (SCE_SGeometryArray *array, SCEvertices *data,
-                                   int canfree)
+void SCE_Geometry_SetArrayTangent (SCE_SGeometryArray *array, size_t stride,
+                                   SCEvertices *data, int canfree)
 {
     /* tangent are like normals, so force size of 3 */
-    SCE_Geometry_SetArrayData (array, SCE_TANGENT, SCE_VERTICES_TYPE, 3,
-                               data, canfree);
+    SCE_Geometry_SetArrayData (array, SCE_TANGENT, SCE_VERTICES_TYPE, stride,
+                               3, data, canfree);
 }
 /**
  * \brief Calls SCE_Geometry_SetArrayData (\p array, SCE_BINORMAL,
  * SCE_VERTICES_TYPE, 3, \p data, \p canfree).
  * \sa SCE_Geometry_SetArrayData(), SCE_Geometry_SetArrayNormal()
  */
-void SCE_Geometry_SetArrayBinormal (SCE_SGeometryArray *array, SCEvertices *data,
-                                    int canfree)
+void SCE_Geometry_SetArrayBinormal (SCE_SGeometryArray *array, size_t stride,
+                                    SCEvertices *data, int canfree)
 {
-    SCE_Geometry_SetArrayData (array, SCE_BINORMAL, SCE_VERTICES_TYPE, 3,
-                               data, canfree);
+    SCE_Geometry_SetArrayData (array, SCE_BINORMAL, SCE_VERTICES_TYPE, stride,
+                               3, data, canfree);
 }
 
 /**
  * \brief Calls SCE_Geometry_SetArrayData (\p array, 42, SCE_INDICES_TYPE,
- * 1, \p data, \p canfree).
+ * 0, 1, \p data, \p canfree).
  *
  * I know this function is just weird, but it would be boring to make a new
  * structure type just for "index" arrays, like SCE_SGeometryIndexArray,
  * because it would mean that SCE_SGeometryArray is a wrong type name and
- * SCE_SGeometryVertexArray should be better.
+ * SCE_SGeometryVertexArray would be better.
  * \sa SCE_Geometry_SetArrayData(), SCE_Geometry_SetArrayNormal()
  */
 void SCE_Geometry_SetArrayIndices (SCE_SGeometryArray *array, SCEindices *data,
                                    int canfree)
 {
-    SCE_Geometry_SetArrayData (array, 42, SCE_INDICES_TYPE, 1, data, canfree);
+    SCE_Geometry_SetArrayData (array, 42, SCE_INDICES_TYPE, 0, 1,
+                               data, canfree);
 }
 
 /**
@@ -381,15 +446,33 @@ void SCE_Geometry_SetArrayIndices (SCE_SGeometryArray *array, SCEindices *data,
  */
 void* SCE_Geometry_GetData (SCE_SGeometryArray *array)
 {
-    return array->data.data;
+    return SCE_CGetVertexArrayData (&array->array)->data;
+}
+/**
+ * \brief Gets the attribute type of an array
+ * \sa SCE_Geometry_GetArrayData(), SCE_Geometry_GetArrayArray()
+ */
+SCE_CVertexAttributeType
+SCE_Geometry_GetArrayAttributeType (SCE_SGeometryArray *array)
+{
+    return SCE_CGetVertexArrayData (&array->array)->attrib;
 }
 /**
  * \brief Gets the vertex array of a geometry array
- * \sa SCE_Geometry_GetData(), SCE_CVertexArrayData
+ * \sa SCE_Geometry_GetArrayArray(), SCE_Geometry_GetData(),
+ * SCE_CVertexArrayData
  */
 SCE_CVertexArrayData* SCE_Geometry_GetArrayData (SCE_SGeometryArray *array)
 {
-    return &array->data;
+    return SCE_CGetVertexArrayData (&array->array);
+}
+/**
+ * \brief Gets the vertex array of a geometry array
+ * \sa SCE_Geometry_GetArrayData()
+ */
+SCE_CVertexArray* SCE_Geometry_GetArrayArray (SCE_SGeometryArray *array)
+{
+    return &array->array;
 }
 
 /**
@@ -404,6 +487,52 @@ void SCE_Geometry_AddArray (SCE_SGeometry *geom, SCE_SGeometryArray *array)
 {
     SCE_List_Appendl (&geom->arrays, &array->it);
     array->geom = geom;
+    switch (SCE_Geometry_GetArrayAttributeType (array)) {
+    case SCE_POSITION:
+        geom->pos_array = array;
+        geom->pos_data = SCE_CGetVertexArrayData (&array->array)->data;
+        break;
+    case SCE_NORMAL:
+        geom->nor_array = array;
+        geom->nor_data = SCE_CGetVertexArrayData (&array->array)->data;
+        break;
+    case SCE_TEXCOORD0:
+        geom->tex_array = array;
+        geom->tex_data = SCE_CGetVertexArrayData (&array->array)->data;
+    }
+}
+/**
+ * \brief Adds an array and all its children
+ * \note \p array must be a root array, see SCE_Geometry_AttachArray()
+ * \sa SCE_Geometry_AttachArray(), SCE_Geometry_AddArray()
+ */
+void SCE_Geometry_AddArrayRec (SCE_SGeometry *geom, SCE_SGeometryArray *array)
+{
+    SCE_SGeometryArray *a = array;
+    while (a) {
+        SCE_Geometry_AddArray (geom, a);
+        a = a->child;
+    }
+}
+/**
+ * \brief Adds a new array to a geometry
+ *
+ * This function will be useful, I can feel it.
+ * \sa SCE_Geometry_AddArray(), SCE_Geometry_CreateArrayFrom(),
+ * SCE_Geometry_AddArrayDup()
+ */
+SCE_SGeometryArray*
+SCE_Geometry_AddNewArray (SCE_SGeometry *geom, SCE_CVertexAttributeType attrib,
+                          SCE_CType type, size_t stride, int size,
+                          void *data, int canfree)
+{
+    SCE_SGeometryArray *array = NULL;
+    if (!(array = SCE_Geometry_CreateArrayFrom (attrib, type, stride, size,
+                                                data, canfree)))
+        SCEE_LogSrc ();
+    else
+        SCE_Geometry_AddArray (geom, array);
+    return array;
 }
 /**
  * \brief Duplicates and adds an array to a geometry
@@ -431,6 +560,32 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry *geom,
     return new;
 }
 /**
+ * \brief Duplicates and adds an array and all its children
+ * \returns the new root array
+ *
+ * \p canfree counts for all the added array
+ * \sa SCE_Geometry_AddArrayRec(), SCE_Geometry_AttachArray()
+ */
+SCE_SGeometryArray* SCE_Geometry_AddArrayRecDup (SCE_SGeometry *geom,
+                                                 SCE_SGeometryArray *array,
+                                                 int canfree)
+{
+    SCE_SGeometryArray *root = NULL, *a = array;
+    while (a) {
+        SCE_SGeometryArray *new = SCE_Geometry_AddArrayDup (geom, a, canfree);
+        if (!new) {
+            SCEE_LogSrc ();
+            return NULL;
+        }
+        if (!root)
+            root = new;
+        else
+            SCE_Geometry_AttachArray (root, new);
+        a = a->child;
+    }
+    return root;
+}
+/**
  * \todo Merge it with SCE_Geometry_SetIndexArrayDupDup() ?
  * \brief Duplicates an array and its vertex data and adds it to a geometry
  * \param array the array to duplicate
@@ -438,6 +593,7 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry *geom,
  * an optimized data type (SCE_VERTICES_TYPE)
  * \note This function requires that the number of vertices have been yet
  * specified to \p geom (see SCE_Geometry_SetNumVertices()).
+ *
  * \sa SCE_Geometry_SetIndexArrayDupDup(), SCE_Geometry_SetData()
  */
 SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry *geom,
@@ -446,40 +602,77 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry *geom,
 {
     SCE_SGeometryArray *new = NULL;
     void *newdata = NULL;
+    SCE_CVertexArrayData *data;
     SCEenum type = SCE_VERTICES_TYPE;
+    data = SCE_Geometry_GetArrayData (array);
     /* do not convert if the type is the same */
-    if (keep || type == array->data.type) {
-        type = array->data.type;
-        newdata = SCE_Mem_Dup (array->data.data, geom->n_indices *
-                               SCE_CSizeof(array->data.type)* array->data.size);
+    if (keep || type == data->type) {
+        type = data->type;
+        newdata = SCE_Mem_Dup (data->data, geom->n_indices *
+                               SCE_CSizeof (data->type) * data->size);
     } else {
         /* TODO: not according to definition of SCEvertices, may be greater */
-        newdata = SCE_Mem_ConvertDup (type, array->data.type, array->data.data,
-                                      geom->n_vertices * array->data.size);
+        newdata = SCE_Mem_ConvertDup (type, data->type, data->data,
+                                      geom->n_vertices * data->size);
     }
     if (!newdata)
         SCEE_LogSrc ();
     else {
-        if (!(new = SCE_Geometry_CreateArray ())) {
+        /* NOTE: it suggests that the vertex array doesn't use 'data' or 'type'
+          for any precomputation when set the data (SCE_CSetVertexArrayData())*/
+        if (!(new = SCE_Geometry_AddArrayDup (geom, array, SCE_TRUE))) {
             SCEE_LogSrc ();
             SCE_free (newdata);
         } else {
-            new->data.data = newdata;
-            new->data.type = type;
-            new->canfree_data = SCE_TRUE;
-            SCE_Geometry_AddArray (geom, new);
+            data = SCE_Geometry_GetArrayData (new);
+            /* if the program is interrupted between AddArrayDup() an here,
+               a double-free may occur (nocake) */
+            data->data = newdata;
+            data->type = type;
         }
     }
     return new;
 }
 /**
- * \brief Removes an array from its geometry
- * \sa SCE_Geometry_AddArray(), SCE_Geometry_AddArrayDup()
+ * \brief Duplicates the given geometry arrays and their data and adds them
+ * to a geometry
+ *
+ * \p keep counts for all the children of \p array
+ * \sa SCE_Geometry_AddArrayRecDup(), SCE_Geometry_AddArrayRec(),
+ * SCE_Geometry_AddArrayDupDup(), SCE_Geometry_AttachArray()
+ */
+SCE_SGeometryArray* SCE_Geometry_AddArrayRecDupDup (SCE_SGeometry *geom,
+                                                    SCE_SGeometryArray *array,
+                                                    int keep)
+{
+    SCE_SGeometryArray *root = NULL, *a = array;
+    while (a) {
+        SCE_SGeometryArray *new = SCE_Geometry_AddArrayDupDup (geom, a, keep);
+        if (!new) {
+            SCEE_LogSrc ();
+            return NULL;
+        }
+        if (!root)
+            root = new;
+        else
+            SCE_Geometry_AttachArray (root, new);
+    }
+    return root;
+}
+/**
+ * \brief Removes an array and all its children from its geometry
+ * \sa SCE_Geometry_AddArray(), SCE_Geometry_AddArrayDup(),
+ * SCE_Geometry_AddArrayRec()
  */
 void SCE_Geometry_RemoveArray (SCE_SGeometryArray *array)
 {
-    SCE_List_Removel (&array->it);
-    array->geom = NULL;
+    while (array) {
+        if (array->geom) {
+            SCE_List_Removel (&array->it);
+            array->geom = NULL;
+        }
+        array = array->child;
+    }
 }
 
 /**
@@ -494,6 +687,7 @@ void SCE_Geometry_SetIndexArray (SCE_SGeometry *geom, SCE_SGeometryArray *array,
 {
     SCE_Geometry_DeleteIndexArray (geom);
     geom->index_array = array;
+    geom->index_data = SCE_CGetVertexArrayData (&array->array)->data;
     geom->canfree_index = (array ? canfree : SCE_FALSE);
 }
 /**
@@ -534,14 +728,16 @@ SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDupDup (SCE_SGeometry *geom,
 {
     SCE_SGeometryArray *new = NULL;
     void *newdata = NULL;
+    SCE_CVertexArrayData *data;
     SCEenum type = SCE_INDICES_TYPE;
-    if (keep) {
-        type = array->data.type;
-        newdata = SCE_Mem_Dup (array->data.data, geom->n_indices *
-                               SCE_CSizeof (array->data.type));
+    data = SCE_Geometry_GetArrayData (array);
+    if (keep || type == data->type) {
+        type = data->type;
+        newdata = SCE_Mem_Dup (data->data, geom->n_indices *
+                               SCE_CSizeof (data->type));
     } else {
         /* TODO: not according to definition of SCEindices, may be greater */
-        newdata = SCE_Mem_ConvertDup (type, array->data.type, array->data.data,
+        newdata = SCE_Mem_ConvertDup (type, data->type, data->data,
                                       geom->n_indices);
     }
     if (!newdata)
@@ -551,8 +747,10 @@ SCE_SGeometryArray* SCE_Geometry_SetIndexArrayDupDup (SCE_SGeometry *geom,
             SCEE_LogSrc ();
             SCE_free (newdata);
         } else {
-            new->data.data = newdata;
-            new->data.type = type;
+            /* vertex array used to contain an index array... very nice. */
+            data = SCE_Geometry_GetArrayData (new);
+            data->data = newdata;
+            data->type = type;
             new->canfree_data = SCE_TRUE;
             SCE_Geometry_SetIndexArray (geom, new, SCE_TRUE);
         }
@@ -594,28 +792,27 @@ int SCE_Geometry_SetData (SCE_SGeometry *geom, SCEvertices *pos,
     SCE_Geometry_SetNumIndices (geom, n_indices);
 
     SCE_Geometry_InitArray (&array);
-    SCE_Geometry_SetArrayPosition (&array, 3, pos, SCE_TRUE);
+    SCE_Geometry_SetArrayPosition (&array, 0, 3, pos, SCE_TRUE);
     if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
         goto fail;
     i++;
     if (nor) {
         SCE_Geometry_InitArray (&array);
-        SCE_Geometry_SetArrayNormal (&array, nor, SCE_TRUE);
+        SCE_Geometry_SetArrayNormal (&array, 0, nor, SCE_TRUE);
         if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
             goto fail;
         i++;
     }
     if (tex) {
         SCE_Geometry_InitArray (&array);
-        SCE_Geometry_SetArrayTexCoord (&array, 0, 2, tex, SCE_TRUE);
+        SCE_Geometry_SetArrayTexCoord (&array, 0, 0, 2, tex, SCE_TRUE);
         if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
             goto fail;
         i++;
     }
     if (index) {
         SCE_Geometry_InitArray (&array);
-        SCE_Geometry_SetArrayData (&array, 0, SCE_INDICES_TYPE, 0, index,
-                                   SCE_TRUE);
+        SCE_Geometry_SetArrayIndices (&array, index, SCE_TRUE);
         if (!(arrays[i] = SCE_Geometry_SetIndexArrayDup (geom, &array,
                                                          SCE_TRUE)))
             goto fail;
@@ -728,11 +925,11 @@ size_t SCE_Geometry_GetNumIndices (SCE_SGeometry *geom)
  */
 size_t SCE_Geometry_GetNumVerticesPerPrimitive (SCE_SGeometry *geom)
 {
-    size_t vpf = 0;
+    size_t vpp = 0;
     switch (geom->prim) {
-    case SCE_POINTS:         vpf = 1; break;
-    case SCE_LINES:          vpf = 2; break;
-    case SCE_TRIANGLES:      vpf = 3; break;
+    case SCE_POINTS:         vpp = 1; break;
+    case SCE_LINES:          vpp = 2; break;
+    case SCE_TRIANGLES:      vpp = 3; break;
 #ifdef SCE_DEBUG
         break;
     default:
@@ -740,7 +937,7 @@ size_t SCE_Geometry_GetNumVerticesPerPrimitive (SCE_SGeometry *geom)
                       "number of vertices per primitive");
 #endif
     }
-    return vpf;
+    return vpp;
 }
 /**
  * \brief Gets the total number of primitives of a geometry
@@ -753,7 +950,6 @@ size_t SCE_Geometry_GetNumPrimitives (SCE_SGeometry *geom)
     else
         return geom->n_vertices / SCE_Geometry_GetNumVerticesPerPrimitive(geom);
 }
-
 
 /**
  * \brief Gets the arrays of a geometry (not including those who are modified)
@@ -794,4 +990,397 @@ int SCE_Geometry_IsModified (SCE_SGeometry *geom)
 SCE_SGeometry* SCE_Geometry_Load (const char *fname, int force)
 {
     return SCE_Resource_Load (resource_type, fname, force, NULL);
+}
+
+
+/* bonus functions */
+static int SCE_Geometry_UpdatePrimArray (SCE_SGeometry *geom, size_t vpp,
+                                         size_t n_prim)
+{
+    if (geom->sorted_length != n_prim) {
+        /* update the sorted array */
+        SCE_free (geom->sorted);
+        geom->sorted = SCE_malloc (n_prim * sizeof *geom->sorted);
+        if (!geom->sorted) {
+            SCEE_LogSrc ();
+            return SCE_ERROR;
+        }
+        geom->sorted_length = n_prim;
+    }
+    return SCE_OK;
+}
+static void SCE_Geometry_GetPrimCenter (SCE_TVector3 v[4], size_t vpp,
+                                        SCE_TVector3 c)
+{
+    size_t i;
+    float invvpp = 1.0 / vpp;
+    SCE_Vector3_Copy (c, v[0]);
+    for (i = 1; i < vpp; i++)
+        SCE_Vector3_Operator1v (c, +=, v[i]);
+    SCE_Vector3_Operator1 (c, *=, invvpp);
+}
+static void SCE_Geometry_ComputePrimDistances (SCE_SGeometry *geom,
+                                               size_t vpp, SCE_TVector3 from)
+{
+    size_t i;
+    SCE_TVector3 center;
+    SCEvertices vprim[4*3];
+    SCEindices *indices;
+    SCEvertices *positions = geom->pos_data;
+    indices = geom->index_data;
+    for (i = 0; i < geom->sorted_length; i++) {
+        size_t j;
+        for (j = 0; j < vpp; j++)
+            SCE_Vector3_Copy (&vprim[j], &positions[indices[(i * vpp) + j]]);
+        SCE_Geometry_GetPrimitiveCenter (vprim, vpp, center);
+        geom->sorted[i].dist = SCE_Vector3_Distance (center, from);
+        geom->sorted[i].index = i * vpp;
+    }
+}
+static int SCE_Geometry_FarToNear (float first, float last)
+{
+    return (first < last);
+}
+static int SCE_Geometry_NearToFar (float first, float last)
+{
+    return (first > last);
+}
+static void SCE_Geometry_SortPrimArray (SCE_SGeometry *geom,
+                                        SCE_ESortOrder order)
+{
+    size_t i;
+    int (*xch)(float, float);
+    xch = (order == SCE_SORT_FAR_TO_NEAR ?
+           SCE_Geometry_FarToNear : SCE_Geometry_NearToFar);
+    for (i = 0; i < geom->sorted_length; i++) {
+        size_t j;
+        for (j = 0; j < i; j++) {
+            if (xch (geom->sorted[j].dist, geom->sorted[i].dist)) {
+                SCE_SGeometryPrimitiveSort s = geom->sorted[i];
+                geom->sorted[i] = geom->sorted[j];
+                geom->sorted[j] = s;
+            }
+        }
+    }
+}
+static void SCE_Geometry_ExchangeIndices (SCEindices *i1, SCEindices *i2,
+                                          size_t vpp)
+{
+    SCEindices tmp[4];
+    memcpy (tmp, i1, vpp * sizeof *tmp);
+    memcpy (i1, i2, vpp * sizeof *i1);
+    memcpy (i2, tmp, vpp * sizeof *i2);
+}
+/**
+ * \brief Sort the primitives of a geometry
+ * \param order order of sorting
+ * \param from from which sort the distance of the primitives
+ * \returns SCE_ERROR on error, SCE_OK otherwise
+ */
+int SCE_Geometry_SortPrimitives (SCE_SGeometry *geom, SCE_ESortOrder order,
+                                 SCE_TVector3 from)
+{
+    size_t i, vpp, n_prim;
+    SCEindices *indices = NULL;
+
+#ifdef SCE_DEBUG
+    /* TODO: use auto-generation of pseudo-indices (0, 1, 2, 3, ...) */
+    if (!geom->index_array) {
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("cannot sort a geometry without indices");
+        return SCE_ERROR;
+    }
+#endif
+    indices = geom->index_data;
+    vpp = SCE_Geometry_GetNumVerticesPerPrimitive (geom);
+    n_prim = SCE_Geometry_GetNumPrimitives (geom);
+
+    if (SCE_Geometry_UpdatePrimArray (geom, vpp, n_prim) < 0)
+        goto fail;
+    SCE_Geometry_ComputePrimDistances (geom, vpp, from);
+    SCE_Geometry_SortPrimArray (geom, order);
+
+    /* reset indices */
+    for (i = 0; i < geom->sorted_length; i++) {
+        SCE_Geometry_ExchangeIndices (&indices[i * vpp],
+                                      &indices[geom->sorted[i].index], vpp);
+    }
+    /* TODO: how to set a good range? */
+    SCE_Geometry_Modified (geom->index_array, NULL);
+    return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    return SCE_ERROR;
+}
+
+
+/**
+ * \brief Compute the tangent, binormal and normal for a triangle
+ * \param vertex the vertices' positions of the triangle
+ * \param texcoord the texture coordinates of the triangle, can be NULL
+ * \param index face's indices to use, can be NULL
+ * \param tangents here is stored the computed tangents, can be NULL
+ * \param binormals here is stored the computed binormals, can be NULL
+ * \param normals here is written the computed normals, can be NULL
+ * \warning If \p texcoord is NULL, only normals will be computed
+ */
+void SCE_Mesh_ComputeTriangleTBN (SCEvertices *vertex, SCEvertices *texcoord,
+                                  size_t *index, SCEvertices *tangents,
+                                  SCEvertices *binormals, SCEvertices *normals)
+{
+    SCE_TVector3 side0, side1;
+    SCE_TVector3 tmpTangente, tmpNormal, tmpBinormal;
+    SCEvertices deltaT0=0., deltaT1=0., deltaB0=0., deltaB1=0., scale=0.;
+    size_t default_indices[3] = {0, 1, 2};
+
+    SCE_btstart ();
+    if (!index)
+        index = default_indices;
+
+    /* on calcule 2 vecteurs formant les bords du triangle
+       le vecteur side0 est celui allant du vertex 0 au vertex 1 */
+    SCE_Vector3_Operator2v (side0, =, &vertex[index[1]*3],
+                                   -, &vertex[index[0]*3]);
+    /* le vecteur side1 est celui allant du vertex 0 au vertex 2 */
+    SCE_Vector3_Operator2v (side1, =, &vertex[index[2]*3],
+                                   -, &vertex[index[0]*3]);
+
+    if (texcoord) {
+        /* ici, +1 pour prendre la composante v (uv) */
+        deltaT0 = texcoord[index[1]*2+1] - texcoord[index[0]*2+1];
+        deltaT1 = texcoord[index[2]*2+1] - texcoord[index[0]*2+1];
+        /* composante u */
+        deltaB0 = texcoord[index[1]*2] - texcoord[index[0]*2];
+        deltaB1 = texcoord[index[2]*2] - texcoord[index[0]*2];
+        scale = 1.0f / ((deltaB0 * deltaT1) - (deltaB1 * deltaT0));
+    }
+    if (normals) {
+        SCE_Vector3_Cross (tmpNormal, side0, side1);
+        SCE_Vector3_Normalize (tmpNormal);
+        SCE_Vector3_Operator1v (&normals[index[0]*3], +=, tmpNormal);
+        SCE_Vector3_Operator1v (&normals[index[1]*3], +=, tmpNormal);
+        SCE_Vector3_Operator1v (&normals[index[2]*3], +=, tmpNormal);
+    }
+    if (texcoord && tangents) {
+        SCE_Vector3_Operator1v (tmpTangente, = deltaT1*, side0);
+        SCE_Vector3_Operator1v (tmpTangente, -= deltaT0*, side1);
+        SCE_Vector3_Operator1 (tmpTangente, *=, scale);
+        SCE_Vector3_Normalize (tmpTangente);
+        SCE_Vector3_Operator1v (&tangents[index[0]*3], +=, tmpTangente);
+        SCE_Vector3_Operator1v (&tangents[index[1]*3], +=, tmpTangente);
+        SCE_Vector3_Operator1v (&tangents[index[2]*3], +=, tmpTangente);
+    }
+    if (texcoord && binormals) {
+        SCE_Vector3_Operator1v (tmpBinormal, = -deltaB1*, side0);
+        SCE_Vector3_Operator1v (tmpBinormal, += deltaB0*, side1);
+        SCE_Vector3_Operator1 (tmpBinormal, *=, scale);
+        SCE_Vector3_Normalize (tmpBinormal);
+        SCE_Vector3_Operator1v (&binormals[index[0]*3], +=, tmpBinormal);
+        SCE_Vector3_Operator1v (&binormals[index[1]*3], +=, tmpBinormal);
+        SCE_Vector3_Operator1v (&binormals[index[2]*3], +=, tmpBinormal);
+    }
+    SCE_btend ();
+}
+
+
+/**
+ * \brief Compute the tangent, binormal and normal for a lot of polygons
+ * \param itype type of \p indices
+ * \param icount number of vertices that \indices dereference
+ * \param vcount number of vertices that are availables in
+ * \p vertex and \p texcoord
+ * \returns SCE_ERROR on error, SCE_OK otherwise
+ *
+ * This function works like SCE_Mesh_ComputeTriangleTBN(), but on a lot of
+ * polygons.
+ */
+int SCE_Geometry_ComputeTBN (SCE_CPrimitiveType prim, SCEvertices *vertex,
+                             SCEvertices *texcoord, SCE_CType itype,
+                             void *indices, size_t icount, size_t vcount,
+                             SCEvertices *tangents, SCEvertices *binormals,
+                             SCEvertices *normals)
+{
+    size_t i;
+    size_t t_indices[3];
+    SCEindices *index = NULL;
+    size_t count;
+
+    SCE_btstart ();
+#if 0
+    if (normals)
+        for (i = 0; i < vcount; i++)
+            SCE_Vector3_Set (&normals[i*3], 0.0f, 0.0f, 0.0f);
+    if (binormals)
+        for (i = 0; i < vcount; i++)
+            SCE_Vector3_Set (&binormals[i*3], 0.0f, 0.0f, 0.0f);
+    if (tangents)
+        for (i = 0; i < vcount; i++)
+            SCE_Vector3_Set (&tangents[i*3], 0.0f, 0.0f, 0.0f);
+#endif
+
+    if (!indices) {
+        count = vcount;
+        itype = SCE_INDICES_TYPE;
+        index = SCE_malloc (sizeof *index * count);
+        if (!index) {
+            SCEE_LogSrc ();
+            SCE_btend ();
+            return SCE_ERROR;
+        }
+        for (i = 0; i < count; i++)
+            index[i] = i;
+    } else {
+        index = indices;
+        count = icount;
+    }
+
+    switch (prim) {
+    case SCE_TRIANGLES:
+        for (i = 0; i < count; i += 3) {
+            SCE_Mem_Convert (SCE_SIZE_T, t_indices, itype, &index[i], 3);
+            SCE_Mesh_ComputeTriangleTBN (vertex, texcoord, t_indices,
+                                         tangents, binormals, normals);
+        }
+        break;
+    case SCE_TRIANGLE_STRIP:
+        for (i = 0; i < count - 2; i++) {
+            SCE_Mem_Convert (SCE_SIZE_T, t_indices, itype, &index[i], 3);
+            SCE_Mesh_ComputeTriangleTBN (vertex, texcoord, t_indices,
+                                         tangents, binormals, normals);
+        }
+        break;
+    case SCE_TRIANGLE_FAN:
+        SCE_Mem_Convert (SCE_SIZE_T, t_indices, itype, index, 1);
+        for (i = 1; i < count - 1; i++) {
+            SCE_Mem_Convert (SCE_SIZE_T, &t_indices[1], itype, &index[i], 2);
+            SCE_Mesh_ComputeTriangleTBN (vertex, texcoord, t_indices,
+                                         tangents, binormals, normals);
+        }
+        break;
+    default:
+        if (!indices)
+            SCE_free (index);
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("primitive type unsupported, you must choose one"
+                     " of the following types: SCE_TRIANGLES, "
+                     "SCE_TRIANGLE_STRIP or SCE_TRIANGLE_FAN");
+        SCE_btend ();
+        return SCE_ERROR;
+    }
+
+    if (!indices)
+        SCE_free (index);
+
+    if (normals)
+        for (i = 0; i < vcount; i++)
+            SCE_Vector3_Normalize (&normals[i*3]);
+    if (binormals)
+        for (i = 0; i < vcount; i++)
+            SCE_Vector3_Normalize (&binormals[i*3]);
+    if (tangents)
+        for (i = 0; i < vcount; i++)
+            SCE_Vector3_Normalize (&tangents[i*3]);
+
+    SCE_btend ();
+    return SCE_OK;
+}
+
+/**
+ * \brief Generates the tangent, binormal an normal vectors for a geometry
+ * \param nor,offset allow to specify one normal... nice.
+ */
+int SCE_Geometry_GenerateTBN (SCE_SGeometry *geom, SCEvertices **t,
+                              SCEvertices **b, SCEvertices **n,
+                              unsigned int unit)/*,
+                              SCEvertices *nor, size_t offset)*/
+{
+    SCE_CVertexArrayData *data;
+    SCEvertices *tangent = NULL, *binormal = NULL, *normal = NULL;
+
+#ifdef SCE_DEBUG
+    /* TODO: check the type of the data too */
+    if (!geom->pos_data) {
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("the geometry on which generate TBN vectors must have"
+                     " position data");
+        return SCE_ERROR;
+    }
+    /* TODO: oh, what if \p unit is != of 0 ? tex_data is only SCE_TEXCOORD0 */
+    if (!geom->tex_data && (t || b)) {
+        SCEE_Log (SCE_INVALID_OPERATION);
+        SCEE_LogMsg ("generate tangent and/or binormals requires texture "
+                     "coordinates");
+        return SCE_ERROR;
+    }
+#endif
+
+    if (t) {
+        if (!(tangent = SCE_malloc (geom->n_vertices * sizeof *tangent)))
+            goto fail;
+    }
+    if (b) {
+        if (!(binormal = SCE_malloc (geom->n_vertices * sizeof *binormal)))
+            goto fail;
+    }
+    if (n) {
+        if (!(normal = SCE_malloc (geom->n_vertices * sizeof *normal)))
+            goto fail;
+    }
+
+    data = SCE_Geometry_GetArrayData (geom->index_array);
+    if (SCE_Geometry_ComputeTBN (geom->prim, geom->pos_data, geom->tex_data,
+                                 data->type, data->data, geom->n_indices,
+                                 geom->n_vertices, tangent, binormal,
+                                 normal) < 0)
+        goto fail;
+
+    *t = tangent;
+    *b = binormal;
+    *b = normal;
+    return SCE_OK;
+fail:
+    SCE_free (normal);
+    SCE_free (binormal);
+    SCE_free (tangent);
+    SCEE_LogSrc ();
+    return SCE_ERROR;
+}
+
+/**
+ * \brief Generates and adds vertex attributes
+ * \sa SCE_Geometry_GenerateTBN()
+ */
+int SCE_Geometry_AddGenerateTBN (SCE_SGeometry *geom, unsigned int unit,
+                                 int flags)
+{
+    SCEvertices **param[3];
+    SCEvertices *t = NULL, *b = NULL, *n = NULL;
+
+    param[0] = (flags & SCE_GEN_TANGENTS ? &t : NULL);
+    param[1] = (flags & SCE_GEN_BINORMALS ? &b : NULL);
+    param[2] = (flags & SCE_GEN_NORMALS ? &n : NULL);
+    if (SCE_Geometry_GenerateTBN (geom, param[0], param[1], param[0], unit) < 0)
+        goto fail;
+    if (t) {
+        if (!SCE_Geometry_AddNewArray (geom, SCE_TANGENT, SCE_VERTICES_TYPE,
+                                       0, 3, t, SCE_TRUE))
+            goto fail;
+    }
+    if (b) {
+        if (!SCE_Geometry_AddNewArray (geom, SCE_BINORMAL, SCE_VERTICES_TYPE,
+                                       0, 3, b, SCE_TRUE))
+            goto fail;
+    }
+    if (n) {
+        if (!SCE_Geometry_AddNewArray (geom, SCE_NORMAL, SCE_VERTICES_TYPE,
+                                       0, 3, n, SCE_TRUE))
+            goto fail;
+    }
+    return SCE_OK;
+fail:
+    SCE_free (n);
+    SCE_free (b);
+    SCE_free (t);
+    SCEE_LogSrc ();
+    return SCE_ERROR;
 }

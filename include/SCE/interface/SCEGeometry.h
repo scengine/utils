@@ -17,11 +17,12 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 25/07/2009
-   updated: 02/08/2009 */
+   updated: 09/08/2009 */
 
 #ifndef SCEGEOMETRY_H
 #define SCEGEOMETRY_H
 
+#include <SCE/utils/SCEVector.h>
 #include <SCE/core/SCECVertexArray.h>
 
 #ifdef __cplusplus
@@ -33,24 +34,6 @@ extern "C" {
  * @{
  */
 
-#if 0
-enum {
-    SCE_GEOMETRY_POSITION_ARRAY,
-    SCE_GEOMETRY_NORMAL_ARRAY,
-    SCE_GEOMETRY_TANGENT_ARRAY,
-    SCE_GEOMETRY_BINORMAL_ARRAY,
-    SCE_GEOMETRY_TEXCOORD0_ARRAY,
-    SCE_GEOMETRY_TEXCOORD1_ARRAY,
-    SCE_GEOMETRY_TEXCOORD2_ARRAY,
-    SCE_GEOMETRY_TEXCOORD3_ARRAY,
-    SCE_GEOMETRY_TEXCOORD4_ARRAY,
-    SCE_GEOMETRY_TEXCOORD5_ARRAY,
-    SCE_GEOMETRY_TEXCOORD6_ARRAY,
-    SCE_GEOMETRY_TEXCOORD7_ARRAY,
-    SCE_GEOMETRY_TEXCOORD8_ARRAY
-};
-#endif
-
 #define SCE_TANGENT SCE_TEXCOORD1
 #define SCE_BINORMAL SCE_TEXCOORD2
 
@@ -58,9 +41,11 @@ enum {
 #define SCE_GEN_BINORMALS (0x00000002)
 #define SCE_GEN_NORMALS (0x00000004)
 
-/* TODO: will be removed soon (sort algorithm implemented in SCEList) */
-#define SCE_GEOMETRY_SORT_NEAR_TO_FAR 1
-#define SCE_GEOMETRY_SORT_FAR_TO_NEAR 2
+enum sce_esortorder {
+    SCE_SORT_NEAR_TO_FAR,
+    SCE_SORT_FAR_TO_NEAR
+};
+typedef enum sce_esortorder SCE_ESortOrder;
 
 /**
  * \brief Default (and HIGHLY recommanded for compatibility reasons) vertices
@@ -92,12 +77,13 @@ typedef struct sce_sgeometryarray SCE_SGeometryArray;
  * \brief A geometry array
  */
 struct sce_sgeometryarray {
-    SCE_CVertexArrayData data;  /**< Data structure */
-    int canfree_data;           /**< Can this structure free \c data.data ? */
-    SCE_SListIterator it;
-    SCE_SList users;            /**< SCE_SGeometryArrayUser */
-    size_t range[2];            /**< Modified vertices range */
-    size_t *rangeptr;          /**< Pointer to the range to use (can be NULL) */
+    SCE_CVertexArray array;   /**< Associated array */
+    SCE_SGeometryArray *root, *child; /**< Interleaved */
+    int canfree_data;         /**< Can this structure free \c array.data.data?*/
+    SCE_SListIterator it;     /**< Own iterator */
+    SCE_SList users;          /**< SCE_SGeometryArrayUser */
+    size_t range[2];          /**< Modified vertices range */
+    size_t *rangeptr;         /**< Pointer to the range to use (can be NULL) */
     SCE_SGeometry *geom;
 };
 
@@ -120,6 +106,15 @@ struct sce_sgeometryarrayuser {
     SCE_SListIterator it;
 };
 
+
+typedef struct sce_sgeometryprimitivesort SCE_SGeometryPrimitiveSort;
+/**
+ * \brief Used to define a primitive in a sort algorithm case
+ */
+struct sce_sgeometryprimitivesort {
+    float dist;
+    SCEindices index;
+};
 /**
  * \brief Contains geometry of a mesh
  * \sa SCE_SGeometryArray, SCE_SGeometryArrayUser, SCE_SMesh
@@ -131,6 +126,13 @@ struct sce_sgeometry {
     SCE_SGeometryArray *index_array;  /**< Index array */
     int canfree_index;
     size_t n_vertices, n_indices;
+
+    SCE_SGeometryArray *pos_array, *nor_array, *tex_array;
+    SCEvertices *pos_data, *nor_data, *tex_data;
+    SCEindices *index_data;
+
+    SCE_SGeometryPrimitiveSort *sorted;
+    size_t sorted_length;
 };
 
 /** @} */
@@ -143,7 +145,8 @@ int SCE_Geometry_GetResourceType (void);
 void SCE_Geometry_InitArray (SCE_SGeometryArray*);
 SCE_SGeometryArray* SCE_Geometry_CreateArray (void);
 SCE_SGeometryArray* SCE_Geometry_CreateArrayFrom (SCE_CVertexAttributeType,
-                                                  int, int, void*, int);
+                                                  SCE_CType, size_t, int,
+                                                  void*, int);
 void SCE_Geometry_DeleteArray (SCE_SGeometryArray*);
 void SCE_Geometry_CopyArray (SCE_SGeometryArray*, SCE_SGeometryArray*);
 
@@ -156,6 +159,9 @@ SCE_SGeometry* SCE_Geometry_Create (void);
 void SCE_Geometry_Delete (SCE_SGeometry*);
 
 SCE_SGeometryArray* SCE_Geometry_GetUserArray (SCE_SGeometryArrayUser*);
+void SCE_Geometry_AttachArray (SCE_SGeometryArray*, SCE_SGeometryArray*);
+SCE_SGeometryArray* SCE_Geometry_GetRoot (SCE_SGeometryArray*);
+SCE_SGeometryArray* SCE_Geometry_GetChild (SCE_SGeometryArray*);
 
 void SCE_Geometry_AddUser (SCE_SGeometryArray*, SCE_SGeometryArrayUser*,
                            SCE_FUpdateGeometryArray, void*);
@@ -166,20 +172,30 @@ void SCE_Geometry_UpdateArray (SCE_SGeometryArray*);
 void SCE_Geometry_Update (SCE_SGeometry*);
 
 void SCE_Geometry_SetArrayData (SCE_SGeometryArray*, SCE_CVertexAttributeType,
-                                int, int, void*, int);
-void SCE_Geometry_SetArrayPosition (SCE_SGeometryArray*, int, SCEvertices*,
-                                    int);
-void SCE_Geometry_SetArrayTexCoord (SCE_SGeometryArray*, unsigned int, int,
+                                SCE_CType, size_t, int, void*, int);
+void SCE_Geometry_SetArrayPosition (SCE_SGeometryArray*, size_t, int,
                                     SCEvertices*, int);
-void SCE_Geometry_SetArrayNormal (SCE_SGeometryArray*, SCEvertices*, int);
-void SCE_Geometry_SetArrayTangent (SCE_SGeometryArray*, SCEvertices*, int);
-void SCE_Geometry_SetArrayBinormal (SCE_SGeometryArray*, SCEvertices*, int);
+void SCE_Geometry_SetArrayTexCoord (SCE_SGeometryArray*, unsigned int, size_t,
+                                    int, SCEvertices*, int);
+void SCE_Geometry_SetArrayNormal (SCE_SGeometryArray*, size_t, SCEvertices*,
+                                  int);
+void SCE_Geometry_SetArrayTangent (SCE_SGeometryArray*, size_t, SCEvertices*,
+                                   int);
+void SCE_Geometry_SetArrayBinormal (SCE_SGeometryArray*, size_t, SCEvertices*,
+                                    int);
 void SCE_Geometry_SetArrayIndices (SCE_SGeometryArray*, SCEindices*, int);
 
 void* SCE_Geometry_GetData (SCE_SGeometryArray*);
+SCE_CVertexAttributeType
+SCE_Geometry_GetArrayAttributeType (SCE_SGeometryArray*);
 SCE_CVertexArrayData* SCE_Geometry_GetArrayData (SCE_SGeometryArray*);
+SCE_CVertexArray* SCE_Geometry_GetArrayArray (SCE_SGeometryArray*);
 
 void SCE_Geometry_AddArray (SCE_SGeometry*, SCE_SGeometryArray*);
+void SCE_Geometry_AddArrayRec (SCE_SGeometry*, SCE_SGeometryArray*);
+SCE_SGeometryArray*
+SCE_Geometry_AddNewArray (SCE_SGeometry*, SCE_CVertexAttributeType,
+                          SCE_CType, size_t, int, void*, int);
 SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry*,
                                               SCE_SGeometryArray*, int);
 SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry*,
@@ -215,6 +231,18 @@ SCE_SList* SCE_Geometry_GetModifiedArrays (SCE_SGeometry*);
 int SCE_Geometry_IsModified (SCE_SGeometry*);
 
 SCE_SGeometry* SCE_Geometry_Load (const char*, int);
+
+/* bonus functions */
+int SCE_Geometry_SortPrimitives (SCE_SGeometry*, SCE_ESortOrder, SCE_TVector3);
+
+void SCE_Mesh_ComputeTriangleTBN (SCEvertices*, SCEvertices*, size_t*,
+                                  SCEvertices*, SCEvertices*, SCEvertices*);
+int SCE_Geometry_ComputeTBN (SCE_CPrimitiveType, SCEvertices*, SCEvertices*,
+                             SCE_CType, void*, size_t, size_t, SCEvertices*,
+                             SCEvertices*, SCEvertices*);
+int SCE_Geometry_GenerateTBN (SCE_SGeometry*, SCEvertices**, SCEvertices**,
+                              SCEvertices**, unsigned int);
+int SCE_Geometry_AddGenerateTBN (SCE_SGeometry*, unsigned int, int);
 
 #ifdef __cplusplus
 } /* extern "C" */
