@@ -48,7 +48,6 @@
 int SCE_Init (FILE *outlog, SCEflags flags)
 {
     int code = SCE_OK;
-    SCE_btstart ();
     if (SCE_Init_Utils (outlog) < 0)
         goto fail;
 
@@ -57,6 +56,10 @@ int SCE_Init (FILE *outlog, SCEflags flags)
     if (SCE_Init_Texture () < 0)
         goto fail;
     if (SCE_Init_Shader () < 0)
+        goto fail;
+    if (SCE_Init_Geometry () < 0)
+        goto fail;
+    if (SCE_Init_BoxGeom () < 0)
         goto fail;
     if (SCE_Init_Mesh () < 0)
         goto fail;
@@ -72,10 +75,6 @@ int SCE_Init (FILE *outlog, SCEflags flags)
         if (SCE_Init_idTechMD5 () < 0)
             goto fail;
     }
-#if 0
-    if (SCE_Init_State () < 0)
-        goto fail;
-#endif
     if (SCE_Init_Quad () < 0)
         goto fail;
     if (SCE_Init_Scene () < 0)
@@ -99,10 +98,13 @@ void SCE_Quit (void)
     SCE_btstart ();
     SCE_Quit_Scene ();
     SCE_Quit_Quad ();
-/*    SCE_Quit_State ();*/
+    SCE_Quit_idTechMD5 ();
     SCE_Quit_Anim ();
     SCE_Quit_AnimMesh ();
+    SCE_Quit_OBJ ();
     SCE_Quit_Mesh ();
+    SCE_Quit_BoxGeom ();
+    SCE_Quit_Geometry ();
     SCE_Quit_Shader ();
     SCE_Quit_Texture ();
     SCE_CQuit ();
@@ -110,7 +112,9 @@ void SCE_Quit (void)
     SCE_btend ();
 }
 
-
+/**
+ * \brief Gets the version string of the SCEngine
+ */
 const char* SCE_GetVersionString (void)
 {
     return SCE_VERSION_STRING;

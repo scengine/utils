@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 12/10/2006
-   updated: 08/08/2009 */
+   updated: 12/08/2009 */
 
 #ifndef SCENGINE_H
 #define SCENGINE_H
@@ -33,20 +33,19 @@
 #include <SCE/interface/SCEFrustum.h>
 #include <SCE/interface/SCEGeometry.h>
 #include <SCE/interface/SCEOBJLoader.h>
-#include <SCE/interface/SCEMD5Loader.h>
 #include <SCE/interface/SCESphereGeometry.h>
 #include <SCE/interface/SCEBoxGeometry.h>
 #include <SCE/interface/SCEJoint.h>
 #include <SCE/interface/SCESkeleton.h>
 #include <SCE/interface/SCEAnimatedGeometry.h>
 #include <SCE/interface/SCEAnimation.h>
+#include <SCE/interface/SCEMD5Loader.h>
 #include <SCE/interface/SCEQuad.h>
 #include <SCE/interface/SCEMesh.h>
 
 #include <SCE/interface/SCELight.h>
 #include <SCE/interface/SCECamera.h>
 #include <SCE/interface/SCELevelOfDetail.h>
-/*#include <SCE/interface/SCEState.h>*/
 #include <SCE/interface/SCEGeometryInstance.h>
 #include <SCE/interface/SCESceneResource.h>
 #include <SCE/interface/SCESceneEntity.h>
