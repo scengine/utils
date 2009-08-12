@@ -33,6 +33,7 @@ static int is_init = SCE_FALSE;
 static int resource_type = 0;
 
 static SCE_SMesh *mesh_bound = NULL;
+static int activated_streams[SCE_MESH_NUM_STREAMS];
 static SCE_SMeshRenderFunc render_func = NULL;
 static SCE_SMeshRenderInstancedFunc render_func_instanced = NULL;
 
@@ -40,12 +41,15 @@ static void* SCE_Mesh_LoadResource (const char*, int, void*);
 
 int SCE_Init_Mesh (void)
 {
+    size_t i;
     if (is_init)
         return SCE_OK;
     resource_type = SCE_Resource_RegisterType (SCE_FALSE,
                                                SCE_Mesh_LoadResource, NULL);
     if (resource_type < 0)
         goto fail;
+    for (i = 0; i < SCE_MESH_NUM_STREAMS; i++)
+        activated_streams[i] = SCE_TRUE;
     is_init = SCE_TRUE;
     return SCE_OK;
 fail:
@@ -89,6 +93,7 @@ void SCE_Mesh_DeleteArray (SCE_SMeshArray *marray)
     }
 }
 
+#if 0
 void SCE_Mesh_InitBuffer (SCE_SMeshBuffer *mbuf)
 {
     SCE_CInitVertexBuffer (&mbuf->vb);
@@ -113,24 +118,32 @@ void SCE_Mesh_DeleteBuffer (SCE_SMeshBuffer *buf)
         SCE_free (buf);
     }
 }
+#endif
 
 static void SCE_Mesh_FreeArray (void *marray)
 {
     SCE_Mesh_RemoveArray (marray);
 }
+#if 0
 static void SCE_Mesh_FreeBuffer (void *mbuf)
 {
     SCE_Mesh_DeleteBuffer (mbuf);
 }
+#endif
 void SCE_Mesh_Init (SCE_SMesh *mesh)
 {
+    size_t i;
     mesh->geom = NULL;
     mesh->canfree_geom = SCE_FALSE;
     mesh->prim = SCE_POINTS;    /* do not take any risk. */
     SCE_List_Init (&mesh->arrays);
     SCE_List_SetFreeFunc (&mesh->arrays, SCE_Mesh_FreeArray);
+#if 0
     SCE_List_Init (&mesh->buffers);
     SCE_List_SetFreeFunc (&mesh->buffers, SCE_Mesh_FreeBuffer);
+#endif
+    for (i = 0; i < SCE_MESH_NUM_STREAMS; i++)
+        SCE_CInitVertexBuffer (&mesh->streams[i]);
     SCE_CInitIndexBuffer (&mesh->ib);
     mesh->use_ib = SCE_FALSE;
     mesh->rmode = SCE_VA_RENDER_MODE;
@@ -158,9 +171,11 @@ SCE_SMesh* SCE_Mesh_CreateFrom (SCE_SGeometry *geom)
 }
 void SCE_Mesh_Clear (SCE_SMesh *mesh)
 {
+    size_t i;
     SCE_CClearIndexBuffer (&mesh->ib);
     SCE_List_Clear (&mesh->arrays);
-    SCE_List_Clear (&mesh->buffers);
+    for (i = 0; i < SCE_MESH_NUM_STREAMS; i++)
+        SCE_CClearVertexBuffer (&mesh->streams[i]);
 }
 void SCE_Mesh_Delete (SCE_SMesh *mesh)
 {
@@ -171,24 +186,55 @@ void SCE_Mesh_Delete (SCE_SMesh *mesh)
 }
 
 
+/**
+ * \brief Sets the state of a stream (activated or deactivated)
+ * \sa SCE_Mesh_EnableStream(), SCE_Mesh_DisableStream()
+ */
+void SCE_Mesh_ActivateStream (SCE_EMeshStream s, int a)
+{
+    activated_streams[s] = a;
+}
+/**
+ * \brief Enables a stream
+ * \sa SCE_Mesh_ActivateStream(), SCE_Mesh_DisableStream()
+ */
+void SCE_Mesh_EnableStream (SCE_EMeshStream s)
+{
+    activated_streams[s] = SCE_TRUE;
+}
+/**
+ * \brief Disables a stream
+ * \sa SCE_Mesh_ActivateStream(), SCE_Mesh_EnableStream()
+ */
+void SCE_Mesh_DisableStream (SCE_EMeshStream s)
+{
+    activated_streams[s] = SCE_FALSE;
+}
+
+
 static void SCE_Mesh_UpdateArrayCallback (void *data, size_t *range)
 {
     SCE_CModifiedVertexBufferData (data, range);
 }
 /**
  * \internal
- * \brief Sets the geometry array of a mesh array
+ * \brief Adds a root geometry array to a mesh array (ie vertex buffer data)
  * \sa SCE_Mesh_AddArray(), SCE_Mesh_AddArrayFrom()
  */
-static void SCE_Mesh_SetArrayArray (SCE_SMeshArray *marray,
-                                    SCE_SGeometryArray *array,
-                                    unsigned int n_vertices)
+static void SCE_Mesh_AddArrayArrays (SCE_SMeshArray *marray,
+                                     SCE_SGeometryArray *array,
+                                     size_t n_vertices)
 {
-    SCE_CSetVertexBufferDataArrayData (&marray->data,
-                                       SCE_Geometry_GetArrayData (array),
-                                       n_vertices);
+    /* set user at root */
     SCE_Geometry_AddUser (array, &marray->auser, SCE_Mesh_UpdateArrayCallback,
                           &marray->data);
+    /* add children */
+    while (array) {
+        SCE_CAddVertexBufferDataArray (&marray->data,
+                                       SCE_Geometry_GetArrayArray (array),
+                                       n_vertices);
+        array = SCE_Geometry_GetChild (array);
+    }
 }
 
 
@@ -214,6 +260,7 @@ static SCE_SMeshArray* SCE_Mesh_AddNewArray (SCE_SMesh *mesh)
 }
 /**
  * \internal
+ * \warning \p array must be a root array, all its children will be added
  */
 static SCE_SMeshArray* SCE_Mesh_AddNewArrayFrom (SCE_SMesh *mesh,
                                                  SCE_SGeometryArray *array,
@@ -223,7 +270,7 @@ static SCE_SMeshArray* SCE_Mesh_AddNewArrayFrom (SCE_SMesh *mesh,
     if (!(marray = SCE_Mesh_AddNewArray (mesh)))
         SCEE_LogSrc ();
     else
-        SCE_Mesh_SetArrayArray (marray, array, n_vertices);
+        SCE_Mesh_AddArrayArrays (marray, array, n_vertices);
     return marray;
 }
 /**
@@ -248,13 +295,19 @@ int SCE_Mesh_SetGeometry (SCE_SMesh *mesh, SCE_SGeometry *geom, int canfree)
     n_vertices = SCE_Geometry_GetNumVertices (geom);
     arrays = SCE_Geometry_GetArrays (geom);
     SCE_List_ForEach (it, arrays) {
-        if (!SCE_Mesh_AddNewArrayFrom (mesh, SCE_List_GetData (it), n_vertices))
-            goto fail;
+        SCE_SGeometryArray *array = SCE_List_GetData (it);
+        if (!SCE_Geometry_GetRoot (array)) {
+            if (!SCE_Mesh_AddNewArrayFrom (mesh, array, n_vertices))
+                goto fail;
+        }
     }
     arrays = SCE_Geometry_GetModifiedArrays (geom);
     SCE_List_ForEach (it, arrays) {
-        if (!SCE_Mesh_AddNewArrayFrom (mesh, SCE_List_GetData (it), n_vertices))
-            goto fail;
+        SCE_SGeometryArray *array = SCE_List_GetData (it);
+        if (!SCE_Geometry_GetRoot (array)) {
+            if (!SCE_Mesh_AddNewArrayFrom (mesh, array, n_vertices))
+                goto fail;
+        }
     }
     index_array = SCE_Geometry_GetIndexArray (geom);
     if (index_array) {
@@ -277,68 +330,41 @@ fail:
 }
 
 
-/**
- * \internal
- */
-static void SCE_Mesh_AddBufferArray (SCE_SMeshBuffer *mbuf,
-                                     SCE_SMeshArray *marray)
+static void SCE_Mesh_AddStreamData (SCE_CVertexBuffer *vb,
+                                    SCE_SMeshArray *array)
 {
-    SCE_CAddVertexBufferData (&mbuf->vb, &marray->data);
+    SCE_CAddVertexBufferData (vb, &array->data);
 }
-
-/**
- * \internal
- * \brief Adds a buffer to a mesh
- * \sa SCE_Mesh_RemoveBuffer()
- */
-static void SCE_Mesh_AddBuffer (SCE_SMesh *mesh, SCE_SMeshBuffer *mbuf)
-{
-    SCE_List_Appendl (&mesh->buffers, &mbuf->it);
-}
-/**
- * \internal
- * \brief Adds a new buffer to a mesh
- */
-static SCE_SMeshBuffer* SCE_Mesh_AddNewBuffer (SCE_SMesh *mesh)
-{
-    SCE_SMeshBuffer *mbuf = NULL;
-    if (!(mbuf = SCE_Mesh_CreateBuffer ()))
-        SCEE_LogSrc ();
-    else
-        SCE_Mesh_AddBuffer (mesh, mbuf);
-    return mbuf;
-}
-/**
- * \internal
- * \brief Adds a new buffer to a mesh from a mesh array
- */
-static SCE_SMeshBuffer* SCE_Mesh_AddNewBufferFrom (SCE_SMesh *mesh,
-                                                   SCE_SMeshArray *marray)
-{
-    SCE_SMeshBuffer *mbuf = NULL;
-    if (!(mbuf = SCE_Mesh_AddNewBuffer (mesh)))
-        SCEE_LogSrc ();
-    else
-        SCE_Mesh_AddBufferArray (mbuf, marray);
-    return mbuf;
-}
-/**
- * \internal
- * \brief Removes a buffer from a mesh
- * \sa SCE_Mesh_AddBuffer()
- */
-static void SCE_Mesh_RemoveBuffer (SCE_SMeshBuffer *mbuf)
-{
-    SCE_List_Remove (&mbuf->it);
-}
-
 
 static int SCE_Mesh_MakeIndependantVB (SCE_SMesh *mesh)
 {
     SCE_SListIterator *it = NULL;
     SCE_List_ForEach (it, &mesh->arrays) {
-        if (!SCE_Mesh_AddNewBufferFrom (mesh, SCE_List_GetData (it)))
-            goto fail;
+        SCE_EMeshStream stream = SCE_MESH_NUM_STREAMS;
+        SCE_SGeometryArray *array;
+        SCE_SMeshArray *marray = SCE_List_GetData (it);
+        /* determine stream for these arrays */
+        array = SCE_Geometry_GetUserArray (&marray->auser);
+        while (array) {
+            SCE_CVertexAttributeType attrib;
+            attrib = SCE_Geometry_GetArrayAttributeType (array);
+            /* TODO: just shit. */
+            if (attrib == SCE_POSITION) {
+                stream = SCE_MESH_STREAM_G;
+                break;
+            } else if (attrib == SCE_NORMAL || attrib == SCE_TANGENT ||
+                       attrib == SCE_BINORMAL) {
+                stream = SCE_MESH_STREAM_N;
+            } else if (attrib >= SCE_TEXCOORD0 && attrib < SCE_ATTRIB0 &&
+                       stream > SCE_MESH_STREAM_T) {
+                stream = SCE_MESH_STREAM_T;
+            } else              /* A is considered as a trash, SCE_ATTRIBn
+                                   and SCE_COLOR will be stored here */
+                stream = SCE_MESH_STREAM_A;
+            array = SCE_Geometry_GetChild (array);
+        }
+        SCE_Mesh_AddStreamData (&mesh->streams[stream], marray);
+        mesh->used_streams[stream] = SCE_TRUE;
     }
     return SCE_OK;
 fail:
@@ -348,14 +374,11 @@ fail:
 static int SCE_Mesh_MakeGlobalVB (SCE_SMesh *mesh)
 {
     SCE_SListIterator *it = NULL;
-    SCE_SMeshBuffer *mbuf = NULL;
-
-    if (!(mbuf = SCE_Mesh_AddNewBuffer (mesh))) {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
+    SCE_List_ForEach (it, &mesh->arrays) {
+        SCE_Mesh_AddStreamData (&mesh->streams[SCE_MESH_STREAM_G],
+                                SCE_List_GetData (it));
     }
-    SCE_List_ForEach (it, &mesh->arrays)
-        SCE_Mesh_AddBufferArray (mbuf, SCE_List_GetData (it));
+    mesh->used_streams[SCE_MESH_STREAM_G] = SCE_TRUE;
     return SCE_OK;
 }
 
@@ -364,34 +387,42 @@ static int SCE_Mesh_MakeGlobalVB (SCE_SMesh *mesh)
  * \todo remove "usage" parameter, defines specific usage for each stream
  * according to mesh usage (animated or not)
  */
-static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferRenderMode mode,
-                                   SCE_CBufferUsage usage)
+static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferUsage
+                                   usage[SCE_MESH_NUM_STREAMS + 1])
 {
-    SCE_SListIterator *it = NULL;
+    size_t i;
+    SCE_CBufferRenderMode rmode;
+    SCE_CBufferUsage default_usage[SCE_MESH_NUM_STREAMS + 1] = {
+        SCE_BUFFER_STATIC_DRAW,
+        SCE_BUFFER_STATIC_DRAW,
+        SCE_BUFFER_STATIC_DRAW,
+        SCE_BUFFER_DYNAMIC_DRAW,
+        SCE_BUFFER_STATIC_DRAW  /* index buffer */
+    };
+
+    if (usage) {
+        /* replace defaults */
+        for (i = 0; i < SCE_MESH_NUM_STREAMS + 1; i++) {
+            if (usage != SCE_BUFFER_DEFAULT_USAGE)
+                default_usage[i] = usage[i];
+        }
+    }
+    usage = default_usage;
+
+    /* try to setup the better render mode */
+    if (SCE_CHasCap (SCE_VAO))
+        rmode = SCE_UNIFIED_VAO_RENDER_MODE;
+    else if (SCE_CHasCap (SCE_VBO))
+        rmode = SCE_VBO_RENDER_MODE;
+    else
+        rmode = SCE_VA_RENDER_MODE;
+    mesh->rmode = rmode;
 
     if (mesh->use_ib)
-        SCE_CBuildIndexBuffer (&mesh->ib, SCE_BUFFER_STATIC_DRAW);
-    if (mode != SCE_UNIFIED_VBO_RENDER_MODE) {
-        SCE_List_ForEach (it, &mesh->buffers) {
-            SCE_SMeshBuffer *mbuf = SCE_List_GetData (it);
-            SCE_CBuildVertexBuffer (&mbuf->vb, usage, mode);
-        }
-    } else {
-        SCE_SMeshBuffer *rootbuf = NULL;
-        SCE_SListIterator *it2 = NULL;
-        it = SCE_List_GetFirst (&mesh->buffers);
-        rootbuf = SCE_List_GetData (it);
-        it = it2 = SCE_List_GetNext (it);
-        SCE_List_ForEachNext (it) {
-            SCE_SMeshBuffer *mbuf = SCE_List_GetData (it);
-            SCE_CBuildVertexBuffer (&mbuf->vb, usage, SCE_VBO_RENDER_MODE);
-        }
-        SCE_CBuildVertexBuffer (&rootbuf->vb, usage, mode);
-        SCE_List_ForEachNext (it2)
-            SCE_CUseVertexBuffer (SCE_List_GetData (it));
-        if (mesh->use_ib)
-            SCE_CUseIndexBuffer (&mesh->ib);
-        SCE_CFinishVertexBufferRender (); /* it calls CEndVertexArraySequence */
+        SCE_CBuildIndexBuffer (&mesh->ib, usage[SCE_MESH_NUM_STREAMS]);
+    for (i = 0; i < SCE_MESH_NUM_STREAMS; i++) {
+        if (mesh->used_streams[i])
+            SCE_CBuildVertexBuffer (&mesh->streams[i], usage[i], rmode);
     }
 }
 /**
@@ -404,18 +435,12 @@ static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferRenderMode mode,
  * \todo use stream concept, so kick \p bmode param
  */
 int SCE_Mesh_Build (SCE_SMesh *mesh, SCE_EMeshBuildMode bmode,
-                    SCE_CBufferRenderMode rmode, int animated)
+                    SCE_CBufferUsage usage[SCE_MESH_NUM_STREAMS + 1])
 {
     int err = SCE_ERROR;
 
     /* SCE_Mesh_Unbuild (mesh); */
 
-    /* manage extension support */
-    if (rmode > SCE_VBO_RENDER_MODE && !SCE_CHasCap (SCE_VAO))
-        rmode = SCE_VBO_RENDER_MODE;
-    if (rmode == SCE_VBO_RENDER_MODE && !SCE_CHasCap (SCE_VBO))
-        rmode = SCE_VA_RENDER_MODE;
-/*     if (rmode == SCE_VA_RENDER_MODE && !SCE_CHasCap (SCE_VA)) */ /* lulz */
     switch (bmode) {
     case SCE_INDEPENDANT_VERTEX_BUFFER:
         err = SCE_Mesh_MakeIndependantVB (mesh);
@@ -426,13 +451,8 @@ int SCE_Mesh_Build (SCE_SMesh *mesh, SCE_EMeshBuildMode bmode,
     }
     if (err < 0)
         goto fail;
-    {
-        SCE_CBufferUsage usage;
-        usage = (animated ? SCE_BUFFER_DYNAMIC_DRAW : SCE_BUFFER_STATIC_DRAW);
-        SCE_Mesh_BuildBuffers (mesh, rmode, usage);
-    }
+    SCE_Mesh_BuildBuffers (mesh, usage);
     mesh->bmode = bmode;
-    mesh->rmode = rmode;
     return SCE_OK;
 fail:
     SCEE_LogSrc ();
@@ -440,23 +460,16 @@ fail:
 }
 
 /**
- * \todo use stream instead of "buffers"
- * \brief Uses default value for mesh build mode and determine the best buffer
- * render mode
+ * \brief Uses default value for mesh construction
  *
  * It is recommanded to use this function to build meshes so the SCEngine can
  * do some optimization under data structure to prevent for rendering
  * situations that needs specific mesh data structure.
  * \sa SCE_Mesh_Build()
  */
-int SCE_Mesh_AutoBuild (SCE_SMesh *mesh, int animated)
+int SCE_Mesh_AutoBuild (SCE_SMesh *mesh)
 {
-    if (SCE_CHasCap (SCE_VAO))
-        return SCE_Mesh_Build (mesh, SCE_INDEPENDANT_VERTEX_BUFFER,
-                               SCE_UNIFIED_VAO_RENDER_MODE, animated);
-    else
-        return SCE_Mesh_Build (mesh, SCE_INDEPENDANT_VERTEX_BUFFER,
-                               SCE_VBO_RENDER_MODE, animated);
+    return SCE_Mesh_Build (mesh, SCE_INDEPENDANT_VERTEX_BUFFER, NULL);
 }
 
 /* why change mode on live? */
@@ -526,16 +539,10 @@ SCE_SMesh* SCE_Mesh_Load (const char *fname, int force)
  */
 void SCE_Mesh_Use (SCE_SMesh *mesh)
 {
-    if (mesh->rmode == SCE_UNIFIED_VBO_RENDER_MODE) {
-        SCE_SMeshBuffer *mbuf = NULL;
-        mbuf = SCE_List_GetData (SCE_List_GetFirst (&mesh->buffers));
-        SCE_CUseVertexBuffer (&mbuf->vb);
-    } else {
-        SCE_SListIterator *it = NULL;
-        SCE_List_ForEach (it, &mesh->buffers) {
-            SCE_SMeshBuffer *mbuf = SCE_List_GetData (it);
-            SCE_CUseVertexBuffer (&mbuf->vb);
-        }
+    size_t i;
+    for (i = 0; i < SCE_MESH_NUM_STREAMS; i++) {
+        if (activated_streams[i])
+            SCE_CUseVertexBuffer (&mesh->streams[i]);
     }
     if (mesh->use_ib) {
         SCE_CUseIndexBuffer (&mesh->ib);
