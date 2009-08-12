@@ -835,7 +835,7 @@ int SCE_AnimGeom_BuildGeometry (SCE_SAnimatedGeometry *ageom)
     if (ageom->base[0]) {
         SCE_Geometry_InitArray (&array);
         SCE_Geometry_SetArrayData (&array, SCE_POSITION, SCE_VERTICES_TYPE,
-                                   3, ageom->output[0], SCE_FALSE);
+                                   0, 3, ageom->output[0], SCE_FALSE);
         ageom->arrays[0] =
             SCE_Geometry_AddArrayDup (ageom->geom, &array, SCE_FALSE);
         if (!ageom->arrays[0])
@@ -844,7 +844,7 @@ int SCE_AnimGeom_BuildGeometry (SCE_SAnimatedGeometry *ageom)
     if (ageom->base[1]) {
         SCE_Geometry_InitArray (&array);
         SCE_Geometry_SetArrayData (&array, SCE_NORMAL, SCE_VERTICES_TYPE,
-                                   3, ageom->output[1], SCE_FALSE);
+                                   0, 3, ageom->output[1], SCE_FALSE);
         ageom->arrays[1] =
             SCE_Geometry_AddArrayDup (ageom->geom, &array, SCE_FALSE);
         if (!ageom->arrays[1])
@@ -855,7 +855,7 @@ int SCE_AnimGeom_BuildGeometry (SCE_SAnimatedGeometry *ageom)
     if (ageom->base[2]) {
         SCE_Geometry_InitArray (&array);
         SCE_Geometry_SetArrayData (&array, SCE_TANGENT, SCE_VERTICES_TYPE,
-                                   3, ageom->output[2], SCE_FALSE);
+                                   0, 3, ageom->output[2], SCE_FALSE);
         ageom->arrays[2] =
             SCE_Geometry_AddArrayDup (ageom->geom, &array, SCE_FALSE);
         if (!ageom->arrays[2])
@@ -864,7 +864,7 @@ int SCE_AnimGeom_BuildGeometry (SCE_SAnimatedGeometry *ageom)
     if (ageom->base[3]) {
         SCE_Geometry_InitArray (&array);
         SCE_Geometry_SetArrayData (&array, SCE_BINORMAL, SCE_VERTICES_TYPE,
-                                   3, ageom->output[3], SCE_FALSE);
+                                   0, 3, ageom->output[3], SCE_FALSE);
         ageom->arrays[3] =
             SCE_Geometry_AddArrayDup (ageom->geom, &array, SCE_FALSE);
         if (!ageom->arrays[3])

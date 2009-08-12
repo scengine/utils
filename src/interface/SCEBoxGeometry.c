@@ -149,12 +149,12 @@ static int SCE_BoxGeom_GenPoints (SCE_SBox *box, SCE_EBoxGeomTexCoordMode mode,
     if (mode == SCE_BOX_CUBEMAP_TEXCOORD) {
         SCE_Geometry_InitArray (&array);
         SCE_Geometry_SetArrayData (&array, SCE_TEXCOORD0, SCE_VERTICES_TYPE,
-                                   3, texcoord_cubemap, SCE_FALSE);
+                                   0, 3, texcoord_cubemap, SCE_FALSE);
         if (!SCE_Geometry_AddArrayDupDup (geom, &array, SCE_FALSE))
             goto fail;
     }
     SCE_Geometry_InitArray (&array);
-    SCE_Geometry_SetArrayData (&array, SCE_POSITION, SCE_VERTICES_TYPE, 3,
+    SCE_Geometry_SetArrayData (&array, SCE_POSITION, SCE_VERTICES_TYPE, 0, 3,
                                SCE_Box_GetPoints (box), SCE_FALSE);
     if (!SCE_Geometry_AddArrayDupDup (geom, &array, SCE_FALSE))
         goto fail;
@@ -179,13 +179,13 @@ static int SCE_BoxGeom_GenLines (SCE_SBox *box, SCE_EBoxGeomTexCoordMode mode,
     /* ... just cubemap */
     if (mode == SCE_BOX_CUBEMAP_TEXCOORD) {
         SCE_Geometry_InitArray (&array);
-        SCE_Geometry_SetArrayData (&array, SCE_TEXCOORD0, SCE_VERTICES_TYPE,
+        SCE_Geometry_SetArrayData (&array, SCE_TEXCOORD0, SCE_VERTICES_TYPE, 0,
                                    3, texcoord_cubemap, SCE_FALSE);
         if (!SCE_Geometry_AddArrayDupDup (geom, &array, SCE_FALSE))
             goto fail;
     }
     SCE_Geometry_InitArray (&array);
-    SCE_Geometry_SetArrayData (&array, SCE_POSITION, SCE_VERTICES_TYPE,
+    SCE_Geometry_SetArrayData (&array, SCE_POSITION, SCE_VERTICES_TYPE, 0,
                                3, SCE_Box_GetPoints (box), SCE_FALSE);
     if (!SCE_Geometry_AddArrayDupDup (geom, &array, SCE_FALSE))
         goto fail;
@@ -232,8 +232,8 @@ static int SCE_BoxGeom_GenTriangles (SCE_SBox *box,
     {
         SCE_SGeometryArray array, *ap = NULL;
         SCE_Geometry_InitArray (&array);
-        SCE_Geometry_SetArrayData (&array, SCE_POSITION, SCE_VERTICES_TYPE, 3,
-                                   v, SCE_FALSE);
+        SCE_Geometry_SetArrayData (&array, SCE_POSITION, SCE_VERTICES_TYPE,
+                                   0, 3, v, SCE_FALSE);
         ap = SCE_Geometry_AddArrayDupDup (geom, &array, SCE_FALSE);
         if (!ap)
             goto fail;
@@ -242,7 +242,7 @@ static int SCE_BoxGeom_GenTriangles (SCE_SBox *box,
         if (t) {
             SCE_Geometry_InitArray (&array);
             SCE_Geometry_SetArrayData (&array, SCE_TEXCOORD0, SCE_VERTICES_TYPE,
-                                       3, t, SCE_FALSE);
+                                       0, 3, t, SCE_FALSE);
             if (!SCE_Geometry_AddArrayDupDup (geom, &array, SCE_FALSE))
                 goto fail;
         }

@@ -95,11 +95,10 @@ static void* SCE_OBJ_Load (FILE *fp, const char *fname, void *unused)
     if (me->indices) {
         SCE_SGeometryArray array;
         SCE_Geometry_InitArray (&array);
-        SCE_Geometry_SetArrayData (&array, 0, SCE_UNSIGNED_INT, 0, me->indices,
-                                   SCE_TRUE);
-        if (SCE_Geometry_SetIndexArrayDupDup (geom, &array, SCE_TRUE) < 0)
+        SCE_Geometry_SetArrayData (&array, 0, SCE_UNSIGNED_INT, 0, 0,
+                                   me->indices, SCE_TRUE);
+        if (SCE_Geometry_SetIndexArrayDupDup (geom, &array, SCE_FALSE) < 0)
             goto fail;
-        me->indices = NULL;
     }
 
     war_free (me);

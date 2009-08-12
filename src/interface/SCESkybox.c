@@ -136,8 +136,7 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_STexture *tex,
         goto fail;
     SCE_Mesh_SetGeometry (skybox->mesh, geom, SCE_TRUE);
     geom = NULL;
-    if (SCE_Mesh_Build (skybox->mesh, SCE_GLOBAL_VERTEX_BUFFER,
-                        SCE_UNIFIED_VBO_RENDER_MODE, SCE_FALSE) < 0)
+    if (SCE_Mesh_Build (skybox->mesh, SCE_GLOBAL_VERTEX_BUFFER, NULL) < 0)
         goto fail;
     SCE_SceneEntity_SetMesh (skybox->entity, skybox->mesh);
     skybox->mode = mode;
