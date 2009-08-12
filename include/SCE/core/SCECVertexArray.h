@@ -39,7 +39,10 @@ extern "C" {
 enum sce_cprimitivetype {
     SCE_POINTS = GL_POINTS,
     SCE_LINES = GL_LINES,
-    SCE_TRIANGLES = GL_TRIANGLES
+    SCE_TRIANGLES = GL_TRIANGLES,
+    /* those following are not recommanded: */
+    SCE_TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
+    SCE_TRIANGLE_FAN = GL_TRIANGLE_FAN
 };
 typedef enum sce_cprimitivetype SCE_CPrimitiveType;
 

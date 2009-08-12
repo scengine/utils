@@ -156,8 +156,7 @@ SCE_CVertexArray* SCE_CCreateVertexArray (void)
 }
 void SCE_CClearVertexArray (SCE_CVertexArray *va)
 {
-    if (va->id != 0)
-        glDeleteArrays (1, &va->id);
+    (void)va;                   /* ptdr. */
     /* NOTE: cannot remove the iterator safely, so NEVER clear a vertex array
        on rendering stage */
 }
@@ -210,7 +209,7 @@ void SCE_CInitVertexArraySequence (SCE_CVertexArraySequence *seq)
 /**
  * \brief Gets the public iterator of a vertex array
  */
-SCE_SListIterator SCE_CGetVertexArrayIterator (SCE_CVertexArray *va)
+SCE_SListIterator* SCE_CGetVertexArrayIterator (SCE_CVertexArray *va)
 {
     return &va->it2;
 }
