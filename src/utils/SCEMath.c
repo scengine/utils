@@ -134,23 +134,7 @@ int SCE_Math_Powi (int x, unsigned int n)
  */
 int SCE_Math_PowerOfTwo (int n)
 {
-    int power = 0;
-
-    while (1)
-    {
-        if (n % 2)
-            break;
-        else
-        {
-            n /= 2;
-            power++;
-        }
-    }
-
-    if (n == 1)
-        return power;
-
-    return 0;
+    return (!(n & (n - 1)) && n);
 }
 
 /**
