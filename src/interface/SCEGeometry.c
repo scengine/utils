@@ -1151,7 +1151,7 @@ static void SCE_Geometry_ComputePrimDistances (SCE_SGeometry *geom,
         size_t j;
         for (j = 0; j < vpp; j++)
             SCE_Vector3_Copy (&vprim[j], &positions[indices[(i * vpp) + j]]);
-        SCE_Geometry_GetPrimitiveCenter (vprim, vpp, center);
+        SCE_Geometry_GetPrimCenter (vprim, vpp, center);
         geom->sorted[i].dist = SCE_Vector3_Distance (center, from);
         geom->sorted[i].index = i * vpp;
     }

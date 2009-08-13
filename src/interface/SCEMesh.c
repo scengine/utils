@@ -128,7 +128,7 @@ SCE_SMesh* SCE_Mesh_CreateFrom (SCE_SGeometry *geom)
     SCE_SMesh *mesh = NULL;
     if (!(mesh = SCE_Mesh_Create ()))
         SCEE_LogSrc ();
-    else if (SCE_Mesh_MakeFrom (mesh, geom) < 0) {
+    else if (SCE_Mesh_SetGeometry (mesh, geom) < 0) {
         SCE_Mesh_Delete (mesh), mesh = NULL;
         SCEE_LogSrc ();
     }

@@ -91,49 +91,38 @@ struct sce_cframebuffer
 
 /** @} */
 
-/* initialise le gestionnaire */
 int SCE_CFramebufferInit (void);
+void SCE_CFramebufferQuit (void);
 
-/* defini le FBO actif pour les modifications */
-void SCE_CBindFramebuffer (SCE_CFramebuffer*);
+void SCE_CBindFramebuffer (SCE_CFramebuffer*) SCE_GNUC_DEPRECATED;
 
-/* cree un FBO */
 SCE_CFramebuffer* SCE_CCreateFramebuffer (void);
-/* supprime un FBO */
 void SCE_CDeleteFramebuffer (SCE_CFramebuffer*);
 void SCE_CDeleteFramebuffer_ (void);
 
-/* ajoute un tampon de rendu vers une texture */
 int SCE_CAddRenderTexture (SCE_CFramebuffer*, SCEuint, SCEenum,
                            SCE_CTexture*, int, int);
 int SCE_CAddRenderTexture_ (SCEuint, SCEenum, SCE_CTexture*, int, int);
 
-/* ajoute un tampon de rendu vers ... rien :D */
 int SCE_CAddRenderBuffer (SCE_CFramebuffer*, SCEuint, int, int, int);
 int SCE_CAddRenderBuffer_ (SCEuint, int, int, int);
 
-/* cree une texture et l'ajoute comme render texture */
 int SCE_CCreateRenderTexture (SCE_CFramebuffer*, SCEuint,
                               int, int, int, int, int);
 int SCE_CCreateRenderTexture_ (SCEuint, int, int, int, int, int);
 
-/* recupere la texture de rendu du render buffer specifie */
 SCE_CTexture* SCE_CGetRenderTexture (SCE_CFramebuffer*, SCEuint);
 SCE_CTexture* SCE_CGetRenderTexture_ (SCEuint);
 
-/* active/desactive un render buffer */
 void SCE_CActivateRenderBuffer (SCE_CFramebuffer*, int, int);
 void SCE_CEnableRenderBuffer (SCE_CFramebuffer*, int);
 void SCE_CDisableRenderBuffer (SCE_CFramebuffer*, int);
 
-/* defini si le buffer specifie du FBO doit etre vide avant le rendu */
 void SCE_CClearRenderbuffer (SCE_CFramebuffer*, SCEuint, int);
 void SCE_CClearRenderbuffer_ (SCEuint, int);
 
-/* retourne le nombre maximum de buffers supporte pour le MRT */
 unsigned int SCE_CGetMaxAttachmentBuffers (void);
 
-/* defini le frame buffer actif */
 void SCE_CUseFramebuffer (SCE_CFramebuffer*, SCE_SIntRect*);
 
 #ifdef __cplusplus

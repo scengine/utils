@@ -89,10 +89,10 @@ See the file ./doc/html/todo.html
 - Manage modified vertices range in skeletal animation:
     create range-specific skeletons.
 - Setup interleaved arrays (stride come back) in:
-  - vertex arrays;
-  - vertex buffers;
-  - geometry;
+  - geometry (add switch-to-stride function);
   - animated geometry.
 - Transform feedback.
+- Texture arrays.
+- Solve divin function SCE_Texture_Create().
 
-- 51
+- 53

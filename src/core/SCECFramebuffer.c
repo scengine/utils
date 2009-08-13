@@ -44,7 +44,7 @@
 /** @{ */
 
 /* TODO: rename it... */
-static SCE_CFramebuffer *binded = NULL;
+static SCE_CFramebuffer *bound = NULL;
 
 static SCEint max_attachement_buffers = 0;
 
@@ -54,13 +54,15 @@ int SCE_CFramebufferInit (void)
         glGetIntegerv (GL_MAX_DRAW_BUFFERS, &max_attachement_buffers);
     return SCE_OK;
 }
-
+void SCE_CFramebufferQuit (void)
+{
+}
 
 void SCE_CBindFramebuffer (SCE_CFramebuffer *fb)
 {
-    binded = fb;
-    if (binded)
-        glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, binded->id);
+    bound = fb;
+    if (bound)
+        glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, bound->id);
     else
         glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
 }
@@ -111,14 +113,14 @@ SCE_CFramebuffer* SCE_CCreateFramebuffer (void)
 }
 
 #define SCE_CDEFAULTFUNC(action)\
-SCE_CFramebuffer *back = binded;\
+SCE_CFramebuffer *back = bound;\
 SCE_CBindFramebuffer (fb);\
 action;\
 SCE_CBindFramebuffer (back);
 
 #define SCE_CDEFAULTFUNCR(t, action)\
 t r;\
-SCE_CFramebuffer *back = binded;\
+SCE_CFramebuffer *back = bound;\
 SCE_CBindFramebuffer (fb);\
 r = action;\
 SCE_CBindFramebuffer (back);\
@@ -135,21 +137,21 @@ void SCE_CDeleteFramebuffer (SCE_CFramebuffer *fb)
 void SCE_CDeleteFramebuffer_ (void)
 {
     SCE_btstart ();
-    if (binded)
+    if (bound)
     {
         unsigned int i;
         for (i=0; i<SCE_NUM_RENDER_BUFFERS; i++)
         {
-            if (!binded->buffers[i].user)
-                SCE_CDeleteTexture (binded->buffers[i].tex);
+            if (!bound->buffers[i].user)
+                SCE_CDeleteTexture (bound->buffers[i].tex);
 
-            if (binded->buffers[i].id)
-                glDeleteRenderbuffersEXT (1, &binded->buffers[i].id);
+            if (bound->buffers[i].id)
+                glDeleteRenderbuffersEXT (1, &bound->buffers[i].id);
         }
 
-        glDeleteFramebuffersEXT (1, &binded->id);
-        SCE_free (binded);
-        binded = NULL;
+        glDeleteFramebuffersEXT (1, &bound->id);
+        SCE_free (bound);
+        bound = NULL;
     }
     SCE_btend ();
 }
@@ -231,18 +233,18 @@ int SCE_CAddRenderTexture_ (SCEuint id, SCEenum target, SCE_CTexture *tex,
 
     /* si la precedente texture n'a pas ete envoyee par l'utilisateur,
        on la supprime */
-    if (!binded->buffers[id].user)
-        SCE_CDeleteTexture (binded->buffers[id].tex);
+    if (!bound->buffers[id].user)
+        SCE_CDeleteTexture (bound->buffers[id].tex);
 
     /* si un buffer existe deja, on le supprime */
-    if (binded->buffers[id].id)
+    if (bound->buffers[id].id)
     {
-        glDeleteRenderbuffersEXT (1, &binded->buffers[id].id);
-        binded->buffers[id].id = 0;
+        glDeleteRenderbuffersEXT (1, &bound->buffers[id].id);
+        bound->buffers[id].id = 0;
     }
 
-    binded->buffers[id].user = !canfree;
-    binded->buffers[id].tex = tex;
+    bound->buffers[id].user = !canfree;
+    bound->buffers[id].tex = tex;
 
     /* verification du target */
     if (target < SCE_TEX_POSX || target > SCE_TEX_NEGZ)
@@ -288,9 +290,9 @@ int SCE_CAddRenderTexture_ (SCEuint id, SCEenum target, SCE_CTexture *tex,
                                target, tex->id, mipmap);
     /* si aucune color render texture n'existe, on desactive le tampon */
     if (id == SCE_DEPTH_BUFFER &&
-        !binded->buffers[SCE_COLOR_BUFFER0].tex &&
-        !binded->buffers[SCE_COLOR_BUFFER1].tex &&
-        !binded->buffers[SCE_COLOR_BUFFER2].tex) /* etc. */
+        !bound->buffers[SCE_COLOR_BUFFER0].tex &&
+        !bound->buffers[SCE_COLOR_BUFFER1].tex &&
+        !bound->buffers[SCE_COLOR_BUFFER2].tex) /* etc. */
     {
         glDrawBuffer (GL_NONE);
     }
@@ -308,10 +310,10 @@ int SCE_CAddRenderTexture_ (SCEuint id, SCEenum target, SCE_CTexture *tex,
     }
 
     /* recuperation des dimensions */
-    binded->w = SCE_CGetTextureWidth (tex, target, 0);
-    binded->h = SCE_CGetTextureHeight (tex, target, 0);
+    bound->w = SCE_CGetTextureWidth (tex, target, 0);
+    bound->h = SCE_CGetTextureHeight (tex, target, 0);
     /* activation */
-    binded->buffers[id].actived = SCE_TRUE;
+    bound->buffers[id].actived = SCE_TRUE;
 
     SCE_btend ();
     return SCE_OK;
@@ -356,33 +358,33 @@ int SCE_CAddRenderBuffer_ (SCEuint id, int fmt, int w, int h)
     }
 
     if (w <= 0)
-        w = binded->w;
+        w = bound->w;
     else
-        binded->w = w;
+        bound->w = w;
     if (h <= 0)
-        h = binded->h;
+        h = bound->h;
     else
-        binded->h = h;
+        bound->h = h;
 
     /* si une texture existait deja, on la supprime */
-    if (!binded->buffers[id].user)
+    if (!bound->buffers[id].user)
     {
-        SCE_CDeleteTexture (binded->buffers[id].tex);
-        binded->buffers[id].tex = NULL;  /* ! important ! */
+        SCE_CDeleteTexture (bound->buffers[id].tex);
+        bound->buffers[id].tex = NULL;  /* ! important ! */
     }
 
     /* si le buffer n'existe pas, il faut le creer */
-    if (!glIsRenderbufferEXT (binded->buffers[id].id))
-        glGenRenderbuffersEXT (1, &binded->buffers[id].id);
+    if (!glIsRenderbufferEXT (bound->buffers[id].id))
+        glGenRenderbuffersEXT (1, &bound->buffers[id].id);
 
     /* creation du render buffer */
-    glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, binded->buffers[id].id);
+    glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, bound->buffers[id].id);
     glRenderbufferStorageEXT (GL_RENDERBUFFER_EXT, fmt, w, h);
     glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, 0);
 
     /* on l'ajoute au FBO */
     glFramebufferRenderbufferEXT (GL_FRAMEBUFFER_EXT, type, GL_RENDERBUFFER_EXT,
-                                  binded->buffers[id].id);
+                                  bound->buffers[id].id);
 
     status = glCheckFramebufferStatusEXT (GL_FRAMEBUFFER_EXT);
     if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
@@ -395,7 +397,7 @@ int SCE_CAddRenderBuffer_ (SCEuint id, int fmt, int w, int h)
     }
 
     /* activation */
-    binded->buffers[id].actived = SCE_TRUE;
+    bound->buffers[id].actived = SCE_TRUE;
 
     SCE_btend ();
     return SCE_OK;
@@ -508,7 +510,7 @@ SCE_CTexture* SCE_CGetRenderTexture (SCE_CFramebuffer *fb, SCEuint id)
 }
 SCE_CTexture* SCE_CGetRenderTexture_ (SCEuint id)
 {
-    return binded->buffers[id].tex;
+    return bound->buffers[id].tex;
 }
 
 
@@ -574,7 +576,7 @@ static void SCE_CSetDrawBuffers (SCE_CFramebuffer *fb)
 void SCE_CUseFramebuffer (SCE_CFramebuffer *fb, SCE_SIntRect *r)
 {
     static int viewport[4];         /* viewport avant l'utilisation du fbo */
-    static int binded_ = SCE_FALSE; /* booleen, true: un fbo est deja binde */
+    static int bound_ = SCE_FALSE; /* booleen, true: un fbo est deja binde */
 
     if (fb)
     {
@@ -582,7 +584,7 @@ void SCE_CUseFramebuffer (SCE_CFramebuffer *fb, SCE_SIntRect *r)
         /* on recupere d'abord le viewport, pour ensuite le restituer
            (uniquement si aucun fbo n'est deja binde,
             sinon on prendrait son viewport) */
-        if (!binded_)
+        if (!bound_)
             glGetIntegerv (GL_VIEWPORT, viewport);
 
         glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, fb->id);
@@ -595,13 +597,13 @@ void SCE_CUseFramebuffer (SCE_CFramebuffer *fb, SCE_SIntRect *r)
         if (SCE_CHasCap (SCE_MRT))
             SCE_CSetDrawBuffers (fb);
 
-        binded_ = SCE_TRUE;
+        bound_ = SCE_TRUE;
     }
-    else if (binded_)
+    else if (bound_)
     {
         glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
         glViewport (viewport[0], viewport[1], viewport[2], viewport[3]);
-        binded_ = SCE_FALSE;
+        bound_ = SCE_FALSE;
     }
 }
 

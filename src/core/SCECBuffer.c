@@ -22,12 +22,12 @@
 #include <string.h>             /* memcpy */
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/utils/SCEMath.h>  /* MIN/MAX */
 #include <SCE/core/SCECBuffer.h>
 
 /**
  * \file SCECBuffer.c
  * \copydoc
- * 
  * \file SCECBuffer.h
  * \copydoc
  */
