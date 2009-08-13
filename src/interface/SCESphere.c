@@ -17,11 +17,17 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 04/08/2009
-   updated: 04/08/2009 */
+   updated: 13/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/interface/SCESphere.h>
+
+void SCE_Sphere_Init (SCE_SSphere *s)
+{
+    SCE_Vector3_Set (s->center, 0.0f, 0.0f, 0.0f);
+    s->radius = 1.0f;
+}
 
 void SCE_Sphere_Copy (SCE_SSphere *dst, const SCE_SSphere *src)
 {

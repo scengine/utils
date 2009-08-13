@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 04/08/2009
-   updated: 04/08/2009 */
+   updated: 13/08/2009 */
 
 #ifndef SCESPHERE_H
 #define SCESPHERE_H
@@ -34,6 +34,7 @@ struct sce_ssphere {
     float radius;
 };
 
+void SCE_Sphere_Init (SCE_SSphere*);
 void SCE_Sphere_Copy (SCE_SSphere*, const SCE_SSphere*);
 
 #ifdef __cplusplus

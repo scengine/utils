@@ -67,7 +67,7 @@ int SCE_Init (FILE *outlog, SCEflags flags)
         if (SCE_Init_OBJ () < 0)
             goto fail;
     }
-    if (SCE_Init_AnimMesh () < 0)
+    if (SCE_Init_AnimGeom () < 0)
         goto fail;
     if (SCE_Init_Anim () < 0)
         goto fail;
@@ -100,7 +100,7 @@ void SCE_Quit (void)
     SCE_Quit_Quad ();
     SCE_Quit_idTechMD5 ();
     SCE_Quit_Anim ();
-    SCE_Quit_AnimMesh ();
+    SCE_Quit_AnimGeom ();
     SCE_Quit_OBJ ();
     SCE_Quit_Mesh ();
     SCE_Quit_BoxGeom ();
