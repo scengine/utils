@@ -49,13 +49,14 @@ static void SCE_CUpdateBufferMapRange (SCE_CBuffer*);
 
 int SCE_CBufferInit (void)
 {
+    /* add LockBuffer() too */
     if (SCE_CIsSupported ("GL_ARB_map_buffer_range"))
         SCE_CUpdateBuffer = SCE_CUpdateBufferMapRange;
     else
         SCE_CUpdateBuffer = SCE_CUpdateBufferMapClassic;
     SCE_List_Init (&modified);
 }
-void SCE_CQuitBuffer (void)
+void SCE_CBufferQuit (void)
 {
     SCE_List_Flush (&modified);
 }

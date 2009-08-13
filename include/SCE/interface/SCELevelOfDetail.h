@@ -27,15 +27,13 @@
 #include <SCE/interface/SCECamera.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef int (*SCE_FGetLODFunc)(float);
 
 typedef struct sce_slevelofdetail SCE_SLevelOfDetail;
-struct sce_slevelofdetail
-{
+struct sce_slevelofdetail {
     int lod;                    /**< LOD level */
     SCE_SBoundingBox *box;      /**< Bounding box used for computations */
     float size;                 /**< Size of the bounding box in screen space */
@@ -53,9 +51,9 @@ void SCE_Lod_SetGetLODFunc (SCE_SLevelOfDetail*, SCE_FGetLODFunc);
 
 SCE_SBoundingBox* SCE_Lod_GetBoundingBox (SCE_SLevelOfDetail*);
 
-float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBoundingBox*, float,
+float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBox*, float,
                                                  SCE_SCamera*);
-float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBoundingBox*, SCE_SCamera*);
+float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBox*, SCE_SCamera*);
 int SCE_Lod_Compute (SCE_SLevelOfDetail*, SCE_TMatrix4, SCE_SCamera*);
 
 int SCE_Lod_GetLOD (SCE_SLevelOfDetail*);

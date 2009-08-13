@@ -74,7 +74,7 @@ SCE_SBoundingBox* SCE_Lod_GetBoundingBox (SCE_SLevelOfDetail *lod)
 }
 
 
-float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBoundingBox *box,
+float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBox *box,
                                                  float dist,
                                                  SCE_SCamera *cam)
 {
@@ -82,9 +82,9 @@ float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBoundingBox *box,
     float area;
 
     {
-        /* see SCEBoundingBox.c for infos about the queried points */
+        /* see SCEBox.c for infos about the queried points */
         float *points;
-        points = SCE_BoundingBox_GetPoints (box);
+        points = SCE_Box_GetPoints (box);
         SCE_Vector3_Copy (v[0], &points[0]);
         SCE_Vector3_Copy (v[1], &points[2]);
         SCE_Vector3_Copy (v[2], &points[4]);
@@ -135,21 +135,20 @@ float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBoundingBox *box,
     return area;
 }
 
-float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBoundingBox *box,
-                                         SCE_SCamera *cam)
+float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBox *box, SCE_SCamera *cam)
 {
     float area;
     float dist = 1.0;
     SCE_TVector3 t;
-    SCE_BoundingBox_GetCenterv (box, t);
+    SCE_Box_GetCenterv (box, t);
     {
         SCE_TVector3 v1;
         SCE_Camera_GetPositionv (cam, v1);
         dist = SCE_Vector3_Distance (v1, t);
     }
-    SCE_BoundingBox_SetCenter (box, 0.0, 0.0, 0.0);
+    SCE_Box_SetCenter (box, 0.0, 0.0, 0.0);
     area = SCE_Lod_ComputeBoundingBoxSurfaceFromDist (box, dist, cam);
-    SCE_BoundingBox_SetCenterv (box, t);
+    SCE_Box_SetCenterv (box, t);
     return area;
 }
 
@@ -168,11 +167,15 @@ int SCE_Lod_Compute (SCE_SLevelOfDetail *lod, SCE_TMatrix4 m, SCE_SCamera *cam)
         lod->dist = SCE_Vector3_Distance (v, t);
     }
     m[3] = m[7] = m[11] = 0.0;
-    /* do projection! */
-    SCE_BoundingBox_Push (lod->box, m);
-    lod->size = SCE_Lod_ComputeBoundingBoxSurfaceFromDist (lod->box, lod->dist,
-                                                           cam);
-    SCE_BoundingBox_Pop (lod->box);
+    {
+        SCE_SBox box, *bptr;
+        bptr = SCE_BoundingBox_GetBox (lod->box);
+        /* do projection! */
+        SCE_BoundingBox_Push (lod->box, m, &box);
+        lod->size = SCE_Lod_ComputeBoundingBoxSurfaceFromDist (bptr,
+                                                               lod->dist, cam);
+        SCE_BoundingBox_Pop (lod->box, &box);
+    }
     /* restore initial translation */
     m[3] = t[0]; m[7] = t[1]; m[11] = t[2];
 
