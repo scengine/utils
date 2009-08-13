@@ -66,6 +66,7 @@ typedef enum sce_ccapability SCE_CCap;
 /** @} */
 
 int SCE_CSupportInit (void);
+void SCE_CSupportQuit (void);
 
 int SCE_CFindExtension (const char*);
 int SCE_CIsSupported (const char*);

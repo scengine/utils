@@ -120,6 +120,9 @@ int SCE_CSupportInit (void)
     SCE_CCheckCaps ();
     return SCE_OK;
 }
+void SCE_CSupportQuit (void)
+{
+}
 
 /**
  * \brief Search an occurrence of \p ext in glGetString(GL_EXTENSIONS)
