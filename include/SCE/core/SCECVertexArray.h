@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 09/08/2009 */
+   updated: 13/08/2009 */
 
 #ifndef SCECVERTEXARRAY_H
 #define SCECVERTEXARRAY_H
@@ -166,6 +166,7 @@ void SCE_CFinishVertexArrayRender (void);
 void SCE_CBeginVertexArraySequence (SCE_CVertexArraySequence*);
 void SCE_CCallVertexArraySequence (SCE_CVertexArraySequence);
 void SCE_CEndVertexArraySequence (void);
+void SCE_CDeleteVertexArraySequence (SCE_CVertexArraySequence*);
 
 #ifdef __cplusplus
 } /* extern "C" */

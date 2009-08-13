@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 09/08/2009 */
+   updated: 13/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -26,7 +26,6 @@
 /**
  * \file SCECVertexArray.c
  * \copydoc
- * 
  * \file SCECVertexArray.h
  * \copydoc
  */
@@ -38,6 +37,10 @@
  * \brief OpenGL vertex arrays
  * @{
  */
+
+/* NOTE: GLee doesn't define these names.. ? */
+#define glDrawArraysInstanced glDrawArraysInstancedARB
+#define glDrawElementsInstanced glDrawElementsInstancedARB
 
 static SCE_SList vaused;
 static int vao_used = SCE_FALSE;
@@ -335,7 +338,7 @@ void SCE_CFinishVertexArrayRender (void)
 void SCE_CBeginVertexArraySequence (SCE_CVertexArraySequence *seq)
 {
     if (seq->id != 0)
-        glDeleteArrays (1, &seq->id); /* reset and create new */
+        glDeleteVertexArrays (1, &seq->id); /* reset and create new */
     glGenVertexArrays (1, &seq->id);
     glBindVertexArray (seq->id);
 }
@@ -355,6 +358,15 @@ void SCE_CCallVertexArraySequence (SCE_CVertexArraySequence seq)
 void SCE_CEndVertexArraySequence (void)
 {
     glBindVertexArray (0);
+    vao_used = SCE_FALSE;
+}
+/**
+ * \brief Destroys a vertex array object
+ */
+void SCE_CDeleteVertexArraySequence (SCE_CVertexArraySequence *seq)
+{
+    glDeleteVertexArrays (1, &seq->id);
+    seq->id = 0;
 }
 
 /** @} */
