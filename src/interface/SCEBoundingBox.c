@@ -50,6 +50,13 @@ void SCE_BoundingBox_Init (SCE_SBoundingBox *box)
     for (i = 0; i < 6; i++)
         SCE_Plane_Init (&box->planes[i]);
 }
+/**
+ * \brief Set a bounding box from a box
+ */
+void SCE_BoundingBox_SetFrom (SCE_SBoundingBox *box, SCE_SBox *b)
+{
+    SCE_Box_Copy (&box->box, b);
+}
 
 /**
  * \brief Gets the box of a bounding box

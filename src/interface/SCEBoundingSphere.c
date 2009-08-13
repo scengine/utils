@@ -48,6 +48,13 @@ void SCE_BoundingSphere_Init (SCE_SBoundingSphere *sphere)
 {
     SCE_BoundingSphere_Set (sphere, 0.0f, 0.0f, 0.0f, 1.0f);
 }
+/**
+ * \brief Set a bounding box from a box
+ */
+void SCE_BoundingSphere_SetFrom (SCE_SBoundingSphere *sphere, SCE_SSphere *d)
+{
+    SCE_Sphere_Copy (&sphere->sphere, s);
+}
 
 void SCE_BoundingSphere_Set (SCE_SBoundingSphere *sphere,
                              float x, float y, float z, float radius)

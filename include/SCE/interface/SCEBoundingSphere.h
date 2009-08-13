@@ -36,6 +36,7 @@ struct sce_sboundingsphere {
 };
 
 void SCE_BoundingSphere_Init (SCE_SBoundingSphere*);
+void SCE_BoundingSphere_SetFrom (SCE_SBoundingSphere*, SCE_SSphere*);
 
 void SCE_BoundingSphere_Set (SCE_SBoundingSphere*, float, float, float, float);
 void SCE_BoundingSphere_Setv (SCE_SBoundingSphere*, SCE_TVector3, float);

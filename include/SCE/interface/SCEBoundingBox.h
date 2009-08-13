@@ -37,6 +37,7 @@ struct sce_sboundingbox {
 };
 
 void SCE_BoundingBox_Init (SCE_SBoundingBox*);
+void SCE_BoundingBox_SetFrom (SCE_SBoundingBox*, SCE_SBox*);
 
 SCE_SBox* SCE_BoundingBox_GetBox (SCE_SBoundingBox*);
 
