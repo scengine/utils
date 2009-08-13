@@ -23,14 +23,14 @@
 #define SCEMD5LOADER_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define SCE_MD5MESH_FILE_EXTENSION "md5mesh"
 #define SCE_MD5ANIM_FILE_EXTENSION "md5anim"
 
 int SCE_Init_idTechMD5 (void);
+void SCE_Quit_idTechMD5 (void);
 
 void* SCE_idTechMD5_LoadMesh (FILE*, const char*, void*);
 void* SCE_idTechMD5_LoadAnim (FILE*, const char*, void*);

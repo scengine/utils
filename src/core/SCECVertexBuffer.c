@@ -376,17 +376,6 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer *vb,
 }
 
 /**
- * \deprecated
- * \brief Calls SCE_CUpdateBuffer() under the buffer of the given vertex buffer
- * \sa SCE_CUpdateBuffer()
- * \todo what the use of such a function?
- */
-void SCE_CUpdateVertexBuffer (SCE_CVertexBuffer *vb)
-{
-    SCE_CUpdateBuffer (&vb->buf);
-}
-
-/**
  * \brief 
  */
 void SCE_CUseVertexBuffer (SCE_CVertexBuffer *vb)

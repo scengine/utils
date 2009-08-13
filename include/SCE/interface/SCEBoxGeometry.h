@@ -37,6 +37,9 @@ enum sce_eboxgeomtexcoordmode {
 };
 typedef enum sce_eboxgeomtexcoordmode SCE_EBoxGeomTexCoordMode;
 
+int SCE_Init_BoxGeom (void);
+void SCE_Quit_BoxGeom (void);
+
 int SCE_BoxGeom_Generate (SCE_SBox*, SCE_CPrimitiveType,
                           SCE_EBoxGeomTexCoordMode, SCE_SGeometry*);
 SCE_SGeometry* SCE_BoxGeom_Create (SCE_SBox*, SCE_CPrimitiveType,

@@ -21,6 +21,7 @@
 
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/core/SCECTexture.h> /* CGetMaxTextureUnits() */
 #include <SCE/core/SCECVertexArray.h>
 
 /**

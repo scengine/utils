@@ -52,7 +52,7 @@ void SCE_BoundingSphere_Init (SCE_SBoundingSphere *sphere)
 /**
  * \brief Set a bounding box from a box
  */
-void SCE_BoundingSphere_SetFrom (SCE_SBoundingSphere *sphere, SCE_SSphere *d)
+void SCE_BoundingSphere_SetFrom (SCE_SBoundingSphere *sphere, SCE_SSphere *s)
 {
     SCE_Sphere_Copy (&sphere->sphere, s);
 }
@@ -85,8 +85,8 @@ float SCE_BoundingSphere_GetRadius (SCE_SBoundingSphere *sphere)
 
 static void SCE_BoundingSphere_MakeBoxFrom (SCE_SSphere *sphere, SCE_SBox *box)
 {
-    SCE_Box_SetFromCenterv (box, sphere->center, sphere->radius,
-                            sphere->radius, sphere->radius);
+    SCE_Box_SetFromCenter (box, sphere->center, sphere->radius,
+                           sphere->radius, sphere->radius);
 }
 static void SCE_BoundingSphere_ApplyMatrix (SCE_SSphere *sphere,
                                             SCE_TMatrix4x3 m)

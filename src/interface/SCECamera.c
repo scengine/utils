@@ -28,19 +28,17 @@
 /**
  * \file SCECamera.c
  * \copydoc camera
- * 
  * \file SCECamera.h
  * \copydoc camera
  */
 
 /**
- * \defgroup camera Cameras managment functions
+ * \defgroup camera Camera
  * \ingroup interface
  * \internal
  * \brief
+ * @{
  */
-
-/** @{ */
 
 /**
  * \brief Initializes a camera structure
@@ -58,7 +56,7 @@ void SCE_Camera_Init (SCE_SCamera *cam)
     cam->viewport.w = cam->viewport.h = 512; /* NOTE: dimensions de l'ecran */
     SCE_Frustum_Init (&cam->frustum);
     SCE_BoundingSphere_Init (&cam->sphere);
-    SCE_BoundingSphere_SetRadius (&cam->sphere, 0.00001 /* epsilon */);
+    SCE_BoundingSphere_GetSphere (&cam->sphere)->radius = 0.00001; /* epsilon */
     cam->node = NULL;
 }
 

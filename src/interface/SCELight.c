@@ -35,7 +35,7 @@ void SCE_Light_Init (SCE_SLight *light)
     light->activated = SCE_TRUE;
     light->node = NULL;
     SCE_BoundingSphere_Init (&light->sphere);
-    SCE_BoundingSphere_SetRadius (&light->sphere, light->radius);
+    SCE_BoundingSphere_GetSphere (&light->sphere)->radius = light->radius;
 }
 
 SCE_SLight* SCE_Light_Create (void)
@@ -62,8 +62,7 @@ success:
 
 void SCE_Light_Delete (SCE_SLight *light)
 {
-    if (light)
-    {
+    if (light) {
         SCE_CDeleteLight (light->clight);
         SCE_Node_Delete (light->node);
         SCE_free (light);
@@ -155,15 +154,13 @@ float SCE_Light_GetIntensity (SCE_SLight *light)
 void SCE_Light_SetRadius (SCE_SLight *light, float radius)
 {
     light->radius = radius;
-    SCE_BoundingSphere_SetRadius (&light->sphere, light->radius);
+    SCE_BoundingSphere_GetSphere (&light->sphere)->radius = light->radius;
     if (radius > 1.0)                      /* 3 gives good results */
         SCE_CSetLightQuadraticAtt (light->clight, 3.0/radius);
-    else if (radius <= 0.0f)
-    {
+    else if (radius <= 0.0f) {
         SCE_CSetLightQuadraticAtt (light->clight, 0.0);
         SCE_CSetLightLinearAtt (light->clight, 0.0);
-    }
-    else
+    } else
         SCE_CSetLightLinearAtt (light->clight, 12.0/radius);
 }
 float SCE_Light_GetRadius (SCE_SLight *light)
@@ -183,17 +180,14 @@ void SCE_Light_Use (SCE_SLight *light)
     if (!use_lighting)
         return;
 
-    if (light && light->activated)
-    {
+    if (light && light->activated) {
         SCE_TVector3 pos, dir;
         SCE_Light_GetPositionv (light, pos);
         SCE_Light_GetDirectionv (light, dir);
         SCE_CSetLightPositionv (light->clight, pos);
         SCE_CSetLightDirectionv (light->clight, dir);
         SCE_CUseLight (light->clight);
-    }
-    else
-    {
+    } else {
         SCE_CUseLight (NULL);
     }
 }

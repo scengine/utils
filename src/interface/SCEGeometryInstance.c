@@ -22,6 +22,7 @@
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/core/SCECSupport.h>
+#include <SCE/core/SCECMatrix.h>
 #include <SCE/interface/SCEGeometryInstance.h>
 
 static void SCE_Instance_RenderSimple (SCE_SGeometryInstanceGroup*);
@@ -178,7 +179,7 @@ void SCE_Instance_FlushInstancesList (SCE_SGeometryInstanceGroup *group)
 /**
  * \brief Indicates if an instances group have any instance
  */
-int SCE_Instance_HasInstance (SCE_SGeometryInstanceGroup *group)
+int SCE_Instance_HasInstances (SCE_SGeometryInstanceGroup *group)
 {
     return (group->n_instances > 0);
 }

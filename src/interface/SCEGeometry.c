@@ -503,6 +503,7 @@ void SCE_Geometry_AddArray (SCE_SGeometry *geom, SCE_SGeometryArray *array)
     case SCE_TEXCOORD0:
         geom->tex_array = array;
         geom->tex_data = SCE_CGetVertexArrayData (&array->array)->data;
+    default:;                   /* kicks compilation warning */
     }
 }
 /**
@@ -983,7 +984,7 @@ SCE_SList* SCE_Geometry_GetModifiedArrays (SCE_SGeometry *geom)
  */
 int SCE_Geometry_IsModified (SCE_SGeometry *geom)
 {
-    return SCE_List_HasElement (&geom->modified);
+    return SCE_List_HasElements (&geom->modified);
 }
 
 /**

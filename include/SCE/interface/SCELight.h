@@ -28,8 +28,7 @@
 #include <SCE/interface/SCEShaders.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /** \copydoc sce_slight */

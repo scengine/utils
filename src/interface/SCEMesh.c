@@ -177,6 +177,16 @@ void SCE_Mesh_DisableStream (SCE_EMeshStream s)
 }
 
 
+/**
+ * \brief Gets the geometry of a mesh
+ * \sa SCE_Mesh_SetGeometry()
+ */
+SCE_SGeometry* SCE_Mesh_GetGeometry (SCE_SMesh *mesh)
+{
+    return mesh->geom;
+}
+
+
 static void SCE_Mesh_UpdateArrayCallback (void *data, size_t *range)
 {
     SCE_CModifiedVertexBufferData (data, range);
@@ -248,7 +258,7 @@ static void SCE_Mesh_RemoveArray (SCE_SMeshArray *marray)
 
 static void SCE_Mesh_UpdateIndexArrayCallback (void *ib, size_t *range)
 {
-    SCE_CUpdateIndexBuffer (ib, range);
+    SCE_CModifiedIndexBuffer (ib, range);
 }
 /**
  * \brief Sets the geometry of a mesh
@@ -289,8 +299,8 @@ int SCE_Mesh_SetGeometry (SCE_SMesh *mesh, SCE_SGeometry *geom, int canfree)
         SCE_CVertexArrayData *vdata = SCE_Geometry_GetArrayData (index_array);
         ia.type = vdata->type;
         ia.data = vdata->data;
-        SCE_CSetIndexBufferIndexIndexArray (&mesh->ib, ia,
-                                            SCE_Geometry_GetNumIndices (geom));
+        SCE_CSetIndexBufferIndexArray (&mesh->ib, &ia,
+                                       SCE_Geometry_GetNumIndices (geom));
         mesh->use_ib = SCE_TRUE;
         SCE_Geometry_AddUser (index_array, &mesh->index_auser,
                               SCE_Mesh_UpdateIndexArrayCallback, &mesh->ib);

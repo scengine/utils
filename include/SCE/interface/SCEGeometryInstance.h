@@ -98,7 +98,7 @@ void SCE_Instance_AddInstance (SCE_SGeometryInstanceGroup*,
 void SCE_Instance_RemoveInstance (SCE_SGeometryInstance*);
 
 void SCE_Instance_FlushInstancesList (SCE_SGeometryInstanceGroup*);
-int SCE_Instance_HasInstance (SCE_SGeometryInstanceGroup*);
+int SCE_Instance_HasInstances (SCE_SGeometryInstanceGroup*);
 
 void SCE_Instance_SetGroupMesh (SCE_SGeometryInstanceGroup*, SCE_SMesh*);
 SCE_SMesh* SCE_Instance_GetGroupMesh (SCE_SGeometryInstanceGroup*);

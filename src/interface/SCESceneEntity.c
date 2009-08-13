@@ -583,7 +583,7 @@ int SCE_SceneEntity_HasResourceOfType (SCE_SSceneEntity *entity, int type)
  */
 int SCE_SceneEntity_HasInstance (SCE_SSceneEntity *entity)
 {
-    return SCE_Instance_HasGroupInstance (entity->igroup);
+    return SCE_Instance_HasInstances (entity->igroup);
 }
 
 /**
