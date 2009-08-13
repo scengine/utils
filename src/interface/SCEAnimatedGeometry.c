@@ -46,13 +46,14 @@ int SCE_Init_AnimGeom (void)
     if (is_init)
         return SCE_OK;
     resource_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
-    if (resource_type < 0) {
-        SCEE_LogSrc ();
-        SCE_btend ();
-        return SCE_ERROR;
-    }
+    if (resource_type < 0)
+        goto fail;
     is_init = SCE_TRUE;
     return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to initialize animated geometry module");
+    return SCE_ERROR;
 }
 void SCE_Quit_AnimGeom (void)
 {
@@ -456,7 +457,8 @@ static void SCE_AnimGeom_ApplySkeletonP (SCE_SAnimatedGeometry *ageom,
     }
     /* TODO: how to estimate modified vertices range...?
        use joint-ranged skeletons? */
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
 }
 static void SCE_AnimGeom_ApplySkeletonPN (SCE_SAnimatedGeometry *ageom,
                                           SCE_SSkeleton *skel)
@@ -480,8 +482,10 @@ static void SCE_AnimGeom_ApplySkeletonPN (SCE_SAnimatedGeometry *ageom,
         SCE_Matrix4x3_MulV4 (mat, &ageom->base[0][i*4], &ageom->output[0][i*3]);
         SCE_Matrix4x3_MulV4 (mat, &ageom->base[1][i*4], &ageom->output[1][i*3]);
     }
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
-    SCE_Geometry_Modified (ageom->arrays[1], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[1])
+        SCE_Geometry_Modified (ageom->arrays[1], NULL);
 }
 static void SCE_AnimGeom_ApplySkeletonPNT (SCE_SAnimatedGeometry *ageom,
                                            SCE_SSkeleton *skel)
@@ -506,9 +510,12 @@ static void SCE_AnimGeom_ApplySkeletonPNT (SCE_SAnimatedGeometry *ageom,
         SCE_Matrix4x3_MulV4 (mat, &ageom->base[1][i*4], &ageom->output[1][i*3]);
         SCE_Matrix4x3_MulV4 (mat, &ageom->base[2][i*4], &ageom->output[2][i*3]);
     }
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
-    SCE_Geometry_Modified (ageom->arrays[1], NULL);
-    SCE_Geometry_Modified (ageom->arrays[2], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[1])
+        SCE_Geometry_Modified (ageom->arrays[1], NULL);
+    if (ageom->arrays[2])
+        SCE_Geometry_Modified (ageom->arrays[2], NULL);
 }
 static void SCE_AnimGeom_ApplySkeletonPNTB (SCE_SAnimatedGeometry *ageom,
                                             SCE_SSkeleton *skel)
@@ -534,10 +541,14 @@ static void SCE_AnimGeom_ApplySkeletonPNTB (SCE_SAnimatedGeometry *ageom,
         SCE_Matrix4x3_MulV4 (mat, &ageom->base[2][i*4], &ageom->output[2][i*3]);
         SCE_Matrix4x3_MulV4 (mat, &ageom->base[3][i*4], &ageom->output[3][i*3]);
     }
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
-    SCE_Geometry_Modified (ageom->arrays[1], NULL);
-    SCE_Geometry_Modified (ageom->arrays[2], NULL);
-    SCE_Geometry_Modified (ageom->arrays[3], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[1])
+        SCE_Geometry_Modified (ageom->arrays[1], NULL);
+    if (ageom->arrays[2])
+        SCE_Geometry_Modified (ageom->arrays[2], NULL);
+    if (ageom->arrays[3])
+        SCE_Geometry_Modified (ageom->arrays[3], NULL);
 }
 
 static void SCE_AnimGeom_ApplySkeletonLocal (SCE_SAnimatedGeometry *ageom,
@@ -566,7 +577,8 @@ static void SCE_AnimGeom_ApplySkeletonLocal (SCE_SAnimatedGeometry *ageom,
         }
     }
     /* TODO: range problem */
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
 }
 static void SCE_AnimGeom_ApplySkeletonLocalP (SCE_SAnimatedGeometry *ageom,
                                               SCE_SSkeleton *skel)
@@ -592,7 +604,8 @@ static void SCE_AnimGeom_ApplySkeletonLocalP (SCE_SAnimatedGeometry *ageom,
             SCE_Matrix4x3_MulV4Add (mat, &ageom->base[0][index * 4], out);
         }
     }
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
 }
 #if SCE_ANIMGEOM_ENABLE_QUAT_TRANSFORM
 static void ApplyJointToVector (SCE_SJoint *j, float bias, SCE_TVector3 in,
@@ -632,7 +645,8 @@ static void SCE_AnimGeom_ApplySkeletonLocalPQuat (SCE_SAnimatedGeometry *ageom,
                                 &ageom->base[0][index * 4], out);
         }
     }
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
 }
 #endif
 static void SCE_AnimGeom_ApplySkeletonLocalPN (SCE_SAnimatedGeometry *ageom,
@@ -662,8 +676,10 @@ static void SCE_AnimGeom_ApplySkeletonLocalPN (SCE_SAnimatedGeometry *ageom,
             SCE_Matrix4x3_MulV4Add (mat, &ageom->base[1][index * 4], out2);
         }
     }
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
-    SCE_Geometry_Modified (ageom->arrays[1], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[1])
+        SCE_Geometry_Modified (ageom->arrays[1], NULL);
 }
 static void SCE_AnimGeom_ApplySkeletonLocalPNT (SCE_SAnimatedGeometry *ageom,
                                                 SCE_SSkeleton *skel)
@@ -695,9 +711,12 @@ static void SCE_AnimGeom_ApplySkeletonLocalPNT (SCE_SAnimatedGeometry *ageom,
             SCE_Matrix4x3_MulV4Add (mat, &ageom->base[2][index * 4], out3);
         }
     }
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
-    SCE_Geometry_Modified (ageom->arrays[1], NULL);
-    SCE_Geometry_Modified (ageom->arrays[2], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[1])
+        SCE_Geometry_Modified (ageom->arrays[1], NULL);
+    if (ageom->arrays[2])
+        SCE_Geometry_Modified (ageom->arrays[2], NULL);
 }
 static void SCE_AnimGeom_ApplySkeletonLocalPNTB (SCE_SAnimatedGeometry *ageom,
                                                  SCE_SSkeleton *skel)
@@ -732,10 +751,14 @@ static void SCE_AnimGeom_ApplySkeletonLocalPNTB (SCE_SAnimatedGeometry *ageom,
             SCE_Matrix4x3_MulV4Add (mat, &ageom->base[3][index * 4], out4);
         }
     }
-    SCE_Geometry_Modified (ageom->arrays[0], NULL);
-    SCE_Geometry_Modified (ageom->arrays[1], NULL);
-    SCE_Geometry_Modified (ageom->arrays[2], NULL);
-    SCE_Geometry_Modified (ageom->arrays[3], NULL);
+    if (ageom->arrays[0])
+        SCE_Geometry_Modified (ageom->arrays[0], NULL);
+    if (ageom->arrays[1])
+        SCE_Geometry_Modified (ageom->arrays[1], NULL);
+    if (ageom->arrays[2])
+        SCE_Geometry_Modified (ageom->arrays[2], NULL);
+    if (ageom->arrays[3])
+        SCE_Geometry_Modified (ageom->arrays[3], NULL);
 }
 
 /**
@@ -816,7 +839,7 @@ int SCE_AnimGeom_SetGlobal (SCE_SAnimatedGeometry *ageom)
             for (j = 0; j < ageom->n_vertices; j++) {
                 SCE_Vector3_Copy (&vert[j * 4], &ageom->output[i][j * 3]);
             }
-            SCE_free (ageom->base);
+            SCE_free (ageom->base[i]);
             ageom->base[i] = vert;
             ageom->local[i] = SCE_FALSE;
         }

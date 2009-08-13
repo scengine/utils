@@ -39,12 +39,14 @@ int SCE_Init_OBJ (void)
         return SCE_OK;
     /* register loader */
     if (SCE_Media_Register (SCE_Geometry_GetResourceType(),
-                            "."WAR_FILE_EXTENSION, SCE_OBJ_Load, NULL) < 0) {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
-    }
+                            "."WAR_FILE_EXTENSION, SCE_OBJ_Load, NULL) < 0)
+        goto fail;
     is_init = SCE_TRUE;
     return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to initialize .obj loader");
+    return SCE_ERROR;
 }
 void SCE_Quit_OBJ (void)
 {

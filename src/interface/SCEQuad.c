@@ -69,6 +69,7 @@ int SCE_Init_Quad (void)
 fail:
     SCE_Mesh_Delete (mesh);
     SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to initialize quads manager");
     return SCE_ERROR;
 }
 void SCE_Quit_Quad (void)

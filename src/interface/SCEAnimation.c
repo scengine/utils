@@ -41,18 +41,17 @@ static int resource_type = 0;
  */
 int SCE_Init_Anim (void)
 {
-    SCE_btstart ();
     if (is_init)
         return SCE_TRUE;
     resource_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
-    if (resource_type < 0) {
-        SCEE_LogSrc ();
-        SCE_btend ();
-        return SCE_ERROR;
-    }
+    if (resource_type < 0)
+        goto fail;
     is_init = SCE_TRUE;
-    SCE_btend ();
     return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to initialize animation module");
+    return SCE_ERROR;
 }
 void SCE_Quit_Anim (void)
 {

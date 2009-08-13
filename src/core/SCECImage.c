@@ -67,7 +67,6 @@ static int size_w, size_h, size_d;
  */
 int SCE_CImageInit (void)
 {
-    SCE_btstart ();
     /* initialisation de DevIL */
     ilInit ();
     iluInit ();
@@ -84,11 +83,10 @@ int SCE_CImageInit (void)
                             ".bmp .gif .jpg .dds .png .tga .jpeg .ico .mn"
                             "g .pcx .rgb .rgba .tif", SCE_CLoadImage, NULL) < 0)
         goto fail;
-    SCE_btend ();
     return SCE_OK;
 fail:
     SCEE_LogSrc ();
-    SCE_btend ();
+    SCEE_LogSrcMsg ("failed to initialize images manager");
     return SCE_ERROR;
 }
 
@@ -97,9 +95,7 @@ fail:
  */
 void SCE_CImageQuit (void)
 {
-    SCE_btstart ();
     ilShutDown ();
-    SCE_btend ();
 }
 
 

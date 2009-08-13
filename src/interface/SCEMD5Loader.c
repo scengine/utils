@@ -45,6 +45,7 @@ int SCE_Init_idTechMD5 (void)
     return SCE_OK;
 fail:
     SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to initialize id Tech .md5 loader");
     return SCE_ERROR;
 }
 void SCE_Quit_idTechMD5 (void)

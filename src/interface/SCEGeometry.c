@@ -440,8 +440,11 @@ void SCE_Geometry_SetArrayBinormal (SCE_SGeometryArray *array, size_t stride,
 void SCE_Geometry_SetArrayIndices (SCE_SGeometryArray *array, SCEindices *data,
                                    int canfree)
 {
-    SCE_Geometry_SetArrayData (array, 42, SCE_INDICES_TYPE, 0, 1,
-                               data, canfree);
+    SCE_CVertexArrayData *d;
+    /* do not call SCE_CSetVertexArrayData() */
+    d = SCE_CGetVertexArrayData (&array->array);
+    d->type = SCE_INDICES_TYPE;
+    d->data = data;
 }
 
 /**

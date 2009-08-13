@@ -319,6 +319,7 @@ static const SCE_FShaderUse Use[2] =
     SCE_Shader_UseGLSL
 };
 
+static int is_init = SCE_FALSE;
 
 static int resource_source_type = 0;
 static int resource_shader_type = 0;
@@ -331,34 +332,40 @@ static void* SCE_Shader_LoadResource (const char*, int, void*);
 
 int SCE_Init_Shader (void)
 {
-    static int is_init = SCE_FALSE;
+    if (is_init)
+        return SCE_OK;
 
-    SCE_btstart ();
-    if (!is_init)
-    {
-        /* register source loader */
-        resource_source_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
-        SCE_Media_Register (resource_source_type,
-                            ".glsl .vert .frag"
+    /* register source loader */
+    resource_source_type = SCE_Resource_RegisterType (SCE_TRUE, NULL, NULL);
+    if (resource_source_type < 0)
+        goto fail;
+    /* TODO: may fail */
+    SCE_Media_Register (resource_source_type,
+                        ".glsl .vert .frag"
 #ifdef SCE_USE_CG
-                            " .cg .vcg .pcg .fcg .cgvs .cgps"
+                        " .cg .vcg .pcg .fcg .cgvs .cgps"
 #endif
-                            ,SCE_Shader_LoadSourceFromFile, NULL);
-        /* register shader loader */
-        resource_shader_type = SCE_Resource_RegisterType (
-            SCE_FALSE, SCE_Shader_LoadResource, NULL);
+                        ,SCE_Shader_LoadSourceFromFile, NULL);
+    /* register shader loader */
+    resource_shader_type = SCE_Resource_RegisterType (
+        SCE_FALSE, SCE_Shader_LoadResource, NULL);
+    if (resource_shader_type < 0)
+        goto fail;
 
-        is_init = SCE_TRUE;
-        sce_shd_enabled = SCE_TRUE;
-    }
+    is_init = SCE_TRUE;
+    sce_shd_enabled = SCE_TRUE;
 
-    SCE_btend ();
     return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to initialize shaders manager");
+    return SCE_ERROR;
 }
 
 void SCE_Quit_Shader (void)
 {
     sce_shd_enabled = SCE_FALSE;
+    is_init = SCE_FALSE;
     used = NULL;
 }
 
