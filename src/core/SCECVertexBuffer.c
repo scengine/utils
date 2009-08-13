@@ -17,11 +17,15 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 11/08/2009 */
+   updated: 13/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/core/SCECVertexBuffer.h>
+
+/* NOTE: GLee doesn't define these names.. ? */
+#define glDrawArraysInstanced glDrawArraysInstancedARB
+#define glDrawElementsInstanced glDrawElementsInstancedARB
 
 #define SCE_BUFFER_OFFSET(p) ((char*)NULL + (p))
 
@@ -50,6 +54,7 @@ SCE_CVertexBufferData* SCE_CCreateVertexBufferData (void)
 void SCE_CClearVertexBufferData (SCE_CVertexBufferData *data)
 {
     SCE_CRemoveVertexBufferData (data);
+    SCE_CDeleteVertexArraySequence (&data->seq);
     SCE_List_Clear (&data->arrays);
     SCE_CClearBufferData (&data->data);
 }
@@ -89,6 +94,7 @@ void SCE_CClearVertexBuffer (SCE_CVertexBuffer *vb)
 {
     SCE_List_Clear (&vb->data);
     SCE_CClearBuffer (&vb->buf);
+    SCE_CDeleteVertexArraySequence (&vb->seq);
 }
 void SCE_CDeleteVertexBuffer (SCE_CVertexBuffer *vb)
 {
