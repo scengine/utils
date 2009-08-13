@@ -17,13 +17,15 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 25/07/2009
-   updated: 09/08/2009 */
+   updated: 13/08/2009 */
 
 #ifndef SCEGEOMETRY_H
 #define SCEGEOMETRY_H
 
 #include <SCE/utils/SCEVector.h>
 #include <SCE/core/SCECVertexArray.h>
+#include <SCE/interface/SCEBox.h>
+#include <SCE/interface/SCESphere.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -133,6 +135,10 @@ struct sce_sgeometry {
 
     SCE_SGeometryPrimitiveSort *sorted;
     size_t sorted_length;
+
+    SCE_SBox box;
+    SCE_SSphere sphere;
+    int box_uptodate, sphere_uptodate; /* Bounding volumes state */
 };
 
 /** @} */
@@ -231,6 +237,18 @@ SCE_SList* SCE_Geometry_GetModifiedArrays (SCE_SGeometry*);
 int SCE_Geometry_IsModified (SCE_SGeometry*);
 
 SCE_SGeometry* SCE_Geometry_Load (const char*, int);
+
+void SCE_Geometry_ComputeBoundingBox (SCEvertices*, size_t, SCE_SBox*);
+void SCE_Geometry_ComputeBoundingSphere (SCEvertices*, size_t, SCE_SBox*,
+                                         SCE_SSphere*);
+void SCE_Geometry_GenerateBoundingBox (SCE_SGeometry*);
+void SCE_Geometry_GenerateBoundingSphere (SCE_SGeometry*);
+void SCE_Geometry_GenerateBoundingVolumes (SCE_SGeometry*);
+
+SCE_SBox* SCE_Geometry_GetBox (SCE_SGeometry*);
+SCE_SSphere* SCE_Geometry_GetSphere (SCE_SGeometry*);
+void SCE_Geometry_BoxUpToDate (SCE_SGeometry*);
+void SCE_Geometry_SphereUpToDate (SCE_SGeometry*);
 
 /* bonus functions */
 int SCE_Geometry_SortPrimitives (SCE_SGeometry*, SCE_ESortOrder, SCE_TVector3);

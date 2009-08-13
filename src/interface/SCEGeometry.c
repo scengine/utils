@@ -172,6 +172,10 @@ static void SCE_Geometry_Init (SCE_SGeometry *geom)
 
     geom->sorted = NULL;
     geom->sorted_length = 0;
+
+    SCE_Box_Init (&geom->box);
+    SCE_Sphere_Init (&geom->sphere);
+    geom->box_uptodate = geom->sphere_uptodate = SCE_FALSE;
 }
 SCE_SGeometry* SCE_Geometry_Create (void)
 {
@@ -990,6 +994,121 @@ int SCE_Geometry_IsModified (SCE_SGeometry *geom)
 SCE_SGeometry* SCE_Geometry_Load (const char *fname, int force)
 {
     return SCE_Resource_Load (resource_type, fname, force, NULL);
+}
+
+/**
+ * \brief Computes a bounding box from a lot of vertices' positions
+ * \param v the vertices' positions (must be 3 components vectors)
+ * \param vcount the number of vertices into \p v
+ * \param box write out the bounding box here
+ * \sa SCE_Geometry_GenerateBoundingBox()
+ */
+void SCE_Geometry_ComputeBoundingBox (SCEvertices *v, size_t vcount,
+                                      SCE_SBox *box)
+{
+    SCE_TVector3 max = {0., 0., 0.};
+    SCE_TVector3 min = {0., 0., 0.};
+    size_t i, j, count;
+
+    /* TODO: use a "Rectangle3D" ? */
+    count = vcount * 3;
+    for (i = 0; i < count; i += 3) {
+        for (j = 0; j < 3; j++) {
+            max[j] = (v[i + j] > max[j] ? v[i + j] : max[j]);
+            min[j] = (v[i + j] < min[j] ? v[i + j] : min[j]);
+        }
+    }
+    SCE_Vector3_Operator1v (max, -=, min);
+    SCE_Box_Set (box, min, max[0], max[1], max[2]);
+}
+/**
+ * \brief Computes a bounding sphere from a lot of vertices
+ * \param v the vertices
+ * \param vcount the number of vertices
+ * \param box needed to compute the bounding sphere, you can obtain the
+ * bounding box using SCE_Geometry_ComputeBoundingBox()
+ * \param sphere write out the sphere here
+ * \sa SCE_Geometry_ComputeBoundingBox(), SCE_Geometry_GenerateBoundingVolumes()
+ */
+void SCE_Geometry_ComputeBoundingSphere (SCEvertices *v, size_t vcount,
+                                         SCE_SBox *box, SCE_SSphere *sphere)
+{
+    float d = 0.0f;
+    size_t i;
+    sphere->radius = 0.0f;
+    SCE_Box_GetCenterv (box, sphere->center);
+    for (i = 0; i < vcount; i++) {
+        d = SCE_Vector3_Distance (sphere->center, &v[i*3]);
+        sphere->radius = (sphere->radius < d ? d : sphere->radius);
+    }
+}
+
+/**
+ * \brief Generates the bounding box of a geometry
+ * \sa SCE_Geometry_GenerateBoundingVolumes()
+ */
+void SCE_Geometry_GenerateBoundingBox (SCE_SGeometry *geom)
+{
+    if (!geom->box_uptodate) {
+        SCE_Geometry_ComputeBoundingBox (geom->pos_data, geom->n_vertices,
+                                         &geom->box);
+        geom->box_uptodate = SCE_TRUE;
+    }
+}
+/**
+ * \brief Generates the bounding sphere of a geometry
+ * \sa SCE_Geometry_GenerateBoundingVolumes()
+ */
+void SCE_Geometry_GenerateBoundingSphere (SCE_SGeometry *geom)
+{
+    if (!geom->sphere_uptodate) {
+        SCE_Geometry_GenerateBoundingBox (geom);
+        SCE_Geometry_ComputeBoundingSphere (geom->pos_data, geom->n_vertices,
+                                            &geom->box, &geom->sphere);
+        geom->sphere_uptodate = SCE_TRUE;
+    }
+}
+/**
+ * \brief Generates or update the bounding volumes of a geometry
+ * \sa SCE_Geometry_GenerateBoundingBox(), SCE_Geometry_GenerateBoundingSphere()
+ */
+void SCE_Geometry_GenerateBoundingVolumes (SCE_SGeometry *geom)
+{
+    SCE_Geometry_GenerateBoundingSphere (geom);
+}
+
+/**
+ * \brief Gets the box of a geometry
+ * \sa SCE_Geometry_GetSphere(), SCE_Geometry_GenerateBoundingBox()
+ */
+SCE_SBox* SCE_Geometry_GetBox (SCE_SGeometry *geom)
+{
+    return &geom->box;
+}
+/**
+ * \brief Gets the sphere of a geometry
+ * \sa SCE_Geometry_GetBox(), SCE_Geometry_GenerateBoundingSphere()
+ */
+SCE_SSphere* SCE_Geometry_GetSphere (SCE_SGeometry *geom)
+{
+    return &geom->sphere;
+}
+
+/**
+ * \brief Marks the box of a geometry as up to date
+ * \sa SCE_Geometry_SphereUpToDate()
+ */
+void SCE_Geometry_BoxUpToDate (SCE_SGeometry *geom)
+{
+    geom->box_uptodate = SCE_TRUE;
+}
+/**
+ * \brief Marks the sphere of a geometry as up to date
+ * \sa SCE_Geometry_BoxUpToDate()
+ */
+void SCE_Geometry_SphereUpToDate (SCE_SGeometry *geom)
+{
+    geom->sphere_uptodate = SCE_TRUE;
 }
 
 
