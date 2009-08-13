@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 04/08/2009 */
+   updated: 13/08/2009 */
 
 #include <string.h>             /* memcpy */
 #include <SCE/SCEMinimal.h>
@@ -146,8 +146,8 @@ static void SCE_CUpdateBufferRange (SCE_CBuffer *buf, const size_t *range)
 {
     /* offset from the main buffer */
     size_t offset = range[0];
-    buf->range[0] = min (buf->range[0], offset);
-    buf->range[1] = max (buf->range[1], offset + range[1]);
+    buf->range[0] = MIN (buf->range[0], offset);
+    buf->range[1] = MAX (buf->range[1], offset + range[1]);
 }
 /**
  * \brief Sets the modified range of an entire buffer, useful for index buffers
@@ -185,8 +185,8 @@ void SCE_CModifiedBufferData (SCE_CBufferData *data, const size_t *range)
     if (range) {
         /* if already modified, get the largest range */
         if (data->modified) {
-            data->range[0] = min (data->range[0], range[0]);
-            data->range[1] = max (data->range[1], range[1]);
+            data->range[0] = MIN (data->range[0], range[0]);
+            data->range[1] = MAX (data->range[1], range[1]);
         } else {
             data->range[0] = range[0];
             data->range[1] = range[1];
