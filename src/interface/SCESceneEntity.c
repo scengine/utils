@@ -249,8 +249,7 @@ void SCE_SceneEntity_RemoveEntity (SCE_SSceneEntity *entity)
  */
 void SCE_SceneEntity_SortGroup (SCE_SSceneEntityLODGroup *group)
 {
-    int changefunc (SCE_SListIterator *it, SCE_SListIterator *it2)
-    {
+    int changefunc (SCE_SListIterator *it, SCE_SListIterator *it2) {
 #define gnf SCE_Mesh_GetNumFaces
         return (gnf (((SCE_SSceneEntity*)SCE_List_GetData (it))->mesh)
                 > gnf (((SCE_SSceneEntity*)SCE_List_GetData (it2))->mesh));
@@ -418,20 +417,18 @@ SCE_SceneEntity_GetProperties (SCE_SSceneEntity *entity)
  */
 void SCE_SceneEntity_SetMesh (SCE_SSceneEntity *entity, SCE_SMesh *mesh)
 {
-    SCE_btstart ();
     entity->mesh = mesh;
     SCE_Instance_SetGroupMesh (entity->igroup, mesh);
-    if (!mesh)
-    {
+    if (!mesh) {
         SCE_BoundingBox_Init (&entity->box);
         SCE_BoundingSphere_Init (&entity->sphere);
+    } else {
+        SCE_SGeometry *geom = SCE_Mesh_GetGeometry (mesh);
+        SCE_BoundingBox_SetFrom (&entity->box,
+                                 SCE_Geometry_GetBox (geom));
+        SCE_BoundingSphere_SetFrom (&entity->sphere,
+                                    SCE_Geometry_GetSphere (geom));
     }
-    else
-    {
-        SCE_Mesh_GenerateBoundingBox (mesh, &entity->box);
-        SCE_Mesh_GenerateBoundingSphere (mesh, &entity->sphere);
-    }
-    SCE_btend ();
 }
 
 /**
@@ -461,6 +458,7 @@ SCE_SMesh* SCE_SceneEntity_GetMesh (SCE_SSceneEntity *entity)
 int SCE_SceneEntity_AddTexture (SCE_SSceneEntity *entity, SCE_STexture *tex)
 {
     SCE_SSceneResource *r = SCE_Texture_GetSceneResource (tex);
+    /* TODO: dirty isn't it? */
     if (SCE_List_PrependNewl (entity->textures, r) < 0)
         goto fail;
     if (SCE_SceneResource_AddOwner (r, entity) < 0)
@@ -512,10 +510,8 @@ int SCE_SceneEntity_SetShader (SCE_SSceneEntity *entity, SCE_SShader *s)
     if (entity->shader)
         SCE_SceneResource_RemoveOwner (entity->shader, entity);
     entity->shader = SCE_Shader_GetSceneResource (s);
-    if (entity->shader)
-    {
-        if (SCE_SceneResource_AddOwner (entity->shader, entity) < 0)
-        {
+    if (entity->shader) {
+        if (SCE_SceneResource_AddOwner (entity->shader, entity) < 0) {
             SCEE_LogSrc ();
             return SCE_ERROR;
         }
@@ -548,10 +544,8 @@ int SCE_SceneEntity_SetMaterial (SCE_SSceneEntity *entity, SCE_SMaterial *mat)
     if (entity->material)
         SCE_SceneResource_RemoveOwner (entity->material, entity);
     entity->material = SCE_Material_GetSceneResource (mat);
-    if (entity->material)
-    {
-        if (SCE_SceneResource_AddOwner (entity->material, entity) < 0)
-        {
+    if (entity->material) {
+        if (SCE_SceneResource_AddOwner (entity->material, entity) < 0) {
             SCEE_LogSrc ();
             return SCE_ERROR;
         }
@@ -574,8 +568,7 @@ SCE_SSceneResource* SCE_SceneEntity_GetMaterial (SCE_SSceneEntity *entity)
 int SCE_SceneEntity_HasResourceOfType (SCE_SSceneEntity *entity, int type)
 {
     SCE_SListIterator *it;
-    SCE_List_ForEach (it, entity->textures)
-    {
+    SCE_List_ForEach (it, entity->textures) {
         if (SCE_SceneResource_GetType (SCE_List_GetData (it)) == type)
             return SCE_TRUE;
     }
@@ -625,6 +618,7 @@ static int SCE_SceneEntity_IsBSInFrustum (SCE_SSceneEntityInstance *einst,
     SCE_SBoundingSphere *sphere = &einst->entity->sphere;
 
     /* NOTE: conversion from Matrix4 to Matrix4x3 */
+    /* node matrix will be MAtrix4x3 soon */
     SCE_BoundingSphere_Push (sphere, SCE_Node_GetFinalMatrix (einst->node),
                              &saved);
     result = SCE_Frustum_BoundingSphereInBool (SCE_Camera_GetFrustum (cam),
@@ -642,8 +636,7 @@ static int SCE_SceneEntity_IsBSInFrustum (SCE_SSceneEntityInstance *einst,
  */
 void SCE_SceneEntity_SetupBoundingVolume (SCE_SSceneEntity *entity, int volume)
 {
-    switch (volume)
-    {
+    switch (volume) {
     case SCE_BOUNDINGBOX:
         entity->isinfrustumfunc = SCE_SceneEntity_IsBBInFrustum; break;
     case SCE_BOUNDINGSPHERE:

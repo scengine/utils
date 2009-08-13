@@ -123,12 +123,12 @@ SCE_SMesh* SCE_Mesh_Create (void)
         SCE_Mesh_Init (mesh);
     return mesh;
 }
-SCE_SMesh* SCE_Mesh_CreateFrom (SCE_SGeometry *geom)
+SCE_SMesh* SCE_Mesh_CreateFrom (SCE_SGeometry *geom, int canfree)
 {
     SCE_SMesh *mesh = NULL;
     if (!(mesh = SCE_Mesh_Create ()))
         SCEE_LogSrc ();
-    else if (SCE_Mesh_SetGeometry (mesh, geom) < 0) {
+    else if (SCE_Mesh_SetGeometry (mesh, geom, canfree) < 0) {
         SCE_Mesh_Delete (mesh), mesh = NULL;
         SCEE_LogSrc ();
     }

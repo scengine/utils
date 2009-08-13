@@ -83,7 +83,7 @@ void SCE_Mesh_DeleteArray (SCE_SMeshArray*);
 
 void SCE_Mesh_Init (SCE_SMesh*);
 SCE_SMesh* SCE_Mesh_Create (void);
-SCE_SMesh* SCE_Mesh_CreateFrom (SCE_SGeometry*);
+SCE_SMesh* SCE_Mesh_CreateFrom (SCE_SGeometry*, int);
 void SCE_Mesh_Delete (SCE_SMesh*);
 
 void SCE_Mesh_ActivateStream (SCE_EMeshStream, int);

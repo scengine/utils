@@ -23,6 +23,7 @@
 #include <SCE/SCEMinimal.h>
 
 #include <SCE/utils/SCEMath.h>  /* MIN/MAX */
+#include <SCE/core/SCECSupport.h>
 #include <SCE/core/SCECBuffer.h>
 
 /**

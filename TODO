@@ -79,8 +79,6 @@ See the file ./doc/html/todo.html
 - Scinder le core pour la compatibilité avec les versions récentes d'OpenGL.
 - Renommer SCEGeometryInstance en SCEInstancing.
 - Add documentation for SCECBuffer.
-- Stream based system for mesh manager.
-- Move old SCEMesh functions to SCEGeometry (work in progress).
 - Use enum for GL tokens in appropriated file.
 - Texture buffers.
 - Uniform buffers.
@@ -95,4 +93,4 @@ See the file ./doc/html/todo.html
 - Texture arrays.
 - Solve divin function SCE_Texture_Create().
 
-- 53
+- 51

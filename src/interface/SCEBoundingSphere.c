@@ -21,6 +21,7 @@
 
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/utils/SCEMath.h>
 #include <SCE/interface/SCEBox.h>
 #include <SCE/interface/SCEBoundingSphere.h>
 
@@ -99,8 +100,8 @@ static void SCE_BoundingSphere_ApplyMatrix (SCE_SSphere *sphere,
     highest = SCE_Box_GetWidth (&box);
     h = SCE_Box_GetHeight (&box);
     d = SCE_Box_GetDepth (&box);
-    highest = max (highest, h);
-    highest = max (highest, d);
+    highest = MAX (highest, h);
+    highest = MAX (highest, d);
     /* apply the matrix to the center vector */
     SCE_Matrix4x3_MulV3Copy (m, sphere->center);
     sphere->radius = highest;
