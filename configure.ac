@@ -154,12 +154,35 @@ else
   AC_MSG_RESULT([[no]])
 fi
 
+# Debugging flags
+AC_ARG_ENABLE(
+  [debug_all],
+  AC_HELP_STRING([--enable-debug-all], [enable all paranoiac and commonly useless debugging [[default=no]]]),
+  [enable_debug_all="$enableval"
+   enable_optimisation="no"
+   enable_debug_stack="yes"
+   enable_debug="yes"],
+  [enable_debug_all="no"]
+)
+AC_ARG_ENABLE(
+  [optimisation],
+  AC_HELP_STRING([--disable-optimisation], [disable any compiler optimisation [[default=no]]]),
+  [enable_optimisation="$enableval"],
+  [enable_optimisation="yes"]
+)
+AC_ARG_ENABLE(
+  [debug_stack],
+  AC_HELP_STRING([--enable-debug-stack], [enable stack debugging [[default=no]]]),
+  [enable_debug_stack="$enableval"],
+  [enable_debug_stack="no"]
+)
 AC_ARG_ENABLE(
   [debug],
   AC_HELP_STRING([--enable-debug], [enable debugging [[default=yes]]]),
   [enable_debug="$enableval"],
   [enable_debug="yes"]
 )
+# normal debugging
 AC_MSG_CHECKING([[whether to enable debugging]])
 if test "x$enable_debug" = "xyes"; then
   AC_DEFINE([SCE_DEBUG], [1], [is debugging enabled])
@@ -171,6 +194,22 @@ else
   AC_MSG_RESULT([[no]])
 fi
 AC_SUBST([DEBUG_CFLAGS])
+# stack debugging
+AC_MSG_CHECKING([[whether to enable stack debugging]])
+if test "x$enable_debug_stack" = "xyes"; then
+  CFLAGS="$CFLAGS -fstack-protector-all"
+  AC_MSG_RESULT([[yes]])
+else
+  AC_MSG_RESULT([[no]])
+fi
+# optimisation debugging (must be the last change to CFLAGS)
+AC_MSG_CHECKING([[whether to disable any compiler optimisation]])
+if test "x$enable_optimisation" = "xno"; then
+  CFLAGS="$CFLAGS -O0"
+  AC_MSG_RESULT([[yes]])
+else
+  AC_MSG_RESULT([[no]])
+fi
 
 # check to Doxygen and generate right target for doc according to its presence
 AC_CHECK_PROGS([DOXYGEN], [doxygen], [:])
@@ -196,7 +235,7 @@ AC_CONFIG_FILES([Makefile
                  ])
 AC_OUTPUT
 
-echo "----------------------------------------"
+echo "------------------------------------------"
 echo "SCE version                    : $VERSION ($SCE_LIB_VERSION)"
 echo "Cg shaders support             : $enable_cg"
 echo "Backtracer enabled             : $enable_bt"
