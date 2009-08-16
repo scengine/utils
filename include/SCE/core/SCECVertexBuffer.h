@@ -131,6 +131,7 @@ void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData*);
 void SCE_CBuildVertexBuffer (SCE_CVertexBuffer*, SCE_CBufferUsage,
                              SCE_CBufferRenderMode);
 void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer*, SCE_CBufferRenderMode);
+int SCE_CIsVertexBufferBuilt (SCE_CVertexBuffer*);
 void SCE_CUseVertexBuffer (SCE_CVertexBuffer*);
 void SCE_CRenderVertexBuffer (SCEenum);
 void SCE_CRenderVertexBufferInstanced (SCEenum, SCEuint);

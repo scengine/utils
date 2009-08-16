@@ -376,6 +376,14 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer *vb,
 }
 
 /**
+ * \brief Indicates if a vertex buffer is built
+ */
+int SCE_CIsVertexBufferBuilt (SCE_CVertexBuffer *vb)
+{
+    return (vb->use ? SCE_TRUE : SCE_FALSE);
+}
+
+/**
  * \brief 
  */
 void SCE_CUseVertexBuffer (SCE_CVertexBuffer *vb)
