@@ -94,9 +94,8 @@ static void* SCE_CLoadTextureResource (const char*, int, void*);
  */
 int SCE_CTextureInit (void)
 {
-    int i;
+    size_t i;
 
-    SCE_btstart ();
     /* recuperation du nombre maximum d'unites de texture */
     SCE_CGetIntegerv (GL_MAX_TEXTURE_UNITS, &max_tex_units);
     /* recuperation de la taille maximale d'une texture */
@@ -110,7 +109,7 @@ int SCE_CTextureInit (void)
     texused = SCE_malloc (max_tex_units * sizeof *texused);
     if (!texused)
         goto fail;
-    for (i=0; i<max_tex_units; i++)
+    for (i = 0; i < max_tex_units; i++)
         texused[i] = NULL;
     resource_type = SCE_Resource_RegisterType (SCE_FALSE,
                                                SCE_CLoadTextureResource, NULL);
@@ -121,7 +120,7 @@ int SCE_CTextureInit (void)
     return SCE_OK;
 fail:
     SCEE_LogSrc ();
-    SCE_btend ();
+    SCEE_LogSrcMsg ("failed to initialize textures manager");
     return SCE_ERROR;
 }
 

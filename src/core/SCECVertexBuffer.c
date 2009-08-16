@@ -137,7 +137,7 @@ void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer *ib)
 
 
 /**
- * \brief Specifies the array data of a vertex buffer data
+ * \brief Adds a vertex array to a vertex buffer data
  *
  * The structure \p data is given to the vertex array of \p vbd
  * calling SCE_CSetVertexArrayData().
@@ -147,6 +147,7 @@ void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData *vbd,
                                     SCE_CVertexArray *va,
                                     size_t n_vertices)
 {
+    size_t stride;
     SCE_CVertexArrayData *data;
     SCE_List_Appendl (&vbd->arrays, SCE_CGetVertexArrayIterator (va));
     /* get main pointer of the interleaved array */
@@ -157,9 +158,9 @@ void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData *vbd,
         vbd->data.data = (data->data < vbd->data.data ?
                           data->data : vbd->data.data);
     }
-    vbd->stride += SCE_CSizeof (data->type) * data->size;
-    vbd->data.size += SCE_CSizeof (data->type) * data->size * n_vertices;
-    vbd->vb->n_vertices = n_vertices;
+    stride = SCE_CSizeof (data->type) * data->size;
+    vbd->stride += stride;
+    vbd->data.size += stride * n_vertices;
 }
 /**
  * \brief Set modified vertices range
@@ -219,13 +220,20 @@ SCE_CBuffer* SCE_CGetVertexBufferBuffer (SCE_CVertexBuffer *vb)
  */
 void SCE_CAddVertexBufferData (SCE_CVertexBuffer *vb, SCE_CVertexBufferData *d)
 {
+#if 0
+    fprintf (stderr, "addr: d = %lx, &d->data = %lx, &d->data.it = %lx\n",
+             d, &d->data, &d->data.it);
+#elif 0
+    fprintf (stderr, "prout\n");
+#endif
     SCE_CAddBufferData (&vb->buf, &d->data);
     SCE_List_Appendl (&vb->data, &d->it);
     d->vb = vb;
 }
 /**
  * \brief Removes a vertex buffer data from its buffer
- * \sa SCE_CAddVertexBufferData(), SCE_CClearVertexBufferData()
+ * \sa SCE_CAddVertexBufferData(), SCE_CClearVertexBufferData(),
+ * SCE_CRemoveBufferData()
  */
 void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData *data)
 {
@@ -234,6 +242,14 @@ void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData *data)
         SCE_List_Removel (&data->it);
         data->vb = NULL;
     }
+}
+
+/**
+ * \brief Sets the number of vertices in a vertex buffer
+ */
+void SCE_CSetVertexBufferNumVertices (SCE_CVertexBuffer *vb, size_t n)
+{
+    vb->n_vertices = n;
 }
 
 static void SCE_CUseVAMode (SCE_CVertexBuffer *vb)

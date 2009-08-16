@@ -283,7 +283,7 @@ void SCE_Geometry_RemoveUser (SCE_SGeometryArrayUser *auser)
  * \sa SCE_Geometry_Update(), SCE_Geometry_UpdateArray(),
  * SCE_Geometry_AddUser(), SCE_CModifiedVertexBufferData()
  */
-void SCE_Geometry_Modified (SCE_SGeometryArray *array, size_t *range)
+void SCE_Geometry_Modified (SCE_SGeometryArray *array, const size_t *range)
 {
     if (array->root)
         array = array->root;

@@ -50,11 +50,13 @@ static void SCE_CUpdateBufferMapRange (SCE_CBuffer*);
 int SCE_CBufferInit (void)
 {
     /* add LockBuffer() too */
-    if (SCE_CIsSupported ("GL_ARB_map_buffer_range"))
+    if (SCE_CIsSupported ("GL_ARB_map_buffer_range")) {
         SCE_CUpdateBuffer = SCE_CUpdateBufferMapRange;
-    else
+    } else {
         SCE_CUpdateBuffer = SCE_CUpdateBufferMapClassic;
+    }
     SCE_List_Init (&modified);
+    return SCE_OK;
 }
 void SCE_CBufferQuit (void)
 {
@@ -225,6 +227,7 @@ void SCE_CUnmodifiedBufferData (SCE_CBufferData *data)
  */
 void SCE_CAddBufferData (SCE_CBuffer *buf, SCE_CBufferData *data)
 {
+    fprintf (stderr, "&data->it = %lx\n", &data->it);
     SCE_List_Appendl (&buf->data, &data->it);
     data->buf = buf;
     data->first = buf->size;

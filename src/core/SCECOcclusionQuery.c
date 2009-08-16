@@ -42,7 +42,6 @@
 
 /** @{ */
 
-
 static SCEuint queryid = 0;
 static int drawpixels = 0;
 static int funcid = 1;
@@ -56,18 +55,15 @@ static SCE_FOcclusionQueryFunc funcs[] =
     SCE_COcclusionQueryCallback, SCE_COcclusionQueryNull
 };
 
-/* ajoute le 23/03/2008 */
 /**
  * \internal
  */
 int SCE_COcclusionQueryInit (void)
 {
-    if (SCE_CHasCap (SCE_OCCLUSION_QUERY))
-    {
+    if (SCE_CHasCap (SCE_OCCLUSION_QUERY)) {
         glGenQueries (1, &queryid);
         funcid = 0;
-    }
-    else
+    } else
         funcid = 1;
     return SCE_OK;
 }
@@ -85,8 +81,7 @@ static void SCE_COcclusionQueryCallback (int begin)
 {
     if (begin)
         glBeginQuery (GL_SAMPLES_PASSED, queryid);
-    else
-    {
+    else {
         glEndQuery (GL_SAMPLES_PASSED);
         glGetQueryObjectiv (queryid, GL_QUERY_RESULT, &drawpixels);
     }
@@ -100,7 +95,6 @@ static void SCE_COcclusionQueryNull (int begin)
 {
 }
 
-/* ajoute le 23/03/2008 */
 /**
  * \brief Starts or ends an occulsion query
  * \param begin SCE_TRUE to begin an occulsion query or SCE_FALSE to end the
@@ -118,7 +112,6 @@ void SCE_COcclusionQuery (int begin)
     funcs[funcid] (begin);
 }
 
-/* ajoute le 23/03/2008 */
 /**
  * \brief Gets result of an occlusion query
  * \returns the number of drawn pixels

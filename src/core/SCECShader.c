@@ -131,30 +131,26 @@ static int SCE_CIsPixelShader (SCEenum type)
 
 int SCE_CShaderInit (int use_cg)
 {
-    SCE_btstart ();
-    #ifdef SCE_USE_CG
-    if (use_cg)
-    {
+#ifdef SCE_USE_CG
+    if (use_cg) {
         if (!SCE_CCgManager (SCE_INIT))
-        {
-            SCEE_LogSrc ();
-            SCE_btend ();
-            return SCE_ERROR;
-        }
+            goto fail;
     }
-    #else /* pour eviter un warning : unused parameter 'use_cg' */
+#else /* pour eviter un warning : unused parameter 'use_cg' */
     use_cg = 0;
-    #endif
+#endif
 
-    SCE_btend ();
     return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("failed to initialize core shaders manager");
+    return SCE_ERROR;
 }
-
 void SCE_CShaderQuit (void)
 {
-    #ifdef SCE_USE_CG
+#ifdef SCE_USE_CG
     SCE_CCgManager (SCE_QUIT);
-    #endif
+#endif
 }
 
 

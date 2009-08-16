@@ -800,8 +800,7 @@ void SCE_Scene_EndFrame (SCE_SScene *scene)
 
 static float SCE_Scene_GetOctreeSize (SCE_SOctree *tree, SCE_SCamera *cam)
 {
-    return SCE_Lod_ComputeBoundingBoxSurface (SCE_Octree_GetBoundingBox (tree),
-                                              cam);
+    return SCE_Lod_ComputeBoundingBoxSurface (SCE_Octree_GetBox (tree), cam);
 }
 
 static void SCE_Scene_SelectAllInstances (SCE_SScene *scene,

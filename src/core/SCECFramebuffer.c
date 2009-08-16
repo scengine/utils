@@ -25,7 +25,7 @@
 #include <SCE/core/SCECTexture.h>
 #include <SCE/core/SCECFramebuffer.h>
 
-/*
+/**
  * \file SCECFramebuffer.c
  * \copydoc coreframebuffer
  * 
@@ -43,7 +43,6 @@
 
 /** @{ */
 
-/* TODO: rename it... */
 static SCE_CFramebuffer *bound = NULL;
 
 static SCEint max_attachement_buffers = 0;

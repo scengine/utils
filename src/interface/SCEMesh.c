@@ -317,11 +317,10 @@ fail:
 
 
 static void SCE_Mesh_AddStreamData (SCE_CVertexBuffer *vb,
-                                    SCE_SMeshArray *array)
+                                    SCE_SMeshArray *marray)
 {
-    SCE_CAddVertexBufferData (vb, &array->data);
+    SCE_CAddVertexBufferData (vb, &marray->data);
 }
-
 static int SCE_Mesh_MakeIndependantVB (SCE_SMesh *mesh)
 {
     SCE_SListIterator *it = NULL;
@@ -351,6 +350,7 @@ static int SCE_Mesh_MakeIndependantVB (SCE_SMesh *mesh)
         }
         SCE_Mesh_AddStreamData (&mesh->streams[stream], marray);
         mesh->used_streams[stream] = SCE_TRUE;
+        SCE_SendMsg ("stream %d\n", stream);
     }
     return SCE_OK;
 fail:
@@ -407,8 +407,11 @@ static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferUsage
     if (mesh->use_ib)
         SCE_CBuildIndexBuffer (&mesh->ib, usage[SCE_MESH_NUM_STREAMS]);
     for (i = 0; i < SCE_MESH_NUM_STREAMS; i++) {
-        if (mesh->used_streams[i])
+        if (mesh->used_streams[i]) {
+            SCE_CSetVertexBufferNumVertices (
+                &mesh->streams[i], SCE_Geometry_GetNumVertices (mesh->geom));
             SCE_CBuildVertexBuffer (&mesh->streams[i], usage[i], rmode);
+        }
     }
 }
 /**
@@ -527,7 +530,7 @@ void SCE_Mesh_Use (SCE_SMesh *mesh)
 {
     size_t i;
     for (i = 0; i < SCE_MESH_NUM_STREAMS; i++) {
-        if (activated_streams[i])
+        if (activated_streams[i] && SCE_CIsVertexBufferBuilt(&mesh->streams[i]))
             SCE_CUseVertexBuffer (&mesh->streams[i]);
     }
     if (mesh->use_ib) {
