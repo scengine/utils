@@ -350,7 +350,7 @@ static int SCE_Mesh_MakeIndependantVB (SCE_SMesh *mesh)
         }
         SCE_Mesh_AddStreamData (&mesh->streams[stream], marray);
         mesh->used_streams[stream] = SCE_TRUE;
-        SCE_SendMsg ("stream %d\n", stream);
+        SCEE_SendMsg ("stream %d\n", stream);
     }
     return SCE_OK;
 fail:
