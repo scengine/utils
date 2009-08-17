@@ -350,7 +350,6 @@ static int SCE_Mesh_MakeIndependantVB (SCE_SMesh *mesh)
         }
         SCE_Mesh_AddStreamData (&mesh->streams[stream], marray);
         mesh->used_streams[stream] = SCE_TRUE;
-        SCEE_SendMsg ("stream %d\n", stream);
     }
     return SCE_OK;
 fail:
@@ -530,7 +529,7 @@ void SCE_Mesh_Use (SCE_SMesh *mesh)
 {
     size_t i;
     for (i = 0; i < SCE_MESH_NUM_STREAMS; i++) {
-        if (activated_streams[i] && SCE_CIsVertexBufferBuilt(&mesh->streams[i]))
+        if (activated_streams[i] && mesh->used_streams[i])
             SCE_CUseVertexBuffer (&mesh->streams[i]);
     }
     if (mesh->use_ib) {

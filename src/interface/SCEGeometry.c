@@ -791,9 +791,9 @@ int SCE_Geometry_SetData (SCE_SGeometry *geom, SCEvertices *pos,
                           SCEuint n_vertices, SCEuint n_indices)
 {
     int i;
-    SCE_SGeometryArray array, *arrays[3];
+    SCE_SGeometryArray array, *arrays[4];
 
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < 4; i++)
         arrays[i] = NULL;
     i = 0;
     SCE_Geometry_SetNumVertices (geom, n_vertices);
@@ -803,8 +803,8 @@ int SCE_Geometry_SetData (SCE_SGeometry *geom, SCEvertices *pos,
     SCE_Geometry_SetArrayPosition (&array, 0, 3, pos, SCE_TRUE);
     if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
         goto fail;
-    i++;
     if (nor) {
+        i++;
         SCE_Geometry_InitArray (&array);
         SCE_Geometry_SetArrayNormal (&array, 0, nor, SCE_TRUE);
         if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
@@ -812,19 +812,19 @@ int SCE_Geometry_SetData (SCE_SGeometry *geom, SCEvertices *pos,
         i++;
     }
     if (tex) {
+        i++;
         SCE_Geometry_InitArray (&array);
         SCE_Geometry_SetArrayTexCoord (&array, 0, 0, 2, tex, SCE_TRUE);
         if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
             goto fail;
-        i++;
     }
     if (index) {
+        i++;
         SCE_Geometry_InitArray (&array);
         SCE_Geometry_SetArrayIndices (&array, index, SCE_TRUE);
         if (!(arrays[i] = SCE_Geometry_SetIndexArrayDup (geom, &array,
                                                          SCE_TRUE)))
             goto fail;
-        i++;
     }
 
     return SCE_OK;

@@ -220,12 +220,6 @@ SCE_CBuffer* SCE_CGetVertexBufferBuffer (SCE_CVertexBuffer *vb)
  */
 void SCE_CAddVertexBufferData (SCE_CVertexBuffer *vb, SCE_CVertexBufferData *d)
 {
-#if 0
-    fprintf (stderr, "addr: d = %lx, &d->data = %lx, &d->data.it = %lx\n",
-             d, &d->data, &d->data.it);
-#elif 0
-    fprintf (stderr, "prout\n");
-#endif
     SCE_CAddBufferData (&vb->buf, &d->data);
     SCE_List_Appendl (&vb->data, &d->it);
     d->vb = vb;
