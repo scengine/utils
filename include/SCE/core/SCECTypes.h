@@ -84,7 +84,7 @@ typedef enum sce_ctype SCE_CType;
 #define SCE_MAT_TEXTURE     GL_TEXTURE
 
 #define SCE_CSizeof SCE_CSizeofType
-size_t SCE_CSizeofType (SCEenum);
+size_t SCE_CSizeofType (SCE_CType);
 
 int SCE_CGetInteger (SCEenum);
 float SCE_CGetFloat (SCEenum);

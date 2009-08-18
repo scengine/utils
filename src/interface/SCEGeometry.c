@@ -259,6 +259,7 @@ void SCE_Geometry_AddUser (SCE_SGeometryArray *array, SCE_SGeometryArrayUser *u,
     SCE_List_Appendl (&array->users, &u->it);
     u->update = fun;
     u->arg = arg;
+    u->array = array;
 }
 /**
  * \brief Removes an user from its array

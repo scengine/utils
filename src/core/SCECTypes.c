@@ -23,10 +23,9 @@
 
 /* CTypes.h est inclu dans Minimal.h */
 
-size_t SCE_CSizeofType (SCEenum type)
+size_t SCE_CSizeofType (SCE_CType type)
 {
-    switch (type)
-    {
+    switch (type) {
     case SCE_DOUBLE:
         return sizeof (GLdouble);
     case SCE_FLOAT:
@@ -40,6 +39,8 @@ size_t SCE_CSizeofType (SCEenum type)
     case SCE_BYTE:
     case SCE_UNSIGNED_BYTE:
         return sizeof (GLbyte);
+    case SCE_SIZE_T:
+        return sizeof (size_t);
 #ifdef SCE_DEBUG
     default:
         SCEE_Log (SCE_INVALID_ARG);

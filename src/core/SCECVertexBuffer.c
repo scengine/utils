@@ -151,7 +151,7 @@ void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData *vbd,
     SCE_CVertexArrayData *data;
     SCE_List_Appendl (&vbd->arrays, SCE_CGetVertexArrayIterator (va));
     /* get main pointer of the interleaved array */
-    data = SCE_CGetVertexArrayData (va)->data;
+    data = SCE_CGetVertexArrayData (va);
     if (!vbd->data.data)
         vbd->data.data = data->data;
     else {

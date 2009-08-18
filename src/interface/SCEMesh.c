@@ -325,7 +325,7 @@ static int SCE_Mesh_MakeIndependantVB (SCE_SMesh *mesh)
 {
     SCE_SListIterator *it = NULL;
     SCE_List_ForEach (it, &mesh->arrays) {
-        SCE_EMeshStream stream = SCE_MESH_NUM_STREAMS;
+        SCE_EMeshStream stream = SCE_MESH_STREAM_G;
         SCE_SGeometryArray *array;
         SCE_SMeshArray *marray = SCE_List_GetData (it);
         /* determine stream for these arrays */
@@ -369,8 +369,6 @@ static int SCE_Mesh_MakeGlobalVB (SCE_SMesh *mesh)
 
 /**
  * \internal
- * \todo remove "usage" parameter, defines specific usage for each stream
- * according to mesh usage (animated or not)
  */
 static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferUsage
                                    usage[SCE_MESH_NUM_STREAMS + 1])
@@ -420,7 +418,6 @@ static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferUsage
  * SCECSupport), a more common render mode is used (generally simple vertex
  * arrays).
  * \sa SCE_Mesh_AutoBuild()
- * \todo use stream concept, so kick \p bmode param
  */
 int SCE_Mesh_Build (SCE_SMesh *mesh, SCE_EMeshBuildMode bmode,
                     SCE_CBufferUsage usage[SCE_MESH_NUM_STREAMS + 1])

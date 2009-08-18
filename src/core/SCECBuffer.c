@@ -112,6 +112,8 @@ void SCE_CInitBuffer (SCE_CBuffer *buf)
     SCE_List_Init (&buf->modified);
     SCE_List_SetFreeFunc (&buf->modified, SCE_CFreeBufferBufferData);
     buf->mapptr = NULL;
+    SCE_List_InitIt (&buf->it);
+    SCE_List_SetData (&buf->it, buf);
 }
 SCE_CBuffer* SCE_CCreateBuffer (void)
 {
