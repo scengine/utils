@@ -563,7 +563,7 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry *geom,
         SCEE_LogSrc ();
     else {
         SCE_Geometry_CopyArray (new, array);
-        new->canfree_data = SCE_FALSE;
+        new->canfree_data = canfree;
         SCE_Geometry_AddArray (geom, array);
     }
     return new;
@@ -612,7 +612,7 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry *geom,
     SCE_SGeometryArray *new = NULL;
     void *newdata = NULL;
     SCE_CVertexArrayData *data;
-    SCEenum type = SCE_VERTICES_TYPE;
+    SCE_CType type = SCE_VERTICES_TYPE;
     data = SCE_Geometry_GetArrayData (array);
     /* do not convert if the type is the same */
     if (keep || type == data->type) {
