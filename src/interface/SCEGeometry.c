@@ -810,7 +810,6 @@ int SCE_Geometry_SetData (SCE_SGeometry *geom, SCEvertices *pos,
         SCE_Geometry_SetArrayNormal (&array, 0, nor, SCE_TRUE);
         if (!(arrays[i] = SCE_Geometry_AddArrayDup (geom, &array, SCE_TRUE)))
             goto fail;
-        i++;
     }
     if (tex) {
         i++;

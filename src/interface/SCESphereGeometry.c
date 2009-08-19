@@ -149,6 +149,7 @@ int SCE_SphereGeom_GenerateUV (SCE_SSphere *sphere, SCEuint segments,
     if (SCE_Geometry_SetData (geom, pos, NULL, NULL, indices, n_vertices,
                               n_indices) < 0)
         goto fail;
+    return SCE_OK;
 fail:
     SCE_free (pos);
     SCE_free (indices);
