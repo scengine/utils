@@ -564,7 +564,7 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry *geom,
     else {
         SCE_Geometry_CopyArray (new, array);
         new->canfree_data = canfree;
-        SCE_Geometry_AddArray (geom, array);
+        SCE_Geometry_AddArray (geom, new);
     }
     return new;
 }
