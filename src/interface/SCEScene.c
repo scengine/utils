@@ -283,9 +283,10 @@ static unsigned int SCE_Scene_DetermineElementList (SCE_SOctreeElement *el,
                                                     SCE_SOctree *tree)
 {
     float d;
-    float c = d / SCE_Box_GetWidth (SCE_BoundingBox_GetBox (
-                                        SCE_Octree_GetBoundingBox (tree)));
+    float c;
     d = SCE_BoundingSphere_GetRadius (el->sphere) * 2.0;
+    c = d / SCE_Box_GetWidth (SCE_BoundingBox_GetBox (
+                                        SCE_Octree_GetBoundingBox (tree)));
     /* TODO: ptdr rofl mdr? */
     if (c < omg_coeffs[1]){
         return 2;
