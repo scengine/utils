@@ -233,7 +233,7 @@ void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData *data)
 {
     if (data->vb) {
         SCE_CRemoveBufferData (&data->data);
-        SCE_List_Removel (&data->it);
+        SCE_List_Remove (&data->it);
         data->vb = NULL;
     }
 }
