@@ -412,11 +412,11 @@ SCE_SListIterator* SCE_List_RemoveLast (SCE_SList *l)
  */
 void SCE_List_Erase (SCE_SList *l, SCE_SListIterator *it)
 {
-    SCE_List_Removel (it);
     if (l->f)
         l->f (it->data);
     else if (l->f2)
         l->f2 (l->f2arg, it->data);
+    SCE_List_Remove (it);
     if (l->canfree)
         SCE_List_DeleteIt (it);
 }

@@ -106,8 +106,10 @@ void SCE_Mesh_Init (SCE_SMesh *mesh)
     mesh->prim = SCE_POINTS;    /* do not take any risk. */
     SCE_List_Init (&mesh->arrays);
     SCE_List_SetFreeFunc (&mesh->arrays, SCE_Mesh_FreeArray);
-    for (i = 0; i < SCE_MESH_NUM_STREAMS; i++)
+    for (i = 0; i < SCE_MESH_NUM_STREAMS; i++) {
         SCE_CInitVertexBuffer (&mesh->streams[i]);
+        mesh->used_streams[i] = SCE_FALSE;
+    }
     SCE_CInitIndexBuffer (&mesh->ib);
     mesh->use_ib = SCE_FALSE;
     SCE_Geometry_InitArrayUser (&mesh->index_auser);

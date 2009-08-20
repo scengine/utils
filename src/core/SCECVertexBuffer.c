@@ -525,8 +525,9 @@ void SCE_CFinishVertexBufferRender (void)
         /* otherwise there is no vertex buffer object or the VAO already
            deactivated the vertex buffer */
     }
-    if (ib_bound) /* if NULL, no index buffer */
+    if (ib_bound) { /* if NULL, no index buffer */
         glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
-    ib_bound = NULL;
+        ib_bound = NULL;
+    }
     vb_bound = NULL;
 }
