@@ -98,8 +98,9 @@ SCE_Geometry_CreateArrayFrom (SCE_CVertexAttributeType attrib, SCE_CType type,
 void SCE_Geometry_DeleteArray (SCE_SGeometryArray *array)
 {
     if (array) {
-        if (array->geom)
-            SCE_List_Removel (&array->it);
+        if (array->child)
+            array->child->root = array->root;
+        SCE_List_Remove (&array->it);
         /* having a root means our data pointer is just an offset of the main
            pointer which is in and will be freed by the root array */
         if (array->canfree_data && !array->root)
@@ -665,7 +666,7 @@ void SCE_Geometry_RemoveArray (SCE_SGeometryArray *array)
 {
     while (array) {
         if (array->geom) {
-            SCE_List_Removel (&array->it);
+            SCE_List_Remove (&array->it);
             array->geom = NULL;
         }
         array = array->child;
