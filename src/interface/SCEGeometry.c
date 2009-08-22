@@ -1500,9 +1500,12 @@ int SCE_Geometry_GenerateTBN (SCE_SGeometry *geom, SCEvertices **t,
                                  normal) < 0)
         goto fail;
 
-    *t = tangent;
-    *b = binormal;
-    *b = normal;
+    if (t)
+        *t = tangent;
+    if (b)
+        *b = binormal;
+    if (n)
+        *n = normal;
     return SCE_OK;
 fail:
     SCE_free (normal);
