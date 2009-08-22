@@ -1190,7 +1190,7 @@ static void SCE_Geometry_ComputePrimDistances (SCE_SGeometry *geom,
 {
     size_t i;
     SCE_TVector3 center;
-    SCEvertices vprim[4*3];
+    SCEvertices vprim[4][3];
     SCEindices *indices;
     SCEvertices *positions = geom->pos_data;
     indices = geom->index_data;
