@@ -137,10 +137,7 @@ SCE_SGeometryArrayUser* SCE_Geometry_CreateArrayUser (void)
 }
 void SCE_Geometry_ClearArrayUser (SCE_SGeometryArrayUser *auser)
 {
-    if (auser->array) {
-        SCE_List_Removel (&auser->it);
-        auser->array = NULL;
-    }
+    SCE_Geometry_RemoveUser (auser);
 }
 void SCE_Geometry_DeleteArrayUser (SCE_SGeometryArrayUser *auser)
 {
@@ -265,7 +262,7 @@ void SCE_Geometry_AddUser (SCE_SGeometryArray *array, SCE_SGeometryArrayUser *u,
  */
 void SCE_Geometry_RemoveUser (SCE_SGeometryArrayUser *auser)
 {
-    SCE_List_Removel (&auser->it);
+    SCE_List_Remove (&auser->it);
     auser->array = NULL;
 }
 
