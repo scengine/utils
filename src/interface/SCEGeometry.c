@@ -98,9 +98,8 @@ SCE_Geometry_CreateArrayFrom (SCE_CVertexAttributeType attrib, SCE_CType type,
 void SCE_Geometry_DeleteArray (SCE_SGeometryArray *array)
 {
     if (array) {
-        if (array->child)
-            array->child->root = array->root;
-        SCE_List_Remove (&array->it);
+        if (array->geom)
+            SCE_List_Removel (&array->it);
         /* having a root means our data pointer is just an offset of the main
            pointer which is in and will be freed by the root array */
         if (array->canfree_data && !array->root)
@@ -137,7 +136,10 @@ SCE_SGeometryArrayUser* SCE_Geometry_CreateArrayUser (void)
 }
 void SCE_Geometry_ClearArrayUser (SCE_SGeometryArrayUser *auser)
 {
-    SCE_Geometry_RemoveUser (auser);
+    if (auser->array) {
+        SCE_List_Removel (&auser->it);
+        auser->array = NULL;
+    }
 }
 void SCE_Geometry_DeleteArrayUser (SCE_SGeometryArrayUser *auser)
 {
@@ -262,7 +264,7 @@ void SCE_Geometry_AddUser (SCE_SGeometryArray *array, SCE_SGeometryArrayUser *u,
  */
 void SCE_Geometry_RemoveUser (SCE_SGeometryArrayUser *auser)
 {
-    SCE_List_Remove (&auser->it);
+    SCE_List_Removel (&auser->it);
     auser->array = NULL;
 }
 
@@ -603,7 +605,7 @@ SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry *geom,
     /* do not convert if the type is the same */
     if (keep || type == data->type) {
         type = data->type;
-        newdata = SCE_Mem_Dup (data->data, geom->n_indices *
+        newdata = SCE_Mem_Dup (data->data, geom->n_vertices *
                                SCE_CSizeof (data->type) * data->size);
     } else {
         /* TODO: not according to definition of SCEvertices, may be greater */
@@ -663,7 +665,7 @@ void SCE_Geometry_RemoveArray (SCE_SGeometryArray *array)
 {
     while (array) {
         if (array->geom) {
-            SCE_List_Remove (&array->it);
+            SCE_List_Removel (&array->it);
             array->geom = NULL;
         }
         array = array->child;
@@ -1479,15 +1481,15 @@ int SCE_Geometry_GenerateTBN (SCE_SGeometry *geom, SCEvertices **t,
 #endif
 
     if (t) {
-        if (!(tangent = SCE_malloc (geom->n_vertices * 3 * sizeof *tangent)))
+        if (!(tangent = SCE_malloc (geom->n_vertices * sizeof *tangent)))
             goto fail;
     }
     if (b) {
-        if (!(binormal = SCE_malloc (geom->n_vertices * 3 * sizeof *binormal)))
+        if (!(binormal = SCE_malloc (geom->n_vertices * sizeof *binormal)))
             goto fail;
     }
     if (n) {
-        if (!(normal = SCE_malloc (geom->n_vertices * 3 * sizeof *normal)))
+        if (!(normal = SCE_malloc (geom->n_vertices * sizeof *normal)))
             goto fail;
     }
 
@@ -1526,7 +1528,7 @@ int SCE_Geometry_AddGenerateTBN (SCE_SGeometry *geom, unsigned int unit,
     param[0] = (flags & SCE_GEN_TANGENTS ? &t : NULL);
     param[1] = (flags & SCE_GEN_BINORMALS ? &b : NULL);
     param[2] = (flags & SCE_GEN_NORMALS ? &n : NULL);
-    if (SCE_Geometry_GenerateTBN (geom, param[0], param[1], param[2], unit) < 0)
+    if (SCE_Geometry_GenerateTBN (geom, param[0], param[1], param[0], unit) < 0)
         goto fail;
     if (t) {
         if (!SCE_Geometry_AddNewArray (geom, SCE_TANGENT, SCE_VERTICES_TYPE,

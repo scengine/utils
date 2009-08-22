@@ -62,8 +62,7 @@ int SCE_Init_Quad (void)
         goto fail;
     if (SCE_Mesh_SetGeometry (mesh, geom, SCE_TRUE) < 0)
         goto fail;
-    if (SCE_Mesh_Build (mesh, SCE_GLOBAL_VERTEX_BUFFER, NULL) < 0)
-        goto fail;
+    SCE_Mesh_Build (mesh, SCE_GLOBAL_VERTEX_BUFFER, NULL);
 
     return SCE_OK;
 fail:

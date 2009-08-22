@@ -128,17 +128,6 @@ void SCE_Quit_BoxGeom (void)
 }
 
 
-static void SCE_BoxGeom_MulIndiv (SCEvertices *v, SCE_SBox *box)
-{
-    SCE_TVector3 coeff;
-    size_t i;
-    coeff[0] = SCE_Box_GetWidth (box) * 0.5f;
-    coeff[1] = SCE_Box_GetHeight (box) * 0.5f;
-    coeff[2] = SCE_Box_GetDepth (box) * 0.5f;
-    for (i = 0; i < 8; i++)
-        SCE_Vector3_Operator1v (&v[i * 3], *=, coeff);
-}
-
 static int SCE_BoxGeom_GenPoints (SCE_SBox *box, SCE_EBoxGeomTexCoordMode mode,
                                   SCE_SGeometry *geom)
 {
@@ -201,26 +190,36 @@ fail:
     return SCE_ERROR;
 }
 
+
+static void SCE_BoxGeom_MulIndiv (SCEvertices *v, SCE_SBox *box)
+{
+    SCE_TVector3 coeff, center;
+    size_t i;
+    coeff[0] = SCE_Box_GetWidth (box) * 0.5f;
+    coeff[1] = SCE_Box_GetHeight (box) * 0.5f;
+    coeff[2] = SCE_Box_GetDepth (box) * 0.5f;
+    SCE_Box_GetCenterv (box, center);
+    for (i = 0; i < 24; i++)
+        SCE_Vector3_Operator2v (&v[i * 3], *=, coeff, +, center);
+}
 static int SCE_BoxGeom_GenTriangles (SCE_SBox *box,
                                      SCE_EBoxGeomTexCoordMode mode,
                                      SCE_SGeometry *geom)
 {
     SCEvertices *v = NULL, *t = NULL;
     SCEindices *i = NULL;
-    int indiv = SCE_FALSE;
+    int indiv = SCE_TRUE;
 
     switch (mode) {
     case SCE_BOX_EXTERIOR_TEXCOORD:
         SCE_Geometry_SetNumVertices (geom, 24);
         v = pos_indiv_triangle;
         t = texcoord_exterior_triangle;
-        indiv = SCE_TRUE;
         break;
     case SCE_BOX_INTERIOR_TEXCOORD:
         SCE_Geometry_SetNumVertices (geom, 24);
         v = pos_indiv_triangle;
         t = texcoord_interior_triangle;
-        indiv = SCE_TRUE;
         break;
     case SCE_BOX_CUBEMAP_TEXCOORD:
         t = texcoord_cubemap;
@@ -229,6 +228,7 @@ static int SCE_BoxGeom_GenTriangles (SCE_SBox *box,
         SCE_Geometry_SetNumIndices (geom, 36);
         v = SCE_Box_GetPoints (box);
         i = indices_triangles;
+        indiv = SCE_FALSE;
     }
     {
         SCE_SGeometryArray array, *ap = NULL;

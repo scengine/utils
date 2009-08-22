@@ -51,7 +51,7 @@ void SCE_Box_Copy (SCE_SBox *dst, const SCE_SBox *src)
  * \see SCE_Box_SetFromCenter(), SCE_Box_Setv()
  */
 void SCE_Box_Set (SCE_SBox *box, SCE_TVector3 o,
-                          float w, float h, float d)
+                  float w, float h, float d)
 {
     SCE_Vector3_Set (box->p[0], o[0],   o[1],   o[2]);
     SCE_Vector3_Set (box->p[1], o[0]+w, o[1],   o[2]);
