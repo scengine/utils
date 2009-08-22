@@ -360,18 +360,20 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer *vb,
     switch (mode) {
     case SCE_VA_RENDER_MODE:
         fun = SCE_CUseVAMode;
-        SCE_List_ForEach (it, &vb->data) {
-            SCE_SListIterator *it2;
-            SCE_CVertexBufferData *vbd = SCE_List_GetData (it);
-            SCE_List_ForEach (it2, &vbd->arrays) {
-                SCE_CVertexArrayData *data;
-                data = SCE_CGetVertexArrayData (SCE_List_GetData (it2));
+        if (vb->use != fun && vb->use) {
+            SCE_List_ForEach (it, &vb->data) {
+                SCE_SListIterator *it2;
+                SCE_CVertexBufferData *vbd = SCE_List_GetData (it);
+                SCE_List_ForEach (it2, &vbd->arrays) {
+                    SCE_CVertexArrayData *data;
+                    data = SCE_CGetVertexArrayData (SCE_List_GetData (it2));
 #if 1
-                data->data = &((char*)vbd->data.data)[(size_t)data->data];
+                    data->data = &((char*)vbd->data.data)[(size_t)data->data];
 #else
-                /* TODO: WTF?? */
-                data->data = (char*)vbd->data.data + (char*)data->data;
+                    /* TODO: WTF?? */
+                    data->data = (char*)vbd->data.data + (char*)data->data;
 #endif
+                }
             }
         }
         break;
@@ -398,7 +400,7 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer *vb,
         break;
     default:
 #ifdef SCE_DEBUG
-        SCEE_SendMsg ("unknow buffer render mode %d", mode);
+        SCEE_SendMsg ("unknown buffer render mode %d\n", mode);
 #endif
     }
     if (fun)
