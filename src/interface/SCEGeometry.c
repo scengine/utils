@@ -868,6 +868,55 @@ fail:
     return SCE_ERROR;
 }
 
+/**
+ * \brief Gets the array of the vertices' position
+ */
+SCE_SGeometryArray* SCE_Geometry_GetPositionsArray (SCE_SGeometry *geom)
+{
+    return geom->pos_array;
+}
+/**
+ * \brief Gets the array of the vertices' normal
+ */
+SCE_SGeometryArray* SCE_Geometry_GetNormalsArray (SCE_SGeometry *geom)
+{
+    return geom->nor_array;
+}
+/**
+ * \brief Gets the array of the vertices' texture coordinate
+ */
+SCE_SGeometryArray* SCE_Geometry_GetTexCoordsArray (SCE_SGeometry *geom)
+{
+    return geom->tex_array;
+}
+/**
+ * \brief Gets the vertices' position
+ */
+SCEvertices* SCE_Geometry_GetPositions (SCE_SGeometry *geom)
+{
+    return geom->pos_data;
+}
+/**
+ * \brief Gets the vertices' normal
+ */
+SCEvertices* SCE_Geometry_GetNormals (SCE_SGeometry *geom)
+{
+    return geom->nor_data;
+}
+/**
+ * \brief Gets the vertices' texture coordinates
+ */
+SCEvertices* SCE_Geometry_GetTexCoords (SCE_SGeometry *geom)
+{
+    return geom->tex_data;
+}
+/**
+ * \brief Gets the indices
+ */
+SCEindices* SCE_Geometry_GetIndices (SCE_SGeometry *geom)
+{
+    return geom->index_data;
+}
 
 /**
  * \brief Sets primitive type of a geometry

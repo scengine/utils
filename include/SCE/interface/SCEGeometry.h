@@ -219,6 +219,14 @@ int SCE_Geometry_SetData (SCE_SGeometry*, SCEvertices*, SCEvertices*,
 int SCE_Geometry_SetDataDup (SCE_SGeometry*, SCEvertices*, SCEvertices*,
                              SCEvertices*, SCEindices*, SCEuint, SCEuint);
 
+SCE_SGeometryArray* SCE_Geometry_GetPositionsArray (SCE_SGeometry*);
+SCE_SGeometryArray* SCE_Geometry_GetNormalsArray (SCE_SGeometry*);
+SCE_SGeometryArray* SCE_Geometry_GetTexCoordsArray (SCE_SGeometry*);
+SCEvertices* SCE_Geometry_GetPositions (SCE_SGeometry*);
+SCEvertices* SCE_Geometry_GetNormals (SCE_SGeometry*);
+SCEvertices* SCE_Geometry_GetTexCoords (SCE_SGeometry*);
+SCEindices* SCE_Geometry_GetIndices (SCE_SGeometry*);
+
 void SCE_Geometry_SetPrimitiveType (SCE_SGeometry*, SCE_CPrimitiveType);
 SCEenum SCE_Geometry_GetPrimitiveType (SCE_SGeometry*);
 
