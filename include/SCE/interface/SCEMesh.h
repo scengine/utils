@@ -92,9 +92,9 @@ void SCE_Mesh_DisableStream (SCE_EMeshStream);
 
 SCE_SGeometry* SCE_Mesh_GetGeometry (SCE_SMesh*);
 int SCE_Mesh_SetGeometry (SCE_SMesh*, SCE_SGeometry*, int);
-int SCE_Mesh_Build (SCE_SMesh*, SCE_EMeshBuildMode,
-                    SCE_CBufferUsage[SCE_MESH_NUM_STREAMS + 1]);
-int SCE_Mesh_AutoBuild (SCE_SMesh*);
+void SCE_Mesh_Build (SCE_SMesh*, SCE_EMeshBuildMode,
+                     SCE_CBufferUsage[SCE_MESH_NUM_STREAMS + 1]);
+void SCE_Mesh_AutoBuild (SCE_SMesh*);
 
 int SCE_Mesh_Update (SCE_SMesh*);
 

@@ -338,11 +338,11 @@ static void SCE_Mesh_AddStreamData (SCE_CVertexBuffer *vb,
 {
     SCE_CAddVertexBufferData (vb, &marray->data);
 }
-static int SCE_Mesh_MakeIndependantVB (SCE_SMesh *mesh)
+static void SCE_Mesh_MakeIndependantVB (SCE_SMesh *mesh)
 {
     SCE_SListIterator *it = NULL;
     SCE_List_ForEach (it, &mesh->arrays) {
-        SCE_EMeshStream stream = SCE_MESH_STREAM_G;
+        SCE_EMeshStream stream = SCE_MESH_NUM_STREAMS;
         SCE_SGeometryArray *array;
         SCE_SMeshArray *marray = SCE_List_GetData (it);
         /* determine stream for these arrays */
@@ -365,15 +365,19 @@ static int SCE_Mesh_MakeIndependantVB (SCE_SMesh *mesh)
                 stream = SCE_MESH_STREAM_A;
             array = SCE_Geometry_GetChild (array);
         }
+#ifdef SCE_DEBUG
+        if (stream == SCE_MESH_NUM_STREAMS) {
+            SCEE_SendMsg ("obviously, there is no any array set to this mesh "
+                          "array because its 'array user' structure is empty of"
+                          " any geometry array, what the fuck?");
+            continue;
+        }
+#endif
         SCE_Mesh_AddStreamData (&mesh->streams[stream], marray);
         mesh->used_streams[stream] = SCE_TRUE;
     }
-    return SCE_OK;
-fail:
-    SCEE_LogSrc ();
-    return SCE_ERROR;
 }
-static int SCE_Mesh_MakeGlobalVB (SCE_SMesh *mesh)
+static void SCE_Mesh_MakeGlobalVB (SCE_SMesh *mesh)
 {
     SCE_SListIterator *it = NULL;
     SCE_List_ForEach (it, &mesh->arrays) {
@@ -381,7 +385,6 @@ static int SCE_Mesh_MakeGlobalVB (SCE_SMesh *mesh)
                                 SCE_List_GetData (it));
     }
     mesh->used_streams[SCE_MESH_STREAM_G] = SCE_TRUE;
-    return SCE_OK;
 }
 
 /**
@@ -410,8 +413,8 @@ static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferUsage
     usage = default_usage;
 
     /* try to setup the better render mode */
-    if (SCE_CHasCap (SCE_VAO))
-        rmode = SCE_UNIFIED_VAO_RENDER_MODE;
+    if (SCE_CHasCap (SCE_VAO) && mesh->bmode)
+        rmode = SCE_VAO_RENDER_MODE;
     else if (SCE_CHasCap (SCE_VBO))
         rmode = SCE_VBO_RENDER_MODE;
     else
@@ -436,29 +439,21 @@ static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferUsage
  * arrays).
  * \sa SCE_Mesh_AutoBuild()
  */
-int SCE_Mesh_Build (SCE_SMesh *mesh, SCE_EMeshBuildMode bmode,
-                    SCE_CBufferUsage usage[SCE_MESH_NUM_STREAMS + 1])
+void SCE_Mesh_Build (SCE_SMesh *mesh, SCE_EMeshBuildMode bmode,
+                     SCE_CBufferUsage usage[SCE_MESH_NUM_STREAMS + 1])
 {
-    int err = SCE_ERROR;
-
     /* SCE_Mesh_Unbuild (mesh); */
 
     switch (bmode) {
     case SCE_INDEPENDANT_VERTEX_BUFFER:
-        err = SCE_Mesh_MakeIndependantVB (mesh);
+        SCE_Mesh_MakeIndependantVB (mesh);
         break;
     case SCE_GLOBAL_VERTEX_BUFFER:
-        err = SCE_Mesh_MakeGlobalVB (mesh);
+        SCE_Mesh_MakeGlobalVB (mesh);
         break;
     }
-    if (err < 0)
-        goto fail;
-    SCE_Mesh_BuildBuffers (mesh, usage);
     mesh->bmode = bmode;
-    return SCE_OK;
-fail:
-    SCEE_LogSrc ();
-    return SCE_ERROR;
+    SCE_Mesh_BuildBuffers (mesh, usage);
 }
 
 /**
@@ -469,9 +464,9 @@ fail:
  * situations that needs specific mesh data structure.
  * \sa SCE_Mesh_Build()
  */
-int SCE_Mesh_AutoBuild (SCE_SMesh *mesh)
+void SCE_Mesh_AutoBuild (SCE_SMesh *mesh)
 {
-    return SCE_Mesh_Build (mesh, SCE_INDEPENDANT_VERTEX_BUFFER, NULL);
+    SCE_Mesh_Build (mesh, SCE_INDEPENDANT_VERTEX_BUFFER, NULL);
 }
 
 /* why change mode on live? */
