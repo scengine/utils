@@ -203,8 +203,14 @@ SCE_Geometry_AddNewArray (SCE_SGeometry*, SCE_CVertexAttributeType,
                           SCE_CType, size_t, int, void*, int);
 SCE_SGeometryArray* SCE_Geometry_AddArrayDup (SCE_SGeometry*,
                                               SCE_SGeometryArray*, int);
+SCE_SGeometryArray* SCE_Geometry_AddArrayRecDup (SCE_SGeometry*,
+                                                 SCE_SGeometryArray*,
+                                                 int);
 SCE_SGeometryArray* SCE_Geometry_AddArrayDupDup (SCE_SGeometry*,
                                                  SCE_SGeometryArray*, int);
+SCE_SGeometryArray* SCE_Geometry_AddArrayRecDupDup (SCE_SGeometry*,
+                                                    SCE_SGeometryArray*,
+                                                    int);
 void SCE_Geometry_RemoveArray (SCE_SGeometryArray*);
 
 void SCE_Geometry_SetIndexArray (SCE_SGeometry*, SCE_SGeometryArray*, int);
