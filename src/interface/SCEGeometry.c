@@ -1479,15 +1479,15 @@ int SCE_Geometry_GenerateTBN (SCE_SGeometry *geom, SCEvertices **t,
 #endif
 
     if (t) {
-        if (!(tangent = SCE_malloc (geom->n_vertices * sizeof *tangent)))
+        if (!(tangent = SCE_malloc (geom->n_vertices * 3 * sizeof *tangent)))
             goto fail;
     }
     if (b) {
-        if (!(binormal = SCE_malloc (geom->n_vertices * sizeof *binormal)))
+        if (!(binormal = SCE_malloc (geom->n_vertices * 3 * sizeof *binormal)))
             goto fail;
     }
     if (n) {
-        if (!(normal = SCE_malloc (geom->n_vertices * sizeof *normal)))
+        if (!(normal = SCE_malloc (geom->n_vertices * 3 * sizeof *normal)))
             goto fail;
     }
 
@@ -1526,7 +1526,7 @@ int SCE_Geometry_AddGenerateTBN (SCE_SGeometry *geom, unsigned int unit,
     param[0] = (flags & SCE_GEN_TANGENTS ? &t : NULL);
     param[1] = (flags & SCE_GEN_BINORMALS ? &b : NULL);
     param[2] = (flags & SCE_GEN_NORMALS ? &n : NULL);
-    if (SCE_Geometry_GenerateTBN (geom, param[0], param[1], param[0], unit) < 0)
+    if (SCE_Geometry_GenerateTBN (geom, param[0], param[1], param[2], unit) < 0)
         goto fail;
     if (t) {
         if (!SCE_Geometry_AddNewArray (geom, SCE_TANGENT, SCE_VERTICES_TYPE,
