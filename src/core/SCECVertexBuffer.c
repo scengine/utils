@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 13/08/2009 */
+   updated: 22/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -37,6 +37,7 @@ void SCE_CInitVertexBufferData (SCE_CVertexBufferData *data)
     SCE_CInitBufferData (&data->data);
     SCE_CInitVertexArraySequence (&data->seq);
     SCE_List_Init (&data->arrays);
+    SCE_List_CanDeleteIterators (&data->arrays, SCE_TRUE);
     data->stride = 0;
     SCE_List_InitIt (&data->it);
     SCE_List_SetData (&data->it, data);
@@ -108,7 +109,6 @@ void SCE_CInitIndexBuffer (SCE_CIndexBuffer *ib)
 {
     SCE_CInitBuffer (&ib->buf);
     SCE_CInitBufferData (&ib->data);
-    SCE_CAddBufferData (&ib->buf, &ib->data);
     SCE_CInitIndexArray (&ib->ia);
     ib->ia.data = SCE_BUFFER_OFFSET (0);
     ib->n_indices = 0;
@@ -141,15 +141,19 @@ void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer *ib)
  *
  * The structure \p data is given to the vertex array of \p vbd
  * calling SCE_CSetVertexArrayData().
- * \sa SCE_CSetVertexArrayData(), SCE_CAddVertexBufferData
+ * \sa SCE_CSetVertexArrayData(), SCE_CDeleteVertexBufferDataArrays()
+ * SCE_CAddVertexBufferData
  */
-void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData *vbd,
-                                    SCE_CVertexArray *va,
-                                    size_t n_vertices)
+int SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData *vbd,
+                                   SCE_CVertexArray *va,
+                                   size_t n_vertices)
 {
     size_t stride;
     SCE_CVertexArrayData *data;
-    SCE_List_Appendl (&vbd->arrays, SCE_CGetVertexArrayIterator (va));
+    if (SCE_List_AppendNewl (&vbd->arrays, va) < 0) {
+        SCEE_LogSrc ();
+        return SCE_ERROR;
+    }
     /* get main pointer of the interleaved array */
     data = SCE_CGetVertexArrayData (va);
     if (!vbd->data.data)
@@ -161,7 +165,23 @@ void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData *vbd,
     stride = SCE_CSizeof (data->type) * data->size;
     vbd->stride += stride;
     vbd->data.size += stride * n_vertices;
+    return SCE_OK;
 }
+static void SCE_CFreeDataArray (void *a)
+{
+    SCE_CDeleteVertexArray (a);
+}
+/**
+ * \brief Deletes the arrays of a vertex buffer data
+ * \sa SCE_CAddVertexBufferDataArray()
+ */
+void SCE_CDeleteVertexBufferDataArrays (SCE_CVertexBufferData *vbd)
+{
+    SCE_List_SetFreeFunc (&vbd->arrays, SCE_CFreeDataArray);
+    SCE_List_Clear (&vbd->arrays);
+    SCE_List_SetFreeFunc (&vbd->arrays, NULL);
+}
+
 /**
  * \brief Set modified vertices range
  * \param range range of modified vertices, [0] is the first modified vertex
@@ -483,6 +503,7 @@ void SCE_CBuildIndexBuffer (SCE_CIndexBuffer *ib, SCE_CBufferUsage usage)
 {
     if (usage == SCE_BUFFER_DEFAULT_USAGE)
         usage = SCE_BUFFER_STATIC_DRAW;
+    SCE_CAddBufferData (&ib->buf, &ib->data);
     SCE_CBuildBuffer (&ib->buf, GL_ELEMENT_ARRAY_BUFFER, usage);
 }
 

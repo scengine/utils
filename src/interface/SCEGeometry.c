@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 25/07/2009
-   updated: 09/08/2009 */
+   updated: 22/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -59,7 +59,7 @@ static void SCE_Geometry_FreeArrayUser (void *auser)
 }
 void SCE_Geometry_InitArray (SCE_SGeometryArray *array)
 {
-    SCE_CInitVertexArray (&array->array);
+    SCE_CInitVertexArrayData (&array->data);
     array->root = array->child = NULL;
     array->canfree_data = SCE_FALSE;
     SCE_List_InitIt (&array->it);
@@ -103,21 +103,18 @@ void SCE_Geometry_DeleteArray (SCE_SGeometryArray *array)
         /* having a root means our data pointer is just an offset of the main
            pointer which is in and will be freed by the root array */
         if (array->canfree_data && !array->root)
-            SCE_free (SCE_CGetVertexArrayData (&array->array)->data);
+            SCE_free (array->data.data);
         SCE_List_Clear (&array->users);
         SCE_free (array);
     }
 }
 /**
- * \brief Copies vertex array data of \p a2 into \p a1
- *
- * This function doesn't copy users of \p a2, doesn't put \p a1 into the
- * geometry of \p a2 and doesn't insert \p a1 into any interleaved arrays list
- * (so just used for AddDup*() functions). Just copies data of the vertex arrays
+ * \brief Just copies \p a2->data into \p a1->data
  */
-void SCE_Geometry_CopyArray (SCE_SGeometryArray *a1, SCE_SGeometryArray *a2)
+void SCE_Geometry_CopyArray (SCE_SGeometryArray *a1,
+                             const SCE_SGeometryArray *a2)
 {
-    SCE_CSetVertexArrayData (&a1->array, SCE_CGetVertexArrayData (&a2->array));
+    a1->data = a2->data;
 }
 
 void SCE_Geometry_InitArrayUser (SCE_SGeometryArrayUser *auser)
@@ -365,8 +362,11 @@ void SCE_Geometry_SetArrayData (SCE_SGeometryArray *array,
                                 SCE_CType type, size_t stride, int size,
                                 void *data, int canfree)
 {
-    SCE_CSetVertexArrayNewData (&array->array, attrib, type, stride,
-                                size, data);
+    array->data.attrib = attrib;
+    array->data.type = type;
+    array->data.stride = stride;
+    array->data.size = size;
+    array->data.data = data;
     array->canfree_data = canfree;
 }
 /**
@@ -429,8 +429,7 @@ void SCE_Geometry_SetArrayBinormal (SCE_SGeometryArray *array, size_t stride,
 }
 
 /**
- * \brief Calls SCE_Geometry_SetArrayData (\p array, 42, SCE_INDICES_TYPE,
- * 0, 1, \p data, \p canfree).
+ * \brief Sets indices to an array
  *
  * I know this function is just weird, but it would be boring to make a new
  * structure type just for "index" arrays, like SCE_SGeometryIndexArray,
@@ -438,14 +437,11 @@ void SCE_Geometry_SetArrayBinormal (SCE_SGeometryArray *array, size_t stride,
  * SCE_SGeometryVertexArray would be better.
  * \sa SCE_Geometry_SetArrayData(), SCE_Geometry_SetArrayNormal()
  */
-void SCE_Geometry_SetArrayIndices (SCE_SGeometryArray *array, SCEindices *data,
-                                   int canfree)
+void SCE_Geometry_SetArrayIndices (SCE_SGeometryArray *array, SCE_CType type,
+                                   void *data, int canfree)
 {
-    SCE_CVertexArrayData *d;
-    /* do not call SCE_CSetVertexArrayData() */
-    d = SCE_CGetVertexArrayData (&array->array);
-    d->type = SCE_INDICES_TYPE;
-    d->data = data;
+    array->data.type = type;
+    array->data.data = data;
 }
 
 /**
@@ -454,7 +450,7 @@ void SCE_Geometry_SetArrayIndices (SCE_SGeometryArray *array, SCEindices *data,
  */
 void* SCE_Geometry_GetData (SCE_SGeometryArray *array)
 {
-    return SCE_CGetVertexArrayData (&array->array)->data;
+    return array->data.data;
 }
 /**
  * \brief Gets the attribute type of an array
@@ -463,7 +459,7 @@ void* SCE_Geometry_GetData (SCE_SGeometryArray *array)
 SCE_CVertexAttributeType
 SCE_Geometry_GetArrayAttributeType (SCE_SGeometryArray *array)
 {
-    return SCE_CGetVertexArrayData (&array->array)->attrib;
+    return array->data.attrib;
 }
 /**
  * \brief Gets the vertex array of a geometry array
@@ -472,15 +468,7 @@ SCE_Geometry_GetArrayAttributeType (SCE_SGeometryArray *array)
  */
 SCE_CVertexArrayData* SCE_Geometry_GetArrayData (SCE_SGeometryArray *array)
 {
-    return SCE_CGetVertexArrayData (&array->array);
-}
-/**
- * \brief Gets the vertex array of a geometry array
- * \sa SCE_Geometry_GetArrayData()
- */
-SCE_CVertexArray* SCE_Geometry_GetArrayArray (SCE_SGeometryArray *array)
-{
-    return &array->array;
+    return &array->data;
 }
 
 /**
@@ -498,15 +486,15 @@ void SCE_Geometry_AddArray (SCE_SGeometry *geom, SCE_SGeometryArray *array)
     switch (SCE_Geometry_GetArrayAttributeType (array)) {
     case SCE_POSITION:
         geom->pos_array = array;
-        geom->pos_data = SCE_CGetVertexArrayData (&array->array)->data;
+        geom->pos_data = SCE_Geometry_GetData (array);
         break;
     case SCE_NORMAL:
         geom->nor_array = array;
-        geom->nor_data = SCE_CGetVertexArrayData (&array->array)->data;
+        geom->nor_data = SCE_Geometry_GetData (array);
         break;
     case SCE_TEXCOORD0:
         geom->tex_array = array;
-        geom->tex_data = SCE_CGetVertexArrayData (&array->array)->data;
+        geom->tex_data = SCE_Geometry_GetData (array);
     default:;                   /* kicks compilation warning */
     }
 }
@@ -696,8 +684,13 @@ void SCE_Geometry_SetIndexArray (SCE_SGeometry *geom, SCE_SGeometryArray *array,
 {
     SCE_Geometry_DeleteIndexArray (geom);
     geom->index_array = array;
-    geom->index_data = SCE_CGetVertexArrayData (&array->array)->data;
-    geom->canfree_index = (array ? canfree : SCE_FALSE);
+    if (array) {
+        geom->index_data = SCE_Geometry_GetData (array);
+        geom->canfree_index = canfree;
+    } else {
+        geom->index_data = NULL;
+        geom->canfree_index = SCE_FALSE;
+    }
 }
 /**
  * \brief Duplicates and set an index array
@@ -821,7 +814,8 @@ int SCE_Geometry_SetData (SCE_SGeometry *geom, SCEvertices *pos,
     if (index) {
         i++;
         SCE_Geometry_InitArray (&array);
-        SCE_Geometry_SetArrayIndices (&array, index, SCE_TRUE);
+        SCE_Geometry_SetArrayIndices (&array, SCE_INDICES_TYPE,
+                                      index, SCE_TRUE);
         if (!(arrays[i] = SCE_Geometry_SetIndexArrayDup (geom, &array,
                                                          SCE_TRUE)))
             goto fail;

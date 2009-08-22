@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 31/07/2009
-   updated: 01/08/2009 */
+   updated: 22/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -81,6 +81,8 @@ SCE_SMeshArray* SCE_Mesh_CreateArray (void)
 static void SCE_Mesh_RemoveArray (SCE_SMeshArray*);
 void SCE_Mesh_ClearArray (SCE_SMeshArray *marray)
 {
+    /* free memory of vertex arrays (see AddArrayArrays()) */
+    SCE_CDeleteVertexBufferDataArrays (&marray->data);
     SCE_CClearVertexBufferData (&marray->data);
     SCE_Geometry_ClearArrayUser (&marray->auser);
     SCE_Mesh_RemoveArray (marray);
@@ -198,20 +200,28 @@ static void SCE_Mesh_UpdateArrayCallback (void *data, size_t *range)
  * \brief Adds a root geometry array to a mesh array (ie vertex buffer data)
  * \sa SCE_Mesh_AddArray(), SCE_Mesh_AddArrayFrom()
  */
-static void SCE_Mesh_AddArrayArrays (SCE_SMeshArray *marray,
-                                     SCE_SGeometryArray *array,
-                                     size_t n_vertices)
+static int SCE_Mesh_AddArrayArrays (SCE_SMeshArray *marray,
+                                    SCE_SGeometryArray *array,
+                                    size_t n_vertices)
 {
     /* set user at root */
     SCE_Geometry_AddUser (array, &marray->auser, SCE_Mesh_UpdateArrayCallback,
                           &marray->data);
     /* add children */
     while (array) {
-        SCE_CAddVertexBufferDataArray (&marray->data,
-                                       SCE_Geometry_GetArrayArray (array),
-                                       n_vertices);
+        /* create vertex arrays using vertex array data of the geometry */
+        SCE_CVertexArray *va = NULL;
+        if (!(va = SCE_CCreateVertexArray ()))
+            goto fail;
+        SCE_CSetVertexArrayData (va, SCE_Geometry_GetArrayData (array));
+        if (SCE_CAddVertexBufferDataArray (&marray->data, va, n_vertices) < 0)
+            goto fail;
         array = SCE_Geometry_GetChild (array);
     }
+    return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    return SCE_ERROR;
 }
 
 
@@ -241,13 +251,18 @@ static SCE_SMeshArray* SCE_Mesh_AddNewArray (SCE_SMesh *mesh)
  */
 static SCE_SMeshArray* SCE_Mesh_AddNewArrayFrom (SCE_SMesh *mesh,
                                                  SCE_SGeometryArray *array,
-                                                 unsigned int n_vertices)
+                                                 size_t n_vertices)
 {
     SCE_SMeshArray *marray = NULL;
     if (!(marray = SCE_Mesh_AddNewArray (mesh)))
         SCEE_LogSrc ();
-    else
-        SCE_Mesh_AddArrayArrays (marray, array, n_vertices);
+    else {
+        if (SCE_Mesh_AddArrayArrays (marray, array, n_vertices) < 0) {
+            SCE_Mesh_DeleteArray (marray);
+            SCEE_LogSrc ();
+            return NULL;
+        }
+    }
     return marray;
 }
 /**
@@ -268,7 +283,7 @@ static void SCE_Mesh_UpdateIndexArrayCallback (void *ib, size_t *range)
  */
 int SCE_Mesh_SetGeometry (SCE_SMesh *mesh, SCE_SGeometry *geom, int canfree)
 {
-    unsigned int n_vertices = 0;
+    size_t n_vertices;
     SCE_SGeometryArray *index_array = NULL;
     SCE_SListIterator *it = NULL;
     SCE_SList *arrays = NULL;

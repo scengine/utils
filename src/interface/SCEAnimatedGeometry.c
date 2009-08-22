@@ -889,7 +889,8 @@ int SCE_AnimGeom_BuildGeometry (SCE_SAnimatedGeometry *ageom)
     if (ageom->indices) {
         SCE_SGeometryArray array;
         SCE_Geometry_InitArray (&array);
-        SCE_Geometry_SetArrayIndices (&array, ageom->indices, SCE_FALSE);
+        SCE_Geometry_SetArrayIndices (&array, SCE_INDICES_TYPE,
+                                      ageom->indices, SCE_FALSE);
         if (SCE_Geometry_SetIndexArrayDup (ageom->geom, &array, SCE_FALSE) < 0)
             goto fail;
         SCE_Geometry_SetNumIndices (ageom->geom, ageom->n_indices);

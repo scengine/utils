@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 25/07/2009
-   updated: 13/08/2009 */
+   updated: 22/08/2009 */
 
 #ifndef SCEGEOMETRY_H
 #define SCEGEOMETRY_H
@@ -79,7 +79,7 @@ typedef struct sce_sgeometryarray SCE_SGeometryArray;
  * \brief A geometry array
  */
 struct sce_sgeometryarray {
-    SCE_CVertexArray array;   /**< Associated array */
+    SCE_CVertexArrayData data;/**< Associated data */
     SCE_SGeometryArray *root, *child; /**< Interleaved */
     int canfree_data;         /**< Can this structure free \c array.data.data?*/
     SCE_SListIterator it;     /**< Own iterator */
@@ -154,7 +154,7 @@ SCE_SGeometryArray* SCE_Geometry_CreateArrayFrom (SCE_CVertexAttributeType,
                                                   SCE_CType, size_t, int,
                                                   void*, int);
 void SCE_Geometry_DeleteArray (SCE_SGeometryArray*);
-void SCE_Geometry_CopyArray (SCE_SGeometryArray*, SCE_SGeometryArray*);
+void SCE_Geometry_CopyArray (SCE_SGeometryArray*, const SCE_SGeometryArray*);
 
 void SCE_Geometry_InitArrayUser (SCE_SGeometryArrayUser*);
 SCE_SGeometryArrayUser* SCE_Geometry_CreateArrayUser (void);
@@ -189,13 +189,12 @@ void SCE_Geometry_SetArrayTangent (SCE_SGeometryArray*, size_t, SCEvertices*,
                                    int);
 void SCE_Geometry_SetArrayBinormal (SCE_SGeometryArray*, size_t, SCEvertices*,
                                     int);
-void SCE_Geometry_SetArrayIndices (SCE_SGeometryArray*, SCEindices*, int);
+void SCE_Geometry_SetArrayIndices (SCE_SGeometryArray*, SCE_CType, void*, int);
 
 void* SCE_Geometry_GetData (SCE_SGeometryArray*);
 SCE_CVertexAttributeType
 SCE_Geometry_GetArrayAttributeType (SCE_SGeometryArray*);
 SCE_CVertexArrayData* SCE_Geometry_GetArrayData (SCE_SGeometryArray*);
-SCE_CVertexArray* SCE_Geometry_GetArrayArray (SCE_SGeometryArray*);
 
 void SCE_Geometry_AddArray (SCE_SGeometry*, SCE_SGeometryArray*);
 void SCE_Geometry_AddArrayRec (SCE_SGeometry*, SCE_SGeometryArray*);

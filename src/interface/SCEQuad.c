@@ -126,4 +126,9 @@ SCE_SMesh* SCE_Quad_GetMesh (void)
     return mesh;
 }
 
+SCE_SGeometry* SCE_Quad_GetGeometry (void)
+{
+    return SCE_Mesh_GetGeometry (mesh);
+}
+
 /** @} */

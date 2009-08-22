@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 13/08/2009 */
+   updated: 21/08/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -143,8 +143,6 @@ void SCE_CInitVertexArray (SCE_CVertexArray *va)
     SCE_CInitVertexArrayData (&va->data);
     SCE_List_InitIt (&va->it);
     SCE_List_SetData (&va->it, va);
-    SCE_List_InitIt (&va->it2);
-    SCE_List_SetData (&va->it2, va);
 }
 /**
  * \brief
@@ -208,14 +206,6 @@ void SCE_CDeleteIndexArray (SCE_CIndexArray *ia)
 void SCE_CInitVertexArraySequence (SCE_CVertexArraySequence *seq)
 {
     seq->id = 0;
-}
-
-/**
- * \brief Gets the public iterator of a vertex array
- */
-SCE_SListIterator* SCE_CGetVertexArrayIterator (SCE_CVertexArray *va)
-{
-    return &va->it2;
 }
 
 /**

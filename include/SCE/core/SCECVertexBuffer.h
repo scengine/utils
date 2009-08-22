@@ -17,15 +17,15 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 11/08/2009 */
+   updated: 22/08/2009 */
 
 #ifndef SCECVERTEXBUFFER_H
 #define SCECVERTEXBUFFER_H
 
+#include <SCE/SCECommon.h>
 #include <SCE/utils/SCEList.h>
 #include <SCE/core/SCECBuffer.h>
 #include <SCE/core/SCECVertexArray.h>
-#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -114,10 +114,9 @@ SCE_CIndexBuffer* SCE_CCreateIndexBuffer (void);
 void SCE_CClearIndexBuffer (SCE_CIndexBuffer*);
 void SCE_CDeleteIndexBuffer (SCE_CIndexBuffer*);
 
-void SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData*,
-                                    SCE_CVertexArray*, size_t);
-SCE_CVertexArray* SCE_CAddVertexBufferDataNewArray (SCE_CVertexBufferData*,
-                                                    SCE_CVertexArrayData*);
+int SCE_CAddVertexBufferDataArray (SCE_CVertexBufferData*,
+                                   SCE_CVertexArray*, size_t);
+void SCE_CDeleteVertexBufferDataArrays (SCE_CVertexBufferData*);
 void SCE_CModifiedVertexBufferData (SCE_CVertexBufferData*, const size_t*);
 #if 0
 void SCE_CEnableVertexBufferData (SCE_CVertexBufferData*);

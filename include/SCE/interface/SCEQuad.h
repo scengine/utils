@@ -44,6 +44,7 @@ void SCE_Quad_DrawFromRectangle (SCE_SIntRect*);
 void SCE_Quad_DrawFromRectanglef (SCE_SFloatRect*);
 
 SCE_SMesh* SCE_Quad_GetMesh (void);
+SCE_SGeometry* SCE_Quad_GetGeometry (void);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 13/08/2009 */
+   updated: 21/08/2009 */
 
 #include <string.h>             /* memcpy */
 #include <SCE/SCEMinimal.h>
@@ -107,10 +107,13 @@ static void SCE_CFreeBufferBufferData (void *d)
 void SCE_CInitBuffer (SCE_CBuffer *buf)
 {
     glGenBuffers (1, &buf->id);
+    buf->target = GL_ARRAY_BUFFER;
+    buf->size = 0;
     SCE_List_Init (&buf->data);
     SCE_List_SetFreeFunc (&buf->data, SCE_CFreeBufferBufferData);
     SCE_List_Init (&buf->modified);
     SCE_List_SetFreeFunc (&buf->modified, SCE_CFreeBufferBufferData);
+    buf->range[0] = buf->range[1] = 0;
     buf->mapptr = NULL;
     SCE_List_InitIt (&buf->it);
     SCE_List_SetData (&buf->it, buf);

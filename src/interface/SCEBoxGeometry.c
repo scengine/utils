@@ -190,7 +190,8 @@ static int SCE_BoxGeom_GenLines (SCE_SBox *box, SCE_EBoxGeomTexCoordMode mode,
     if (!SCE_Geometry_AddArrayDupDup (geom, &array, SCE_FALSE))
         goto fail;
     SCE_Geometry_InitArray (&array);
-    SCE_Geometry_SetArrayIndices (&array, indices_lines, SCE_FALSE);
+    SCE_Geometry_SetArrayIndices (&array, SCE_INDICES_TYPE,
+                                  indices_lines, SCE_FALSE);
     if (!SCE_Geometry_SetIndexArrayDupDup (geom, &array, SCE_FALSE))
         goto fail;
 
@@ -248,7 +249,8 @@ static int SCE_BoxGeom_GenTriangles (SCE_SBox *box,
         }
         if (i) {
             SCE_Geometry_InitArray (&array);
-            SCE_Geometry_SetArrayIndices (&array, i, SCE_FALSE);
+            SCE_Geometry_SetArrayIndices (&array, SCE_INDICES_TYPE,
+                                          i, SCE_FALSE);
             if (!SCE_Geometry_SetIndexArrayDupDup (geom, &array, SCE_FALSE))
                 goto fail;
         }

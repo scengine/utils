@@ -97,8 +97,8 @@ static void* SCE_OBJ_Load (FILE *fp, const char *fname, void *unused)
     if (me->indices) {
         SCE_SGeometryArray array;
         SCE_Geometry_InitArray (&array);
-        SCE_Geometry_SetArrayData (&array, 0, SCE_UNSIGNED_INT, 0, 0,
-                                   me->indices, SCE_TRUE);
+        SCE_Geometry_SetArrayIndices (&array, SCE_UNSIGNED_INT,
+                                      me->indices, SCE_TRUE);
         if (SCE_Geometry_SetIndexArrayDupDup (geom, &array, SCE_FALSE) < 0)
             goto fail;
     }
