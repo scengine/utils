@@ -413,7 +413,8 @@ static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferUsage
     usage = default_usage;
 
     /* try to setup the better render mode */
-    if (SCE_CHasCap (SCE_VAO) && mesh->bmode)
+    /* TODO: for unknown reasons, the VAO mode produces strange results */
+    if (SCE_CHasCap (SCE_VAO) && mesh->bmode && 0)
         rmode = SCE_VAO_RENDER_MODE;
     else if (SCE_CHasCap (SCE_VBO))
         rmode = SCE_VBO_RENDER_MODE;
@@ -432,11 +433,7 @@ static void SCE_Mesh_BuildBuffers (SCE_SMesh *mesh, SCE_CBufferUsage
     }
 }
 /**
- * \brief Builds a mesh by creating vertex buffers with requested modes
- *
- * If \p rmode is not supported (according to SCE_VAO and SCE_VBO, declared in
- * SCECSupport), a more common render mode is used (generally simple vertex
- * arrays).
+ * \brief Builds a mesh by creating vertex buffers with requested usages
  * \sa SCE_Mesh_AutoBuild()
  */
 void SCE_Mesh_Build (SCE_SMesh *mesh, SCE_EMeshBuildMode bmode,
