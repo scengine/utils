@@ -138,7 +138,7 @@ SCE_SGeometryArrayUser* SCE_Geometry_CreateArrayUser (void)
 void SCE_Geometry_ClearArrayUser (SCE_SGeometryArrayUser *auser)
 {
     if (auser->array) {
-        SCE_List_Removel (&auser->it);
+        SCE_List_Remove (&auser->it);
         auser->array = NULL;
     }
 }
