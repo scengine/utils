@@ -287,17 +287,7 @@ static void SCE_CUseVBOMode (SCE_CVertexBuffer *vb)
             SCE_CUseVertexArray (SCE_List_GetData (it2));
     }
 }
-/* TODO: deprecated too... ? */
 static void SCE_CUseVAOMode (SCE_CVertexBuffer *vb)
-{
-    SCE_SListIterator *it = NULL;
-    glBindBuffer (GL_ARRAY_BUFFER, vb->buf.id);
-    SCE_List_ForEach (it, &vb->data) {
-        SCE_CVertexBufferData *data = SCE_List_GetData (it);
-        SCE_CCallVertexArraySequence (data->seq);
-    }
-}
-static void SCE_CUseUnifiedVAOMode (SCE_CVertexBuffer *vb)
 {
     SCE_CCallVertexArraySequence (vb->seq);
 }
@@ -326,17 +316,6 @@ void SCE_CBuildVertexBuffer (SCE_CVertexBuffer *vb, SCE_CBufferUsage usage,
 
     SCE_CSetVertexBufferRenderMode (vb, mode);
     if (mode == SCE_VAO_RENDER_MODE) {
-        SCE_SListIterator *it = NULL;
-        /* create one VAO for each vertex buffer data in the vertex buffer */
-        SCE_List_ForEach (it, &vb->data) {
-            SCE_SListIterator *it2;
-            data = SCE_List_GetData (it);
-            SCE_CBeginVertexArraySequence (&data->seq);
-            SCE_List_ForEach (it2, &data->arrays)
-                SCE_CUseVertexArray (SCE_List_GetData (it2));
-            SCE_CEndVertexArraySequence ();
-        }
-    } else if (mode == SCE_UNIFIED_VAO_RENDER_MODE) {
         SCE_CBeginVertexArraySequence (&vb->seq);
         SCE_CUseVBOMode (vb);
         SCE_CEndVertexArraySequence ();
@@ -382,9 +361,6 @@ void SCE_CSetVertexBufferRenderMode (SCE_CVertexBuffer *vb,
     case SCE_VAO_RENDER_MODE:
         if (!fun)
             fun = SCE_CUseVAOMode;
-    case SCE_UNIFIED_VAO_RENDER_MODE:
-        if (!fun)
-            fun = SCE_CUseUnifiedVAOMode;
         SCE_List_ForEach (it, &vb->data) {
             SCE_SListIterator *it2;
             SCE_CVertexArrayData *data = NULL;

@@ -933,7 +933,6 @@ static void SCE_Scene_FlushEntities (SCE_SScene *scene)
 void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
                        SCE_STexture *rendertarget, SCEuint cubeface)
 {
-    SCE_SOctreeElement *el = NULL;
     int fc;
 
     scene->rendertarget = rendertarget;

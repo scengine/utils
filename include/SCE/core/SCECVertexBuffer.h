@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 22/08/2009 */
+   updated: 23/08/2009 */
 
 #ifndef SCECVERTEXBUFFER_H
 #define SCECVERTEXBUFFER_H
@@ -40,16 +40,13 @@ extern "C" {
  * \brief Render modes for a vertex buffer
  */
 enum sce_cbufferrendermode {
-    SCE_VA_RENDER_MODE,         /**< Use simple vertex arrays */
-    SCE_VBO_RENDER_MODE,        /**< Use vertex buffer objects */
-    SCE_VAO_RENDER_MODE,        /**< Use one vertex array object for each
-                                 * vertex array in the vertex buffer */
-    SCE_UNIFIED_VAO_RENDER_MODE,/**< Use one single vertex array object
-                                 * for the entire vertex buffer. It disables
-                                 * the ability of enable/disable vertex arrays
-                                 * of the vertex buffer (see
-                                 * SCE_CEnableVertexBufferData()) but improves
-                                 * performances when rendering it. */
+    SCE_VA_RENDER_MODE,  /**< Use simple vertex arrays */
+    SCE_VBO_RENDER_MODE, /**< Use vertex buffer objects */
+    SCE_VAO_RENDER_MODE, /**< Use one single vertex array object for the entire
+                          * vertex buffer. It disables the ability of
+                          * enable/disable vertex arrays of the vertex buffer
+                          * (see SCE_CEnableVertexBufferData()) but improves
+                          * performances when rendering it. */
 };
 /** \copydoc sce_cbufferrendermode */
 typedef enum sce_cbufferrendermode SCE_CBufferRenderMode;
