@@ -114,7 +114,7 @@ AC_FUNC_VPRINTF
 # FIXME: these ones are not conditional, we need them
 AC_CHECK_FUNCS([memset pow sqrt strerror strstr strtol strtoul])
 # Conditional functions (we use them if possible)
-AC_CHECK_FUNCS([fabsf cosf sinf])
+AC_CHECK_FUNCS([fabsf cosf sinf tanf powf])
 
 # backtracer
 AC_ARG_ENABLE(
