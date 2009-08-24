@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 03/08/2009
-   updated: 03/08/2009 */
+   updated: 24/08/2009 */
 
 #include <string.h>             /* memcpy */
 #include <SCE/SCEMinimal.h>
@@ -50,7 +50,7 @@ void SCE_Box_Copy (SCE_SBox *dst, const SCE_SBox *src)
  * 
  * \see SCE_Box_SetFromCenter(), SCE_Box_Setv()
  */
-void SCE_Box_Set (SCE_SBox *box, SCE_TVector3 o,
+void SCE_Box_Set (SCE_SBox *box, const SCE_TVector3 o,
                   float w, float h, float d)
 {
     SCE_Vector3_Set (box->p[0], o[0],   o[1],   o[2]);
@@ -69,7 +69,7 @@ void SCE_Box_Set (SCE_SBox *box, SCE_TVector3 o,
  * \param d dimension vector of the bouding box
  * \see SCE_Box_Set()
  */
-void SCE_Box_Setv (SCE_SBox *box, SCE_TVector3 o, SCE_TVector3 d)
+void SCE_Box_Setv (SCE_SBox *box, const SCE_TVector3 o, const SCE_TVector3 d)
 {
     SCE_Box_Set (box, o, d[0], d[1], d[2]);
 }
@@ -95,8 +95,8 @@ void SCE_Box_Setv (SCE_SBox *box, SCE_TVector3 o, SCE_TVector3 d)
  * \param c the coordinates of the new box's center
  * \param w,h,d new box's width, height and depth
  */
-void SCE_Box_SetFromCenter (SCE_SBox *box, SCE_TVector3 c, float w, float h,
-                            float d)
+void SCE_Box_SetFromCenter (SCE_SBox *box, const SCE_TVector3 c, float w,
+                            float h, float d)
 {
     SCE_TVector3 origin;
     origin[0] = c[0] - w/2.;
@@ -108,7 +108,8 @@ void SCE_Box_SetFromCenter (SCE_SBox *box, SCE_TVector3 c, float w, float h,
 /**
  * \brief Constructs a box from the farest extremity points
  */
-void SCE_Box_SetFromMinMax (SCE_SBox *box, SCE_TVector3 min, SCE_TVector3 max)
+void SCE_Box_SetFromMinMax (SCE_SBox *box, const SCE_TVector3 min,
+                            const SCE_TVector3 max)
 {
     SCE_TVector3 maxp;
     SCE_Vector3_Operator2v (maxp, =, max, -, min);
@@ -147,7 +148,7 @@ void SCE_Box_SetCenter (SCE_SBox *box, float x, float y, float z)
  * \brief Vectorial version of SCE_Box_SetCenter()
  * \see SCE_Box_SetCenter()
  */
-void SCE_Box_SetCenterv (SCE_SBox *box, SCE_TVector3 c)
+void SCE_Box_SetCenterv (SCE_SBox *box, const SCE_TVector3 c)
 {
     int i;
     SCE_TVector3 dir, center;
