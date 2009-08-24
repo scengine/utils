@@ -132,7 +132,8 @@ SCE_SListIterator* SCE_List_LocateIterator (const SCE_SList*, void*,
                                             SCE_FListCompareData);
 unsigned int SCE_List_LocateIndex (const SCE_SList*, void*,
                                    SCE_FListCompareData);
-void SCE_List_QuickSortRange (SCE_SList*, size_t, size_t, SCE_FListCompareData);
+void SCE_List_QuickSortRange (SCE_SList*, unsigned int, unsigned int,
+                              SCE_FListCompareData);
 void SCE_List_QuickSort (SCE_SList*, SCE_FListCompareData);
 
 /**

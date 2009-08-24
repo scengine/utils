@@ -796,9 +796,10 @@ void SCE_List_Sort (SCE_SList *l, SCE_FListCompareData comesafter)
 
 /* FIXME: review list usage */
 /* part of the quicksort implementation */
-static size_t SCE_List_QuickSortPartition (SCE_SList *l,
-                                           size_t start, size_t end,
-                                           SCE_FListCompareData func)
+static unsigned int SCE_List_QuickSortPartition (SCE_SList *l,
+                                                 unsigned int start,
+                                                 unsigned int end,
+                                                 SCE_FListCompareData func)
 {
     while (start < end) {
         while (start < end) {
@@ -850,11 +851,11 @@ static size_t SCE_List_QuickSortPartition (SCE_SList *l,
  * 
  * \see SCE_List_QuickSort()
  */
-void SCE_List_QuickSortRange (SCE_SList *l, size_t start, size_t end,
-                              SCE_FListCompareData func)
+void SCE_List_QuickSortRange (SCE_SList *l, unsigned int start,
+                              unsigned int end, SCE_FListCompareData func)
 {
     if (start < end) {
-        size_t p;
+        unsigned int p;
         
         p = SCE_List_QuickSortPartition (l, start, end-1, func);
         SCE_List_QuickSortRange (l, start, p, func);
