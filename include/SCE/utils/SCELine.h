@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 26/02/2008
-   derniere modification : 26/02/2008 */
+/* created: 26/02/2008
+   updated: 24/08/2009 */
 
 #ifndef SCELINE_H
 #define SCELINE_H
@@ -25,45 +25,35 @@
 #include <SCE/utils/SCEVector.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-/* constantes (!= 0 !) que peut retourner GetIntersection */
 #define SCE_LINE_COLINEAR 1
 #define SCE_LINE_EQUAL 2
 
 typedef struct sce_sline SCE_SLine;
-struct sce_sline
-{
-    SCE_TVector2 a, b; /* deux extremites du segment */
+struct sce_sline {
+    SCE_TVector2 a, b;
 };
 
-/* initialise une structure Line */
 void SCE_Line_Init (SCE_SLine*);
 
-/* defini toutes les valeurs d'une ligne */
 void SCE_Line_Set (SCE_SLine*, float, float, float, float);
 void SCE_Line_Setv (SCE_SLine*, SCE_TVector2, SCE_TVector2);
 
-/* deplace un point d'une ligne */
 void SCE_Line_MovePoint1 (SCE_SLine*, float, float);
 void SCE_Line_MovePoint1v (SCE_SLine*, float*);
 void SCE_Line_MovePoint2 (SCE_SLine*, float, float);
 void SCE_Line_MovePoint2v (SCE_SLine*, float*);
 
-/* indique si la valeur donnee se trouve dans l'invervalle de la droite */
 int SCE_Line_IsInXInterval (SCE_SLine*, float);
 int SCE_Line_IsInYInterval (SCE_SLine*, float);
 
-/* retourne la fonction de la droite definie par la ligne (type ax + b) */
-void SCE_Line_GetFunc (SCE_SLine*, float*, float*);
+void SCE_Line_GetEquation(SCE_SLine*, float*, float*);
 
-/* retourne le point d'intersection de deux droites */
 int SCE_Line_GetIntersection (SCE_SLine*, SCE_SLine*, float*, float*);
 int SCE_Line_GetIntersectionv (SCE_SLine*, SCE_SLine*, SCE_TVector2);
 
-/* indique si deux segments ont un point d'intersection sur leur intervalle */
 int SCE_Line_Intersects (SCE_SLine*, SCE_SLine*);
 
 #ifdef __cplusplus

@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 26/02/2008
-   derniere modification : 27/02/2008 */
+/* created: 26/02/2008
+   updated: 24/08/2009 */
 
 #include <SCE/utils/SCELine.h>
 
@@ -38,7 +38,6 @@
  */
 
 /** @{ */
-
 
 /**
  * \brief Constructs a line
@@ -193,8 +192,6 @@ int SCE_Line_GetIntersectionv (SCE_SLine *l1, SCE_SLine *l2, SCE_TVector2 p)
     return SCE_Line_GetIntersection (l1, l2, &p[0], &p[1]);
 }
 
-/* ajoute le 26/02/2008 */
-/* revise le 27/02/2008 */
 /**
  * \brief Checks if two lines have intersection point(s).
  * \param l1 first first line
