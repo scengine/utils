@@ -74,13 +74,13 @@ int SCE_Init_Error (FILE*);
 
 void SCE_Error_Clear (void);
 
-void SCE_Error_Log (const char*, const char*, const int, int);
+void SCE_Error_Log (const char*, const char*, unsigned int, int);
 void SCE_Error_LogMsg (const char*, ...) SCE_GNUC_PRINTF (1, 2);
-void SCE_Error_LogFromErrno (const char*, const char*, const int, int,
+void SCE_Error_LogFromErrno (const char*, const char*, unsigned int, int,
                              const char*);
 
 void SCE_Error_SendMsg (const char*, ...) SCE_GNUC_PRINTF (1, 2);
-void SCE_Error_LogSrc (const char*, const char*, const int);
+void SCE_Error_LogSrc (const char*, const char*, unsigned int);
 void SCE_Error_LogSrcMsg (const char*, ...) SCE_GNUC_PRINTF (1, 2);
 
 int SCE_Error_GetCode (void);

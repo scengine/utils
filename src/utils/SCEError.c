@@ -161,7 +161,8 @@ static void SCE_Error_Incr (void)
  * \param line Line where the error occured
  * \param code Error code
  */
-void SCE_Error_Log (const char *file, const char *func, const int line,int code)
+void SCE_Error_Log (const char *file, const char *func, unsigned int line,
+                    int code)
 {
     error->date = time (NULL);
     error->line = line;
@@ -196,8 +197,8 @@ void SCE_Error_LogMsg (const char *fmt, ...)
  *               propagated errno) or NULL
  * \param errnum the errno value
  */
-void SCE_Error_LogFromErrno (const char *file, const char *func, const int line,
-                             int errnum, const char* prefix)
+void SCE_Error_LogFromErrno (const char *file, const char *func,
+                             unsigned int line, int errnum, const char* prefix)
 {
     if (!prefix)
         prefix = "errno";
@@ -224,7 +225,7 @@ void SCE_Error_SendMsg (const char *fmt, ...)
  * \param func func where the error occured
  * \param line line where the error occured
  */
-void SCE_Error_LogSrc (const char *file, const char *func, const int line)
+void SCE_Error_LogSrc (const char *file, const char *func, unsigned int line)
 {
     SCE_Error_Incr ();
     error->line = line;
