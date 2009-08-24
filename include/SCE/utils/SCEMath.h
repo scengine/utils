@@ -55,6 +55,16 @@ extern "C"
 #else
 # define SCE_Math_Fabsf(f) ((float)fabs ((float)f))
 #endif
+#ifdef HAVE_COSF
+# define SCE_Math_Cosf cosf
+#else
+# define SCE_Math_Cosf(f) ((float)cos ((float)f))
+#endif
+#ifdef HAVE_SINF
+# define SCE_Math_Sinf sinf
+#else
+# define SCE_Math_Sinf(f) ((float)sin ((float)f))
+#endif
 
 float SCE_Math_Sqrt (float) SCE_GNUC_PURE;
 float SCE_Math_InvSqrt (float) SCE_GNUC_PURE;

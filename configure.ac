@@ -111,7 +111,10 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([memset pow sqrt strerror strstr strtol strtoul fabsf])
+# FIXME: these ones are not conditional, we need them
+AC_CHECK_FUNCS([memset pow sqrt strerror strstr strtol strtoul])
+# Conditional functions (we use them if possible)
+AC_CHECK_FUNCS([fabsf cosf sinf])
 
 # backtracer
 AC_ARG_ENABLE(
