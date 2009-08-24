@@ -349,6 +349,7 @@ void SCE_Geometry_Update (SCE_SGeometry *geom)
  * \brief Sets data for an array
  * \param attrib vertex attribute of the data
  * \param type data type (SCE_VERTICES_TYPE is recommanded)
+ * \param stride stride between two consecutive vertices (in bytes)
  * \param size vertex vector's length (usually 3 for position, 2 for texcoord)
  * \param data pointer to the vertex data
  * \param canfree can \p array free \p data when SCE_Geometry_DeleteArray()
@@ -1059,13 +1060,10 @@ void SCE_Geometry_ComputeBoundingBox (SCEvertices *v, size_t vcount,
     /* TODO: use a "Rectangle3D" ? */
     count = vcount * 3;
     for (i = 0; i < count; i += 3) {
-        for (j = 0; j < 3; j++) {
-            max[j] = (v[i + j] > max[j] ? v[i + j] : max[j]);
-            min[j] = (v[i + j] < min[j] ? v[i + j] : min[j]);
-        }
+        SCE_Vector3_GetMin (min, &v[i]);
+        SCE_Vector3_GetMax (max, &v[i]);
     }
-    SCE_Vector3_Operator1v (max, -=, min);
-    SCE_Box_Set (box, min, max[0], max[1], max[2]);
+    SCE_Box_SetFromMinMax (box, min, max);
 }
 /**
  * \brief Computes a bounding sphere from a lot of vertices
