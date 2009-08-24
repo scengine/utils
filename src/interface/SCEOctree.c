@@ -301,23 +301,23 @@ int SCE_Octree_MakeChildren (SCE_SOctree *tree, int useloose, float ratio)
     w = SCE_Box_GetWidth (box);
     h = SCE_Box_GetHeight (box);
     d = SCE_Box_GetDepth (box);
-    w2 = w / 2.0;
-    h2 = h / 2.0;
+    w2 = w / 2.0f;
+    h2 = h / 2.0f;
 
     for (i = 0; i < 8; i += 4) {
         SCE_Vector3_Copy (origins[i], origin);
-        origins[i][2] += d2 * (1.0 - ratio);
+        origins[i][2] += d2 * (1.0f - ratio);
         SCE_Vector3_Copy (origins[i+1], origin);
-        origins[i+1][0] += w2 * (1.0 - ratio);
-        origins[i+1][2] += d2 * (1.0 - ratio);
+        origins[i+1][0] += w2 * (1.0f - ratio);
+        origins[i+1][2] += d2 * (1.0f - ratio);
         SCE_Vector3_Copy (origins[i+2], origin);
-        origins[i+2][1] += h2 * (1.0 - ratio);
-        origins[i+2][2] += d2 * (1.0 - ratio);
+        origins[i+2][1] += h2 * (1.0f - ratio);
+        origins[i+2][2] += d2 * (1.0f - ratio);
         SCE_Vector3_Copy (origins[i+3], origin);
-        origins[i+3][0] += w2 * (1.0 - ratio);
-        origins[i+3][1] += h2 * (1.0 - ratio);
-        origins[i+3][2] += d2 * (1.0 - ratio);
-        d2 = d / 2.;
+        origins[i+3][0] += w2 * (1.0f - ratio);
+        origins[i+3][1] += h2 * (1.0f - ratio);
+        origins[i+3][2] += d2 * (1.0f - ratio);
+        d2 = d / 2.0f;
     }
     for (i = 0; i < 8; i++) {
         tree->child[i] = SCE_Octree_Create ();
@@ -326,9 +326,9 @@ int SCE_Octree_MakeChildren (SCE_SOctree *tree, int useloose, float ratio)
             return SCE_ERROR;
         }
         tree->child[i]->parent = tree;
-        w2 *= (1.0 + ratio);
-        h2 *= (1.0 + ratio);
-        d2 *= (1.0 + ratio);
+        w2 *= (1.0f + ratio);
+        h2 *= (1.0f + ratio);
+        d2 *= (1.0f + ratio);
         SCE_Box_Set (SCE_BoundingBox_GetBox (&tree->child[i]->box),
                      origins[i], w2, h2, d2);
         /* make planes once for all */

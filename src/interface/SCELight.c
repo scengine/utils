@@ -109,14 +109,14 @@ void SCE_Light_GetColorv (SCE_SLight *light, float *c)
 
 void SCE_Light_GetPositionv (SCE_SLight *light, float *pos)
 {
-    SCE_Vector3_Set (pos, 0., 0., 0.);
+    SCE_Vector3_Set (pos, 0.0f, 0.0f, 0.0f);
     SCE_Matrix4_MulV3Copy (SCE_Node_GetFinalMatrix (light->node), pos);
 }
 
 void SCE_Light_GetDirectionv (SCE_SLight *light, float *dir)
 {
     SCE_TMatrix3 mat;
-    SCE_Vector3_Set (dir, 0., 0., -1.);
+    SCE_Vector3_Set (dir, 0.0f, 0.0f, -1.0f);
     SCE_Matrix3_CopyM4 (mat, SCE_Node_GetFinalMatrix (light->node));
     SCE_Matrix3_MulV3Copy (mat, dir);
 }
@@ -155,13 +155,13 @@ void SCE_Light_SetRadius (SCE_SLight *light, float radius)
 {
     light->radius = radius;
     SCE_BoundingSphere_GetSphere (&light->sphere)->radius = light->radius;
-    if (radius > 1.0)                      /* 3 gives good results */
-        SCE_CSetLightQuadraticAtt (light->clight, 3.0/radius);
+    if (radius > 1.0f)                      /* 3 gives good results */
+        SCE_CSetLightQuadraticAtt (light->clight, 3.0f/radius);
     else if (radius <= 0.0f) {
-        SCE_CSetLightQuadraticAtt (light->clight, 0.0);
-        SCE_CSetLightLinearAtt (light->clight, 0.0);
+        SCE_CSetLightQuadraticAtt (light->clight, 0.0f);
+        SCE_CSetLightLinearAtt (light->clight, 0.0f);
     } else
-        SCE_CSetLightLinearAtt (light->clight, 12.0/radius);
+        SCE_CSetLightLinearAtt (light->clight, 12.0f/radius);
 }
 float SCE_Light_GetRadius (SCE_SLight *light)
 {

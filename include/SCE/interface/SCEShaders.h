@@ -64,7 +64,7 @@ struct sce_sshader
     void *v, *p;                 /* vertex/pixel shader */
     SCE_CProgram *p_glsl;        /* program GLSL */
 
-    unsigned int type;           /* type du shader (langage; GLSL, ASM, Cg) */
+    int type;                    /* type du shader (langage; GLSL, ASM, Cg) */
 
     char **res[2];               /* ressources */
     char *vs_source, *ps_source; /* sources principales */

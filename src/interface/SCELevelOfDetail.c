@@ -138,7 +138,7 @@ float SCE_Lod_ComputeBoundingBoxSurfaceFromDist (SCE_SBox *box,
 float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBox *box, SCE_SCamera *cam)
 {
     float area;
-    float dist = 1.0;
+    float dist = 1.0f;
     SCE_TVector3 t;
     SCE_Box_GetCenterv (box, t);
     {
@@ -146,7 +146,7 @@ float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBox *box, SCE_SCamera *cam)
         SCE_Camera_GetPositionv (cam, v1);
         dist = SCE_Vector3_Distance (v1, t);
     }
-    SCE_Box_SetCenter (box, 0.0, 0.0, 0.0);
+    SCE_Box_SetCenter (box, 0.0f, 0.0f, 0.0f);
     area = SCE_Lod_ComputeBoundingBoxSurfaceFromDist (box, dist, cam);
     SCE_Box_SetCenterv (box, t);
     return area;
@@ -154,7 +154,8 @@ float SCE_Lod_ComputeBoundingBoxSurface (SCE_SBox *box, SCE_SCamera *cam)
 
 static int SCE_Lod_DefaultGetLodFunc (float size)
 {
-    return (unsigned int)(0.4/sqrt (size));
+    /* FIXME: WTF!? */
+    return (unsigned int)(0.4f/SCE_Math_Sqrt (size));
 }
 
 int SCE_Lod_Compute (SCE_SLevelOfDetail *lod, SCE_TMatrix4 m, SCE_SCamera *cam)
@@ -166,7 +167,7 @@ int SCE_Lod_Compute (SCE_SLevelOfDetail *lod, SCE_TMatrix4 m, SCE_SCamera *cam)
         SCE_Matrix4_GetTranslation (m, t);
         lod->dist = SCE_Vector3_Distance (v, t);
     }
-    m[3] = m[7] = m[11] = 0.0;
+    m[3] = m[7] = m[11] = 0.0f;
     {
         SCE_SBox box, *bptr;
         bptr = SCE_BoundingBox_GetBox (lod->box);

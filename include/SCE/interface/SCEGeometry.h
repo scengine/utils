@@ -174,6 +174,7 @@ void SCE_Geometry_AddUser (SCE_SGeometryArray*, SCE_SGeometryArrayUser*,
 void SCE_Geometry_RemoveUser (SCE_SGeometryArrayUser*);
 
 void SCE_Geometry_Modified (SCE_SGeometryArray*, const size_t*);
+void SCE_Geometry_Unmodified (SCE_SGeometryArray*);
 void SCE_Geometry_UpdateArray (SCE_SGeometryArray*);
 void SCE_Geometry_Update (SCE_SGeometry*);
 

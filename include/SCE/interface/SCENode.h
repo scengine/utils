@@ -61,7 +61,7 @@ struct sce_snode
     SCE_TMatrix4 fmatrix;      /**< Real node's transformation matrix, with all
                                 *   parent nodes' matrices applyed */
     void *data;                /**< User-defined data */
-    int marks;                 /**< Has the node moved since the last update? */
+    unsigned int marks;        /**< Has the node moved since the last update? */
     /* \deprecated */ /* TODO: kick that */
     SCE_FNodeCallback moved;   /**< Called when the node has moved */
     void *movedparam;          /**< \c moved parameter */

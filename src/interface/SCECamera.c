@@ -56,7 +56,7 @@ void SCE_Camera_Init (SCE_SCamera *cam)
     cam->viewport.w = cam->viewport.h = 512; /* NOTE: dimensions de l'ecran */
     SCE_Frustum_Init (&cam->frustum);
     SCE_BoundingSphere_Init (&cam->sphere);
-    SCE_BoundingSphere_GetSphere (&cam->sphere)->radius = 0.00001; /* epsilon */
+    SCE_BoundingSphere_GetSphere (&cam->sphere)->radius = 0.00001f;/* epsilon */
     cam->node = NULL;
 }
 

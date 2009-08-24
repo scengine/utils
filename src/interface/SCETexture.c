@@ -743,8 +743,8 @@ int SCE_Texture_AddRenderTexture (SCE_STexture *tex, int id,
 void SCE_Texture_Blit (SCE_SIntRect *rdst, SCE_STexture *dst,
                        SCE_SIntRect *rsrc, SCE_STexture *src)
 {
-    SCE_SFloatRect r1 = {{0., 0.}, {1., 1.}};
-    SCE_SFloatRect r2 = {{0., 0.}, {1., 1.}};
+    SCE_SFloatRect r1 = {{0.0f, 0.0f}, {1.0f, 1.0f}};
+    SCE_SFloatRect r2 = {{0.0f, 0.0f}, {1.0f, 1.0f}};
     int w = 1;
     int h = 1;
     if (rdst)
@@ -754,19 +754,19 @@ void SCE_Texture_Blit (SCE_SIntRect *rdst, SCE_STexture *dst,
             w = SCE_Texture_GetWidth (dst, 0, 0);
             h = SCE_Texture_GetHeight (dst, 0, 0);
         }
-        r1.p1[0] = (float)rdst->p1[0] / w;
-        r1.p1[1] = (float)rdst->p1[1] / h;
-        r1.p2[0] = (float)rdst->p2[0] / w;
-        r1.p2[1] = (float)rdst->p2[1] / h;
+        r1.p1[0] = (float)rdst->p1[0] / (float)w;
+        r1.p1[1] = (float)rdst->p1[1] / (float)h;
+        r1.p2[0] = (float)rdst->p2[0] / (float)w;
+        r1.p2[1] = (float)rdst->p2[1] / (float)h;
     }
     if (rsrc)
     {
         w = SCE_Texture_GetWidth (src, 0, 0);
         h = SCE_Texture_GetHeight (src, 0, 0);
-        r2.p1[0] = (float)rsrc->p1[0] / w;
-        r2.p1[1] = (float)rsrc->p1[1] / h;
-        r2.p2[0] = (float)rsrc->p2[0] / w;
-        r2.p2[1] = (float)rsrc->p2[1] / h;
+        r2.p1[0] = (float)rsrc->p1[0] / (float)w;
+        r2.p1[1] = (float)rsrc->p1[1] / (float)h;
+        r2.p2[0] = (float)rsrc->p2[0] / (float)w;
+        r2.p2[1] = (float)rsrc->p2[1] / (float)h;
     }
     SCE_Texture_Blitf (&r1, dst, &r2, src);
 }

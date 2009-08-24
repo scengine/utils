@@ -48,7 +48,7 @@ SCE_SphereGeom_GetUV (SCE_SSphere *sphere, SCEuint segments,
                       SCEindices **iout)
 {
     unsigned int i, j;
-    SCE_TVector3 c = {0.0, 0.0, 0.0};
+    SCE_TVector3 c = {0.0f, 0.0f, 0.0f};
     int n_indices;
     SCEvertices *p = NULL;
     SCEindices *indices = NULL, *index = NULL;
@@ -69,20 +69,20 @@ SCE_SphereGeom_GetUV (SCE_SSphere *sphere, SCEuint segments,
     if (center)
         SCE_Vector3_Copy (c, center);
 
-    SCE_Vector3_Set (&p[segments * rings * 3], 0.0, 0.0, radius);
-    SCE_Vector3_Set (&p[segments * rings * 3 + 3], 0.0, 0.0, -radius);
+    SCE_Vector3_Set (&p[segments * rings * 3], 0.0f, 0.0f, radius);
+    SCE_Vector3_Set (&p[segments * rings * 3 + 3], 0.0f, 0.0f, -radius);
 
     for (i = 0; i < rings; i++) {
         SCE_TVector3 v1;
         float angle1 = rin_offset * i;
-        v1[2] = cos (angle1) * radius;
-        v1[0] = v1[1] = sin (angle1) * radius;
+        v1[2] = SCE_Math_Cosf (angle1) * radius;
+        v1[0] = v1[1] = SCE_Math_Sinf (angle1) * radius;
         for (j = 0; j < segments; j++) {
             SCE_TVector3 v2;
             float angle2 = seg_offset * j;
-            v2[0] = cos (angle2);
-            v2[1] = sin (angle2);
-            v2[2] = 1.0;
+            v2[0] = SCE_Math_Cosf (angle2);
+            v2[1] = SCE_Math_Sinf (angle2);
+            v2[2] = 1.0f;
             SCE_Vector3_Operator1v (v2, *=, v1);
             SCE_Vector3_Copy (&p[(i * segments + j) * 3], v2);
         }

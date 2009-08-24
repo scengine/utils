@@ -99,9 +99,9 @@ void SCE_Box_SetFromCenter (SCE_SBox *box, const SCE_TVector3 c, float w,
                             float h, float d)
 {
     SCE_TVector3 origin;
-    origin[0] = c[0] - w/2.;
-    origin[1] = c[1] - h/2.;
-    origin[2] = c[2] - d/2.;
+    origin[0] = c[0] - w/2.0f;
+    origin[1] = c[1] - h/2.0f;
+    origin[2] = c[2] - d/2.0f;
     SCE_Box_Set (box, origin, w, h, d);
 }
 
@@ -165,9 +165,9 @@ void SCE_Box_SetCenterv (SCE_SBox *box, const SCE_TVector3 c)
  */
 void SCE_Box_GetCenterv (SCE_SBox *box, SCE_TVector3 center)
 {
-    center[0] = (box->p[1][0] - box->p[0][0]) / 2.0 + box->p[0][0];
-    center[1] = (box->p[2][1] - box->p[1][1]) / 2.0 + box->p[1][1];
-    center[2] = (box->p[7][2] - box->p[0][2]) / 2.0 + box->p[0][2];
+    center[0] = (box->p[1][0] - box->p[0][0]) / 2.0f + box->p[0][0];
+    center[1] = (box->p[2][1] - box->p[1][1]) / 2.0f + box->p[1][1];
+    center[2] = (box->p[7][2] - box->p[0][2]) / 2.0f + box->p[0][2];
 }
 
 float* SCE_Box_GetOrigin (SCE_SBox *box)
@@ -220,21 +220,21 @@ void SCE_Box_MakePlanes (SCE_SBox *box, SCE_SPlane planes[6])
     SCE_Vector3_Operator2v (n, =, box->p[1], -, box->p[6]);
     SCE_Plane_SetFromPointv (&planes[0], n, box->p[1]);
     /* far */
-    SCE_Vector3_Operator1 (n, *=, -1.0);
+    SCE_Vector3_Operator1 (n, *=, -1.0f);
     SCE_Plane_SetFromPointv (&planes[1], n, box->p[6]);
 
     /* left */
     SCE_Vector3_Operator2v (n, =, box->p[1], -, box->p[0]);
     SCE_Plane_SetFromPointv (&planes[2], n, box->p[1]);
     /* right */
-    SCE_Vector3_Operator1 (n, *=, -1.0);
+    SCE_Vector3_Operator1 (n, *=, -1.0f);
     SCE_Plane_SetFromPointv (&planes[3], n, box->p[0]);
 
     /* up */
     SCE_Vector3_Operator2v (n, =, box->p[1], -, box->p[2]);
     SCE_Plane_SetFromPointv (&planes[4], n, box->p[1]);
     /* down */
-    SCE_Vector3_Operator1 (n, *=, -1.0);
+    SCE_Vector3_Operator1 (n, *=, -1.0f);
     SCE_Plane_SetFromPointv (&planes[5], n, box->p[2]);
 }
 

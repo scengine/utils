@@ -47,7 +47,6 @@
  */
 int SCE_Init (FILE *outlog, SCEflags flags)
 {
-    int code = SCE_OK;
     if (SCE_Init_Utils (outlog) < 0)
         goto fail;
 

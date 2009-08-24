@@ -50,7 +50,7 @@
 /*static SCE_SCamera *default_camera = NULL;*/
 
 /* dat iz omg coef u no??? */
-static float omg_coeffs[2] = {0.3, 0.02};
+static float omg_coeffs[2] = {0.3f, 0.02f};
 
 typedef struct sce_ssceneoctree SCE_SSceneOctree;
 struct sce_ssceneoctree {
@@ -68,8 +68,8 @@ int SCE_Init_Scene (void)
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
-    omg_coeffs[0] = 0.3;
-    omg_coeffs[1] = 0.02;
+    omg_coeffs[0] = 0.3f;
+    omg_coeffs[1] = 0.02f;
 #endif
     return SCE_OK;
 }
@@ -142,7 +142,7 @@ static void SCE_Scene_Init (SCE_SScene *scene)
     scene->node_updated = SCE_FALSE;
     scene->n_nodes = 0;
     scene->octree = NULL;
-    scene->contribution_size = 0.01;
+    scene->contribution_size = 0.01f;
     for (i = 0; i < SCE_SCENE_NUM_RESOURCE_GROUP; i++)
         scene->rgroups[i] = NULL;
     scene->instances = NULL;
@@ -284,7 +284,7 @@ static unsigned int SCE_Scene_DetermineElementList (SCE_SOctreeElement *el,
 {
     float d;
     float c;
-    d = SCE_BoundingSphere_GetRadius (el->sphere) * 2.0;
+    d = SCE_BoundingSphere_GetRadius (el->sphere) * 2.0f;
     c = d / SCE_Box_GetWidth (SCE_BoundingBox_GetBox (
                                         SCE_Octree_GetBoundingBox (tree)));
     /* TODO: ptdr rofl mdr? */

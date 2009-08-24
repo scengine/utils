@@ -1055,7 +1055,7 @@ void SCE_Geometry_ComputeBoundingBox (SCEvertices *v, size_t vcount,
 {
     SCE_TVector3 max = {0., 0., 0.};
     SCE_TVector3 min = {0., 0., 0.};
-    size_t i, j, count;
+    size_t i, count;
 
     /* TODO: use a "Rectangle3D" ? */
     count = vcount * 3;
@@ -1176,7 +1176,7 @@ static void SCE_Geometry_GetPrimCenter (SCE_TVector3 v[4], size_t vpp,
                                         SCE_TVector3 c)
 {
     size_t i;
-    float invvpp = 1.0 / vpp;
+    float invvpp = 1.0f / vpp;
     SCE_Vector3_Copy (c, v[0]);
     for (i = 1; i < vpp; i++)
         SCE_Vector3_Operator1v (c, +=, v[i]);

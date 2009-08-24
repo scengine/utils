@@ -147,7 +147,7 @@ void SCE_Joint_InterpolateSpline (SCE_SJoint *joint1, SCE_SJoint *joint2,
 void SCE_Joint_InterpolateSLERP (SCE_SJoint *joint1, SCE_SJoint *joint2,
                                  float w, SCE_SJoint *result)
 {
-    float w_ = 1.0 - w;
+    float w_ = 1.0f - w;
     result->parent = joint1->parent;
     SCE_Quaternion_SLERP (joint1->orientation, joint2->orientation,
                           w, result->orientation);
@@ -164,7 +164,7 @@ void SCE_Joint_InterpolateSLERP (SCE_SJoint *joint1, SCE_SJoint *joint2,
 void SCE_Joint_InterpolateLinear (SCE_SJoint *joint1, SCE_SJoint *joint2,
                                   float w, SCE_SJoint *result)
 {
-    float w_ = 1.0 - w;
+    float w_ = 1.0f - w;
     result->parent = joint1->parent;
     SCE_Quaternion_Linear (joint1->orientation, joint2->orientation,
                            w, result->orientation);

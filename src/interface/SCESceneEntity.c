@@ -690,6 +690,7 @@ void SCE_SceneEntity_DetachInstance (SCE_SSceneEntityInstance *einst)
 void SCE_SceneEntity_DetermineInstanceLOD (SCE_SSceneEntityInstance *einst,
                                            SCE_SCamera *cam)
 {
+    /* FIXME: types conflicts together */
     int entityid, lod;
     SCE_SSceneEntity *entity = NULL;
     SCE_SSceneEntityGroup *group = einst->group;

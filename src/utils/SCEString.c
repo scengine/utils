@@ -108,6 +108,9 @@ double SCE_String_Valof (const char *str)
 
     /* calcul de la longueur de la chaine str -->
        longueur de la partie entiere */
+    /* FIXME: if (strchr(str) - str) > UINT_MAX, there shall be an infinite
+     * loop because incrementing and unsigned variable does nothing when
+     * overflows */
     while (str[str_ilen] != '\0' &&
            str[str_ilen] != '\n' &&
            str[str_ilen] != '.')
@@ -117,6 +120,7 @@ double SCE_String_Valof (const char *str)
     /* --> longueur de la partie decimale (si elle existe uniquement) */
     if (str[str_ilen] == '.')
     {
+        /* FIXME: same problem here */
         while (str[str_dlen+str_ilen+1] != '\0' &&
                str[str_dlen+str_ilen] != '\n')
         {
