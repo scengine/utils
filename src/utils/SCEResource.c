@@ -404,7 +404,7 @@ int SCE_Resource_Free (void *data)
  * pointer. \p name or \p data can be NULL. It both \p name and \p data are
  * NULL, this function will return 0.
  */
-int SCE_Resource_NumUsed (const char *name, void *data)
+unsigned int SCE_Resource_NumUsed (const char *name, void *data)
 {
     SCE_SResource *res = NULL;
 
@@ -423,7 +423,7 @@ int SCE_Resource_NumUsed (const char *name, void *data)
  * 
  * Returns the number of loaded reources in the resource manager
  */
-int SCE_Resource_NumLoaded (void)
+unsigned int SCE_Resource_NumLoaded (void)
 {
     return SCE_List_GetLength (&resources);
 }

@@ -45,8 +45,8 @@ int SCE_Resource_Add (int, const char*, void*);
 void* SCE_Resource_Load (int, const char*, int, void*);
 int SCE_Resource_Free (void*);
 
-int SCE_Resource_NumUsed (const char*, void*);
-int SCE_Resource_NumLoaded (void);
+unsigned int SCE_Resource_NumUsed (const char*, void*);
+unsigned int SCE_Resource_NumLoaded (void);
 
 char* SCE_Resource_GetName (void*);
 
