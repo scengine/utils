@@ -41,6 +41,7 @@ void SCE_Box_Copy (SCE_SBox*, const SCE_SBox*);
 void SCE_Box_Set (SCE_SBox*, SCE_TVector3, float, float, float);
 void SCE_Box_Setv (SCE_SBox*, SCE_TVector3, SCE_TVector3);
 void SCE_Box_SetFromCenter (SCE_SBox*, SCE_TVector3, float, float, float);
+void SCE_Box_SetFromMinMax (SCE_SBox*, SCE_TVector3, SCE_TVector3);
 
 void SCE_Box_SetSize (SCE_SBox*, float, float, float);
 

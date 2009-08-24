@@ -106,6 +106,16 @@ void SCE_Box_SetFromCenter (SCE_SBox *box, SCE_TVector3 c, float w, float h,
 }
 
 /**
+ * \brief Constructs a box from the farest extremity points
+ */
+void SCE_Box_SetFromMinMax (SCE_SBox *box, SCE_TVector3 min, SCE_TVector3 max)
+{
+    SCE_TVector3 maxp;
+    SCE_Vector3_Operator2v (maxp, =, max, -, min);
+    SCE_Box_Set (box, min, maxp[0], maxp[1], maxp[2]);
+}
+
+/**
  * \brief Sets the size of a bouding box
  * \param box a box
  * \param w,h,d new box's width, height and depth
