@@ -256,7 +256,7 @@ void SCE_Matrix4_Inverse (const SCE_TMatrix4 m, SCE_TMatrix4 inv)
     inv[15] =  m[0]*m[5]*m[10] - m[0]*m[6]*m[9] - m[4]*m[1]*m[10]
         + m[4]*m[2]*m[9] + m[8]*m[1]*m[6] - m[8]*m[2]*m[5];
 
-    det = 1.0 / det;
+    det = 1.0f / det;
 
     inv[0] *= det; inv[1] *= det; inv[2] *= det; inv[3] *= det;
     inv[4] *= det; inv[5] *= det; inv[6] *= det; inv[7] *= det;
@@ -289,7 +289,7 @@ void SCE_Matrix3_Inverse (const SCE_TMatrix3 m, SCE_TMatrix3 inv)
     inv[5] = -m[0]*m[5] + m[3]*m[2];
     inv[8] =  m[0]*m[4] - m[3]*m[1];
 
-    det = 1.0 / det;
+    det = 1.0f / det;
 
     inv[0] *= det; inv[1] *= det; inv[2] *= det;
     inv[3] *= det; inv[4] *= det; inv[5] *= det;
@@ -332,7 +332,7 @@ void SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3 m, SCE_TMatrix4x3 inv)
     inv[11] = -m[0]*m[5]*m[11] + m[0]*m[7]*m[9] + m[4]*m[1]*m[11]
         - m[4]*m[3]*m[9] - m[8]*m[1]*m[7] + m[8]*m[3]*m[5];
 
-    det = 1.0 / det;
+    det = 1.0f / det;
 
     inv[0] *= det; inv[1] *= det; inv[2] *= det; inv[3] *= det;
     inv[4] *= det; inv[5] *= det; inv[6] *= det; inv[7] *= det;
@@ -349,7 +349,7 @@ void SCE_Matrix4x3_InverseCopy (SCE_TMatrix4x3 m)
 void SCE_Matrix4_Interpolate (SCE_TMatrix4 m, SCE_TMatrix4 n, float w,
                               SCE_TMatrix4 r)
 {
-    float x = 1.0 - w;
+    float x = 1.0f - w;
     SCE_Matrix4_Set
         (r,
          m[0]*x+n[0]*w,   m[1]*x+n[1]*w,   m[2]*x+n[2]*w,   m[3]*x+n[3]*w,
@@ -360,7 +360,7 @@ void SCE_Matrix4_Interpolate (SCE_TMatrix4 m, SCE_TMatrix4 n, float w,
 void SCE_Matrix3_Interpolate (SCE_TMatrix3 m, SCE_TMatrix3 n, float w,
                               SCE_TMatrix3 r)
 {
-    float x = 1.0 - w;
+    float x = 1.0f - w;
     SCE_Matrix3_Set(r,
                     m[0]*x+n[0]*w,m[1]*x+n[1]*w,m[2]*x+n[2]*w,
                     m[3]*x+n[3]*w,m[4]*x+n[4]*w,m[5]*x+n[5]*w,
@@ -369,7 +369,7 @@ void SCE_Matrix3_Interpolate (SCE_TMatrix3 m, SCE_TMatrix3 n, float w,
 void SCE_Matrix4x3_Interpolate (SCE_TMatrix4x3 m, SCE_TMatrix4x3 n, float w,
                                 SCE_TMatrix4x3 r)
 {
-    float x = 1.0 - w;
+    float x = 1.0f - w;
     SCE_Matrix4x3_Set
         (r,
          m[0]*x+n[0]*w, m[1]*x+n[1]*w, m[2]*x+n[2]*w,   m[3]*x+n[3]*w,
@@ -412,8 +412,8 @@ void SCE_Matrix4_MulTranslatev (SCE_TMatrix4 m, SCE_TVector3 v)
 
 void SCE_Matrix4_RotX (SCE_TMatrix4 m, float a)
 {
-    float cosinus = cos (a);
-    float sinus = sin (a);
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
 
     SCE_Matrix4_Set (m,
                      1., 0.,      0.,       0.,
@@ -423,8 +423,8 @@ void SCE_Matrix4_RotX (SCE_TMatrix4 m, float a)
 }
 void SCE_Matrix3_RotX (SCE_TMatrix3 m, float a)
 {
-    float cosinus = cos (a);
-    float sinus = sin (a);
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
 
     SCE_Matrix3_Set (m,
                      1., 0.,      0.,
@@ -433,8 +433,8 @@ void SCE_Matrix3_RotX (SCE_TMatrix3 m, float a)
 }
 void SCE_Matrix4_RotY (SCE_TMatrix4 m, float a)
 {
-    float cosinus = cos (a);
-    float sinus = sin (a);
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
 
     SCE_Matrix4_Set (m,
                      cosinus, 0., -sinus,  0.,
@@ -444,8 +444,8 @@ void SCE_Matrix4_RotY (SCE_TMatrix4 m, float a)
 }
 void SCE_Matrix3_RotY (SCE_TMatrix3 m, float a)
 {
-    float cosinus = cos (a);
-    float sinus = sin (a);
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
 
     SCE_Matrix3_Set (m,
                      cosinus, 0., -sinus,
@@ -454,8 +454,8 @@ void SCE_Matrix3_RotY (SCE_TMatrix3 m, float a)
 }
 void SCE_Matrix4_RotZ (SCE_TMatrix4 m, float a)
 {
-    float cosinus = cos (a);
-    float sinus = sin (a);
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
 
     SCE_Matrix4_Set (m,
                      cosinus, -sinus,  0., 0.,
@@ -465,8 +465,8 @@ void SCE_Matrix4_RotZ (SCE_TMatrix4 m, float a)
 }
 void SCE_Matrix3_RotZ (SCE_TMatrix3 m, float a)
 {
-    float cosinus = cos (a);
-    float sinus = sin (a);
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
 
     SCE_Matrix3_Set (m,
                      cosinus, -sinus,  0.,
@@ -528,8 +528,8 @@ void SCE_Matrix4_Rotate (SCE_TMatrix4 m, float a, float x, float y, float z)
 #define ZSIN 3
     float val[4];
     float xy, xz, yz;
-    float cosinus = cos (a);
-    float sinus = sin (a);
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
 
     val[UN_COS] = 1.0f - cosinus;
 
@@ -563,8 +563,8 @@ void SCE_Matrix3_Rotate (SCE_TMatrix3 m, float a, float x, float y, float z)
 {
     float val[4];
     float xy, xz, yz;
-    float cosinus = cos (a);
-    float sinus = sin (a);
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
 
     val[UN_COS] = 1.0f - cosinus;
 
@@ -688,10 +688,10 @@ void SCE_Matrix4_FromQuaternion (SCE_TMatrix4 m, SCE_TQuaternion q)
     xw = q[0] * q[3]; yy = q[1] * q[1]; yz = q[1] * q[2];
     yw = q[1] * q[3]; zz = q[2] * q[2]; zw = q[2] * q[3];
     SCE_Matrix4_Set (m,
-                     1.-2.*(yy+zz), 2.*(xy-zw),    2.*(xz+yw),    0.,
-                     2.*(xy+zw),    1.-2.*(xx+zz), 2.*(yz-xw),    0.,
-                     2.*(xz-yw),    2.*(yz + xw),  1.-2.*(xx+yy), 0.,
-                     0.,            0.,            0.,            1.);
+                     1.f-2.f*(yy+zz), 2.f*(xy-zw),     2.f*(xz+yw),     0.f,
+                     2.f*(xy+zw),     1.f-2.f*(xx+zz), 2.f*(yz-xw),     0.f,
+                     2.f*(xz-yw),     2.f*(yz + xw),   1.f-2.f*(xx+yy), 0.f,
+                     0.f,             0.f,             0.f,             1.f);
 }
 void SCE_Matrix3_FromQuaternion (SCE_TMatrix3 m, SCE_TQuaternion q)
 {
@@ -700,9 +700,9 @@ void SCE_Matrix3_FromQuaternion (SCE_TMatrix3 m, SCE_TQuaternion q)
     xw = q[0] * q[3]; yy = q[1] * q[1]; yz = q[1] * q[2];
     yw = q[1] * q[3]; zz = q[2] * q[2]; zw = q[2] * q[3];
     SCE_Matrix3_Set (m,
-                     1.-2.*(yy+zz), 2.*(xy-zw),    2.*(xz+yw),
-                     2.*(xy+zw),    1.-2.*(xx+zz), 2.*(yz-xw),
-                     2.*(xz-yw),    2.*(yz + xw),  1.-2.*(xx+yy));
+                     1.f-2.f*(yy+zz), 2.f*(xy-zw),     2.f*(xz+yw),
+                     2.f*(xy+zw),     1.f-2.f*(xx+zz), 2.f*(yz-xw),
+                     2.f*(xz-yw),     2.f*(yz + xw),   1.f-2.f*(xx+yy));
 }
 void SCE_Matrix4x3_FromQuaternion (SCE_TMatrix4x3 m, SCE_TQuaternion q)
 {
@@ -711,9 +711,9 @@ void SCE_Matrix4x3_FromQuaternion (SCE_TMatrix4x3 m, SCE_TQuaternion q)
     xw = q[0] * q[3]; yy = q[1] * q[1]; yz = q[1] * q[2];
     yw = q[1] * q[3]; zz = q[2] * q[2]; zw = q[2] * q[3];
     SCE_Matrix4x3_Set (m,
-                       1.-2.*(yy+zz), 2.*(xy-zw),    2.*(xz+yw),    0.,
-                       2.*(xy+zw),    1.-2.*(xx+zz), 2.*(yz-xw),    0.,
-                       2.*(xz-yw),    2.*(yz + xw),  1.-2.*(xx+yy), 0.);
+                       1.f-2.f*(yy+zz), 2.f*(xy-zw),     2.f*(xz+yw),     0.f,
+                       2.f*(xy+zw),     1.f-2.f*(xx+zz), 2.f*(yz-xw),     0.f,
+                       2.f*(xz-yw),     2.f*(yz + xw),   1.f-2.f*(xx+yy), 0.f);
 }
 
 void SCE_Matrix4_ToQuaternion (SCE_TMatrix4 m, SCE_TQuaternion q)
@@ -970,7 +970,7 @@ void SCE_Matrix4x3_MulV4Copy (SCE_TMatrix4x3 m, SCE_TVector4 v)
 
 void SCE_Matrix4_Projection (SCE_TMatrix4 m, float a, float r, float n, float f)
 {
-    m[5] = 1.0f / tan (a * 0.5f);
+    m[5] = 1.0f / SCE_Math_Tanf (a * 0.5f);
     m[0] = m[5] / r;
     m[10] = -f / (f - n * 2.0f);
     m[11] = -2.0f * n * (f / (f - n));
@@ -1001,7 +1001,7 @@ void SCE_Matrix4_LookAt (SCE_TMatrix4 m, SCE_TVector3 pos,
                      side[0], up[0], -forward[0], -pos[0],
                      side[1], up[1], -forward[1], -pos[1],
                      side[2], up[2], -forward[2], -pos[2],
-                     0.0,     0.0,   0.0,         1.0);
+                     0.0f,    0.0f,  0.0f,        1.0f);
 }
 
 void SCE_Matrix4_GetTranslation (SCE_TMatrix4 m, SCE_TVector3 v)
