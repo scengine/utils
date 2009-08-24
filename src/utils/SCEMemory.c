@@ -592,7 +592,7 @@ void SCE_Mem_List (void)
     unsigned int n = 0;
     SCE_SMemAlloc *a = NULL;
     SCE_Mem_For (a) {
-        SCEE_SendMsg ("- allocation in %s (%z): %z bytes.\n",
+        SCEE_SendMsg ("- allocation in %s (%u): %zu bytes.\n",
                       a->file, a->line, a->size);
         n++;
     }
