@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 22/09/2007 */
+   updated: 24/08/2009 */
 
 #include <SCE/utils/SCEMath.h>
 #include <SCE/utils/SCEVector.h>
@@ -116,9 +116,9 @@ void SCE_Vector3_RotateZ (SCE_TVector3 v, float cos_, float sin_)
  */
 void SCE_Vector3_GetMin (SCE_TVector3 newv, SCE_TVector3 v1, SCE_TVector3 v2)
 {
-    newv[0] = min (v1[0], v2[0]);
-    newv[1] = min (v1[1], v2[1]);
-    newv[2] = min (v1[2], v2[2]);
+    newv[0] = MIN (v1[0], v2[0]);
+    newv[1] = MIN (v1[1], v2[1]);
+    newv[2] = MIN (v1[2], v2[2]);
 }
 /**
  * \brief Constructs a vector with the maximum values of each other's ones
@@ -126,9 +126,9 @@ void SCE_Vector3_GetMin (SCE_TVector3 newv, SCE_TVector3 v1, SCE_TVector3 v2)
  */
 void SCE_Vector3_GetMax (SCE_TVector3 newv, SCE_TVector3 v1, SCE_TVector3 v2)
 {
-    newv[0] = max (v1[0], v2[0]);
-    newv[1] = max (v1[1], v2[1]);
-    newv[2] = max (v1[2], v2[2]);
+    newv[0] = MAX (v1[0], v2[0]);
+    newv[1] = MAX (v1[1], v2[1]);
+    newv[2] = MAX (v1[2], v2[2]);
 }
 
 /** @} */
