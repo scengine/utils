@@ -50,6 +50,12 @@ extern "C"
  #define MIN(a, b) (a < b ? a : b)
 #endif
 
+#ifdef HAVE_FABSF
+# define SCE_Math_Fabsf fabsf
+#else
+# define SCE_Math_Fabsf(f) ((float)fabs ((float)f))
+#endif
+
 float SCE_Math_Sqrt (float) SCE_GNUC_PURE;
 float SCE_Math_InvSqrt (float) SCE_GNUC_PURE;
 

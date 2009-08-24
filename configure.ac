@@ -111,7 +111,7 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([memset pow sqrt strerror strstr strtol strtoul])
+AC_CHECK_FUNCS([memset pow sqrt strerror strstr strtol strtoul fabsf])
 
 # backtracer
 AC_ARG_ENABLE(
