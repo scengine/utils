@@ -180,8 +180,8 @@ void SCE_Quaternion_RotateV3 (SCE_TQuaternion q, SCE_TVector3 in,
 void SCE_Quaternion_Rotate (SCE_TQuaternion q, float a,
                             float x, float y, float z)
 {
-    float cosinus = cos (a / 2.);
-    float sinus = sin (a / 2.);
+    float cosinus = SCE_Math_Cosf (a / 2.0f);
+    float sinus = SCE_Math_Sinf (a / 2.0f);
     q[0] = x * sinus;
     q[1] = y * sinus;
     q[2] = z * sinus;
@@ -289,18 +289,18 @@ void SCE_Quaternion_SLERP (SCE_TQuaternion a, SCE_TQuaternion b, float w,
     {
         /* compute the sin of the angle using the
            trig identity sin^2(omega) + cos^2(omega) = 1 */
-        float sinOmega = sqrt (1.0f - (cosOmega * cosOmega));
+        float sinOmega = SCE_Math_Sqrt (1.0f - (cosOmega * cosOmega));
 
         /* compute the angle from its sin and cosine */
-        float omega = atan2 (sinOmega, cosOmega);
+        float omega = SCE_Math_Atan2f (sinOmega, cosOmega);
 
         /* compute inverse of denominator, so we only have
            to divide once */
         float oneOverSinOmega = 1.0f / sinOmega;
 
         /* Compute interpolation parameters */
-        k0 = sin ((1.0f - w) * omega) * oneOverSinOmega;
-        k1 = sin (w * omega) * oneOverSinOmega;
+        k0 = SCE_Math_Sinf ((1.0f - w) * omega) * oneOverSinOmega;
+        k1 = SCE_Math_Sinf (w * omega) * oneOverSinOmega;
     }
 
     /* interpolate and return new quaternion */
