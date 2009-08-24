@@ -25,8 +25,7 @@
 #include <SCE/utils/SCERectangle.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -96,6 +95,7 @@ void SCE_CFramebufferQuit (void);
 
 void SCE_CBindFramebuffer (SCE_CFramebuffer*) SCE_GNUC_DEPRECATED;
 
+void SCE_CInitFramebuffer (SCE_CFramebuffer*);
 SCE_CFramebuffer* SCE_CCreateFramebuffer (void);
 void SCE_CDeleteFramebuffer (SCE_CFramebuffer*);
 void SCE_CDeleteFramebuffer_ (void);
