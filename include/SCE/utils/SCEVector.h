@@ -123,6 +123,9 @@ void SCE_Vector3_RotateX (SCE_TVector3, float, float);
 void SCE_Vector3_RotateY (SCE_TVector3, float, float);
 void SCE_Vector3_RotateZ (SCE_TVector3, float, float);
 
+void SCE_Vector3_GetMin (SCE_TVector3, SCE_TVector3, SCE_TVector3);
+void SCE_Vector3_GetMax (SCE_TVector3, SCE_TVector3, SCE_TVector3);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
