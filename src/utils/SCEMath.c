@@ -58,7 +58,11 @@ float SCE_Math_Sqrt (float number)
        license : GPL */
     return 1.0F/SCE_Math_InvSqrt (number);
 #else
-    return sqrt (number);
+# ifdef HAVE_SQRTF
+    return sqrtf (number);
+#else /* !HAVE_SQRTF */
+    return (float)sqrt (number);
+#endif /* HAVE_SQRTF */
 #endif
 }
 
@@ -92,7 +96,7 @@ float SCE_Math_InvSqrt (float number)
 
     return y;
 #else
-    return 1.0F/pow (number, 0.5F);
+    return 1.0F/SCE_Math_Powf (number, 0.5F);
 #endif
 }
 
