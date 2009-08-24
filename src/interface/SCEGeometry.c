@@ -1060,8 +1060,8 @@ void SCE_Geometry_ComputeBoundingBox (SCEvertices *v, size_t vcount,
     /* TODO: use a "Rectangle3D" ? */
     count = vcount * 3;
     for (i = 0; i < count; i += 3) {
-        SCE_Vector3_GetMin (min, &v[i]);
-        SCE_Vector3_GetMax (max, &v[i]);
+        SCE_Vector3_GetMin (min, min, &v[i]);
+        SCE_Vector3_GetMax (max, max, &v[i]);
     }
     SCE_Box_SetFromMinMax (box, min, max);
 }

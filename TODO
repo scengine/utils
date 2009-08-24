@@ -17,8 +17,6 @@ See the file ./doc/html/todo.html
 - Ajouter une fonction de tri des indices de vertex d'après le tuto :
   http://bakura.developpez.com/tutoriel/cpp/vertexcache/
 - Définir une constante pour un index de paramète de shader invalide.
-- Rassemblement de toutes les mises a jour des vertex buffer pour une seule
-  synchronisation CPU/GPU par frame. (__à tester__)
 - Système de "plans" pour le gestionnaire de scène, afin d'augmenter la
   profondeur des scènes en définissant plusieurs plans qui seront dessines
   l'un après l'autre du plus éloigné au plus proche, en remettant le tampon
@@ -31,6 +29,7 @@ See the file ./doc/html/todo.html
 
 - Prévoir des séquences de matrices de modification des coordonnées de texture.
 - Geometry shaders.
+- Scinder vertex, pixel et geometry shaders au niveau du cœur.
 - Is glLinkProgram() a fast function? Can be called many times on each frame?
 - FBOs Multisampling.
 - Différents calculs pour la gestion du LOD (basés directement sur la distance
@@ -47,7 +46,9 @@ See the file ./doc/html/todo.html
     - geomipmapping ;
     - pseudo mega textures... ?
     - culling: frustum, occlusion, ... ;
-    - geometry clipmaps.
+    - geometry clipmaps ;
+    - geometry shaders for subdivision of complex surfaces ;
+    - un seul mesh fixe par rapport à la caméra.
 - Virer un max d'appels à glEnable/glDisable si c'est pour ne rien changer.
 - Textures atlases manager.
 - Créer une fonction de mise en état d'un mode propice au "double-speed z-pass".
@@ -64,13 +65,13 @@ See the file ./doc/html/todo.html
       - quel mode d'instancing est utilisé ;
       - quelles textures représentent quelles données ;
       - informations de scène, etc.
+    - matrices (SCECMatrix) ;
 - Paramétrage global des entités par le gestionnaire de scènes (doit-on
   utiliser les textures pour ce rendu ? etc.).
 - Improve MulCopy() functions: DONT duplicate all the matrix.
 - Modifier les attributs d'un octree peu visible après une requête d'occlusion.
 - Matrix_Mask() : applique un masque (multiplie chaque élément).
 - Désactivation des nœuds : non mise à jour de leur position dans l'octree, etc.
-- VAO (OpenGL 3.1) (need tests).
 - SCE_SSceneEntityInstanceGroup : groupe d'instances situées impérativement dans
   le même bounding volume.
 - Paramètres de ressources lors de l'utilisation : recharger la ressource de
@@ -94,4 +95,4 @@ See the file ./doc/html/todo.html
 - Solve divin function SCE_Texture_Create().
 - Volume based culling.
 
-- 52
+- 51
