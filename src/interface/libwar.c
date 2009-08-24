@@ -27,6 +27,9 @@
 #include <SCE/SCEMinimal.h>
 #include <SCE/interface/libwar.h>
 
+static void war_error (const char *e, ...) SCE_GNUC_PRINTF (1, 2);
+
+
 static char error[256] = {0};
 
 /*** fonctions de gestion des erreurs ***/
@@ -274,8 +277,8 @@ static WAuint war_getline (FILE *fp)
 
 /*** fonctions de lecture d'un .obj ***/
 
-static void war_readinfos (FILE *fp, int *n_objs,
-                       size_t *v, size_t *vt, size_t *vn)
+static void war_readinfos (FILE *fp, unsigned int *n_objs,
+                           size_t *v, size_t *vt, size_t *vn)
 {
     int c;
 
@@ -688,8 +691,8 @@ static int war_makevertices (WarMesh *me)
 WarMesh* war_read (FILE *fp, int gen_indices, unsigned int lod_level)
 {
     int ret = SCE_OK;
-    int i = 0;
-    unsigned int num_indices = 0;
+    unsigned int i = 0;
+    int num_indices = 0;
     WarMesh *mesh = NULL;
     size_t v, vt, vn;
     int (*make)(WarMesh*) = NULL;
