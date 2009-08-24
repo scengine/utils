@@ -176,13 +176,13 @@ int SCE_Line_GetIntersection (SCE_SLine *l1, SCE_SLine *l2, float *x, float *y)
     SCE_Line_GetEquation (l1, &a, &b);
     SCE_Line_GetEquation (l2, &c, &d);
 
-    if (fabs (a - c) > 0.0)
+    if (SCE_Math_Fabsf (a - c) > 0.0)
     {
         *x = (d - b) / (a - c); /* ax + b = cx + d */
         *y = a*(*x) + b;        /* y = ax + b */
         return 0;
     }
-    else if (fabs (d - b) > 0.0)
+    else if (SCE_Math_Fabsf (d - b) > 0.0)
         return SCE_LINE_COLINEAR;
     else
         return SCE_LINE_EQUAL;

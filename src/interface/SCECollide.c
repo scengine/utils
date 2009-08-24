@@ -247,7 +247,7 @@ int SCE_Collide_BSWithPoint (SCE_SBoundingSphere *s,
     c = sphere->center;
     r = sphere->radius;
     SCE_Vector3_Set (p, x, y, z);
-    return (fabs (SCE_Vector3_Dot (c, p)) < r * r);
+    return (SCE_Math_Fabsf (SCE_Vector3_Dot (c, p)) < r * r);
 }
 int SCE_Collide_BSWithPointv (SCE_SBoundingSphere *s, SCE_TVector3 p)
 {
@@ -256,7 +256,7 @@ int SCE_Collide_BSWithPointv (SCE_SBoundingSphere *s, SCE_TVector3 p)
     SCE_SSphere *sphere = SCE_BoundingSphere_GetSphere (s);
     c = sphere->center;
     r = sphere->radius;
-    return (fabs (SCE_Vector3_Dot (c, p)) < r * r);
+    return (SCE_Math_Fabsf (SCE_Vector3_Dot (c, p)) < r * r);
 }
 int SCE_Collide_BSWithBB (SCE_SBoundingSphere *s, SCE_SBoundingBox *box)
 {
@@ -283,7 +283,7 @@ int SCE_Collide_BSWithBS (SCE_SBoundingSphere *s,
     r = sphere->radius;
     c2 = sphere2->center;
     r2 = sphere2->radius;
-    d = fabs (SCE_Vector3_Dot (c, c2));
+    d = SCE_Math_Fabsf (SCE_Vector3_Dot (c, c2));
     r  = r - r2; r  *= r;
     r2 = r + r2; r2 *= r2;
     if (d <= r - r2)

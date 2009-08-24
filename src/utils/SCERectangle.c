@@ -267,8 +267,10 @@ int SCE_Rectangle_Equal (SCE_SIntRect *a, SCE_SIntRect *b)
 int SCE_Rectangle_Equalf (SCE_SFloatRect *a, SCE_SFloatRect *b)
 {
 #define EPS 0.000002 /* "epsilon" (pux) */
-    return (fabs (a->p1[0]-b->p1[0]) < EPS && fabs (a->p1[1]-b->p1[1]) < EPS &&
-            fabs (a->p2[0]-b->p2[0]) < EPS && fabs (a->p2[1]-b->p2[1]) < EPS);
+    return (SCE_Math_Fabsf (a->p1[0]-b->p1[0]) < EPS &&
+            SCE_Math_Fabsf (a->p1[1]-b->p1[1]) < EPS &&
+            SCE_Math_Fabsf (a->p2[0]-b->p2[0]) < EPS &&
+            SCE_Math_Fabsf (a->p2[1]-b->p2[1]) < EPS);
 }
 
 /**
