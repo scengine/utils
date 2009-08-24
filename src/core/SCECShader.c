@@ -26,15 +26,6 @@
 
 #include <SCE/core/SCECShader.h>
 
-static unsigned int ncalled = 0;
-
-unsigned int SCE_CGetShaderNumBatchs (void)
-{
-    unsigned int k = ncalled;
-    ncalled = 0;
-    return k;
-}
-
 
 /* Cg */
 #ifdef SCE_USE_CG
@@ -618,7 +609,6 @@ void SCE_CUseProgram (SCE_CProgram *prog)
     if (prog)
     {
         glUseProgram (prog->id);
-        ncalled++;
     }
     else
         glUseProgram (0);
@@ -668,41 +658,41 @@ SCEint SCE_CGetProgramAttribIndex (SCE_CProgram *prog, const char *name)
 
 
 /* revise le 14/03/2008 */
-void SCE_CSetProgramParam (SCEint index, int val)
+void SCE_CSetProgramParam (SCEint idx, int val)
 {
-    glUniform1i (index, val);
+    glUniform1i (idx, val);
 }
-void SCE_CSetProgramParamf (SCEint index, float val)
+void SCE_CSetProgramParamf (SCEint idx, float val)
 {
-    glUniform1f (index, val);
+    glUniform1f (idx, val);
 }
-void SCE_CSetProgramParam1fv (SCEint index, size_t size, const float *val)
+void SCE_CSetProgramParam1fv (SCEint idx, size_t size, const float *val)
 {
-    glUniform1fv (index, size, val);
+    glUniform1fv (idx, size, val);
 }
-void SCE_CSetProgramParam2fv (SCEint index, size_t size, const float *val)
+void SCE_CSetProgramParam2fv (SCEint idx, size_t size, const float *val)
 {
-    glUniform2fv (index, size, val);
+    glUniform2fv (idx, size, val);
 }
-void SCE_CSetProgramParam3fv (SCEint index, size_t size, const float *val)
+void SCE_CSetProgramParam3fv (SCEint idx, size_t size, const float *val)
 {
-    glUniform3fv (index, size, val);
+    glUniform3fv (idx, size, val);
 }
-void SCE_CSetProgramParam4fv (SCEint index, size_t size, const float *val)
+void SCE_CSetProgramParam4fv (SCEint idx, size_t size, const float *val)
 {
-    glUniform4fv (index, size, val);
+    glUniform4fv (idx, size, val);
 }
-void SCE_CSetProgramMatrix2 (SCEint index, size_t size, const float *mat)
+void SCE_CSetProgramMatrix2 (SCEint idx, size_t size, const float *mat)
 {
-    glUniformMatrix2fv (index, size, SCE_TRUE, mat);
+    glUniformMatrix2fv (idx, size, SCE_TRUE, mat);
 }
-void SCE_CSetProgramMatrix3 (SCEint index, size_t size, const float *mat)
+void SCE_CSetProgramMatrix3 (SCEint idx, size_t size, const float *mat)
 {
-    glUniformMatrix3fv (index, size, SCE_TRUE, mat);
+    glUniformMatrix3fv (idx, size, SCE_TRUE, mat);
 }
-void SCE_CSetProgramMatrix4 (SCEint index, size_t size, const float *mat)
+void SCE_CSetProgramMatrix4 (SCEint idx, size_t size, const float *mat)
 {
-    glUniformMatrix4fv (index, size, SCE_TRUE, mat);
+    glUniformMatrix4fv (idx, size, SCE_TRUE, mat);
 }
 
 
