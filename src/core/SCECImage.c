@@ -724,7 +724,7 @@ void SCE_CRescaleImage (SCE_CImage *img, float w, float h, float d)
 {
     SCE_CImage *back = bound;
     SCE_CBindImage (img);
-    SCE_CResizeImage_ (w, h, d);
+    SCE_CRescaleImage_ (w, h, d);
     SCE_CBindImage (back);
 }
 void SCE_CRescaleImage_ (float w, float h, float d)
