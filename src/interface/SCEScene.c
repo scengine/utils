@@ -331,18 +331,19 @@ static void SCE_Scene_AddElement (SCE_SScene *scene, SCE_SOctreeElement *el)
  * \internal
  * \brief Bound to SCE_Octree_RemoveElement()
  */
-void SCE_Scene_RemoveElement (SCE_SOctreeElement *el)
+static void SCE_Scene_RemoveElement (SCE_SOctreeElement *el)
 {
     SCE_Octree_RemoveElement (el);
 }
 /**
+ * \internal
  * \brief Adds the node's element to a scene
  *
  * Bound to SCE_Scene_AddElement(), but calls
  * SCE_BoundingSphere_Push() before and SCE_BoundingSphere_Pop() after.
  * \sa SCE_Scene_AddNode()
  */
-void SCE_Scene_AddNodeElement (SCE_SScene *scene, SCE_SNode *node)
+static void SCE_Scene_AddNodeElement (SCE_SScene *scene, SCE_SNode *node)
 {
     SCE_SSphere old;
     SCE_SOctreeElement *el = SCE_Node_GetElement (node);
@@ -351,12 +352,13 @@ void SCE_Scene_AddNodeElement (SCE_SScene *scene, SCE_SNode *node)
     SCE_BoundingSphere_Pop (el->sphere, &old);
 }
 /**
+ * \internal
  * \brief Removes a node's element from a scene
  *
  * Just calls SCE_Octree_RemoveElement().
  * \sa SCE_Octree_RemoveElement(), SCE_Scene_RemoveElement()
  */
-void SCE_Scene_RemoveNodeElement (SCE_SNode *node)
+static void SCE_Scene_RemoveNodeElement (SCE_SNode *node)
 {
     SCE_Octree_RemoveElement (SCE_Node_GetElement (node));
 }
