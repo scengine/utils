@@ -97,6 +97,8 @@ void SCE_Mesh_Build (SCE_SMesh*, SCE_EMeshBuildMode,
                      SCE_CBufferUsage[SCE_MESH_NUM_STREAMS + 1]);
 void SCE_Mesh_AutoBuild (SCE_SMesh*);
 
+void SCE_Mesh_SetRenderMode (SCE_SMesh*, SCE_CBufferRenderMode);
+
 int SCE_Mesh_Update (SCE_SMesh*);
 
 SCE_SMesh* SCE_Mesh_Load (const char*, int);

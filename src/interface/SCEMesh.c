@@ -466,12 +466,16 @@ void SCE_Mesh_AutoBuild (SCE_SMesh *mesh)
     SCE_Mesh_Build (mesh, SCE_INDEPENDANT_VERTEX_BUFFER, NULL);
 }
 
-/* why change mode on live? */
-#if 0
+/**
+ * \brief Sets the render mode of a mesh
+ * \sa SCE_CSetVertexBufferRenderMode()
+ */
 void SCE_Mesh_SetRenderMode (SCE_SMesh *mesh, SCE_CBufferRenderMode rmode)
 {
+    size_t i;
+    for (i = 0; i < SCE_MESH_NUM_STREAMS; i++)
+        SCE_CSetVertexBufferRenderMode (&mesh->streams[i], rmode);
 }
-#endif
 
 /* why se breaker les balls, les fonctions inutiles c'est chiant
  * TODO: ah non spas inutile, apres generation TBN, besoin de mettre a jour */
