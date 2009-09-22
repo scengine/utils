@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 27/06/2009
-   updated: 10/07/2009 */
+   updated: 06/09/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -39,8 +39,7 @@ static SCE_SModelEntity* SCE_Model_CreateEntity (SCE_SSceneEntity *e)
     if (!(entity = SCE_malloc (sizeof *entity)))
         goto fail;
     SCE_Model_InitEntity (entity);
-    if (!e)
-    {
+    if (!e) {
         if (!(e = SCE_SceneEntity_Create ()))
             goto fail;
         entity->is_instance = SCE_FALSE;
@@ -56,8 +55,7 @@ fail:
 }
 static void SCE_Model_DeleteEntity (SCE_SModelEntity *entity)
 {
-    if (entity)
-    {
+    if (entity) {
         if (!entity->is_instance)
             SCE_SceneEntity_Delete (entity->entity);
         SCE_free (entity);
@@ -155,8 +153,7 @@ static void SCE_Model_BuildEntityv (SCE_SModelEntity *entity, SCE_SMesh *mesh,
     SCE_SceneEntity_SetMesh (entity->entity, mesh);
     if (shader)
         SCE_SceneEntity_SetShader (entity->entity, shader);
-    if (texs)
-    {
+    if (texs) {
         unsigned int i = 0;
         for (i = 0; texs[i]; i++)
             SCE_SceneEntity_AddTexture (entity->entity, texs[i]);
@@ -164,8 +161,7 @@ static void SCE_Model_BuildEntityv (SCE_SModelEntity *entity, SCE_SMesh *mesh,
 }
 
 #define SCE_CHECK_LEVEL(level) do {                                     \
-        if (level >= SCE_MAX_MODEL_ENTITIES)                            \
-        {                                                               \
+        if (level >= SCE_MAX_MODEL_ENTITIES) {                          \
             SCEE_Log (SCE_INVALID_ARG);                                 \
             SCEE_LogMsg ("parameter 'level' is too high (%d), maximum is %u",\
                          level, SCE_MAX_MODEL_ENTITIES);                \
@@ -192,21 +188,18 @@ int SCE_Model_AddEntityv (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
     SCE_CHECK_LEVEL (level);
 #endif
 
-    if (!mdl->entities[level])
-    {
+    if (!mdl->entities[level]) {
         if (!(mdl->entities[level] = SCE_List_Create (
                   (SCE_FListFreeFunc)SCE_Model_DeleteEntity)))
             goto fail;
     }
-    if (!mdl->groups)
-    {
+    if (!mdl->groups) {
         if (!(mdl->groups = SCE_List_Create (
                   (SCE_FListFreeFunc)SCE_Model_DeleteEntityGroup)))
             goto fail;
     }
     n = SCE_List_GetLength (mdl->entities[level]);
-    if (SCE_List_GetLength (mdl->groups) <= n)
-    {
+    if (SCE_List_GetLength (mdl->groups) <= n) {
         SCE_SModelEntityGroup *mgroup = NULL;
         /* one is enough */
         if (!(mgroup = SCE_Model_CreateEntityGroup (NULL)))
@@ -216,8 +209,7 @@ int SCE_Model_AddEntityv (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
     if (!(entity = SCE_Model_CreateEntity (NULL)))
         goto fail;
     SCE_Model_BuildEntityv (entity, mesh, shader, tex);
-    SCE_List_Appendl (mdl->entities[level], &entity->it);
-    {
+    SCE_List_Appendl (mdl->entities[level], &entity->it); {
         /* can't fail */
         SCE_SListIterator *it = SCE_List_GetIterator (mdl->groups, n);
         SCE_SModelEntityGroup *mgroup = SCE_List_GetData (it);
@@ -241,8 +233,7 @@ int SCE_Model_AddEntity (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
 
     va_start (args, shader);
     tex = va_arg (args, SCE_STexture*);
-    while (tex)
-    {
+    while (tex) {
         textures[i] = tex;
         tex = va_arg (args, SCE_STexture*);
         i++;
@@ -264,11 +255,9 @@ void SCE_Model_SetRootNode (SCE_SModel *mdl, SCE_SNode *root)
 {
     SCE_Node_Delete (mdl->root);
     mdl->root = root;
-    if (root)
-    {
+    if (root) {
         SCE_SListIterator *it = NULL;
-        SCE_List_ForEach (it, mdl->instances)
-        {
+        SCE_List_ForEach (it, mdl->instances) {
             SCE_SSceneEntityInstance *einst = SCE_List_GetData (it);
             SCE_SNode *node = SCE_SceneEntity_GetInstanceNode (einst);
             if (node != root)
@@ -294,21 +283,12 @@ int SCE_Model_RootNodeIsInstance (SCE_SModel *mdl)
 }
 
 
-int SCE_Model_AddInstance (SCE_SModel *mdl, unsigned int n,
+static void
+SCE_Model_SafeAddInstance (SCE_SModel *mdl, SCE_SModelEntityGroup *mgroup,
                            SCE_SSceneEntityInstance *einst, int root)
 {
-    SCE_SModelEntityGroup *mgroup = NULL;
-    SCE_SListIterator *it = SCE_List_GetIterator (mdl->groups, n);
-    if (!it)
-    {
-        SCEE_Log (SCE_INVALID_ARG);
-        SCEE_LogMsg ("no group number %u in this model", n);
-        return SCE_ERROR;
-    }
-    mgroup = SCE_List_GetData (it);
     SCE_SceneEntity_AddInstance (mgroup->group, einst);
-    if (root)
-    {
+    if (root) {
         SCE_Model_SetRootNode (mdl, SCE_SceneEntity_GetInstanceNode (einst));
         mdl->root_instance = SCE_TRUE;
     }
@@ -316,6 +296,19 @@ int SCE_Model_AddInstance (SCE_SModel *mdl, unsigned int n,
         SCE_Node_Attach (mdl->root, SCE_SceneEntity_GetInstanceNode (einst));
     SCE_List_Appendl (mdl->instances,
                       SCE_SceneEntity_GetInstanceIterator2 (einst));
+}
+int SCE_Model_AddInstance (SCE_SModel *mdl, unsigned int n,
+                           SCE_SSceneEntityInstance *einst, int root)
+{
+    SCE_SModelEntityGroup *mgroup = NULL;
+    SCE_SListIterator *it = SCE_List_GetIterator (mdl->groups, n);
+    if (!it) {
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("no group number %u in this model", n);
+        return SCE_ERROR;
+    }
+    mgroup = SCE_List_GetData (it);
+    SCE_Model_SafeAddInstance (mdl, mgroup, einst, root);
     return SCE_OK;
 }
 /**
@@ -332,8 +325,7 @@ int SCE_Model_AddNewInstance (SCE_SModel *mdl, unsigned int n, int root,
         goto fail;
     if (SCE_Model_AddInstance (mdl, n, einst, root) < 0)
         goto fail;
-    if (mat)
-    {
+    if (mat) {
         SCE_Matrix4_Copy (SCE_Node_GetMatrix (
                               SCE_SceneEntity_GetInstanceNode (einst)), mat);
     }
@@ -351,8 +343,7 @@ fail:
 unsigned int SCE_Model_GetNumLOD (SCE_SModel *mdl)
 {
     unsigned int i, n = 0;
-    for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++)
-    {
+    for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++) {
         if (mdl->entities[i] && SCE_List_HasElements (mdl->entities[i]))
             n++;
     }
@@ -407,8 +398,7 @@ SCE_SSceneEntity* SCE_Model_GetEntityEntity (SCE_SModelEntity *entity)
 static SCE_SModelEntity* SCE_Model_CopyDupEntity (SCE_SModelEntity *in)
 {
     SCE_SModelEntity *entity = NULL;
-    if (!(entity = SCE_Model_CreateEntity (in->entity)))
-    {
+    if (!(entity = SCE_Model_CreateEntity (in->entity))) {
         SCEE_LogSrc ();
         return NULL;
     }
@@ -419,7 +409,7 @@ static int SCE_Model_InstanciateHard (SCE_SModel *mdl, SCE_SModel *mdl2)
     unsigned int i;
     mdl2->groups = mdl->groups;
     for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++)
-        mdl2->entities[i] = mdl2->entities[i];
+        mdl2->entities[i] = mdl->entities[i];
     mdl2->instance_type = SCE_MODEL_HARD_INSTANCE;
     return SCE_OK;
 }
@@ -473,12 +463,12 @@ static int SCE_Model_InstanciateInstances (SCE_SModel *mdl, SCE_SModel *mdl2)
         SCE_SNode *node = NULL, *newnode = NULL;
         SCE_SSceneEntityInstance *einst = NULL, *new = NULL;
         einst = SCE_List_GetData (it);
+        /* this dup adds the returned instance to the group of einst */
         if (!(new = SCE_SceneEntity_DupInstance (einst)))
             goto fail;
         node = SCE_SceneEntity_GetInstanceNode (einst);
         newnode = SCE_SceneEntity_GetInstanceNode (new);
-        if (node == mdl->root)
-        {
+        if (node == mdl->root) {
             SCE_Model_SetRootNode (mdl2, newnode);
             mdl2->root_instance = SCE_TRUE;
         }
@@ -506,8 +496,7 @@ int SCE_Model_Instanciate (SCE_SModel *mdl, SCE_SModel *mdl2, int mode,
                            int dup_inst)
 {
     int code = SCE_OK;
-    switch (mode)
-    {
+    switch (mode) {
     case SCE_MODEL_SOFT_INSTANCE:
         code = SCE_Model_InstanciateSoft (mdl, mdl2);
         break;
@@ -517,13 +506,11 @@ int SCE_Model_Instanciate (SCE_SModel *mdl, SCE_SModel *mdl2, int mode,
 
     if (code < 0)
         goto fail;
-    if (dup_inst)
-    {
+    if (dup_inst) {
         if (SCE_Model_InstanciateInstances (mdl, mdl2) < 0)
             goto fail;
     }
-    if (!mdl2->root && mdl->root)
-    {
+    if (!mdl2->root && mdl->root) {
         SCE_SNode *node = NULL;
         if (!(node = SCE_Node_Create ()))
             goto fail;
@@ -541,13 +528,13 @@ fail:
  * This function does like SCE_Model_Instanciate() except that it first creates
  * a new model.
  * \sa SCE_Model_Instanciate()
+ * \todo use enum for \p mode
  */
 SCE_SModel* SCE_Model_CreateInstanciate (SCE_SModel *mdl, int mode,
                                          int dup_inst)
 {
     SCE_SModel *instance = NULL;
-    if (!(instance = SCE_Model_Create ()))
-    {
+    if (!(instance = SCE_Model_Create ())) {
         SCEE_LogSrc ();
         return NULL;
     }
