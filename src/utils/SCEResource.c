@@ -191,8 +191,7 @@ fail:
 static SCE_SResourceType* SCE_Resource_LocateType (int type)
 {
     SCE_SListIterator *it = NULL;
-    SCE_List_ForEach (it, &resources_type)
-    {
+    SCE_List_ForEach (it, &resources_type) {
         SCE_SResourceType *t = SCE_List_GetData (it);
         if (t->type == type)
             return t;
@@ -203,8 +202,7 @@ static SCE_SResourceType* SCE_Resource_LocateType (int type)
 static SCE_SResource* SCE_Resource_LocateFromName (const char *name)
 {
     SCE_SListIterator *it = NULL;
-    SCE_List_ForEach (it, &resources)
-    {
+    SCE_List_ForEach (it, &resources) {
         SCE_SResource *res = SCE_List_GetData (it);
         if (SCE_String_Cmp (name, res->name, SCE_TRUE) == 0)
             return res;
@@ -214,8 +212,7 @@ static SCE_SResource* SCE_Resource_LocateFromName (const char *name)
 static SCE_SResource* SCE_Resource_LocateFromData (void *data)
 {
     SCE_SListIterator *it = NULL;
-    SCE_List_ForEach (it, &resources)
-    {
+    SCE_List_ForEach (it, &resources) {
         SCE_SResource *res = SCE_List_GetData (it);
         if (res->data == data)
             return res;
@@ -226,8 +223,7 @@ static SCE_SResource* SCE_Resource_LocateFromTypeAndName (int type,
                                                           const char *name)
 {
     SCE_SListIterator *it = NULL;
-    SCE_List_ForEach (it, &resources)
-    {
+    SCE_List_ForEach (it, &resources) {
         SCE_SResource *res = SCE_List_GetData (it);
         if (res->type->type == type &&
             SCE_String_Cmp (name, res->name, SCE_TRUE) == 0)
@@ -266,27 +262,22 @@ int SCE_Resource_Add (int type, const char *name, void *data)
     SCE_SResource *res = NULL;
     SCE_SResourceType *t = NULL;
     t = SCE_Resource_LocateType (type);
-    if (!t)
-    {
+    if (!t) {
         SCEE_Log (SCE_INVALID_ARG);
         SCEE_LogMsg ("no resource of type %d is registered", type);
         return SCE_ERROR;
     }
     res = SCE_Resource_LocateFromTypeAndName (type, name);
-    if (!res)
-    {
-        if (!SCE_Resource_SafeAdd (t, name, data))
-        {
+    if (!res) {
+        if (!SCE_Resource_SafeAdd (t, name, data)) {
             SCEE_LogSrc ();
             return SCE_ERROR;
         }
     }
-    else
-    {
+    else {
         if (res->data == data)
             res->nb_used++;
-        else
-        {
+        else {
             SCEE_Log (SCE_INVALID_OPERATION);
             SCEE_LogMsg ("resource named '%s' of type %d already exists!",
                            name, type);
@@ -304,24 +295,24 @@ static void* SCE_Resource_LoadNew (int type, const char *name, int force,
     SCE_SResource *res = NULL;
 
     t = SCE_Resource_LocateType (type);
-    if (!t)
-    {
+    if (!t) {
         SCEE_Log (SCE_INVALID_ARG);
         SCEE_LogMsg ("no resource of type %d is registered", type);
         return NULL;
     }
-    if (!force)
-    {
+    if (!force) {
         if (!(res = SCE_Resource_SafeAdd (t, name, NULL)))
             goto fail;
+        name = res->name;
     }
     if (t->media)
-        resource = SCE_Media_Load (t->type, res->name, data);
+        resource = SCE_Media_Load (t->type, name, data);
     else
-        resource = t->load (res->name, force, data);
+        resource = t->load (name, force, data);
     if (!resource)
         goto fail;
-    res->data = resource;
+    if (res)
+        res->data = resource;
     return resource;
 fail:
     SCE_List_Erase (&resources, &res->it);
@@ -345,13 +336,10 @@ void* SCE_Resource_Load (int type, const char *name, int forcenew, void *data)
     SCE_btstart ();
     if (!forcenew)
         res = SCE_Resource_LocateFromTypeAndName (type, name);
-    if (res)
-    {
+    if (res) {
         resource = res->data;
         res->nb_used++;
-    }
-    else
-    {
+    } else {
         if (!(resource = SCE_Resource_LoadNew (type, name, forcenew, data)))
             SCEE_LogSrc ();
     }
@@ -381,8 +369,7 @@ int SCE_Resource_Free (void *data)
         ret = SCE_FALSE;
     else {
         res = SCE_Resource_LocateFromData (data);
-        if (res)
-        {
+        if (res) {
             res->nb_used--;
             if (res->nb_used == 0)
                 SCE_List_Erase (&resources, &res->it);
