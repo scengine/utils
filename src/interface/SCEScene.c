@@ -191,6 +191,7 @@ SCE_SScene* SCE_Scene_Create (void)
             goto failure;
         SCE_SceneResource_SetGroupType (scene->rgroups[i], i);
     }
+    /* TODO: sucks (use static structures) */
     if (!(scene->instances = SCE_List_Create (NULL)))
         goto failure;
     if (!(scene->selected = SCE_List_Create (NULL)))
@@ -209,14 +210,9 @@ SCE_SScene* SCE_Scene_Create (void)
     if (!(stree = SCE_Scene_CreateOctree ()))
         goto failure;
     SCE_Octree_SetData (scene->octree, stree);
-#if 0
-    if (SCE_Scene_AddCamera (scene, default_camera) < 0)
-        goto failure;
-#endif
 
     /* TODO: sucks */
     SCE_List_CanDeleteIterators (scene->egroups, SCE_TRUE);
-    SCE_List_CanDeleteIterators (scene->entities, SCE_TRUE);
     SCE_List_CanDeleteIterators (scene->lights, SCE_TRUE);
     SCE_List_CanDeleteIterators (scene->cameras, SCE_TRUE);
     goto success;
@@ -494,17 +490,13 @@ void SCE_Scene_RemoveEntityResources (SCE_SScene *scene,
 
 /**
  * \brief Adds an entity to a scene
- * \param scene a scene
  * \param entity the entity to add
- * \returns SCE_ERROR on error, SCE_OK otherwise
  */
-int SCE_Scene_AddEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
+void SCE_Scene_AddEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
 {
-    if (SCE_List_PrependNewl (scene->entities, entity) < 0) {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
-    }
-    return SCE_OK;
+    /* TODO: why it doesn't add the resources too?? */
+    SCE_List_Remove (SCE_SceneEntity_GetIterator (entity));
+    SCE_List_Prependl (scene->entities, SCE_SceneEntity_GetIterator (entity));
 }
 /**
  * \brief Removes an entity from a scene
@@ -512,7 +504,7 @@ int SCE_Scene_AddEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
  */
 void SCE_Scene_RemoveEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
 {
-    SCE_List_EraseFromData (scene->entities, entity);
+    SCE_List_Remove (SCE_SceneEntity_GetIterator (entity));
 }
 
 
@@ -541,8 +533,8 @@ void SCE_Scene_AddModel (SCE_SScene *scene, SCE_SModel *mdl)
     SCE_SListIterator *it = NULL;
     SCE_SList *instances = NULL;
 
-    if (SCE_Model_GetInstanceType (mdl) == SCE_MODEL_NOT_INSTANCE)
-        SCE_Scene_AddModelEntities (scene, mdl);
+    /* we are now protected against double-add of entities! */
+    SCE_Scene_AddModelEntities (scene, mdl);
 
     instances = SCE_Model_GetInstancesList (mdl);
     SCE_List_ForEach (it, instances)
@@ -1067,10 +1059,12 @@ void SCE_Scene_Render (SCE_SScene *scene, SCE_SCamera *cam,
     SCE_Texture_RenderTo (rendertarget, cubeface);
 
     /* preparation des tampons */
+#if 0
     if (scene->skybox) {
         scene->states.clearcolor = SCE_FALSE;
         scene->states.cleardepth = SCE_TRUE;
     }
+#endif
     SCE_Scene_ClearBuffers (scene);
 
     /* activation de la camera et mise en place des matrices */
@@ -1079,10 +1073,12 @@ void SCE_Scene_Render (SCE_SScene *scene, SCE_SCamera *cam,
     SCE_Camera_Use (cam);
 
     /* render skybox (if any) */
+#if 0
     if (scene->skybox) {
         SCE_Light_ActivateLighting (SCE_FALSE);
         SCE_Scene_RenderSkybox (scene, cam);
     }
+#endif
 
     if (!scene->states.lighting)
         SCE_Light_ActivateLighting (SCE_FALSE);
