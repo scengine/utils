@@ -100,6 +100,7 @@ struct sce_ssceneentity
     /** Used to determine if the instance is in the given frustum */
     int (*isinfrustumfunc)(SCE_SSceneEntityInstance*, SCE_SCamera*);
     SCE_SListIterator it;         /**< Own iterator for group */
+    SCE_SListIterator it2;        /**< Public iterator (used in scene manager) */
 };
 
 /**
@@ -156,6 +157,8 @@ SCE_SOctreeElement*
 SCE_SceneEntity_GetInstanceElement (SCE_SSceneEntityInstance*);
 SCE_SLevelOfDetail*
 SCE_SceneEntity_GetInstanceLOD (SCE_SSceneEntityInstance*);
+SCE_SSceneEntityGroup*
+SCE_SceneEntity_GetInstanceGroup (SCE_SSceneEntityInstance*);
 SCE_SListIterator*
 SCE_SceneEntity_GetInstanceIterator1 (SCE_SSceneEntityInstance*);
 SCE_SListIterator*
@@ -181,6 +184,7 @@ int SCE_SceneEntity_HasInstance (SCE_SSceneEntity*);
 
 SCE_SGeometryInstanceGroup*
 SCE_SceneEntity_GetInstancesGroup (SCE_SSceneEntity*);
+SCE_SListIterator* SCE_SceneEntity_GetIterator (SCE_SSceneEntity*);
 
 void SCE_SceneEntity_SetupBoundingVolume (SCE_SSceneEntity*, int);
 

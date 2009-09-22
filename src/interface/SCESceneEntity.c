@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008
-   updated: 29/06/2009 */
+   updated: 07/09/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -143,6 +143,8 @@ void SCE_SceneEntity_Init (SCE_SSceneEntity *entity)
     entity->isinfrustumfunc = SCE_SceneEntity_IsBSInFrustum;
     SCE_List_InitIt (&entity->it);
     SCE_List_SetData (&entity->it, entity);
+    SCE_List_InitIt (&entity->it2);
+    SCE_List_SetData (&entity->it2, entity);
 }
 SCE_SSceneEntity* SCE_SceneEntity_Create (void)
 {
@@ -380,6 +382,14 @@ SCE_SceneEntity_GetInstanceLOD (SCE_SSceneEntityInstance *einst)
     return einst->lod;
 }
 /**
+ * \brief Returns the entity group of an instance
+ */
+SCE_SSceneEntityGroup*
+SCE_SceneEntity_GetInstanceGroup (SCE_SSceneEntityInstance *einst)
+{
+    return einst->group;
+}
+/**
  * \brief Gets the first iterator of an instance (for scene manager)
  */
 SCE_SListIterator*
@@ -595,6 +605,14 @@ SCE_SceneEntity_GetInstancesGroup (SCE_SSceneEntity *entity)
 {
     return entity->igroup;
 }
+/**
+ * \brief Gets the public iterator of an entity (used in the scene manager)
+ */
+SCE_SListIterator* SCE_SceneEntity_GetIterator (SCE_SSceneEntity *entity)
+{
+    return &entity->it2;
+}
+
 
 static int SCE_SceneEntity_IsBBInFrustum (SCE_SSceneEntityInstance *einst,
                                           SCE_SCamera *cam)

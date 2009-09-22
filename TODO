@@ -94,5 +94,6 @@ See the file ./doc/html/todo.html
 - Texture arrays.
 - Solve divin function SCE_Texture_Create().
 - Volume based culling.
+- Allow double-build of meshes (call Mesh_Build() more than once).
 
-- 51
+- 52
