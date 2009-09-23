@@ -128,7 +128,7 @@ void SCE_Scene_RemoveInstance (SCE_SScene*, SCE_SSceneEntityInstance*);
 
 void SCE_Scene_AddEntityResources (SCE_SScene*, SCE_SSceneEntity*);
 void SCE_Scene_RemoveEntityResources (SCE_SScene*, SCE_SSceneEntity*);
-int SCE_Scene_AddEntity (SCE_SScene*, SCE_SSceneEntity*);
+void SCE_Scene_AddEntity (SCE_SScene*, SCE_SSceneEntity*);
 void SCE_Scene_RemoveEntity (SCE_SScene*, SCE_SSceneEntity*);
 
 void SCE_Scene_AddModel (SCE_SScene*, SCE_SModel*);
