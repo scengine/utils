@@ -70,6 +70,9 @@ struct sce_smodel
     SCE_SNode *root;            /* Root node */
     int root_instance;          /* Is root node an instance node? */
     int instance_type;          /* Is an instance? */
+    int ghost;                  /**< Is it a ghost root model? (ie. instances
+                                 * won't be added to the scene and directly
+                                 * duplicated on model's instanciation) */
 };
 
 SCE_SModel* SCE_Model_Create (void);

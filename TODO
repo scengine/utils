@@ -95,5 +95,7 @@ See the file ./doc/html/todo.html
 - Solve divin function SCE_Texture_Create().
 - Volume based culling.
 - Allow double-build of meshes (call Mesh_Build() more than once).
+- Best management of instances in models: allow to "remove" those of a root
+  model, but without forget the order and the existants instances.
 
-- 52
+- 53

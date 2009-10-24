@@ -489,7 +489,7 @@ fail:
  * documentation for more details about available modes
  * \param dup_inst duplicate instances too?
  *
- * \p mdl2 must just be allocated by SCE_Model_Create(). (bad english here)
+ * \p mdl2 must has been allocated by SCE_Model_Create().
  * \sa SCE_Model_CreateInstanciate()
  */
 int SCE_Model_Instanciate (SCE_SModel *mdl, SCE_SModel *mdl2, int mode,
