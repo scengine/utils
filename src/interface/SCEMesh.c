@@ -316,7 +316,8 @@ int SCE_Mesh_SetGeometry (SCE_SMesh *mesh, SCE_SGeometry *geom, int canfree)
         SCE_CVertexArrayData *vdata = SCE_Geometry_GetArrayData (index_array);
         ia.type = vdata->type;
         ia.data = vdata->data;
-        SCE_CSetIndexBufferIndexArray (&mesh->ib, &ia,
+        SCE_CSetIndexBufferIndexArray (&mesh->ib, &ia);
+        SCE_CSetIndexBufferNumIndices (&mesh->ib,
                                        SCE_Geometry_GetNumIndices (geom));
         mesh->use_ib = SCE_TRUE;
         SCE_Geometry_AddUser (index_array, &mesh->index_auser,
@@ -539,10 +540,15 @@ void SCE_Mesh_Use (SCE_SMesh *mesh)
 {
     size_t i;
     for (i = 0; i < SCE_MESH_NUM_STREAMS; i++) {
-        if (activated_streams[i] && mesh->used_streams[i])
+        if (activated_streams[i] && mesh->used_streams[i]) {
+            SCE_CSetVertexBufferNumVertices
+                (&mesh->streams[i], SCE_Geometry_GetNumVertices (mesh->geom));
             SCE_CUseVertexBuffer (&mesh->streams[i]);
+        }
     }
     if (mesh->use_ib) {
+        SCE_CSetIndexBufferNumIndices (
+            &mesh->ib, SCE_Geometry_GetNumIndices (mesh->geom));
         SCE_CUseIndexBuffer (&mesh->ib);
         render_func = SCE_CRenderVertexBufferIndexed;
         render_func_instanced = SCE_CRenderVertexBufferIndexedInstanced;

@@ -27,14 +27,20 @@
 #include <SCE/utils/SCEUtils.h>
 #include <SCE/core/SCECore.h>
 
-#include <SCE/interface/SCENode.h>
 #include <SCE/interface/SCEBoundingBox.h>
 #include <SCE/interface/SCEBoundingSphere.h>
 #include <SCE/interface/SCEFrustum.h>
+#include <SCE/interface/SCEOctree.h>
+#include <SCE/interface/SCENode.h>
 #include <SCE/interface/SCEGeometry.h>
 #include <SCE/interface/SCEOBJLoader.h>
 #include <SCE/interface/SCESphereGeometry.h>
 #include <SCE/interface/SCEBoxGeometry.h>
+#include <SCE/interface/SCEParticle.h>
+#include <SCE/interface/SCEParticleEmitter.h>
+#include <SCE/interface/SCEParticleModifier.h>
+#include <SCE/interface/SCEParticleProcessor.h>
+#include <SCE/interface/SCEParticleSystem.h>
 #include <SCE/interface/SCEJoint.h>
 #include <SCE/interface/SCESkeleton.h>
 #include <SCE/interface/SCEAnimatedGeometry.h>

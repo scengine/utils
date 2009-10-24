@@ -135,10 +135,9 @@ void SCE_CRenderVertexBufferInstanced (SCEenum, SCEuint);
 
 void SCE_CModifiedIndexBuffer (SCE_CIndexBuffer*, const size_t*);
 SCE_CBuffer* SCE_CGetIndexBufferBuffer (SCE_CIndexBuffer*);
-void SCE_CSetIndexBufferIndexArray (SCE_CIndexBuffer*, SCE_CIndexArray*,
-                                    SCEuint);
-void SCE_CSetIndexBufferIndices (SCE_CIndexBuffer*, SCEenum, unsigned int,
-                                 void*);
+void SCE_CSetIndexBufferIndexArray (SCE_CIndexBuffer*, SCE_CIndexArray*);
+void SCE_CSetIndexBufferIndices (SCE_CIndexBuffer*, SCEenum, void*);
+void SCE_CSetIndexBufferNumIndices (SCE_CIndexBuffer*, size_t);
 void SCE_CBuildIndexBuffer (SCE_CIndexBuffer*, SCE_CBufferUsage);
 void SCE_CUseIndexBuffer (SCE_CIndexBuffer*);
 void SCE_CRenderVertexBufferIndexed (SCEenum);

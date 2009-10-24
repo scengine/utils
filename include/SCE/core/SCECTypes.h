@@ -45,6 +45,8 @@ typedef GLbitfield      SCEbitfield;
 typedef GLsizei         SCEsizei;
 typedef GLint           SCEint;
 typedef GLuint          SCEuint;
+typedef GLbyte          SCEbyte;
+typedef GLubyte         SCEubyte;
 typedef GLfloat         SCEfloat;
 typedef GLdouble        SCEdouble;
 

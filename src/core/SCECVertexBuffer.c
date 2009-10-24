@@ -259,7 +259,7 @@ void SCE_CRemoveVertexBufferData (SCE_CVertexBufferData *data)
 }
 
 /**
- * \brief Sets the number of vertices in a vertex buffer
+ * \brief Sets the number of vertices of a vertex buffer
  */
 void SCE_CSetVertexBufferNumVertices (SCE_CVertexBuffer *vb, size_t n)
 {
@@ -447,30 +447,36 @@ SCE_CBuffer* SCE_CGetIndexBufferBuffer (SCE_CIndexBuffer *ib)
  *
  * The structure \p ia is copied into \p ib so don't worry about memory
  * management, \p ia can be a static structure.
- * \sa SCE_CSetIndexBufferIndices()
+ * \sa SCE_CSetIndexBufferIndices(), SCE_CSetIndexBufferNumIndices()
  */
-void SCE_CSetIndexBufferIndexArray (SCE_CIndexBuffer *ib, SCE_CIndexArray *ia,
-                                    SCEuint n_indices)
+void SCE_CSetIndexBufferIndexArray (SCE_CIndexBuffer *ib, SCE_CIndexArray *ia)
 {
-    ib->data.size = n_indices * SCE_CSizeof (ia->type);
+    ib->data.size = ib->n_indices * SCE_CSizeof (ia->type);
     ib->data.data = ia->data;
     ib->ia.type = ia->type;
     /* don't set ib->ia.data, coz it's just an offset */
-    ib->n_indices = n_indices;
 }
 /**
  * \brief Sets the index array of an index buffer
  *
  * \p indices will never be freed by the vertex buffer module.
- * \sa SCE_CSetIndexBufferIndexArray()
+ * \sa SCE_CSetIndexBufferIndexArray(), SCE_CSetIndexBufferNumIndices()
  */
 void SCE_CSetIndexBufferIndices (SCE_CIndexBuffer *ib, SCEenum type,
-                                 unsigned int n_indices, void *indices)
+                                 void *indices)
 {
-    ib->data.size = n_indices * SCE_CSizeof (type);
+    ib->data.size = ib->n_indices * SCE_CSizeof (type);
     ib->data.data = indices;
     ib->ia.type = type;
     /* don't set ib->ia.data, coz it's just an offset */
+}
+/**
+ * \brief Sets the number of indices of an index buffer
+ * \sa SCE_CSetIndexBufferIndices()
+ */
+void SCE_CSetIndexBufferNumIndices (SCE_CIndexBuffer *ib, size_t n_indices)
+{
+    ib->data.size = n_indices * SCE_CSizeof (ib->ia.type);
     ib->n_indices = n_indices;
 }
 

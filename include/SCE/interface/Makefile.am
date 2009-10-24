@@ -22,6 +22,11 @@ sce_include_interface_HEADERS = lib4fm.h \
                                 SCESphereGeometry.h \
                                 SCEBoxGeometry.h \
                                 SCEQuad.h \
+                                SCEParticle.h \
+                                SCEParticleEmitter.h \
+                                SCEParticleModifier.h \
+                                SCEParticleProcessor.h \
+                                SCEParticleSystem.h \
                                 SCEJoint.h \
                                 SCESkeleton.h \
                                 SCEAnimatedGeometry.h \

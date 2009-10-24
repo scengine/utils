@@ -37,13 +37,14 @@ libSCE_la_SOURCES = utils/SCELine.c \
                     SCEGLee.c \
                     interface/libwar.c \
                     interface/lib4fm.c \
-                    interface/SCENode.c \
                     interface/SCEBox.c \
                     interface/SCESphere.c \
                     interface/SCEBoundingBox.c \
                     interface/SCEBoundingSphere.c \
                     interface/SCECollide.c \
                     interface/SCEFrustum.c \
+                    interface/SCEOctree.c \
+                    interface/SCENode.c \
                     interface/SCECamera.c \
                     interface/SCELight.c \
                     interface/SCELevelOfDetail.c \
@@ -55,13 +56,17 @@ libSCE_la_SOURCES = utils/SCELine.c \
                     interface/SCEQuad.c \
                     interface/SCEGeometryInstance.c \
                     interface/SCEBatch.c \
-                    interface/SCEOctree.c \
                     interface/SCESceneResource.c \
                     interface/SCEMaterial.c \
                     interface/SCETexture.c \
                     interface/SCEShaders.c \
                     interface/SCESceneEntity.c \
                     interface/SCESkybox.c \
+                    interface/SCEParticle.c \
+                    interface/SCEParticleEmitter.c \
+                    interface/SCEParticleModifier.c \
+                    interface/SCEParticleProcessor.c \
+                    interface/SCEParticleSystem.c \
                     interface/SCEJoint.c \
                     interface/SCESkeleton.c \
                     interface/SCEAnimatedGeometry.c \
