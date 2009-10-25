@@ -537,8 +537,10 @@ void SCE_Scene_AddModel (SCE_SScene *scene, SCE_SModel *mdl)
     SCE_Scene_AddModelEntities (scene, mdl);
 
     instances = SCE_Model_GetInstancesList (mdl);
-    SCE_List_ForEach (it, instances)
-        SCE_Scene_AddInstance (scene, SCE_List_GetData (it));
+    SCE_List_ForEach (it, instances) {
+        SCE_SModelInstance *minst = SCE_List_GetData (it);
+        SCE_Scene_AddInstance (scene, minst->inst);
+    }
 
     if (SCE_Model_GetRootNode (mdl) && !SCE_Model_RootNodeIsInstance (mdl))
         SCE_Scene_AddNode (scene, SCE_Model_GetRootNode (mdl));
@@ -571,12 +573,14 @@ void SCE_Scene_RemoveModel (SCE_SScene *scene, SCE_SModel *mdl)
     SCE_SListIterator *it = NULL;
     SCE_SList *instances = NULL;
 
-    if (SCE_Model_GetInstanceType (mdl) == SCE_MODEL_NOT_INSTANCE)
+    if (SCE_Model_GetType (mdl) == SCE_MODEL_ROOT)
         SCE_Scene_RemoveModelEntities (scene, mdl);
 
     instances = SCE_Model_GetInstancesList (mdl);
-    SCE_List_ForEach (it, instances)
-        SCE_Scene_RemoveInstance (scene, SCE_List_GetData (it));
+    SCE_List_ForEach (it, instances) {
+        SCE_SModelInstance *minst = SCE_List_GetData (it);
+        SCE_Scene_RemoveInstance (scene, minst->inst);
+    }
 }
 
 #if 0

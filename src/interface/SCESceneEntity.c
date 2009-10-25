@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008
-   updated: 07/09/2009 */
+   updated: 25/10/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -50,8 +50,10 @@ void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance *einst)
     einst->group = NULL;
     SCE_List_InitIt (&einst->it);
     SCE_List_SetData (&einst->it, einst);
+#if 0
     SCE_List_InitIt (&einst->it2);
     SCE_List_SetData (&einst->it2, einst);
+#endif
 }
 
 /**
@@ -99,8 +101,7 @@ void SCE_SceneEntity_DeleteInstance (SCE_SSceneEntityInstance *einst)
 }
 
 /**
- * \brief Duplicates an instance, the copy is in the same entity group of
- * \p einst
+ * \brief Duplicates an instance, just copy the node's matrix
  */
 SCE_SSceneEntityInstance*
 SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance *einst)
@@ -110,7 +111,10 @@ SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance *einst)
         SCEE_LogSrc ();
         return NULL;
     }
-    SCE_SceneEntity_AddInstance (einst->group, new);
+    /* don't copy the final matrix: may cause wrong transformations when adding
+       the new instance to the parent's node of einst (for example) */
+    SCE_Matrix4_Copy (SCE_Node_GetMatrix (new->node),
+                      SCE_Node_GetMatrix (einst->node));
     return new;
 }
 
@@ -397,6 +401,7 @@ SCE_SceneEntity_GetInstanceIterator1 (SCE_SSceneEntityInstance *einst)
 {
     return &einst->it;
 }
+#if 0
 /**
  * \brief Gets the second iterator of an instance (for models)
  */
@@ -405,6 +410,7 @@ SCE_SceneEntity_GetInstanceIterator2 (SCE_SSceneEntityInstance *einst)
 {
     return &einst->it2;
 }
+#endif
 
 
 /**

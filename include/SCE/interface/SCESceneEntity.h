@@ -56,7 +56,7 @@ struct sce_ssceneentityproperties
     unsigned int alphatest:1;
 };
 
-/** \copydoc sce_ssceneenStityinstance */
+/** \copydoc sce_ssceneentityinstance */
 typedef struct sce_ssceneentityinstance SCE_SSceneEntityInstance;
 /** \copydoc sce_ssceneentity */
 typedef struct sce_ssceneentity SCE_SSceneEntity;
@@ -74,8 +74,9 @@ struct sce_ssceneentityinstance
     SCE_SGeometryInstance *instance; /**< Geometry instance */
     SCE_SLevelOfDetail *lod;         /**< LOD managment structure */
     SCE_SSceneEntity *entity;        /**< Entity used by the instance */
+    /* TODO: not very useful */
     SCE_SSceneEntityGroup *group;    /**< Group that contains the instance */
-    SCE_SListIterator it, it2;       /**< Own iterators for fast add/remove */
+    SCE_SListIterator it;            /**< Own iterators for fast add/remove */
 };
 
 /**
@@ -161,8 +162,10 @@ SCE_SSceneEntityGroup*
 SCE_SceneEntity_GetInstanceGroup (SCE_SSceneEntityInstance*);
 SCE_SListIterator*
 SCE_SceneEntity_GetInstanceIterator1 (SCE_SSceneEntityInstance*);
+#if 0
 SCE_SListIterator*
 SCE_SceneEntity_GetInstanceIterator2 (SCE_SSceneEntityInstance*);
+#endif
 
 
 SCE_SSceneEntityProperties* SCE_SceneEntity_GetProperties (SCE_SSceneEntity*);

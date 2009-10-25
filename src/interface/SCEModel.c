@@ -25,6 +25,46 @@
 #include <SCE/interface/SCEModel.h>
 
 
+void SCE_Model_InitInstance (SCE_SModelInstance *minst)
+{
+    minst->n = 0;
+    minst->inst = NULL;
+    SCE_List_InitIt (&minst->it);
+    SCE_List_SetData (&minst->it, minst);
+}
+SCE_SModelInstance* SCE_Model_CreateInstance (void)
+{
+    SCE_SModelInstance *minst = SCE_malloc (sizeof *minst);
+    if (!minst)
+        SCEE_LogSrc ();
+    else
+        SCE_Model_InitInstance (minst);
+    return minst;
+}
+void SCE_Model_DeleteInstance (SCE_SModelInstance *minst)
+{
+    if (minst) {
+        SCE_List_Remove (&minst->it);
+        SCE_SceneEntity_DeleteInstance (minst->inst);
+        SCE_free (minst);
+    }
+}
+SCE_SModelInstance* SCE_Model_DupInstance (SCE_SModelInstance *src)
+{
+    SCE_SModelInstance *minst = SCE_Model_CreateInstance ();
+    if (!minst)
+        SCEE_LogSrc ();
+    else {
+        if (!(minst->inst = SCE_SceneEntity_DupInstance (src->inst))) {
+            SCE_Model_DeleteInstance (minst), minst = NULL;
+            SCEE_LogSrc ();
+        }
+        minst->n = src->n;
+    }
+    return minst;
+}
+
+
 static void SCE_Model_InitEntity (SCE_SModelEntity *entity)
 {
     entity->entity = NULL;
@@ -105,42 +145,34 @@ static void SCE_Model_Init (SCE_SModel *mdl)
     for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++)
         mdl->entities[i] = NULL;
     mdl->groups = NULL;
-    mdl->instances = NULL;
-    mdl->root = NULL;
-    mdl->root_instance = SCE_FALSE; /* SCE_TRUE.. ? */
-    mdl->instance_type = SCE_MODEL_NOT_INSTANCE;
+    SCE_List_Init (&mdl->instances);
+    SCE_List_SetFreeFunc (&mdl->instances,
+                          (SCE_FListFreeFunc)SCE_Model_DeleteInstance);
+    mdl->root_node = NULL;
+    mdl->root_node_instance = SCE_FALSE; /* SCE_TRUE.. ? */
+    mdl->type = SCE_MODEL_ROOT;
 }
 SCE_SModel* SCE_Model_Create (void)
 {
-    unsigned int i;
     SCE_SModel *mdl = NULL;
-    SCE_btstart ();
     if (!(mdl = SCE_malloc (sizeof *mdl)))
-        goto fail;
-    SCE_Model_Init (mdl);
-    if (!(mdl->instances = SCE_List_Create (
-              (SCE_FListFreeFunc)SCE_SceneEntity_DeleteInstance)))
-        goto fail;
-    SCE_btend ();
+        SCEE_LogSrc ();
+    else
+        SCE_Model_Init (mdl);
     return mdl;
-fail:
-    SCE_Model_Delete (mdl);
-    SCEE_LogSrc ();
-    SCE_btend ();
-    return NULL;
 }
 void SCE_Model_Delete (SCE_SModel *mdl)
 {
     if (mdl) {
-        SCE_List_Delete (mdl->instances);
-        if (mdl->instance_type != SCE_MODEL_HARD_INSTANCE) {
+        SCE_List_Clear (&mdl->instances);
+        if (mdl->type != SCE_MODEL_HARD_INSTANCE) {
             unsigned int i;
             for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++)
                 SCE_List_Delete (mdl->entities[i]);
             SCE_List_Delete (mdl->groups);
         }
-        if (!mdl->root_instance)
-            SCE_Node_Delete (mdl->root);
+        if (!mdl->root_node_instance)
+            SCE_Node_Delete (mdl->root_node);
         SCE_free (mdl);
     }
 }
@@ -253,18 +285,18 @@ int SCE_Model_AddEntity (SCE_SModel *mdl, int level, SCE_SMesh *mesh,
  */
 void SCE_Model_SetRootNode (SCE_SModel *mdl, SCE_SNode *root)
 {
-    SCE_Node_Delete (mdl->root);
-    mdl->root = root;
+    SCE_Node_Delete (mdl->root_node);
+    mdl->root_node = root;
     if (root) {
         SCE_SListIterator *it = NULL;
-        SCE_List_ForEach (it, mdl->instances) {
-            SCE_SSceneEntityInstance *einst = SCE_List_GetData (it);
-            SCE_SNode *node = SCE_SceneEntity_GetInstanceNode (einst);
+        SCE_List_ForEach (it, &mdl->instances) {
+            SCE_SModelInstance *minst = SCE_List_GetData (it);
+            SCE_SNode *node = SCE_SceneEntity_GetInstanceNode (minst->inst);
             if (node != root)
                 SCE_Node_Attach (root, node);
         }
     }
-    mdl->root_instance = SCE_FALSE;
+    mdl->root_node_instance = SCE_FALSE;
 }
 /**
  * \brief Gets the root node of a model
@@ -272,43 +304,41 @@ void SCE_Model_SetRootNode (SCE_SModel *mdl, SCE_SNode *root)
  */
 SCE_SNode* SCE_Model_GetRootNode (SCE_SModel *mdl)
 {
-    return mdl->root;
+    return mdl->root_node;
 }
 /**
  * \brief Is the root node an instance node?
  */
 int SCE_Model_RootNodeIsInstance (SCE_SModel *mdl)
 {
-    return mdl->root_instance;
+    return mdl->root_node_instance;
 }
 
 
-static void
-SCE_Model_SafeAddInstance (SCE_SModel *mdl, SCE_SModelEntityGroup *mgroup,
-                           SCE_SSceneEntityInstance *einst, int root)
+void SCE_Model_AddModelInstance (SCE_SModel *mdl, SCE_SModelInstance *minst,
+                                 int root)
 {
-    SCE_SceneEntity_AddInstance (mgroup->group, einst);
+    SCE_List_Appendl (&mdl->instances, &minst->it);
     if (root) {
-        SCE_Model_SetRootNode (mdl, SCE_SceneEntity_GetInstanceNode (einst));
-        mdl->root_instance = SCE_TRUE;
+        SCE_Model_SetRootNode (mdl,
+                               SCE_SceneEntity_GetInstanceNode (minst->inst));
+        mdl->root_node_instance = SCE_TRUE;
+    } else if (mdl->root_node) {
+        SCE_Node_Attach (mdl->root_node,
+                         SCE_SceneEntity_GetInstanceNode (minst->inst));
     }
-    else if (mdl->root)
-        SCE_Node_Attach (mdl->root, SCE_SceneEntity_GetInstanceNode (einst));
-    SCE_List_Appendl (mdl->instances,
-                      SCE_SceneEntity_GetInstanceIterator2 (einst));
 }
 int SCE_Model_AddInstance (SCE_SModel *mdl, unsigned int n,
                            SCE_SSceneEntityInstance *einst, int root)
 {
-    SCE_SModelEntityGroup *mgroup = NULL;
-    SCE_SListIterator *it = SCE_List_GetIterator (mdl->groups, n);
-    if (!it) {
-        SCEE_Log (SCE_INVALID_ARG);
-        SCEE_LogMsg ("no group number %u in this model", n);
+    SCE_SModelInstance *minst = NULL;
+    if (!(minst = SCE_Model_CreateInstance ())) {
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
-    mgroup = SCE_List_GetData (it);
-    SCE_Model_SafeAddInstance (mdl, mgroup, einst, root);
+    minst->n = n;
+    minst->inst = einst;
+    SCE_Model_AddModelInstance (mdl, minst, root);
     return SCE_OK;
 }
 /**
@@ -395,6 +425,30 @@ SCE_SSceneEntity* SCE_Model_GetEntityEntity (SCE_SModelEntity *entity)
 }
 
 
+/**
+ * \brief Adds the entity instances of a model to its instances groups
+ *
+ * You must merge your instances before add the model to a scene! Otherwise
+ * you'll enjoy a beautiful segmentation fault.
+ */
+int SCE_Model_MergeInstances (SCE_SModel *mdl)
+{
+    SCE_SModelEntityGroup *mgroup = NULL;
+    SCE_SListIterator *it = NULL, *it2 = NULL;
+    SCE_List_ForEach (it, &mdl->instances) {
+        SCE_SModelInstance *minst = SCE_List_GetData (it);
+        it2 = SCE_List_GetIterator (mdl->groups, minst->n);
+        if (!it2) {
+            SCEE_Log (SCE_INVALID_ARG);
+            SCEE_LogMsg ("no group number %u in this model", minst->n);
+            return SCE_ERROR;
+        }
+        mgroup = SCE_List_GetData (it2);
+        SCE_SceneEntity_AddInstance (mgroup->group, minst->inst);
+    }
+    return SCE_OK;
+}
+
 static SCE_SModelEntity* SCE_Model_CopyDupEntity (SCE_SModelEntity *in)
 {
     SCE_SModelEntity *entity = NULL;
@@ -410,7 +464,7 @@ static int SCE_Model_InstanciateHard (SCE_SModel *mdl, SCE_SModel *mdl2)
     mdl2->groups = mdl->groups;
     for (i = 0; i < SCE_MAX_MODEL_ENTITIES; i++)
         mdl2->entities[i] = mdl->entities[i];
-    mdl2->instance_type = SCE_MODEL_HARD_INSTANCE;
+    mdl2->type = SCE_MODEL_HARD_INSTANCE;
     return SCE_OK;
 }
 static int SCE_Model_InstanciateSoft (SCE_SModel *mdl, SCE_SModel *mdl2)
@@ -449,7 +503,7 @@ static int SCE_Model_InstanciateSoft (SCE_SModel *mdl, SCE_SModel *mdl2)
         }
     }
 
-    mdl2->instance_type = SCE_MODEL_SOFT_INSTANCE;
+    mdl2->type = SCE_MODEL_SOFT_INSTANCE;
 
     return SCE_OK;
 fail:
@@ -459,25 +513,18 @@ fail:
 static int SCE_Model_InstanciateInstances (SCE_SModel *mdl, SCE_SModel *mdl2)
 {
     SCE_SListIterator *it = NULL;
-    SCE_List_ForEach (it, mdl->instances) {
-        SCE_SNode *node = NULL, *newnode = NULL;
-        SCE_SSceneEntityInstance *einst = NULL, *new = NULL;
-        einst = SCE_List_GetData (it);
-        /* this dup adds the returned instance to the group of einst */
-        if (!(new = SCE_SceneEntity_DupInstance (einst)))
+    SCE_List_ForEach (it, &mdl->instances) {
+        SCE_SNode *node = NULL;
+        SCE_SModelInstance *minst = NULL, *newinst = NULL;
+        minst = SCE_List_GetData (it);
+        if (!(newinst = SCE_Model_DupInstance (minst)))
             goto fail;
-        node = SCE_SceneEntity_GetInstanceNode (einst);
-        newnode = SCE_SceneEntity_GetInstanceNode (new);
-        if (node == mdl->root) {
-            SCE_Model_SetRootNode (mdl2, newnode);
-            mdl2->root_instance = SCE_TRUE;
-        }
-        SCE_List_Appendl (mdl2->instances,
-                          SCE_SceneEntity_GetInstanceIterator2 (new));
-        /* copy matrix */
-        SCE_Matrix4_Copy (SCE_Node_GetMatrix (newnode),
-                          SCE_Node_GetMatrix (node));
+        node = SCE_SceneEntity_GetInstanceNode (minst->inst);
+        SCE_Model_AddModelInstance (mdl2, newinst, (node == mdl->root_node));
     }
+    /* automatically merge the instances to make a ready-to-use model! */
+    if (SCE_Model_MergeInstances (mdl2) < 0)
+        goto fail;
     return SCE_OK;
 fail:
     SCEE_LogSrc ();
@@ -489,7 +536,8 @@ fail:
  * documentation for more details about available modes
  * \param dup_inst duplicate instances too?
  *
- * \p mdl2 must has been allocated by SCE_Model_Create().
+ * The instances in the new instanced model will be automatically merged.
+ * Moreover, \p mdl2 must has been allocated by SCE_Model_Create().
  * \sa SCE_Model_CreateInstanciate()
  */
 int SCE_Model_Instanciate (SCE_SModel *mdl, SCE_SModel *mdl2, int mode,
@@ -510,7 +558,7 @@ int SCE_Model_Instanciate (SCE_SModel *mdl, SCE_SModel *mdl2, int mode,
         if (SCE_Model_InstanciateInstances (mdl, mdl2) < 0)
             goto fail;
     }
-    if (!mdl2->root && mdl->root) {
+    if (!mdl2->root_node && mdl->root_node) {
         SCE_SNode *node = NULL;
         if (!(node = SCE_Node_Create ()))
             goto fail;
@@ -543,7 +591,7 @@ SCE_SModel* SCE_Model_CreateInstanciate (SCE_SModel *mdl, int mode,
 }
 
 /**
- * \brief Gets the mode of \p mdl
+ * \brief Gets the mode of \p mdl (type of the model)
  *
  * If \p mdl is an instance created by SCE_Model_Instanciate(), this function
  * returns the following:
@@ -551,17 +599,17 @@ SCE_SModel* SCE_Model_CreateInstanciate (SCE_SModel *mdl, int mode,
  *   duplicated;
  * - SCE_MODEL_HARD_INSTANCE: the content of the model structure have just been
  *   copied, like a simple '=' on C struct.
- * If \p mdl isn't an instance, this functions returns SCE_MODEL_NOT_INSTANCE.
+ * If \p mdl isn't an instance, this functions returns SCE_MODEL_ROOT.
  */
-int SCE_Model_GetInstanceType (SCE_SModel *mdl)
+SCE_EModelType SCE_Model_GetType (SCE_SModel *mdl)
 {
-    return mdl->instance_type;
+    return mdl->type;
 }
 
 
 SCE_SList* SCE_Model_GetInstancesList (SCE_SModel *mdl)
 {
-    return mdl->instances;
+    return &mdl->instances;
 }
 
 SCE_SSceneEntityGroup* SCE_Model_GetSceneEntityGroup (SCE_SModel *mdl,
