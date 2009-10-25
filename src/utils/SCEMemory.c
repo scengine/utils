@@ -437,8 +437,8 @@ void SCE_Mem_Free (const char *file, int line, void *p)
         if (m && m != &allocs)
             SCE_Mem_EraseAlloc (m);
         else
-            SCEE_SendMsg ("SCE_Mem_Free(): trying to free an invalid pointer at"
-                          " %s(%d).\n", file, line);
+            SCEE_SendMsg ("SCE_Mem_Free(): trying to free an invalid pointer %p"
+                          " at %s(%d).\n", p, file, line);
     }
 #endif
 }
