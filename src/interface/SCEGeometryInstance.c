@@ -41,6 +41,7 @@ void SCE_Instance_Init (SCE_SGeometryInstance *inst)
     SCE_List_InitIt (&inst->it);
     SCE_List_SetData (&inst->it, inst);
     inst->data = NULL;
+    inst->group = NULL;
 }
 SCE_SGeometryInstance* SCE_Instance_Create (void)
 {
