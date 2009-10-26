@@ -315,9 +315,9 @@ static void* SCE_Resource_LoadNew (int type, const char *name, int force,
         res->data = resource;
     return resource;
 fail:
-    SCE_List_Erase (&resources, &res->it);
     SCEE_LogSrc ();
     SCEE_LogSrcMsg ("failed to load resource '%s'", name);
+    SCE_List_Erase (&resources, &res->it);
     return NULL;
 }
 /**
@@ -340,8 +340,10 @@ void* SCE_Resource_Load (int type, const char *name, int forcenew, void *data)
         resource = res->data;
         res->nb_used++;
     } else {
-        if (!(resource = SCE_Resource_LoadNew (type, name, forcenew, data)))
+        if (!(resource = SCE_Resource_LoadNew (type, name, forcenew, data))) {
             SCEE_LogSrc ();
+            SCEE_LogSrcMsg ("failed to create new resource '%s'", name);
+        }
     }
     SCE_btend ();
     return resource;
