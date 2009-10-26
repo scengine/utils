@@ -129,6 +129,8 @@ int SCE_Skybox_SetTexture (SCE_SSkybox *skybox, SCE_STexture *tex,
         geom = SCE_BoxGeom_Create (&box, SCE_TRIANGLES,
                                    SCE_BOX_CUBEMAP_TEXCOORD);
     } else {
+        if (!mode)              /* he lies. */
+            mode = SCE_BOX_INTERIOR_TEXCOORD;
         geom = SCE_BoxGeom_Create (&box, SCE_TRIANGLES, mode);
     }
     if (!geom)

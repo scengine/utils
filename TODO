@@ -80,7 +80,7 @@ See the file ./doc/html/todo.html
 - Scinder le core pour la compatibilité avec les versions récentes d'OpenGL.
 - Renommer SCEGeometryInstance en SCEInstancing.
 - Add documentation for SCECBuffer.
-- Use enum for GL tokens in appropriated file.
+- Use enum for GL tokens in appropriated file (work in progress).
 - Texture buffers.
 - Uniform buffers.
 - Pixel buffers (video).
@@ -95,7 +95,6 @@ See the file ./doc/html/todo.html
 - Solve divin function SCE_Texture_Create().
 - Volume based culling.
 - Allow double-build of meshes (call Mesh_Build() more than once).
-- Best management of instances in models: allow to "remove" those of a root
-  model, but without forget the order and the existants instances.
+- Fix skyboxes problem
 
 - 53

@@ -50,41 +50,43 @@ static SCEvertices pos_indiv_triangle[] = {
 };
 
 static SCEvertices texcoord_interior_triangle[] = {
+    /* front Z */
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
     0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-
+    /* back Z */
     0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-
+    /* front X */
     1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
     0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
+    /* back X */
     0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
     1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-
+    /* front Y */
     0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
     1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
+    /* back Y */
     1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
 };
 
 static SCEvertices texcoord_exterior_triangle[] = {
+    /* front Z */
     0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
     1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
+    /* back Z */
     1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-
+    /* front X */
     0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
     1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-
+    /* back X */
     1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
     0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
+    /* front Y */
     0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-
+    /* back Y */
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
     0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
 };
@@ -209,16 +211,15 @@ static int SCE_BoxGeom_GenTriangles (SCE_SBox *box,
     SCEvertices *v = NULL, *t = NULL;
     SCEindices *i = NULL;
     int indiv = SCE_TRUE;
+    int t_size = 2;
 
+    SCE_Geometry_SetNumVertices (geom, 36);
+    v = pos_indiv_triangle;
     switch (mode) {
     case SCE_BOX_EXTERIOR_TEXCOORD:
-        SCE_Geometry_SetNumVertices (geom, 24);
-        v = pos_indiv_triangle;
         t = texcoord_exterior_triangle;
         break;
     case SCE_BOX_INTERIOR_TEXCOORD:
-        SCE_Geometry_SetNumVertices (geom, 24);
-        v = pos_indiv_triangle;
         t = texcoord_interior_triangle;
         break;
     case SCE_BOX_CUBEMAP_TEXCOORD:
@@ -229,6 +230,7 @@ static int SCE_BoxGeom_GenTriangles (SCE_SBox *box,
         v = SCE_Box_GetPoints (box);
         i = indices_triangles;
         indiv = SCE_FALSE;
+        t_size = 3;
     }
     {
         SCE_SGeometryArray array, *ap = NULL;
@@ -243,7 +245,7 @@ static int SCE_BoxGeom_GenTriangles (SCE_SBox *box,
         if (t) {
             SCE_Geometry_InitArray (&array);
             SCE_Geometry_SetArrayData (&array, SCE_TEXCOORD0, SCE_VERTICES_TYPE,
-                                       0, 3, t, SCE_FALSE);
+                                       0, t_size, t, SCE_FALSE);
             if (!SCE_Geometry_AddArrayDupDup (geom, &array, SCE_FALSE))
                 goto fail;
         }

@@ -1063,12 +1063,10 @@ void SCE_Scene_Render (SCE_SScene *scene, SCE_SCamera *cam,
     SCE_Texture_RenderTo (rendertarget, cubeface);
 
     /* preparation des tampons */
-#if 0
     if (scene->skybox) {
         scene->states.clearcolor = SCE_FALSE;
         scene->states.cleardepth = SCE_TRUE;
     }
-#endif
     SCE_Scene_ClearBuffers (scene);
 
     /* activation de la camera et mise en place des matrices */
@@ -1077,12 +1075,10 @@ void SCE_Scene_Render (SCE_SScene *scene, SCE_SCamera *cam,
     SCE_Camera_Use (cam);
 
     /* render skybox (if any) */
-#if 0
     if (scene->skybox) {
         SCE_Light_ActivateLighting (SCE_FALSE);
         SCE_Scene_RenderSkybox (scene, cam);
     }
-#endif
 
     if (!scene->states.lighting)
         SCE_Light_ActivateLighting (SCE_FALSE);

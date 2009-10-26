@@ -65,14 +65,14 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void)
 
     SCE_btstart ();
     if (!(einst = SCE_malloc (sizeof *einst)))
-        goto failure;
+        goto fail;
     SCE_SceneEntity_InitInstance (einst);
     if (!(einst->truenode = einst->node = SCE_Node_Create ()))
-        goto failure;
+        goto fail;
     if (!(einst->instance = SCE_Instance_Create ()))
-        goto failure;
+        goto fail;
     if (!(einst->lod = SCE_Lod_Create ()))
-        goto failure;
+        goto fail;
     /* see SCE_Scene_OnNodeMoved() */
     SCE_Node_SetData (einst->node, einst);
     /* see SCE_SceneEntity_ForEachInstanceInGroup() */
@@ -82,7 +82,7 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void)
                             SCE_Node_GetFinalMatrix (einst->node));
     goto success;
 
-failure:
+fail:
     SCE_SceneEntity_DeleteInstance (einst), einst = NULL;
     SCEE_LogSrc ();
 success:
