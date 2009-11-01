@@ -58,7 +58,7 @@ SCE_SSkybox* SCE_Skybox_Create (void)
         goto fail;
     if (!(skybox->entity = SCE_SceneEntity_Create ()))
         goto fail;
-    if (!(skybox->instance = SCE_SceneEntity_CreateInstance ()))
+    if (!(skybox->instance = SCE_SceneEntity_CreateInstance (SCE_TREE_NODE)))
         goto fail;
     SCE_SceneEntity_AddInstanceToEntity (skybox->entity, skybox->instance);
     props = SCE_SceneEntity_GetProperties (skybox->entity);

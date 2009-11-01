@@ -182,7 +182,8 @@ SCE_SScene* SCE_Scene_Create (void)
     if (!(scene = SCE_malloc (sizeof *scene)))
         goto failure;
     SCE_Scene_Init (scene);
-    if (!(scene->rootnode = SCE_Node_Create ()))
+    /* no parent so... */
+    if (!(scene->rootnode = SCE_Node_Create (SCE_SINGLE_MATRIX_NODE)))
         goto failure;
     if (!(scene->octree = SCE_Octree_Create ()))
         goto failure;

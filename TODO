@@ -94,7 +94,13 @@ See the file ./doc/html/todo.html
 - Texture arrays.
 - Solve divin function SCE_Texture_Create().
 - Volume based culling.
+- Avoid VBO generation if VA are requested on Mesh_Build().
+- Allow VA render mode for IBO.
 - Allow double-build of meshes (call Mesh_Build() more than once).
 - Fix skyboxes problem
 
+<<<<<<< .mine
+52
+=======
 - 53
+>>>>>>> .r270

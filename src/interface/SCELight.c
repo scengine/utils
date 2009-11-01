@@ -45,7 +45,7 @@ SCE_SLight* SCE_Light_Create (void)
     if (!(light = SCE_malloc (sizeof *light)))
         goto failure;
     SCE_Light_Init (light);
-    if (!(light->node = SCE_Node_Create ()))
+    if (!(light->node = SCE_Node_Create (SCE_TREE_NODE)))
         goto failure;
     if (!(light->clight = SCE_CCreateLight ()))
         goto failure;

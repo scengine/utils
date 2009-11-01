@@ -17,11 +17,12 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008 
-   updated: 12/07/2009 */
+   updated: 01/11/2009 */
 
 #ifndef SCESCENEENTITY_H
 #define SCESCENEENTITY_H
 
+#include <SCE/SCECommon.h>
 #include <SCE/utils/SCEList.h>
 #include <SCE/interface/SCENode.h>
 #include <SCE/interface/SCEGeometryInstance.h>
@@ -34,11 +35,9 @@
 #include <SCE/interface/SCEShaders.h>
 #include <SCE/interface/SCETexture.h>
 #include <SCE/interface/SCEMaterial.h>
-#include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /** Types of volumes that can be used for frustum culling/other operations */
@@ -47,8 +46,7 @@ extern "C"
 
 /** \copydoc sce_ssceneentityproperties */
 typedef struct sce_ssceneentityproperties SCE_SSceneEntityProperties;
-struct sce_ssceneentityproperties
-{
+struct sce_ssceneentityproperties {
     unsigned int cullface:1;
     int cullmode;
     unsigned int depthtest:1;
@@ -67,8 +65,7 @@ typedef struct sce_ssceneentitygroup SCE_SSceneEntityGroup;
  * \brief An instance of a scene entity
  * \sa SCE_SSceneEntity
  */
-struct sce_ssceneentityinstance
-{
+struct sce_ssceneentityinstance {
     SCE_SNode *node;                 /**< Node */
     SCE_SNode *truenode;             /**< The node allocated by the instance */
     SCE_SGeometryInstance *instance; /**< Geometry instance */
@@ -85,8 +82,7 @@ struct sce_ssceneentityinstance
  * Defines a model which can be rendered via an instance
  * \sa SCE_SSceneEntityInstance
  */
-struct sce_ssceneentity
-{
+struct sce_ssceneentity {
     SCE_SGeometryInstanceGroup *igroup; /**< Geometry group */
 
     SCE_SMesh *mesh;              /**< Mesh of the entity */
@@ -109,15 +105,14 @@ struct sce_ssceneentity
  * a different LOD
  * \sa SCE_SSceneEntity
  */
-struct sce_ssceneentitygroup
-{
+struct sce_ssceneentitygroup {
     SCE_SList *entities;
     unsigned int n_entities;    /* wtf? */
 };
 
 
 void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance*);
-SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void);
+SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (SCE_ENodeType);
 void SCE_SceneEntity_DeleteInstance (SCE_SSceneEntityInstance*);
 SCE_SSceneEntityInstance*
 SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance*);
@@ -152,6 +147,7 @@ void SCE_SceneEntity_Flush (SCE_SSceneEntity*);
 
 
 SCE_SNode* SCE_SceneEntity_GetInstanceNode (SCE_SSceneEntityInstance*);
+SCE_ENodeType SCE_SceneEntity_GetInstanceNodeType (SCE_SSceneEntityInstance*);
 SCE_SGeometryInstance*
 SCE_SceneEntity_GetInstanceInstance (SCE_SSceneEntityInstance*);
 SCE_SOctreeElement*

@@ -41,6 +41,20 @@ SCE_SModelInstance* SCE_Model_CreateInstance (void)
         SCE_Model_InitInstance (minst);
     return minst;
 }
+SCE_SModelInstance* SCE_Model_CreateInstance2 (SCE_ENodeType type)
+{
+    SCE_SModelInstance *minst = SCE_malloc (sizeof *minst);
+    if (!minst)
+        SCEE_LogSrc ();
+    else {
+        SCE_Model_InitInstance (minst);
+        if (!(minst->inst = SCE_SceneEntity_CreateInstance (type))) {
+            SCE_Model_DeleteInstance (minst), minst = NULL;
+            SCEE_LogSrc ();
+        }
+    } 
+    return minst;
+}
 void SCE_Model_DeleteInstance (SCE_SModelInstance *minst)
 {
     if (minst) {
@@ -51,15 +65,16 @@ void SCE_Model_DeleteInstance (SCE_SModelInstance *minst)
 }
 SCE_SModelInstance* SCE_Model_DupInstance (SCE_SModelInstance *src)
 {
-    SCE_SModelInstance *minst = SCE_Model_CreateInstance ();
+    SCE_SModelInstance *minst = NULL;
+    minst = SCE_Model_CreateInstance ();
     if (!minst)
         SCEE_LogSrc ();
     else {
+        minst->n = src->n;
         if (!(minst->inst = SCE_SceneEntity_DupInstance (src->inst))) {
             SCE_Model_DeleteInstance (minst), minst = NULL;
             SCEE_LogSrc ();
         }
-        minst->n = src->n;
     }
     return minst;
 }
@@ -348,13 +363,15 @@ int SCE_Model_AddInstance (SCE_SModel *mdl, unsigned int n,
  * \todo using float* for SCE_TMatrix, bad.
  */
 int SCE_Model_AddNewInstance (SCE_SModel *mdl, unsigned int n, int root,
-                              float *mat)
+                              float *mat, SCE_ENodeType type)
 {
     SCE_SSceneEntityInstance *einst = NULL;
-    if (!(einst = SCE_SceneEntity_CreateInstance ()))
+    SCE_SModelInstance *minst = SCE_Model_CreateInstance2 (type);
+    if (!minst)
         goto fail;
-    if (SCE_Model_AddInstance (mdl, n, einst, root) < 0)
-        goto fail;
+    minst->n = n;
+    einst = minst->inst;
+    SCE_Model_AddModelInstance (mdl, minst, root);
     if (mat) {
         SCE_Matrix4_Copy (SCE_Node_GetMatrix (
                               SCE_SceneEntity_GetInstanceNode (einst)), mat);
@@ -560,7 +577,9 @@ int SCE_Model_Instanciate (SCE_SModel *mdl, SCE_SModel *mdl2, int mode,
     }
     if (!mdl2->root_node && mdl->root_node) {
         SCE_SNode *node = NULL;
-        if (!(node = SCE_Node_Create ()))
+        /* TODO: multi-usage idea, but is a tree node really adapted to
+           any situation? */
+        if (!(node = SCE_Node_Create (SCE_TREE_NODE)))
             goto fail;
         SCE_Model_SetRootNode (mdl2, node);
     }

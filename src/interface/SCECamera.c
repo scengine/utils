@@ -69,19 +69,17 @@ SCE_SCamera* SCE_Camera_Create (void)
     SCE_SCamera *cam = NULL;
     SCE_btstart ();
     if (!(cam = SCE_malloc (sizeof *cam)))
-        goto failure;
+        goto fail;
     SCE_Camera_Init (cam);
-    if (!(cam->node = SCE_Node_Create ()))
-        goto failure;
+    if (!(cam->node = SCE_Node_Create (SCE_TREE_NODE)))
+        goto fail;
     SCE_Node_SetData (cam->node, cam);
     SCE_Node_GetElement (cam->node)->sphere = &cam->sphere;
-    goto success;
-failure:
-    SCE_Camera_Delete (cam), cam = NULL;
-    SCEE_LogSrc ();
-success:
-    SCE_btend ();
     return cam;
+fail:
+    SCE_Camera_Delete (cam);
+    SCEE_LogSrc ();
+    return NULL;
 }
 /**
  * \brief Deletes an existing camera created by SCE_Camera_Create()
@@ -89,8 +87,7 @@ success:
  */
 void SCE_Camera_Delete (SCE_SCamera *cam)
 {
-    if (cam)
-    {
+    if (cam) {
         SCE_Node_Delete (cam->node);
         SCE_free (cam);
     }

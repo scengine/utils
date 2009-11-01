@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 03/11/2008
-   updated: 25/10/2009 */
+   updated: 01/11/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -59,7 +59,7 @@ void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance *einst)
 /**
  * \brief Creates an entity instance an initializes all its substructures
  */
-SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void)
+SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (SCE_ENodeType ntype)
 {
     SCE_SSceneEntityInstance *einst = NULL;
 
@@ -67,7 +67,7 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void)
     if (!(einst = SCE_malloc (sizeof *einst)))
         goto fail;
     SCE_SceneEntity_InitInstance (einst);
-    if (!(einst->truenode = einst->node = SCE_Node_Create ()))
+    if (!(einst->truenode = einst->node = SCE_Node_Create (ntype)))
         goto fail;
     if (!(einst->instance = SCE_Instance_Create ()))
         goto fail;
@@ -78,8 +78,10 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void)
     /* see SCE_SceneEntity_ForEachInstanceInGroup() */
     SCE_Instance_SetData (einst->instance, einst);
     /* set the matrix pointer for the instance */
-    SCE_Instance_SetMatrix (einst->instance,
-                            SCE_Node_GetFinalMatrix (einst->node));
+    SCE_Instance_SetNode (einst->instance, einst->node);
+    SCE_Instance_SetGetFunc (einst->instance, (ntype == SCE_TREE_NODE ?
+                                               SCE_Node_GetTreeFinalMatrix :
+                                               SCE_Node_GetSingleMatrix));
     goto success;
 
 fail:
@@ -107,14 +109,14 @@ SCE_SSceneEntityInstance*
 SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance *einst)
 {
     SCE_SSceneEntityInstance *new = NULL;
-    if (!(new = SCE_SceneEntity_CreateInstance ())) {
+    if (!(new = SCE_SceneEntity_CreateInstance (
+              SCE_Node_GetType (einst->node)))) {
         SCEE_LogSrc ();
         return NULL;
     }
     /* don't copy the final matrix: may cause wrong transformations when adding
        the new instance to the parent's node of einst (for example) */
-    SCE_Matrix4_Copy (SCE_Node_GetMatrix (new->node),
-                      SCE_Node_GetMatrix (einst->node));
+    SCE_Node_CopyMatrix (einst->node, SCE_Node_GetMatrix (new->node));
     return new;
 }
 
@@ -363,6 +365,14 @@ void SCE_SceneEntity_Flush (SCE_SSceneEntity *entity)
 SCE_SNode* SCE_SceneEntity_GetInstanceNode (SCE_SSceneEntityInstance *einst)
 {
     return einst->node;
+}
+/**
+ * \brief Gets the type of the node of an entity instance
+ */
+SCE_ENodeType
+SCE_SceneEntity_GetInstanceNodeType (SCE_SSceneEntityInstance *einst)
+{
+    return SCE_Node_GetType (einst->node);
 }
 /**
  * \brief Gets the geometry instance of the given instance
