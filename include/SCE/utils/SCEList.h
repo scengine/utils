@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 09/08/2009 */
+   updated: 02/11/2009 */
 
 #ifndef SCELIST_H
 #define SCELIST_H
@@ -78,6 +78,7 @@ void SCE_List_CanDeleteIterators (SCE_SList*, int);
 void SCE_List_SetFreeFunc (SCE_SList*, SCE_FListFreeFunc);
 void SCE_List_SetFreeFunc2 (SCE_SList*, SCE_FListFreeFunc2, void*);
 
+void SCE_List_Attach (SCE_SListIterator*, SCE_SListIterator*);
 void SCE_List_Prepend (SCE_SListIterator*, SCE_SListIterator*);
 void SCE_List_Append (SCE_SListIterator*, SCE_SListIterator*);
 
@@ -87,6 +88,8 @@ int SCE_List_PrependNew (SCE_SListIterator*, void*);
 int SCE_List_AppendNew (SCE_SListIterator*, void*);
 int SCE_List_PrependNewl (SCE_SList*, void*);
 int SCE_List_AppendNewl (SCE_SList*, void*);
+void SCE_List_PrependAll (SCE_SList*, SCE_SList*);
+void SCE_List_AppendAll (SCE_SList*, SCE_SList*);
 
 void SCE_List_Remove (SCE_SListIterator*);
 void SCE_List_Removel (SCE_SListIterator*);

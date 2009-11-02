@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 29/07/2009 */
+   updated: 02/11/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -67,6 +67,11 @@ void SCE_List_DeleteIt (SCE_SListIterator *it)
     SCE_free (it);
 }
 
+static void SCE_List_JoinFirstLast (SCE_SList *l)
+{
+    l->first.next = &l->last;
+    l->last.prev = &l->first;
+}
 /**
  * \brief Initializes a list
  * \param l the list to initialize
@@ -78,8 +83,7 @@ void SCE_List_Init (SCE_SList *l)
 {
     SCE_List_InitIt (&l->first);
     SCE_List_InitIt (&l->last);
-    l->first.next = &l->last;
-    l->last.prev = &l->first;
+    SCE_List_JoinFirstLast (l);
     l->first.data = l->last.data = l;
     l->f = NULL;
     l->f2 = NULL;
@@ -127,7 +131,7 @@ SCE_SList* SCE_List_Create2 (void *arg, SCE_FListFreeFunc2 f)
         l->f2arg = arg;
     }
     return l;
-}
+ }
 /**
  * \brief Flushs a list by ignoring all its elements
  * \note do not call this function if \p l is joined to other list(s)
@@ -137,9 +141,7 @@ void SCE_List_Flush (SCE_SList *l)
     if (SCE_List_HasElements (l)) {
         l->first.next->prev = NULL;
         l->last.prev->next = NULL;
-
-        l->first.next = &l->last;
-        l->last.prev = &l->first;
+        SCE_List_JoinFirstLast (l);
     }
 }
 /**
@@ -210,6 +212,14 @@ void SCE_List_SetFreeFunc2 (SCE_SList *l, SCE_FListFreeFunc2 f, void *a)
 }
 
 
+/**
+ * \brief Attaches \p new at the end of \p it
+ */
+void SCE_List_Attach (SCE_SListIterator *it, SCE_SListIterator *new)
+{
+    it->next = new;
+    new->prev = it;
+}
 /**
  * \brief
  */
@@ -335,6 +345,27 @@ int SCE_List_AppendNewl (SCE_SList *l, void *d)
     SCE_List_Appendl (l, it);
     return SCE_OK;
 }
+/**
+ * \brief Prepends all the iterators of \p l2 into \p l1
+ * \sa SCE_List_AppendAll()
+ */
+void SCE_List_PrependAll (SCE_SList *l1, SCE_SList *l2)
+{
+    SCE_List_Attach (l2->last.prev, l1->first.next);
+    SCE_List_Attach (&l1->first, l2->first.next);
+    SCE_List_JoinFirstLast (l2); /* flush */
+}
+/**
+ * \brief Appends all the iterators of \p l2 into \p l1
+ * \sa SCE_List_PrependAll()
+ */
+void SCE_List_AppendAll (SCE_SList *l1, SCE_SList *l2)
+{
+    SCE_List_Attach (l1->last.prev, l2->first.next);
+    SCE_List_Attach (l2->last.prev, &l1->last);
+    SCE_List_JoinFirstLast (l2); /* flush */
+}
+
 
 /**
  * \brief Removes an element
