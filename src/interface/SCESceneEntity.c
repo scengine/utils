@@ -79,9 +79,6 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (SCE_ENodeType ntype)
     SCE_Instance_SetData (einst->instance, einst);
     /* set the matrix pointer for the instance */
     SCE_Instance_SetNode (einst->instance, einst->node);
-    SCE_Instance_SetGetFunc (einst->instance, (ntype == SCE_TREE_NODE ?
-                                               SCE_Node_GetTreeFinalMatrix :
-                                               SCE_Node_GetSingleMatrix));
     goto success;
 
 fail:
@@ -450,6 +447,7 @@ void SCE_SceneEntity_SetMesh (SCE_SSceneEntity *entity, SCE_SMesh *mesh)
         SCE_BoundingSphere_Init (&entity->sphere);
     } else {
         SCE_SGeometry *geom = SCE_Mesh_GetGeometry (mesh);
+        if (!mesh) SCEE_SendMsg ("SCE:loonl\n");
         SCE_Geometry_GenerateBoundingVolumes (geom);
         SCE_BoundingBox_SetFrom (&entity->box,
                                  SCE_Geometry_GetBox (geom));
@@ -695,8 +693,7 @@ void SCE_SceneEntity_AttachInstance (SCE_SSceneEntityInstance *einst,
        node->data is a pointer to the first instance.
        see SCE_Scene_OnNodeMoved() in SCEScene.c */
     toattach->node = einst->node;
-    SCE_Instance_SetMatrix (toattach->instance,
-                            SCE_Node_GetFinalMatrix (toattach->node));
+    SCE_Instance_SetNode (toattach->instance, toattach->node);
 }
 /**
  * \deprecated
@@ -708,8 +705,7 @@ void SCE_SceneEntity_AttachInstance (SCE_SSceneEntityInstance *einst,
 void SCE_SceneEntity_DetachInstance (SCE_SSceneEntityInstance *einst)
 {
     einst->node = einst->truenode;
-    SCE_Instance_SetMatrix (einst->instance,
-                            SCE_Node_GetFinalMatrix (einst->node));
+    SCE_Instance_SetNode (einst->instance, einst->node);
 }
 
 

@@ -351,9 +351,11 @@ int SCE_List_AppendNewl (SCE_SList *l, void *d)
  */
 void SCE_List_PrependAll (SCE_SList *l1, SCE_SList *l2)
 {
-    SCE_List_Attach (l2->last.prev, l1->first.next);
-    SCE_List_Attach (&l1->first, l2->first.next);
-    SCE_List_JoinFirstLast (l2); /* flush */
+    if (SCE_List_HasElements (l2)) {
+        SCE_List_Attach (l2->last.prev, l1->first.next);
+        SCE_List_Attach (&l1->first, l2->first.next);
+        SCE_List_JoinFirstLast (l2); /* flush */
+    }
 }
 /**
  * \brief Appends all the iterators of \p l2 into \p l1
@@ -361,9 +363,11 @@ void SCE_List_PrependAll (SCE_SList *l1, SCE_SList *l2)
  */
 void SCE_List_AppendAll (SCE_SList *l1, SCE_SList *l2)
 {
-    SCE_List_Attach (l1->last.prev, l2->first.next);
-    SCE_List_Attach (l2->last.prev, &l1->last);
-    SCE_List_JoinFirstLast (l2); /* flush */
+    if (SCE_List_HasElements (l2)) {
+        SCE_List_Attach (l1->last.prev, l2->first.next);
+        SCE_List_Attach (l2->last.prev, &l1->last);
+        SCE_List_JoinFirstLast (l2); /* flush */
+    }
 }
 
 

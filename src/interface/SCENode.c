@@ -55,7 +55,6 @@ static void SCE_Node_NullFunc (SCE_SNode *n, void *p)
 
 static void SCE_Node_InitData (SCE_SNodeData *ndata)
 {
-    ndata->parent = NULL;
     SCE_Matrix4_Identity (ndata->matrix);
     SCE_Matrix4_Identity (ndata->fmatrix);
 }
@@ -63,13 +62,17 @@ static void SCE_Node_InitData (SCE_SNodeData *ndata)
 static void SCE_Node_YouDontHaveParent (void *n)
 {
     SCE_SNode *node = n;
-    node->data->parent = NULL;
+    node->parent = NULL;
 }
 static void SCE_Node_Init (SCE_SNode *node)
 {
     node->element = NULL;
+    node->parent = NULL;
     SCE_List_Init (&node->child);
     SCE_List_SetFreeFunc (&node->child, SCE_Node_YouDontHaveParent);
+    SCE_List_Init (&node->toupdate);
+    SCE_List_SetFreeFunc (&node->toupdate, SCE_Node_YouDontHaveParent);
+    node->getmat = node->getfmat = NULL;
     node->data = NULL;
     node->matrix = 0;
     SCE_List_InitIt (&node->it);
@@ -88,6 +91,16 @@ SCE_SNode* SCE_Node_CreateSingle (void)
     if (!(node = SCE_malloc (sizeof *node)))
         SCEE_LogSrc ();
     SCE_Node_Init (node);
+    node->getmat = node->getfmat = SCE_Node_GetSingleMatrix;
+    /* TODO: tmp. */
+    if (!(node->data = SCE_malloc (sizeof (float*) + sizeof (SCE_TMatrix4)))) {
+        SCE_Node_Delete (node);
+        SCEE_LogSrc ();
+        return NULL;
+    }
+    ((float**)node->data)[0] = &(((float*)node->data)[1]);
+    SCE_Matrix4_Identity (SCE_Node_GetMatrix (node));
+    node->matrix = 0;
     return node;
 }
 SCE_SNode* SCE_Node_CreateTree (void)
@@ -96,6 +109,8 @@ SCE_SNode* SCE_Node_CreateTree (void)
     if (!(node = SCE_malloc (sizeof *node + sizeof (SCE_SNodeData))))
         SCEE_LogSrc ();
     SCE_Node_Init (node);
+    node->getmat = SCE_Node_GetTreeMatrix;
+    node->getfmat = SCE_Node_GetTreeFinalMatrix;
     node->data = (SCE_SNodeData*)&node[1];
     SCE_Node_InitData (node->data);
     return node;
@@ -109,7 +124,9 @@ SCE_SNode* SCE_Node_Create (SCE_ENodeType type)
 {
     SCE_SNode *node = NULL;
     if (type == SCE_SINGLE_MATRIX_NODE)
-        node = SCE_Node_CreateSingle ();
+        /* TODO: TMP */
+/*        node = SCE_Node_CreateSingle ();*/
+        node = SCE_Node_CreateTree ();
     else
         node = SCE_Node_CreateTree ();
     if (!node)
@@ -134,10 +151,8 @@ void SCE_Node_Delete (SCE_SNode *node)
 {
     if (node) {
         SCE_Octree_DeleteElement (node->element);
-        if (SCE_Node_GetType (node) == SCE_TREE_NODE) {
-            SCE_Node_Detach (node);
-            SCE_List_Clear (&node->child);
-        }
+        SCE_Node_Detach (node);
+        SCE_List_Clear (&node->child);
         SCE_free (node);
     }
 }
@@ -151,11 +166,11 @@ void SCE_Node_Delete (SCE_SNode *node)
 void SCE_Node_DeleteRecursive (SCE_SNode *node)
 {
     if (node) {
-        if (SCE_Node_GetType (node) == SCE_TREE_NODE) {
-            SCE_SListIterator *i = NULL;
-            SCE_List_ForEach (i, &node->child)
-                SCE_Node_DeleteRecursive (SCE_List_GetData (i));
-        }
+        SCE_SListIterator *i = NULL;
+        SCE_List_ForEach (i, &node->child)
+            SCE_Node_DeleteRecursive (SCE_List_GetData (i));
+        SCE_List_ForEach (i, &node->toupdate)
+            SCE_Node_DeleteRecursive (SCE_List_GetData (i));
         SCE_Node_Delete (node);
     }
 }
@@ -219,12 +234,11 @@ SCE_ENodeType SCE_Node_GetType (SCE_SNode *node)
  */
 void SCE_Node_Attach (SCE_SNode *node, SCE_SNode *child)
 {
-    if (SCE_Node_GetType (child) == SCE_TREE_NODE) {
-        SCE_Node_Detach (child);
-        SCE_List_Prependl (&node->child, &child->it);
-        child->data->parent = node;
-        SCE_Node_HasMoved (child);
-    }
+    /* attaching a non tree node is just useful for updating the nodes */
+    SCE_Node_Detach (child);
+    child->parent = node;
+    SCE_List_Appendl (&node->child, &child->it);
+    SCE_Node_HasMoved (child);
 }
 
 /**
@@ -250,15 +264,14 @@ SCE_SNode* SCE_Node_AttachNew (SCE_SNode *node)
 /**
  * \brief Detaches a node from its parent
  * \param node the node to detach
+ * \todo allow to keep the position of \p node ? m = fm
  */
 void SCE_Node_Detach (SCE_SNode *node)
 {
-    if (SCE_Node_GetType (node) == SCE_TREE_NODE) {
-        if (node->data->parent) {
-            SCE_List_Removel (&node->it);
-            node->data->parent = NULL;
-            SCE_Node_HasMoved (node);
-        }
+    if (node->parent) {
+        SCE_List_Removel (&node->it);
+        node->parent = NULL;
+        SCE_Node_HasMoved (node);
     }
 }
 
@@ -274,11 +287,9 @@ void SCE_Node_Detach (SCE_SNode *node)
  */
 void SCE_Node_Insert (SCE_SNode *node, SCE_SNode *child)
 {
-    if (SCE_Node_GetType (child) == SCE_TREE_NODE) {
-        if (child->data->parent)
-            SCE_Node_Attach (child->data->parent, node);
-        SCE_Node_Attach (node, child);
-    }
+    if (child->parent)
+        SCE_Node_Attach (child->parent, node);
+    SCE_Node_Attach (node, child);
 }
 
 
@@ -341,10 +352,7 @@ float* SCE_Node_GetTreeFinalMatrix (SCE_SNode *node)
  */
 float* SCE_Node_GetMatrix (SCE_SNode *node)
 {
-    if (SCE_Node_GetType (node) == SCE_TREE_NODE)
-        return node->data->matrix;
-    else
-        return SCE_Node_GetSingleMatrix (node);
+    return node->getmat (node);
 }
 /**
  * \brief Copies the node's matrix
@@ -356,7 +364,7 @@ float* SCE_Node_GetMatrix (SCE_SNode *node)
  */
 void SCE_Node_CopyMatrix (SCE_SNode *node, SCE_TMatrix4 m)
 {
-    SCE_Matrix4_Copy (m, SCE_Node_GetMatrix (node));
+    SCE_Matrix4_Copy (m, node->getmat (node));
 }
 
 /**
@@ -373,10 +381,7 @@ void SCE_Node_CopyMatrix (SCE_SNode *node, SCE_TMatrix4 m)
  */
 float* SCE_Node_GetFinalMatrix (SCE_SNode *node)
 {
-    if (SCE_Node_GetType (node) == SCE_TREE_NODE)
-        return node->data->fmatrix;
-    else
-        return SCE_Node_GetSingleMatrix (node);
+    return node->getfmat (node);
 }
 /**
  * \brief Copies the real node's matrix
@@ -389,7 +394,7 @@ float* SCE_Node_GetFinalMatrix (SCE_SNode *node)
  */
 void SCE_Node_CopyFinalMatrix (SCE_SNode *node, SCE_TMatrix4 m)
 {
-    SCE_Matrix4_Copy (m, SCE_Node_GetFinalMatrix (node));
+    SCE_Matrix4_Copy (m, node->getfmat (node));
 }
 
 /**
@@ -407,16 +412,35 @@ void SCE_Node_SetOnMovedCallback (SCE_SNode *node, SCE_FNodeCallback f, void *p)
     node->movedparam = p;
 }
 
+
+static void SCE_Node_ToUpdate (SCE_SNode *node)
+{
+    if (node->parent) {
+        SCE_List_Removel (&node->it);
+        SCE_List_Appendl (&node->parent->toupdate, &node->it);
+        SCE_Node_ToUpdate (node->parent);
+    }
+}
 /**
  * \brief Marks the node \p node and its children
  * as a moved node since the last update
  */
 void SCE_Node_HasMoved (SCE_SNode *node)
 {
-    SCE_SListIterator *it;
     node->marks |= SCE_NODE_HAS_MOVED;
-    SCE_List_ForEach (it, &node->child)
-        SCE_Node_HasMoved (SCE_List_GetData (it));
+    SCE_Node_ToUpdate (node);
+}
+static void SCE_Node_NotToUpdate (SCE_SNode *node)
+{
+    SCE_List_Removel (&node->it);
+    SCE_List_Appendl (&node->parent->child, &node->it);
+}
+static void SCE_Node_NotToUpdateRec (SCE_SNode *node)
+{
+    if (node->parent) {
+        SCE_Node_NotToUpdate (node);
+        SCE_Node_NotToUpdateRec (node->parent);
+    }
 }
 /**
  * \brief Defines the node \p node as an unmoved node since the last update
@@ -425,6 +449,7 @@ void SCE_Node_HasNotMoved (SCE_SNode *node)
 {
     node->marks |= SCE_NODE_HAS_MOVED;
     node->marks ^= SCE_NODE_HAS_MOVED;
+    SCE_Node_NotToUpdateRec (node);
 }
 /**
  * \brief Indicates if the given node has moved since the last update
@@ -469,74 +494,72 @@ int SCE_Node_IsForced (SCE_SNode *node)
  * \param node the node to update
  * \see SCE_Node_UpdateRecursive()
  */
-static void SCE_Node_UpdateTree (SCE_SNode *node)
-{
-    if (node->marks) {
-        SCE_Matrix4_Mul (node->data->parent->data->fmatrix,
-                         node->data->matrix, node->data->fmatrix);
-        if (node->marks & SCE_NODE_HAS_MOVED)
-            node->moved (node, node->movedparam);
-        node->marks = 0;
-    }
-}
 static void SCE_Node_Update (SCE_SNode *node)
 {
-    if (node->marks) {
-        SCE_Matrix4_Mul (SCE_Node_GetSingleMatrix (node->data->parent),
-                         node->data->matrix, node->data->fmatrix);
-        if (node->marks & SCE_NODE_HAS_MOVED)
-            node->moved (node, node->movedparam);
-        node->marks = 0;
-    }
+    SCE_Matrix4_Mul (SCE_Node_GetFinalMatrix (node->parent),
+                     node->data->matrix, node->data->fmatrix);
+    if (node->marks & SCE_NODE_HAS_MOVED)
+        node->moved (node, node->movedparam);
+}
+static void SCE_Node_UpdateSingle (SCE_SNode *node)
+{
+    if (node->marks & SCE_NODE_HAS_MOVED)
+        node->moved (node, node->movedparam);
 }
 
-static void SCE_Node_UpdateRecursiveTreeNoCheck (SCE_SNode *node)
+static void SCE_Node_UpdateRecursive2Force (SCE_SNode *node)
 {
-    SCE_SListIterator *i = NULL;
-    SCE_Node_UpdateTree (node);
-    SCE_List_ForEach (i, &node->child)
-        SCE_Node_UpdateRecursiveTreeNoCheck (SCE_List_GetData (i));
-}
-static void SCE_Node_UpdateRecursiveNoCheck (SCE_SNode *node)
-{
-    SCE_SListIterator *i = NULL;
+    SCE_SListIterator *i = NULL, *p = NULL;
     SCE_Node_Update (node);
+    /* call nocheck version because single matrix nodes wont be attached to
+       another node than the root */
+    SCE_List_ForEach (i, &node->toupdate)
+        SCE_Node_UpdateRecursive2Force (SCE_List_GetData (i));
+    /* the node has been modified, so all its children need to be updated */
     SCE_List_ForEach (i, &node->child)
-        SCE_Node_UpdateRecursiveTreeNoCheck (SCE_List_GetData (i));
+        SCE_Node_UpdateRecursive2Force (SCE_List_GetData (i));
+    SCE_List_AppendAll (&node->child, &node->toupdate);
+    node->marks = 0;
+}
+static void SCE_Node_UpdateRecursive2 (SCE_SNode *node)
+{
+    if (node->marks || 1)
+        SCE_Node_UpdateRecursive2Force (node);
+    else {
+        SCE_SListIterator *i = NULL, *p = NULL;
+        SCE_Node_Update (node);
+        SCE_List_ForEachProtected (p, i, &node->toupdate)
+            SCE_Node_UpdateRecursive2 (SCE_List_GetData (i));
+        SCE_List_AppendAll (&node->child, &node->toupdate);
+    }
 }
 /**
  * \brief Updates a node and its children
  * \param node the node to update recursivly
  * \see SCE_Node_UpdateRootRecursive(), SCE_Node_FastUpdateRecursive()
+ * \todo make it internal
  */
 void SCE_Node_UpdateRecursive (SCE_SNode *node)
 {
     SCE_SListIterator *i = NULL;
-    if (SCE_Node_GetType (node) == SCE_TREE_NODE) {
+    if (SCE_Node_GetType (node) == SCE_TREE_NODE || 1)
         SCE_Node_Update (node);
-        SCE_List_ForEach (i, &node->child)
-            SCE_Node_UpdateRecursiveTreeNoCheck (SCE_List_GetData (i));
-    } else {
-        SCE_List_ForEach (i, &node->child)
-            SCE_Node_UpdateRecursiveNoCheck (SCE_List_GetData (i));
-    }
-}
+    else
+        SCE_Node_UpdateSingle (node);
 
-/**
- * \internal
- * \brief Updates a root node of a tree
- * \param node the node to update
- * \see SCE_Node_UpdateRootRecursive()
- */
-static void SCE_Node_UpdateRoot (SCE_SNode *node)
-{
-    if (node->marks) {
-        SCE_Matrix4_Copy (node->data->fmatrix, node->data->matrix);
-        /* TODO */ /* koi toudou ? */
-        if (node->marks & SCE_NODE_HAS_MOVED)
-            node->moved (node, node->movedparam);
+    /* call nocheck version because single matrix nodes wont be attached to
+       another node than the root */
+    if (node->marks || 1) {
+        SCE_List_ForEach (i, &node->toupdate)
+            SCE_Node_UpdateRecursive2Force (SCE_List_GetData (i));
+        SCE_List_ForEach (i, &node->child)
+            SCE_Node_UpdateRecursive2Force (SCE_List_GetData (i));
         node->marks = 0;
+    } else {
+        SCE_List_ForEach (i, &node->toupdate)
+            SCE_Node_UpdateRecursive2 (SCE_List_GetData (i));
     }
+    SCE_List_AppendAll (&node->child, &node->toupdate);
 }
 
 /**
@@ -547,29 +570,36 @@ static void SCE_Node_UpdateRoot (SCE_SNode *node)
 void SCE_Node_UpdateRootRecursive (SCE_SNode *node)
 {
     SCE_SListIterator *i = NULL;
-    if (SCE_Node_GetType (node) == SCE_TREE_NODE) {
-        SCE_Node_UpdateRoot (node);
+    SCE_Node_UpdateSingle (node);
+    /* call nocheck version because single matrix nodes wont be attached to
+       another node than the root */
+    SCE_List_ForEach (i, &node->toupdate)
+        SCE_Node_UpdateRecursive (SCE_List_GetData (i));
+    /* very hugly. */
+    if (node->marks || 1) {
         SCE_List_ForEach (i, &node->child)
-            SCE_Node_UpdateRecursiveTreeNoCheck (SCE_List_GetData (i));
-    } else {
-        SCE_List_ForEach (i, &node->child)
-            SCE_Node_UpdateRecursiveNoCheck (SCE_List_GetData (i));
+/*            SCE_Node_UpdateRecursiveForce (SCE_List_GetData (i));*/
+            SCE_Node_UpdateRecursive (SCE_List_GetData (i));
     }
+    SCE_List_AppendAll (&node->child, &node->toupdate);
 }
 
+
+/* not very able to determine how many nodes needs to be updated */
+#if 0
 static void SCE_Node_FastRec (void *node)
 {
     SCE_SListIterator *i = NULL;
     SCE_Node_Update (node);
     SCE_List_ForEach (i, &((SCE_SNode*)node)->child)
-        SCE_Node_UpdateRecursiveTreeNoCheck (SCE_List_GetData (i));
+        SCE_Node_UpdateRecursive (SCE_List_GetData (i));
 }
 static void SCE_Node_FastRecTree (void *node)
 {
     SCE_SListIterator *i = NULL;
     SCE_Node_UpdateTree (node);
     SCE_List_ForEach (i, &((SCE_SNode*)node)->child)
-        SCE_Node_UpdateRecursiveTreeNoCheck (SCE_List_GetData (i));
+        SCE_Node_UpdateRecursive (SCE_List_GetData (i));
 }
 /**
  * \brief Updates a node and its children
@@ -596,27 +626,25 @@ void SCE_Node_FastUpdateRootRecursive (SCE_SNode *node, unsigned int n)
         SCE_Node_UpdateRoot (node);
     SCE_List_FastForEach4 (&node->child, n, SCE_Node_FastRec);
 }
-
+#endif
 
 /**
  * \brief Checks if a node has a parent
  * \param node a node
  * \returns SCE_TRUE if the \p node node have a parent, SCE_FALSE otherwise.
- * \todo undefined behavior if the node isn't a tree node
  */
 int SCE_Node_HasParent (SCE_SNode *node)
 {
-    return (node->data->parent ? SCE_TRUE : SCE_FALSE);
+    return (node->parent ? SCE_TRUE : SCE_FALSE);
 }
 
 /**
  * \brief Gets the parent of a node
  * \returns the parent node of \p node
- * \todo undefined behavior if the node isn't a tree node
  */
 SCE_SNode* SCE_Node_GetParent (SCE_SNode *node)
 {
-    return node->data->parent;
+    return node->parent;
 }
 
 /**
@@ -630,7 +658,6 @@ SCE_SOctreeElement* SCE_Node_GetElement (SCE_SNode *node)
 
 /**
  * \brief Gets the list of the children of a node
- * \todo undefined behavior if the node isn't a tree node
  */
 SCE_SList* SCE_Node_GetChildrenList (SCE_SNode *node)
 {
@@ -647,7 +674,7 @@ void SCE_Node_SetData (SCE_SNode *node, void *data)
     SCE_List_SetData (&node->element->it, data);
 }
 
-#if 0
+#if 1
 /**
  * \brief Gets data of a node
  * \returns the data of the \p node node

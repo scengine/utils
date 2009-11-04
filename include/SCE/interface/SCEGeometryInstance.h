@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 25/10/2008
-   updated: 28/07/2009 */
+   updated: 02/11/2009 */
 
 #ifndef SCEINSTANCING_H
 #define SCEINSTANCING_H
@@ -37,8 +37,6 @@ enum sce_einstancingtype {
 };
 typedef enum sce_einstancingtype SCE_EInstancingType;
 
-typedef float* (*SCE_FInstanceGetMatrix)(SCE_SNode*);
-
 /** \copydoc sce_sgeometryinstance */
 typedef struct sce_sgeometryinstance SCE_SGeometryInstance;
 /** \copydoc sce_sgeometryinstancegroup */
@@ -53,7 +51,6 @@ typedef struct sce_sgeometryinstancegroup SCE_SGeometryInstanceGroup;
  */
 struct sce_sgeometryinstance {
     SCE_SNode *node;                   /**< Instance's node */
-    SCE_FInstanceGetMatrix getmat;     /**< Get matrix function */
     SCE_SListIterator it;              /**< Own iterator, used by the groups */
     void *data;                        /**< Used defined data */
     SCE_SGeometryInstanceGroup *group; /**< Group of the instance */
@@ -107,7 +104,6 @@ void SCE_Instance_SetGroupMesh (SCE_SGeometryInstanceGroup*, SCE_SMesh*);
 SCE_SMesh* SCE_Instance_GetGroupMesh (SCE_SGeometryInstanceGroup*);
 
 void SCE_Instance_SetNode (SCE_SGeometryInstance*, SCE_SNode*);
-void SCE_Instance_SetGetFunc (SCE_SGeometryInstance*, SCE_FInstanceGetMatrix);
 float* SCE_Instance_GetMatrix (SCE_SGeometryInstance*);
 
 void SCE_Instance_SetData (SCE_SGeometryInstance*, void*);

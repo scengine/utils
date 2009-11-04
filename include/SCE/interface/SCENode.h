@@ -48,12 +48,12 @@ typedef enum {
 
 /** \copydoc sce_snode */
 typedef struct sce_snode SCE_SNode;
+typedef float* (*SCE_FGetNodeMatrix)(SCE_SNode*);
 typedef void (*SCE_FNodeCallback)(SCE_SNode*, void*);
 typedef void (*SCE_FNodeCallback2)(SCE_SNode*);
 
 typedef struct sce_snodedata SCE_SNodeData;
 struct sce_snodedata {
-    SCE_SNode *parent;         /**< Parent node */
     SCE_TMatrix4 matrix;       /**< Node matrix */
     SCE_TMatrix4 fmatrix;      /**< Real node's transformation matrix, with all
                                 *   parent nodes' matrices applyed */
@@ -64,9 +64,13 @@ struct sce_snodedata {
  */
 struct sce_snode {
     SCE_SOctreeElement *element; /**< Element */
+    SCE_SNode *parent;         /**< Parent node */
     /* yes: even a single matrix node can has children! */
     SCE_SList child;           /**< Children */
-    SCE_SNodeData *data;       /**< pointer to a float in case of single
+    SCE_SList toupdate;        /**< Children to update! */
+    SCE_FGetNodeMatrix getmat; /**< Get matrix function */
+    SCE_FGetNodeMatrix getfmat;/**< Get final matricx function */
+    SCE_SNodeData *data;       /**< pointer to a float* in case of single
                                 * matrix node type */
     size_t matrix;             /**< Offset of the matrix into data
                                 * (if non-zero then the node is of type
@@ -131,8 +135,10 @@ int SCE_Node_IsForced (SCE_SNode*);
 
 void SCE_Node_UpdateRecursive (SCE_SNode*);
 void SCE_Node_UpdateRootRecursive (SCE_SNode*);
+#if 0
 void SCE_Node_FastUpdateRecursive (SCE_SNode*, unsigned int);
 void SCE_Node_FastUpdateRootRecursive (SCE_SNode*, unsigned int);
+#endif
 
 int SCE_Node_HasParent (SCE_SNode*);
 SCE_SNode* SCE_Node_GetParent (SCE_SNode*);
@@ -142,10 +148,11 @@ SCE_SOctreeElement* SCE_Node_GetElement (SCE_SNode*);
 SCE_SList* SCE_Node_GetChildrenList (SCE_SNode*);
 
 void SCE_Node_SetData (SCE_SNode*, void*);
-#if 0
+#if 1
 void* SCE_Node_GetData (SCE_SNode*);
-#endif
+#else
 #define SCE_Node_GetData(n) (((SCE_SNode*)(n))->udata)
+#endif
 
 void SCE_Node_Use (SCE_SNode*) SCE_GNUC_DEPRECATED;
 

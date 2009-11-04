@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 25/10/2008
-   updated: 02/08/2009 */
+   updated: 02/11/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -38,7 +38,6 @@ static SCE_FInstanceGroupRenderFunc renderfuncs[3] = {
 void SCE_Instance_Init (SCE_SGeometryInstance *inst)
 {
     inst->node = NULL;
-    inst->getmat = NULL;        /* o yes */
     SCE_List_InitIt (&inst->it);
     SCE_List_SetData (&inst->it, inst);
     inst->data = NULL;
@@ -207,14 +206,9 @@ void SCE_Instance_SetNode (SCE_SGeometryInstance *inst, SCE_SNode *node)
 {
     inst->node = node;
 }
-void SCE_Instance_SetGetFunc (SCE_SGeometryInstance *inst,
-                              SCE_FInstanceGetMatrix f)
-{
-    inst->getmat = f;
-}
 float* SCE_Instance_GetMatrix (SCE_SGeometryInstance *inst)
 {
-    return inst->getmat (inst->node);
+    return SCE_Node_GetFinalMatrix (inst->node);
 }
 
 
@@ -237,7 +231,7 @@ static void SCE_Instance_RenderSimple (SCE_SGeometryInstanceGroup *group)
     SCE_List_ForEach (it, &group->instances) {
         inst = SCE_List_GetData (it);
         SCE_CPushMatrix ();
-        SCE_CMultMatrix (inst->getmat (inst->node));
+        SCE_CMultMatrix (SCE_Node_GetFinalMatrix (inst->node));
         SCE_Mesh_Render ();
         SCE_CPopMatrix ();
     }
@@ -255,7 +249,7 @@ static void SCE_Instance_RenderPseudo (SCE_SGeometryInstanceGroup *group)
     SCE_List_ForEach (it, &group->instances) {
         inst = SCE_List_GetData (it);
         /* combine camera and object matrices */
-        SCE_Matrix4_Mul (modelview, inst->getmat (inst->node), final);
+        SCE_Matrix4_Mul (modelview, SCE_Node_GetFinalMatrix(inst->node), final);
         /* set persistent vertex attributes */ /* TODO: pouha */
         glVertexAttrib4fv (group->attrib1, &final[0]);
         glVertexAttrib4fv (group->attrib2, &final[4]);

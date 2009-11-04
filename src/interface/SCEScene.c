@@ -182,7 +182,6 @@ SCE_SScene* SCE_Scene_Create (void)
     if (!(scene = SCE_malloc (sizeof *scene)))
         goto failure;
     SCE_Scene_Init (scene);
-    /* no parent so... */
     if (!(scene->rootnode = SCE_Node_Create (SCE_SINGLE_MATRIX_NODE)))
         goto failure;
     if (!(scene->octree = SCE_Octree_Create ()))
@@ -945,7 +944,7 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
         SCE_Scene_FlushEntities (scene);
 
     if (fc) {
-        /* do it before FastUpdateRootRecursive(), otherwise the calls of
+        /* do it before nodes' update, otherwise the calls of
            List_Removel() can fail */
         SCE_List_BreakAll (scene->selected);
         SCE_List_Flush (scene->selected);
@@ -953,8 +952,8 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
     }
 
     /* update scene nodes */
-    if (!scene->node_updated)
-        SCE_Node_FastUpdateRootRecursive (scene->rootnode, scene->n_nodes);
+/*    if (!scene->node_updated)*/
+        SCE_Node_UpdateRootRecursive (scene->rootnode);
     /* NOTE: node_updated or do_update_nodes can be a state because its value
        may change during scene update */
     scene->node_updated = SCE_TRUE;

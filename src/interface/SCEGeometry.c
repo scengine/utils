@@ -1119,6 +1119,7 @@ void SCE_Geometry_GenerateBoundingSphere (SCE_SGeometry *geom)
 void SCE_Geometry_GenerateBoundingVolumes (SCE_SGeometry *geom)
 {
     SCE_Geometry_GenerateBoundingSphere (geom);
+    /* TODO: hey what about bounding boxes? */
 }
 
 /**
