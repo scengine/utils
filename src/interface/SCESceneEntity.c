@@ -447,7 +447,6 @@ void SCE_SceneEntity_SetMesh (SCE_SSceneEntity *entity, SCE_SMesh *mesh)
         SCE_BoundingSphere_Init (&entity->sphere);
     } else {
         SCE_SGeometry *geom = SCE_Mesh_GetGeometry (mesh);
-        if (!mesh) SCEE_SendMsg ("SCE:loonl\n");
         SCE_Geometry_GenerateBoundingVolumes (geom);
         SCE_BoundingBox_SetFrom (&entity->box,
                                  SCE_Geometry_GetBox (geom));

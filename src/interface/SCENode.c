@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/07/2007
-   updated: 01/11/2009 */
+   updated: 04/11/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -98,9 +98,10 @@ SCE_SNode* SCE_Node_CreateSingle (void)
         SCEE_LogSrc ();
         return NULL;
     }
-    ((float**)node->data)[0] = &(((float*)node->data)[1]);
+    ((float**)node->data)[0] = (float*)&(((float**)node->data)[1]);
     SCE_Matrix4_Identity (SCE_Node_GetMatrix (node));
     node->matrix = 0;
+    /* endtmp */
     return node;
 }
 SCE_SNode* SCE_Node_CreateTree (void)
@@ -124,9 +125,7 @@ SCE_SNode* SCE_Node_Create (SCE_ENodeType type)
 {
     SCE_SNode *node = NULL;
     if (type == SCE_SINGLE_MATRIX_NODE)
-        /* TODO: TMP */
-/*        node = SCE_Node_CreateSingle ();*/
-        node = SCE_Node_CreateTree ();
+        node = SCE_Node_CreateSingle ();
     else
         node = SCE_Node_CreateTree ();
     if (!node)
@@ -150,9 +149,10 @@ fail:
 void SCE_Node_Delete (SCE_SNode *node)
 {
     if (node) {
-        SCE_Octree_DeleteElement (node->element);
         SCE_Node_Detach (node);
+        SCE_Octree_DeleteElement (node->element);
         SCE_List_Clear (&node->child);
+        SCE_List_Clear (&node->toupdate);
         SCE_free (node);
     }
 }
@@ -166,10 +166,9 @@ void SCE_Node_Delete (SCE_SNode *node)
 void SCE_Node_DeleteRecursive (SCE_SNode *node)
 {
     if (node) {
-        SCE_SListIterator *i = NULL;
-        SCE_List_ForEach (i, &node->child)
-            SCE_Node_DeleteRecursive (SCE_List_GetData (i));
-        SCE_List_ForEach (i, &node->toupdate)
+        SCE_SListIterator *i = NULL, *p = NULL;
+        SCE_List_AppendAll (&node->child, &node->toupdate);
+        SCE_List_ForEachProtected (p, i, &node->child)
             SCE_Node_DeleteRecursive (SCE_List_GetData (i));
         SCE_Node_Delete (node);
     }
@@ -229,12 +228,11 @@ SCE_ENodeType SCE_Node_GetType (SCE_SNode *node)
  * child node has already a parent node, it will be detached before from its
  * current parent.
  * 
- * \warning If this function fails, the node will became orphean, even if it
+ * \warning If this function fails, the node will become orphean, even if it
  *          has a parent before.
  */
 void SCE_Node_Attach (SCE_SNode *node, SCE_SNode *child)
 {
-    /* attaching a non tree node is just useful for updating the nodes */
     SCE_Node_Detach (child);
     child->parent = node;
     SCE_List_Appendl (&node->child, &child->it);
@@ -523,7 +521,7 @@ static void SCE_Node_UpdateRecursive2Force (SCE_SNode *node)
 }
 static void SCE_Node_UpdateRecursive2 (SCE_SNode *node)
 {
-    if (node->marks || 1)
+    if (node->marks)
         SCE_Node_UpdateRecursive2Force (node);
     else {
         SCE_SListIterator *i = NULL, *p = NULL;
@@ -542,14 +540,14 @@ static void SCE_Node_UpdateRecursive2 (SCE_SNode *node)
 void SCE_Node_UpdateRecursive (SCE_SNode *node)
 {
     SCE_SListIterator *i = NULL;
-    if (SCE_Node_GetType (node) == SCE_TREE_NODE || 1)
+    if (SCE_Node_GetType (node) == SCE_TREE_NODE)
         SCE_Node_Update (node);
     else
         SCE_Node_UpdateSingle (node);
 
     /* call nocheck version because single matrix nodes wont be attached to
        another node than the root */
-    if (node->marks || 1) {
+    if (node->marks) {
         SCE_List_ForEach (i, &node->toupdate)
             SCE_Node_UpdateRecursive2Force (SCE_List_GetData (i));
         SCE_List_ForEach (i, &node->child)
@@ -576,7 +574,7 @@ void SCE_Node_UpdateRootRecursive (SCE_SNode *node)
     SCE_List_ForEach (i, &node->toupdate)
         SCE_Node_UpdateRecursive (SCE_List_GetData (i));
     /* very hugly. */
-    if (node->marks || 1) {
+    if (node->marks) {
         SCE_List_ForEach (i, &node->child)
 /*            SCE_Node_UpdateRecursiveForce (SCE_List_GetData (i));*/
             SCE_Node_UpdateRecursive (SCE_List_GetData (i));
