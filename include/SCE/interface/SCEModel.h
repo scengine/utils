@@ -30,8 +30,7 @@
 #include <SCE/interface/SCESceneEntity.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define SCE_MAX_MODEL_ENTITIES 8
@@ -45,16 +44,14 @@ struct sce_smodelinstance {
 };
 
 typedef struct sce_smodelentity SCE_SModelEntity;
-struct sce_smodelentity
-{
+struct sce_smodelentity {
     SCE_SSceneEntity *entity;
     int is_instance;
     SCE_SListIterator it;
 };
 
 typedef struct sce_smodelentitygroup SCE_SModelEntityGroup;
-struct sce_smodelentitygroup
-{
+struct sce_smodelentitygroup {
     SCE_SSceneEntityGroup *group;
     int is_instance;
     SCE_SListIterator it;
@@ -70,14 +67,14 @@ typedef enum {
 } SCE_EModelType;
 
 typedef struct sce_smodel SCE_SModel;
-struct sce_smodel
-{
+struct sce_smodel {
     SCE_SList *entities[SCE_MAX_MODEL_ENTITIES];
     SCE_SList *groups;
     SCE_SList instances;    /**< SCE_SModelInstance */
     SCE_SNode *root_node;   /**< Root node */
     int root_node_instance; /**< Is it root node an instance node? */
     SCE_EModelType type;    /**< Kind of instancing */
+    void *udata;            /**< Used data */
 };
 
 void SCE_Model_InitInstance (SCE_SModelInstance*);
@@ -88,6 +85,9 @@ SCE_SModelInstance* SCE_Model_DupInstance (SCE_SModelInstance*);
 
 SCE_SModel* SCE_Model_Create (void);
 void SCE_Model_Delete (SCE_SModel*);
+
+void SCE_Model_SetData (SCE_SModel*, void*);
+void* SCE_Model_GetData (SCE_SModel*);
 
 int SCE_Model_AddEntityv (SCE_SModel*, int, SCE_SMesh*, SCE_SShader*,
                           SCE_STexture**);

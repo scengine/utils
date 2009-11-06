@@ -166,6 +166,7 @@ static void SCE_Model_Init (SCE_SModel *mdl)
     mdl->root_node = NULL;
     mdl->root_node_instance = SCE_FALSE; /* SCE_TRUE.. ? */
     mdl->type = SCE_MODEL_ROOT;
+    mdl->udata = NULL;
 }
 SCE_SModel* SCE_Model_Create (void)
 {
@@ -192,6 +193,21 @@ void SCE_Model_Delete (SCE_SModel *mdl)
     }
 }
 
+
+/**
+ * \brief Specify user data
+ */
+void SCE_Model_SetData (SCE_SModel *mdl, void *data)
+{
+    mdl->udata = data;
+}
+/**
+ * \brief Returns user data
+ */
+void* SCE_Model_GetData (SCE_SModel *mdl)
+{
+    return mdl->udata;
+}
 
 static void SCE_Model_BuildEntityv (SCE_SModelEntity *entity, SCE_SMesh *mesh,
                                     SCE_SShader *shader, SCE_STexture **texs)
