@@ -151,9 +151,6 @@ int SCE_Scene_MakeOctree (SCE_SScene*, unsigned int, int, float);
 int SCE_Scene_SetupBatching (SCE_SScene*, unsigned int, int*);
 int SCE_Scene_SetupDefaultBatching (SCE_SScene*);
 
-void SCE_Scene_BeginFrame (SCE_SScene*) SCE_GNUC_DEPRECATED;
-void SCE_Scene_EndFrame (SCE_SScene*) SCE_GNUC_DEPRECATED;
-
 void SCE_Scene_ClearBuffers (SCE_SScene*);
 
 void SCE_Scene_Update (SCE_SScene*, SCE_SCamera*, SCE_STexture*, SCEuint);

@@ -777,26 +777,6 @@ int SCE_Scene_SetupDefaultBatching (SCE_SScene *scene)
 }
 
 
-/**
- * \deprecated
- * \brief Defines the beginning of a frame
- */
-void SCE_Scene_BeginFrame (SCE_SScene *scene)
-{
-    scene->node_updated = SCE_FALSE;
-}
-
-/**
- * \deprecated
- * \brief Defines the end of a frame
- */
-void SCE_Scene_EndFrame (SCE_SScene *scene)
-{
-    /* alo */
-    (void)scene;
-}
-
-
 static float SCE_Scene_GetOctreeSize (SCE_SOctree *tree, SCE_SCamera *cam)
 {
     return SCE_Lod_ComputeBoundingBoxSurface (SCE_Octree_GetBox (tree), cam);
@@ -952,12 +932,7 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
     }
 
     /* update scene nodes */
-/*    if (!scene->node_updated)*/
-        SCE_Node_UpdateRootRecursive (scene->rootnode);
-    /* NOTE: node_updated or do_update_nodes can be a state because its value
-       may change during scene update */
-    scene->node_updated = SCE_TRUE;
-
+    SCE_Node_UpdateRootRecursive (scene->rootnode);
     SCE_Camera_Update (scene->camera);
 
     if (fc) {
