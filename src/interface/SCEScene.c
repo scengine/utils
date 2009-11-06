@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2008
-   updated: 02/07/2009 */
+   updated: 06/11/2009 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -583,33 +583,6 @@ void SCE_Scene_RemoveModel (SCE_SScene *scene, SCE_SModel *mdl)
     }
 }
 
-#if 0
-/**
- * \deprecated
- * \brief Adds an entity group to a scene
- * \param scene a scene
- * \param group the entity group to add
- * \returns SCE_ERROR on error, SCE_OK otherwise
- */
-int SCE_Scene_AddEntityGroup (SCE_SScene *scene, SCE_SSceneEntityGroup *group)
-{
-    SCE_SListIterator *it = NULL;
-    SCE_SList *l = SCE_SceneEntity_GetGroupEntitiesList (group);
-
-    if (SCE_List_PrependNewl (scene->egroups, group) < 0) {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
-    }
-    SCE_List_ForEach (it, l) {
-        if (SCE_Scene_AddEntity (scene, SCE_List_GetData (it)) < 0) {
-            SCEE_LogSrc ();
-            return SCE_ERROR;
-        }
-    }
-
-    return SCE_OK;
-}
-#endif
 
 /**
  * \brief Adds a light to a scene
@@ -684,6 +657,15 @@ void SCE_Scene_SetSkybox (SCE_SScene *scene, SCE_SSkybox *skybox)
 /*        SCE_Scene_AddEntityGroup (scene, SCE_Skybox_GetEntityGroup (skybox));*/
 /*        SCE_Scene_AddInstance (scene, SCE_Skybox_GetInstance(scene->skybox));*/
     }
+}
+
+/**
+ * \brief Gets the list of the selected instances (after culling and other
+ * tests) for rendering
+ */
+SCE_SList* SCE_Scene_GetSelectedInstancesList (SCE_SScene *scene)
+{
+    return scene->selected;
 }
 
 
@@ -811,7 +793,7 @@ static void SCE_Scene_SelectOctreeInstances(SCE_SScene *scene,
                                                               unsigned int))
 {
     unsigned int i = 0;
-    float size = 0.0;
+    float size = 0.0f;
     SCE_SSceneOctree *stree = SCE_Octree_GetData (tree);
     size = SCE_Scene_GetOctreeSize (tree, scene->camera);
     selectfun (scene, stree, 0);
@@ -876,9 +858,8 @@ static void SCE_Scene_DetermineEntities (SCE_SScene *scene)
 {
     SCE_SListIterator *it = NULL;
     SCE_SList *instances = scene->selected;
-    SCE_List_ForEach (it, instances) {
+    SCE_List_ForEach (it, instances)
         SCE_SceneEntity_ReplaceInstanceToEntity (SCE_List_GetData (it));
-    }
 }
 
 
@@ -915,7 +896,6 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
 
     scene->rendertarget = rendertarget;
     scene->cubeface = cubeface;
-/*    scene->camera = (camera ? camera : default_camera);*/
     scene->camera = camera;
 
     fc = scene->states.frustum_culling;
@@ -931,7 +911,6 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
         scene->selected_join = scene->selected;
     }
 
-    /* update scene nodes */
     SCE_Node_UpdateRootRecursive (scene->rootnode);
     SCE_Camera_Update (scene->camera);
 
@@ -941,7 +920,6 @@ void SCE_Scene_Update (SCE_SScene *scene, SCE_SCamera *camera,
         SCE_Scene_SelectVisibles (scene);
     }
 
-    /* determinate entities */
     if (scene->states.lod)
         SCE_Scene_DetermineEntitiesUsingLOD (scene);
     else if (fc)

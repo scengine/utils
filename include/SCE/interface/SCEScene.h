@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2007
-   updated: 02/07/2009 */
+   updated: 06/11/2009 */
 
 #ifndef SCESCENE_H
 #define SCESCENE_H
@@ -36,8 +36,7 @@
 #include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -142,8 +141,7 @@ void SCE_Scene_RemoveResource (SCE_SSceneResource*);
 
 void SCE_Scene_SetSkybox (SCE_SScene*, SCE_SSkybox*);
 
-void SCE_Scene_ForEachEntity (SCE_SScene*, SCE_FSceneForEachEntityGroupFunc,
-                              void*);
+SCE_SList* SCE_Scene_GetSelectedInstancesList (SCE_SScene*);
 
 void SCE_Scene_SetOctreeSize (SCE_SScene*, float, float, float);
 int SCE_Scene_MakeOctree (SCE_SScene*, unsigned int, int, float);
