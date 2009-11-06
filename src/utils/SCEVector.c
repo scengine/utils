@@ -133,4 +133,14 @@ void SCE_Vector3_GetMax (SCE_TVector3 newv, const SCE_TVector3 v1,
     newv[2] = MAX (v1[2], v2[2]);
 }
 
+/**
+ * \brief Linear interpolation between two vectors
+ */
+void SCE_Vector3_Interpolate (SCE_TVector3 a, SCE_TVector3 b, float w,
+                              SCE_TVector3 r)
+{
+    float w1 = 1.0f - w;
+    SCE_Vector3_Operator2v (r, = w1 *, a, + w *, b);
+}
+
 /** @} */
