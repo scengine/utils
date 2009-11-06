@@ -67,7 +67,7 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (SCE_ENodeType ntype)
     if (!(einst = SCE_malloc (sizeof *einst)))
         goto fail;
     SCE_SceneEntity_InitInstance (einst);
-    if (!(einst->truenode = einst->node = SCE_Node_Create (ntype)))
+    if (!(einst->node = SCE_Node_Create (ntype)))
         goto fail;
     if (!(einst->instance = SCE_Instance_Create ()))
         goto fail;
@@ -93,8 +93,7 @@ void SCE_SceneEntity_DeleteInstance (SCE_SSceneEntityInstance *einst)
     if (einst) {
         SCE_Lod_Delete (einst->lod);
         SCE_Instance_Delete (einst->instance);
-        /* TODO: kick this useless truenode */
-        SCE_Node_Delete (einst->truenode);
+        SCE_Node_Delete (einst->node);
         SCE_free (einst);
     }
 }
@@ -674,37 +673,6 @@ void SCE_SceneEntity_SetupBoundingVolume (SCE_SSceneEntity *entity, int volume)
     case SCE_BOUNDINGSPHERE:
         entity->isinfrustumfunc = SCE_SceneEntity_IsBSInFrustum;
     }
-}
-
-
-/**
- * \deprecated
- * \brief Combines the nodes of the given entity instances
- *
- * The node of \p toattach becomes the same node of \p einst, so the instances
- * are attached but no new matrix is generated.
- * \sa SCE_SceneEntity_DetachInstance()
- */
-void SCE_SceneEntity_AttachInstance (SCE_SSceneEntityInstance *einst,
-                                     SCE_SSceneEntityInstance *toattach)
-{
-    /* TODO: warning, one node for two instances is dangerous.
-       node->data is a pointer to the first instance.
-       see SCE_Scene_OnNodeMoved() in SCEScene.c */
-    toattach->node = einst->node;
-    SCE_Instance_SetNode (toattach->instance, toattach->node);
-}
-/**
- * \deprecated
- * \brief Detachs the given instance from the instance where it was attached to
- *
- * Calling this function when \p einst wasn't attached has no effect
- * \sa SCE_SceneEntity_AttachInstance()
- */
-void SCE_SceneEntity_DetachInstance (SCE_SSceneEntityInstance *einst)
-{
-    einst->node = einst->truenode;
-    SCE_Instance_SetNode (einst->instance, einst->node);
 }
 
 

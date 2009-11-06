@@ -67,7 +67,6 @@ typedef struct sce_ssceneentitygroup SCE_SSceneEntityGroup;
  */
 struct sce_ssceneentityinstance {
     SCE_SNode *node;                 /**< Node */
-    SCE_SNode *truenode;             /**< The node allocated by the instance */
     SCE_SGeometryInstance *instance; /**< Geometry instance */
     SCE_SLevelOfDetail *lod;         /**< LOD managment structure */
     SCE_SSceneEntity *entity;        /**< Entity used by the instance */
@@ -186,13 +185,6 @@ SCE_SceneEntity_GetInstancesGroup (SCE_SSceneEntity*);
 SCE_SListIterator* SCE_SceneEntity_GetIterator (SCE_SSceneEntity*);
 
 void SCE_SceneEntity_SetupBoundingVolume (SCE_SSceneEntity*, int);
-
-
-void SCE_SceneEntity_AttachInstance (SCE_SSceneEntityInstance*,
-                                     SCE_SSceneEntityInstance*)
-    SCE_GNUC_DEPRECATED;
-void SCE_SceneEntity_DetachInstance (SCE_SSceneEntityInstance*)
-    SCE_GNUC_DEPRECATED;
 
 
 void SCE_SceneEntity_DetermineInstanceLOD (SCE_SSceneEntityInstance*,
