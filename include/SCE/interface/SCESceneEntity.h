@@ -73,6 +73,7 @@ struct sce_ssceneentityinstance {
     /* TODO: not very useful */
     SCE_SSceneEntityGroup *group;    /**< Group that contains the instance */
     SCE_SListIterator it;            /**< Own iterators for fast add/remove */
+    void *udata;                     /**< User data */
 };
 
 /**
@@ -161,6 +162,9 @@ SCE_SceneEntity_GetInstanceIterator1 (SCE_SSceneEntityInstance*);
 SCE_SListIterator*
 SCE_SceneEntity_GetInstanceIterator2 (SCE_SSceneEntityInstance*);
 #endif
+
+void* SCE_SceneEntity_GetInstanceData (SCE_SSceneEntityInstance*);
+void SCE_SceneEntity_SetInstanceData (SCE_SSceneEntityInstance*, void*);
 
 
 SCE_SSceneEntityProperties* SCE_SceneEntity_GetProperties (SCE_SSceneEntity*);

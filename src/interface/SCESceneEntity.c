@@ -418,6 +418,22 @@ SCE_SceneEntity_GetInstanceIterator2 (SCE_SSceneEntityInstance *einst)
 }
 #endif
 
+/**
+ * \brief Returns user data
+ */
+void* SCE_SceneEntity_GetInstanceData (SCE_SSceneEntityInstance *einst)
+{
+    return einst->udata;
+}
+/**
+ * \brief Returns user data
+ */
+void SCE_SceneEntity_SetInstanceData (SCE_SSceneEntityInstance *einst,
+                                      void *data)
+{
+    einst->udata = data;
+}
+
 
 /**
  * \brief Gets the rendering properties of an entity

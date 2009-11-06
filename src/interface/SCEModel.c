@@ -358,6 +358,8 @@ void SCE_Model_AddModelInstance (SCE_SModel *mdl, SCE_SModelInstance *minst,
         SCE_Node_Attach (mdl->root_node,
                          SCE_SceneEntity_GetInstanceNode (minst->inst));
     }
+    /* default data of the instances of a model */
+    SCE_SceneEntity_SetInstanceData (minst->inst, mdl);
 }
 int SCE_Model_AddInstance (SCE_SModel *mdl, unsigned int n,
                            SCE_SSceneEntityInstance *einst, int root)
