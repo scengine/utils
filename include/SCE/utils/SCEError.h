@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 16/09/2006
-   updated: 12/07/2009 */
+   updated: 20/01/2010 */
 
 #ifndef SCEERROR_H
 #define SCEERROR_H
@@ -29,10 +29,8 @@
 #include <SCE/SCECommon.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
-
 
 #define SCEE_Log(c) SCE_Error_Log (__FILE__, SCE_FUNCTION, __LINE__, c)
 #define SCEE_LogFromErrno(a,c)\
@@ -45,16 +43,18 @@ extern "C"
 #define SCEE_HaveError() SCE_Error_HaveError()
 #define SCEE_Out() SCE_Error_Out()
 #define SCEE_SoftOut() SCE_Error_SoftOut()
+#define SCEE_Clear() SCE_Error_Clear()
 
 /**
  * \brief Logs the error of the current errno
  * \param prefix prefix for the error message or NULL
+ *
+ * As it is a macro, the errno value is 'instantly' read.
  * \see SCEE_LogFromErrno()
  */
 #define SCEE_LogErrno(prefix) (SCEE_LogFromErrno (errno, prefix))
 
-enum sce_enum_error
-{
+enum sce_enum_error {
     SCE_NO_ERROR = 0,           /* 0 is 'no error' */
     SCE_OUT_OF_MEMORY,
     SCE_INVALID_OPERATION,
@@ -65,6 +65,7 @@ enum sce_enum_error
     SCE_FILE_NOT_FOUND,
     SCE_BAD_FORMAT,
     SCE_GL_ERROR,               /* do not define it here */
+    SCE_ERRNO_ERROR,
     SCE_NUM_ERRORS
 };
 /* TODO: use this type instead of 'int' */

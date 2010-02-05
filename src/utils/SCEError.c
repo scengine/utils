@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 16/09/2006
-   updated: 08/07/2009 */
+   updated: 20/01/2010 */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,13 +27,6 @@
 #include <SCE/utils/SCETime.h>
 
 #include <SCE/utils/SCEError.h>
-
-/**
- * \defgroup utils Useful functions
- * \ingroup SCEngine
- * \internal
- * \brief Useful functions used in the other parts of SCE
- */
 
 /**
  * \file SCEError.c
@@ -192,7 +185,7 @@ void SCE_Error_LogMsg (const char *fmt, ...)
 }
 
 /**
- * \brief Logs a error (code and message) from an errno value
+ * \brief Logs an error message from the errno value
  * \param prefix prefix for the error message (e.g. name of function that
  *               propagated errno) or NULL
  * \param errnum the errno value
@@ -202,7 +195,7 @@ void SCE_Error_LogFromErrno (const char *file, const char *func,
 {
     if (!prefix)
         prefix = "errno";
-    SCE_Error_Log (file, func, line, errnum);
+    SCE_Error_Log (file, func, line, SCE_ERRNO_ERROR);
     SCE_Error_LogMsg ("%s: %s", prefix, strerror (errnum));
 }
 
