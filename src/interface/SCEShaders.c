@@ -758,29 +758,36 @@ static void* SCE_Shader_LoadResource (const char *name, int force, void *data)
     char *vsource = NULL, *psource = NULL;
     int type[2];
     int ttemp = SCE_UNKNOWN_SHADER;
-    char vnamebuf[256] = {0};
-    char *vname = NULL, *pname = NULL;
+    char vnamebuf[256] = {0};   /* TODO: fixed size here */
+    char *vname = NULL, *pname = NULL, *ptr = NULL, *ptr2 = NULL;
     unsigned int i;
 
-    if (name != data)
+    strcpy (vnamebuf, name);
+    ptr = strchr (vnamebuf, '/');
+    ptr2 = strchr (&ptr[1], '/');
+    if (ptr == vnamebuf) {      /* no vertex shader */
+        pname = &vnamebuf[1];
+    } else {
         vname = vnamebuf;
-    pname = data;
-    for (i = 0; &name[i] != data; i++)
-        vnamebuf[i] = name[i];
+        if (ptr2 != NULL) {     /* both */
+            pname = &ptr[1];
+        } else {                /* no pixel shader */
+            vname = vnamebuf;
+        }
+    }
+    *ptr = 0;
+    if (ptr2)
+        *ptr2 = 0;
 
     if (force > 0)
         force--;
 
-    SCE_btstart ();
-    if (vname)
-    {
+    if (vname) {
         SCE_Shader_SearchTypes (SCE_String_GetExt ((char*)vname), type);
 
         srcs1 = SCE_Resource_Load (resource_source_type, vname, force, NULL);
-        if (!srcs1)
-        {
+        if (!srcs1) {
             SCEE_LogSrc ();
-            SCE_btend ();
             return NULL;
         }
 
@@ -793,15 +800,12 @@ static void* SCE_Shader_LoadResource (const char *name, int force, void *data)
         ttemp = type[0];
     }
 
-    if (pname)
-    {
+    if (pname) {
         SCE_Shader_SearchTypes (SCE_String_GetExt ((char*)pname), type);
 
         srcs2 = SCE_Resource_Load (resource_source_type, pname, force, NULL);
-        if (!srcs2)
-        {
+        if (!srcs2) {
             SCEE_LogSrc ();
-            SCE_btend ();
             return NULL;
         }
 
@@ -811,11 +815,9 @@ static void* SCE_Shader_LoadResource (const char *name, int force, void *data)
 
         psource = srcs2[1];
 
-        if (ttemp != type[0] && vname)
-        {
+        if (ttemp != type[0] && vname) {
             /* le type du pixel shader differe de celui du vertex shader */
-            if (SCE_Resource_Free (srcs1))
-            {
+            if (SCE_Resource_Free (srcs1)) {
                 SCE_free (vsource);
                 SCE_free (psource);
                 SCE_free (srcs1);
@@ -825,28 +827,23 @@ static void* SCE_Shader_LoadResource (const char *name, int force, void *data)
                          " a %s pixel shader",
                          (ttemp == SCE_GLSL_SHADER) ? "GLSL" : "Cg",
                          (type[0] == SCE_GLSL_SHADER) ? "GLSL" : "Cg");
-            SCE_btend ();
             return NULL;
         }
     }
 
     shader = SCE_Shader_Create (type[0]);
-    if (!shader)
-    {
-        if (SCE_Resource_Free (srcs1))
-        {
+    if (!shader) {
+        if (SCE_Resource_Free (srcs1)) {
             SCE_free (srcs1[0]);
             SCE_free (srcs1[1]);
             SCE_free (srcs1);
         }
-        if (SCE_Resource_Free (srcs2))
-        {
+        if (SCE_Resource_Free (srcs2)) {
             SCE_free (srcs2[0]);
             SCE_free (srcs2[1]);
             SCE_free (srcs2);
         }
         SCEE_LogSrc ();
-        SCE_btend ();
         return NULL;
     }
 
@@ -855,20 +852,22 @@ static void* SCE_Shader_LoadResource (const char *name, int force, void *data)
     shader->vs_source = vsource;
     shader->ps_source = psource;
 
-    SCE_btend ();
     return shader;
 }
 
 
 SCE_SShader* SCE_Shader_Load (const char *vname, const char *pname, int force)
 {
-    char buf[512] = {0};
+    char buf[512] = {0};        /* TODO: fixed size here */
     if (vname)
         strcpy (buf, vname);
-    if (pname)
+    /* char '/' used to separate names */
+    if (pname) {
+        strcat (buf, "/");
         strcat (buf, pname);
-    strcat (buf, "_resource");
-    return SCE_Resource_Load (resource_shader_type, buf, force, (void*)pname);
+    }
+    strcat (buf, "/resource");
+    return SCE_Resource_Load (resource_shader_type, buf, force, NULL);
 }
 
 
