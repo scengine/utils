@@ -78,6 +78,7 @@ extern "C" {
 /** @} */
 
 int SCE_Init_Mem (void);
+void SCE_Quit_Mem (void);
 
 void* SCE_Mem_Alloc (const char*, unsigned int, size_t)
     SCE_GNUC_MALLOC

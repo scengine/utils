@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include <SCE/SCEGLee.h>
 
 #include <SCE/utils/SCEError.h>
@@ -63,10 +64,11 @@ typedef struct SCE_SMemAlloc {
     struct SCE_SMemAlloc *next, *prev;
 } SCE_SMemAlloc;
 
-/*! Table of all allocations */
+/** \brief Table of all allocations */
 static SCE_SMemAlloc allocs = {
     "root allocations list", 0, 0, NULL, NULL, NULL
 };
+static pthread_mutex_t allocs_m = PTHREAD_MUTEX_INITIALIZER;
 
 
 typedef struct SCE_SMemArrayBlock {
@@ -84,6 +86,7 @@ typedef struct SCE_SMemArray {
 } SCE_SMemArray;
 
 static SCE_SMemArray arrays[SCE_NUM_MEMORY_ARRAYS];
+static pthread_mutex_t arrays_m = PTHREAD_MUTEX_INITIALIZER;
 
 #define SCE_Mem_For(i) for ((i) = allocs.next; (i); (i) = (i)->next)
 
@@ -102,6 +105,16 @@ int SCE_Init_Mem (void)
         arrays[i].alloc_size = i + 1;
     }
     return SCE_OK;
+}
+void SCE_Quit_Mem (void)
+{
+    /* tell the user: be sure the mutexes are unlocked */
+    pthread_mutex_destroy (&allocs_m);
+    pthread_mutex_destroy (&arrays_m);
+    /* safe further re-init, keep the data in the state we got them
+       at initialization */
+    pthread_mutex_init (&allocs_m, NULL);
+    pthread_mutex_init (&arrays_m, NULL);
 }
 
 static void SCE_Mem_InitAlloc (SCE_SMemAlloc *m)
@@ -145,7 +158,7 @@ static SCE_SMemArrayBlock* SCE_Mem_CreateBlock (size_t size)
         }
         SCE_Mem_InitAlloc (b->allocs[0]);
         b->allocs[0]->block = b;
-        for (i=1; i<SCE_ARRAY_BLOCK_SIZE; i++) {
+        for (i = 1; i < SCE_ARRAY_BLOCK_SIZE; i++) {
             address = b->allocs[i-1];
             address = (void*)((size_t)address + size);
             b->freeallocs[i] = b->allocs[i] = address;
@@ -166,31 +179,37 @@ static void SCE_Mem_DeleteBlock (SCE_SMemArrayBlock *b)
 
 static int SCE_Mem_AddNewBlock (SCE_SMemArray *a)
 {
-    if (!a->last) {
-        a->last = a->root = SCE_Mem_CreateBlock (a->alloc_size);
-        if (!a->last)
-            return -1;
-    } else {
-        a->last->next = SCE_Mem_CreateBlock (a->alloc_size);
-        if (!a->last->next)
-            return -1;
-        a->last->next->prev = a->last;
-        a->last = a->last->next;
+    if (pthread_mutex_lock (&arrays_m) == 0) {
+        if (!a->last) {
+            a->last = a->root = SCE_Mem_CreateBlock (a->alloc_size);
+            if (!a->last)
+                return -1;
+        } else {
+            a->last->next = SCE_Mem_CreateBlock (a->alloc_size);
+            if (!a->last->next)
+                return -1;
+            a->last->next->prev = a->last;
+            a->last = a->last->next;
+        }
+        pthread_mutex_unlock (&arrays_m);
     }
     return 0;
 }
 
 static void SCE_Mem_EraseBlock (SCE_SMemArray *a, SCE_SMemArrayBlock *b)
 {
-    if (b->prev)
-        b->prev->next = b->next;
-    else
-        a->root = b->next;
-    if (b->next)
-        b->next->prev = b->prev;
-    else
-        a->last = b->prev;
-    SCE_Mem_DeleteBlock (b);
+    if (pthread_mutex_lock (&arrays_m) == 0) {
+        if (b->prev)
+            b->prev->next = b->next;
+        else
+            a->root = b->next;
+        if (b->next)
+            b->next->prev = b->prev;
+        else
+            a->last = b->prev;
+        SCE_Mem_DeleteBlock (b);
+        pthread_mutex_unlock (&arrays_m);
+    }
 }
 
 static SCE_SMemAlloc* SCE_Mem_GetNextAllocInBlock (SCE_SMemArrayBlock *b)
@@ -205,12 +224,17 @@ static SCE_SMemAlloc* SCE_Mem_GetNextAllocInBlock (SCE_SMemArrayBlock *b)
 
 static SCE_SMemAlloc* SCE_Mem_GetNextAlloc (SCE_SMemArray *a)
 {
+    SCE_SMemAlloc *alloc = NULL;
     SCE_SMemArrayBlock *b = NULL;
     b = a->last;
-    while (b && !b->nfree)
-        b = b->prev;
-    if (b)
-        return SCE_Mem_GetNextAllocInBlock (b);
+    if (pthread_mutex_lock (&arrays_m) == 0) {
+        while (b && !b->nfree)
+            b = b->prev;
+        if (b)
+            alloc = SCE_Mem_GetNextAllocInBlock (b);
+        /* TODO: use recursive mutex */
+        pthread_mutex_unlock (&arrays_m);
+    }
     return NULL;
 }
 
@@ -219,9 +243,12 @@ static SCE_SMemAlloc* SCE_Mem_NewAllocFromArray (size_t size)
     SCE_SMemAlloc *m = NULL;
     /* considers this function is called with a good size */
     SCE_SMemArray *a = &arrays[size-1];
-    if (!(m = SCE_Mem_GetNextAlloc (a))) {
-        if (!(SCE_Mem_AddNewBlock (a) < 0))
-            m = SCE_Mem_GetNextAlloc (a); /* can't fail */
+    if (pthread_mutex_lock (&arrays_m) == 0) {
+        if (!(m = SCE_Mem_GetNextAlloc (a))) {
+            if (!(SCE_Mem_AddNewBlock (a) < 0))
+                m = SCE_Mem_GetNextAlloc (a); /* can't fail */
+        }
+        pthread_mutex_unlock (&arrays_m);
     }
     return m;
 }
@@ -286,10 +313,14 @@ int SCE_Mem_IsValid (void *p)
 static void SCE_Mem_AddAlloc (SCE_SMemAlloc *m)
 {
     m->prev = &allocs;
-    m->next = allocs.next;
-    if (m->next)
-        m->next->prev = m;
-    allocs.next = m;
+    /* FIXME: errors not checked! */
+    if (pthread_mutex_lock (&allocs_m) == 0) {
+        m->next = allocs.next;
+        if (m->next)
+            m->next->prev = m;
+        allocs.next = m;
+        pthread_mutex_unlock (&allocs_m);
+    }
 }
 
 static void SCE_Mem_EraseAlloc (SCE_SMemAlloc *m)
