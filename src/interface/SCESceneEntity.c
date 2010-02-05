@@ -59,7 +59,7 @@ void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance *einst)
 /**
  * \brief Creates an entity instance an initializes all its substructures
  */
-SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (SCE_ENodeType ntype)
+SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void)
 {
     SCE_SSceneEntityInstance *einst = NULL;
 
@@ -67,7 +67,7 @@ SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (SCE_ENodeType ntype)
     if (!(einst = SCE_malloc (sizeof *einst)))
         goto fail;
     SCE_SceneEntity_InitInstance (einst);
-    if (!(einst->node = SCE_Node_Create (ntype)))
+    if (!(einst->node = SCE_Node_Create ()))
         goto fail;
     if (!(einst->instance = SCE_Instance_Create ()))
         goto fail;
@@ -105,14 +105,13 @@ SCE_SSceneEntityInstance*
 SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance *einst)
 {
     SCE_SSceneEntityInstance *new = NULL;
-    if (!(new = SCE_SceneEntity_CreateInstance (
-              SCE_Node_GetType (einst->node)))) {
+    if (!(new = SCE_SceneEntity_CreateInstance ())) {
         SCEE_LogSrc ();
         return NULL;
     }
     /* don't copy the final matrix: may cause wrong transformations when adding
        the new instance to the parent's node of einst (for example) */
-    SCE_Node_CopyMatrix (einst->node, SCE_Node_GetMatrix (new->node));
+    SCE_Node_CopyMatrix (einst->node, new->node);
     return new;
 }
 

@@ -45,7 +45,7 @@ SCE_SLight* SCE_Light_Create (void)
     if (!(light = SCE_malloc (sizeof *light)))
         goto failure;
     SCE_Light_Init (light);
-    if (!(light->node = SCE_Node_Create (SCE_TREE_NODE)))
+    if (!(light->node = SCE_Node_Create ()))
         goto failure;
     if (!(light->clight = SCE_CCreateLight ()))
         goto failure;
@@ -83,11 +83,6 @@ SCE_SNode* SCE_Light_GetNode (SCE_SLight *light)
 {
     return light->node;
 }
-float* SCE_Light_GetNodeMatrix (SCE_SLight *light)
-{
-    return SCE_Node_GetMatrix (light->node);
-}
-
 
 void SCE_Light_SetColor (SCE_SLight *light, float r, float g, float b)
 {

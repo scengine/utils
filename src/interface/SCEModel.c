@@ -41,14 +41,14 @@ SCE_SModelInstance* SCE_Model_CreateInstance (void)
         SCE_Model_InitInstance (minst);
     return minst;
 }
-SCE_SModelInstance* SCE_Model_CreateInstance2 (SCE_ENodeType type)
+SCE_SModelInstance* SCE_Model_CreateInstance2 (void)
 {
     SCE_SModelInstance *minst = SCE_malloc (sizeof *minst);
     if (!minst)
         SCEE_LogSrc ();
     else {
         SCE_Model_InitInstance (minst);
-        if (!(minst->inst = SCE_SceneEntity_CreateInstance (type))) {
+        if (!(minst->inst = SCE_SceneEntity_CreateInstance ())) {
             SCE_Model_DeleteInstance (minst), minst = NULL;
             SCEE_LogSrc ();
         }
@@ -381,18 +381,17 @@ int SCE_Model_AddInstance (SCE_SModel *mdl, unsigned int n,
  * \todo using float* for SCE_TMatrix, bad.
  */
 int SCE_Model_AddNewInstance (SCE_SModel *mdl, unsigned int n, int root,
-                              float *mat, SCE_ENodeType type)
+                              float *mat)
 {
     SCE_SSceneEntityInstance *einst = NULL;
-    SCE_SModelInstance *minst = SCE_Model_CreateInstance2 (type);
+    SCE_SModelInstance *minst = SCE_Model_CreateInstance2 ();
     if (!minst)
         goto fail;
     minst->n = n;
     einst = minst->inst;
     SCE_Model_AddModelInstance (mdl, minst, root);
     if (mat) {
-        SCE_Matrix4_Copy (SCE_Node_GetMatrix (
-                              SCE_SceneEntity_GetInstanceNode (einst)), mat);
+        SCE_Node_SetMatrix (SCE_SceneEntity_GetInstanceNode (einst), mat);
     }
     return SCE_OK;
 fail:
@@ -597,7 +596,7 @@ int SCE_Model_Instanciate (SCE_SModel *mdl, SCE_SModel *mdl2, int mode,
         SCE_SNode *node = NULL;
         /* TODO: multi-usage idea, but is a tree node really adapted to
            any situation? */
-        if (!(node = SCE_Node_Create (SCE_TREE_NODE)))
+        if (!(node = SCE_Node_Create ()))
             goto fail;
         SCE_Model_SetRootNode (mdl2, node);
     }

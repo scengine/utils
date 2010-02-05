@@ -112,7 +112,7 @@ struct sce_ssceneentitygroup {
 
 
 void SCE_SceneEntity_InitInstance (SCE_SSceneEntityInstance*);
-SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (SCE_ENodeType);
+SCE_SSceneEntityInstance* SCE_SceneEntity_CreateInstance (void);
 void SCE_SceneEntity_DeleteInstance (SCE_SSceneEntityInstance*);
 SCE_SSceneEntityInstance*
 SCE_SceneEntity_DupInstance (SCE_SSceneEntityInstance*);

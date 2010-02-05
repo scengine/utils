@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2009  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/07/2007
-   updated: 04/11/2009 */
+   updated: 24/01/2010 */
 
 #ifndef SCENODE_H
 #define SCENODE_H
@@ -45,83 +45,79 @@ typedef enum {
     SCE_TREE_NODE
 } SCE_ENodeType;
 
+/**
+ * \brief Default matrices array for the node groups
+ */
+typedef enum {
+    SCE_NODE_READ_MATRIX = 0,
+    SCE_NODE_WRITE_MATRIX,
+/*    SCE_NODE_STANDBY_MATRIX     /* unused, but available for reading */
+} SCE_ENodeMatrixArray;
 
 /** \copydoc sce_snode */
 typedef struct sce_snode SCE_SNode;
-typedef float* (*SCE_FGetNodeMatrix)(SCE_SNode*);
+typedef float* (*SCE_FGetNodeMatrix)(SCE_SNode*, size_t);
 typedef void (*SCE_FNodeCallback)(SCE_SNode*, void*);
-typedef void (*SCE_FNodeCallback2)(SCE_SNode*);
+typedef void (*SCE_FNodeUpdate)(SCE_SNode*);
 
-typedef struct sce_snodedata SCE_SNodeData;
-struct sce_snodedata {
-    SCE_TMatrix4 matrix;       /**< Node matrix */
-    SCE_TMatrix4 fmatrix;      /**< Real node's transformation matrix, with all
-                                *   parent nodes' matrices applyed */
-};
+typedef struct sce_snodegroup SCE_SNodeGroup;
 
 /**
  * \brief Node definition structure
  */
 struct sce_snode {
     SCE_SOctreeElement *element; /**< Element */
-    SCE_SNode *parent;         /**< Parent node */
+    SCE_SNode *parent;          /**< Parent node */
     /* yes: even a single matrix node can has children! */
-    SCE_SList child;           /**< Children */
-    SCE_SList toupdate;        /**< Children to update! */
-    SCE_FGetNodeMatrix getmat; /**< Get matrix function */
-    SCE_FGetNodeMatrix getfmat;/**< Get final matricx function */
-    SCE_SNodeData *data;       /**< pointer to a float* in case of single
-                                * matrix node type */
-    size_t matrix;             /**< Offset of the matrix into data
-                                * (if non-zero then the node is of type
-                                * SCE_SINGLE_MATRIX_NODE) */
-    SCE_SListIterator it, it2; /**< Own iterator */
-    unsigned int marks;        /**< Has the node moved since the last update? */
-    /* \deprecated */ /* TODO: kick that */
-    SCE_FNodeCallback moved;   /**< Called when the node has moved */
-    void *movedparam;          /**< \c moved parameter */
-    void *udata;               /**< User-defined data */
+    SCE_SList child;            /**< Children */
+    SCE_SList toupdate;         /**< Children to update! */
+    SCE_ENodeType type;         /**< Does the node have a final matrix in
+                                 * \c matrix ? */
+    SCE_FNodeUpdate update;     /**< Update function */
+    float *matrix;              /**< Pointer to the matrix(ces) of the node */
+    SCE_SNodeGroup *group;      /**< Group of the node */
+    SCE_SListIterator it;       /**< Own iterator */
+    unsigned int marks;         /**< Has the node moved since the last update?*/
+    SCE_FNodeCallback moved;
+    void *movedparam;
+    void *udata;                /**< User-defined data */
 };
 
-typedef struct sce_snodegroup SCE_SNodeGroup;
 struct sce_snodegroup {
-    float **arrays;
-    size_t n_arrays;
-    SCE_SList nodes;
+    size_t *ids;
+    size_t n_ids;
 };
 
 /** @} */
 
-SCE_SNode* SCE_Node_Create (SCE_ENodeType);
+SCE_SNode* SCE_Node_Create (void);
 void SCE_Node_Delete (SCE_SNode*);
 void SCE_Node_DeleteRecursive (SCE_SNode*);
 
-SCE_SNodeGroup* SCE_Node_CreateGroup (void);
+SCE_SNodeGroup* SCE_Node_CreateGroup (size_t);
 void SCE_Node_DeleteGroup (SCE_SNodeGroup*);
 
-void SCE_Node_AddNode (SCE_SNodeGroup*, SCE_SNode*);
-void SCE_Node_RemoveNode (SCE_SNodeGroup*, SCE_SNode*);
+void SCE_Node_Switch (SCE_SNodeGroup*, size_t, size_t);
+int SCE_Node_AddNode (SCE_SNodeGroup*, SCE_SNode*, SCE_ENodeType);
+void SCE_Node_RemoveNode (SCE_SNode*);
 
 SCE_ENodeType SCE_Node_GetType (SCE_SNode*);
 
 void SCE_Node_Attach (SCE_SNode*, SCE_SNode*);
-SCE_SNode* SCE_Node_AttachNew (SCE_SNode*);
 void SCE_Node_Detach (SCE_SNode*);
 
 void SCE_Node_Insert (SCE_SNode*, SCE_SNode*);
 
-void SCE_Node_MultMatrix (SCE_SNode*);
-void SCE_Node_LoadMatrix (SCE_SNode*);
+/* gl calls in this module are very ugly */
+void SCE_Node_MultMatrix (SCE_SNode*) SCE_GNUC_DEPRECATED;
+void SCE_Node_LoadMatrix (SCE_SNode*) SCE_GNUC_DEPRECATED;
 
-float* SCE_Node_GetSingleMatrix (SCE_SNode*);
-float* SCE_Node_GetTreeMatrix (SCE_SNode*);
-float* SCE_Node_GetTreeFinalMatrix (SCE_SNode*);
-
-float* SCE_Node_GetMatrix (SCE_SNode*);
-void SCE_Node_CopyMatrix (SCE_SNode*, SCE_TMatrix4);
-
+float* SCE_Node_GetMatrix (SCE_SNode*, size_t);
 float* SCE_Node_GetFinalMatrix (SCE_SNode*);
-void SCE_Node_CopyFinalMatrix (SCE_SNode*, SCE_TMatrix4);
+void SCE_Node_SetMatrix (SCE_SNode*, SCE_TMatrix4);
+void SCE_Node_GetMatrixv (SCE_SNode*, SCE_TMatrix4);
+void SCE_Node_GetFinalMatrixv (SCE_SNode*, SCE_TMatrix4);
+void SCE_Node_CopyMatrix (SCE_SNode*, SCE_SNode*);
 
 void SCE_Node_SetOnMovedCallback (SCE_SNode*, SCE_FNodeCallback, void*);
 

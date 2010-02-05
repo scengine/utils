@@ -56,7 +56,8 @@ void SCE_Camera_Init (SCE_SCamera *cam)
     cam->viewport.w = cam->viewport.h = 512; /* NOTE: dimensions de l'ecran */
     SCE_Frustum_Init (&cam->frustum);
     SCE_BoundingSphere_Init (&cam->sphere);
-    SCE_BoundingSphere_GetSphere (&cam->sphere)->radius = 0.00001f;/* epsilon */
+    /* TODO: epsilon */
+    SCE_BoundingSphere_GetSphere (&cam->sphere)->radius = 0.00001f;
     cam->node = NULL;
 }
 
@@ -71,7 +72,7 @@ SCE_SCamera* SCE_Camera_Create (void)
     if (!(cam = SCE_malloc (sizeof *cam)))
         goto fail;
     SCE_Camera_Init (cam);
-    if (!(cam->node = SCE_Node_Create (SCE_TREE_NODE)))
+    if (!(cam->node = SCE_Node_Create ()))
         goto fail;
     SCE_Node_SetData (cam->node, cam);
     SCE_Node_GetElement (cam->node)->sphere = &cam->sphere;
@@ -203,7 +204,7 @@ float* SCE_Camera_GetFinalViewInverse (SCE_SCamera *cam)
 static void SCE_Camera_UpdateView (SCE_SCamera *cam)
 {
     SCE_TMatrix4 mat;
-    SCE_Node_CopyFinalMatrix (cam->node, mat);
+    SCE_Node_GetFinalMatrixv (cam->node, mat);
     SCE_Matrix4_InverseCopy (mat);
     SCE_Matrix4_Mul (cam->view, mat, cam->finalview);
 }

@@ -58,7 +58,7 @@ SCE_SSkybox* SCE_Skybox_Create (void)
         goto fail;
     if (!(skybox->entity = SCE_SceneEntity_Create ()))
         goto fail;
-    if (!(skybox->instance = SCE_SceneEntity_CreateInstance (SCE_TREE_NODE)))
+    if (!(skybox->instance = SCE_SceneEntity_CreateInstance ()))
         goto fail;
     SCE_SceneEntity_AddInstanceToEntity (skybox->entity, skybox->instance);
     props = SCE_SceneEntity_GetProperties (skybox->entity);
@@ -95,8 +95,9 @@ void SCE_Skybox_Delete (SCE_SSkybox *skybox)
 void SCE_Skybox_SetSize (SCE_SSkybox *skybox, float size)
 {
     SCE_SNode *node = SCE_SceneEntity_GetInstanceNode (skybox->instance);
-    SCE_Matrix4_Scale (SCE_Node_GetMatrix (node), size, size, size);
-    SCE_Node_HasMoved (node);   /* never know... */
+    SCE_Matrix4_Scale (SCE_Node_GetMatrix (node, SCE_NODE_WRITE_MATRIX),
+                       size, size, size);
+    SCE_Node_HasMoved (node);   /* o ser gamer ! !1 */
 }
 /**
  * \brief Defines the texture of a skybox

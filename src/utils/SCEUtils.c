@@ -23,6 +23,13 @@
 
 #include <SCE/utils/SCEUtils.h>
 
+/**
+ * \defgroup utils Useful functions
+ * \ingroup SCEngine
+ * \internal
+ * \brief Useful functions used in the other parts of SCE
+ */
+
 static int initialized = SCE_FALSE;
 
 /**
@@ -86,6 +93,6 @@ void SCE_Quit_Utils (void)
     SCE_Quit_FastList ();
     /*SCE_Quit_Matrix ();*/
     /*SCE_Quit_Error ();*/
-    /*SCE_Quit_Mem ();*/
+    SCE_Quit_Mem ();
     initialized = SCE_FALSE;
 }

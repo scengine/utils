@@ -102,10 +102,11 @@ float SCE_Math_InvSqrt (float number)
 
 
 /**
- * \brief Exponentiation by squaring
+ * \brief Exponentiation by squaring (fast exponentiation)
  * \param x a number
  * \param n the exposant
  * \returns x^n
+ * \todo powi is crap for a func name.
  * 
  * This function computes the power of a number. This function do the same as
  * the C standard pow() function except that it works only with integers.

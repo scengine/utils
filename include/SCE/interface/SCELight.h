@@ -56,7 +56,6 @@ void SCE_Light_Activate (SCE_SLight*, int);
 int SCE_Light_IsActivated (SCE_SLight*);
 
 SCE_SNode* SCE_Light_GetNode (SCE_SLight*);
-float* SCE_Light_GetNodeMatrix (SCE_SLight*);
 
 void SCE_Light_SetColor (SCE_SLight*, float, float, float);
 void SCE_Light_SetColorv (SCE_SLight*, float*);

@@ -79,7 +79,7 @@ struct sce_smodel {
 
 void SCE_Model_InitInstance (SCE_SModelInstance*);
 SCE_SModelInstance* SCE_Model_CreateInstance (void);
-SCE_SModelInstance* SCE_Model_CreateInstance2 (SCE_ENodeType);
+SCE_SModelInstance* SCE_Model_CreateInstance2 (void);
 void SCE_Model_DeleteInstance (SCE_SModelInstance*);
 SCE_SModelInstance* SCE_Model_DupInstance (SCE_SModelInstance*);
 
@@ -100,8 +100,7 @@ int SCE_Model_RootNodeIsInstance (SCE_SModel*);
 void SCE_Model_AddModelInstance (SCE_SModel*, SCE_SModelInstance*, int);
 int SCE_Model_AddInstance (SCE_SModel*, unsigned int, SCE_SSceneEntityInstance*,
                            int);
-int SCE_Model_AddNewInstance (SCE_SModel*, unsigned int, int, float*,
-                              SCE_ENodeType);
+int SCE_Model_AddNewInstance (SCE_SModel*, unsigned int, int, float*);
 
 unsigned int SCE_Model_GetNumLOD (SCE_SModel*);
 SCE_SSceneEntity* SCE_Model_GetEntity (SCE_SModel*, int, unsigned int);

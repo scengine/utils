@@ -182,7 +182,7 @@ SCE_SScene* SCE_Scene_Create (void)
     if (!(scene = SCE_malloc (sizeof *scene)))
         goto failure;
     SCE_Scene_Init (scene);
-    if (!(scene->rootnode = SCE_Node_Create (SCE_SINGLE_MATRIX_NODE)))
+    if (!(scene->rootnode = SCE_Node_Create ()))
         goto failure;
     if (!(scene->octree = SCE_Octree_Create ()))
         goto failure;
@@ -975,10 +975,11 @@ static void SCE_Scene_RenderSkybox (SCE_SScene *scene, SCE_SCamera *cam)
 
     matcam = SCE_Node_GetFinalMatrix (SCE_Camera_GetNode (cam));
     SCE_Matrix4_GetTranslation (matcam, pos);
-    matcam = SCE_Node_GetMatrix (node);
+    matcam = SCE_Node_GetMatrix (node, SCE_NODE_WRITE_MATRIX);
     matcam[3]  = pos[0];
     matcam[7]  = pos[1];
     matcam[11] = pos[2];
+/*    SCE_Matrix4_Scale (matcam, 420.0, 420.0, 420.0);*/
     SCE_Node_HasMoved (node);
     SCE_Node_UpdateRootRecursive (node);
 
