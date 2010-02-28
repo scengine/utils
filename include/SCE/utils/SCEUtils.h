@@ -50,6 +50,38 @@ extern "C"
 int SCE_Init_Utils (FILE*);
 void SCE_Quit_Utils (void);
 
+/**
+ * \addtogroup utils
+ * \def SCE_FLAG_ADD
+ * \brief Adds a flag to a flag variable
+ * \param var the variable
+ * \param the flag to add
+ * 
+ * \note it is the same to do var |= flag
+ */
+#define SCE_FLAG_ADD(var, flag)     (var |= flag)
+/**
+ * \addtogroup utils
+ * \def SCE_FLAG_REMOVE
+ * \brief Removes a flag from a flag variable
+ * \param var the variable
+ * \param the flag to remove
+ * 
+ * This removes a flag from a set of flags. This macro works if \p var does
+ * not already have the flag to remove, in contrast to naïve var ^= flag.
+ */
+#define SCE_FLAG_REMOVE(var, flag)  (var = (var | flag) ^ flag)
+/**
+ * \addtogroup utils
+ * \def SCE_FLAG_TEST
+ * \brief Checks whether a flag is in a variable
+ * \param var the variable
+ * \param the flag to test for
+ * 
+ * \note it is the same to do var & flag
+ */
+#define SCE_FLAG_TEST(var, flag)    (var & flag)
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
