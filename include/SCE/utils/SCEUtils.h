@@ -59,7 +59,7 @@ void SCE_Quit_Utils (void);
  * 
  * \note it is the same to do var |= flag
  */
-#define SCE_FLAG_ADD(var, flag)     (var |= flag)
+#define SCE_FLAG_ADD(var, flag)     ((var) |= (flag))
 /**
  * \addtogroup utils
  * \def SCE_FLAG_REMOVE
@@ -70,7 +70,7 @@ void SCE_Quit_Utils (void);
  * This removes a flag from a set of flags. This macro works if \p var does
  * not already have the flag to remove, in contrast to naïve var ^= flag.
  */
-#define SCE_FLAG_REMOVE(var, flag)  (var = (var | flag) ^ flag)
+#define SCE_FLAG_REMOVE(var, flag)  ((var) = ((var) | (flag)) ^ (flag))
 /**
  * \addtogroup utils
  * \def SCE_FLAG_TEST
@@ -80,7 +80,7 @@ void SCE_Quit_Utils (void);
  * 
  * \note it is the same to do var & flag
  */
-#define SCE_FLAG_TEST(var, flag)    (var & flag)
+#define SCE_FLAG_TEST(var, flag)    ((var) & (flag))
 
 #ifdef __cplusplus
 } /* extern "C" */
