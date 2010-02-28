@@ -279,7 +279,10 @@ void SCE_Node_Detach (SCE_SNode *node)
     if (node->parent) {
         SCE_List_Removel (&node->it);
         node->parent = NULL;
-        SCE_Node_HasMoved (node);
+        /* yo dawg, if this node was a child then it will be reattached
+           as a child and then updated, otherwise it is now a root
+           it does not need any update */
+        /*SCE_Node_HasMoved (node):*/
     }
 }
 

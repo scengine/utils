@@ -458,6 +458,8 @@ void SCE_List_Erase (SCE_SList *l, SCE_SListIterator *it)
 /**
  * \brief Fully remove the first element of a list
  * \param l the SCE_SList from where detach data
+ * \warning Does not check if there is any iterator to delete, if
+ * the list is empty the behavior is undefined.
  * \sa SCE_List_Erase(), SCE_List_EraseLast(), SCE_List_RemoveFirst()
  */
 void SCE_List_EraseFirst (SCE_SList *l)
@@ -477,6 +479,8 @@ void SCE_List_EraseFirst (SCE_SList *l)
 /**
  * \brief Fully remove the last element of a list
  * \param l the SCE_SList from where detach data
+ * \warning Does not check if there is any iterator to delete, if
+ * the list is empty the behavior is undefined.
  * \sa SCE_List_Erase(), SCE_List_EraseFirst(), SCE_List_RemoveLast()
  */
 void SCE_List_EraseLast (SCE_SList *l)
