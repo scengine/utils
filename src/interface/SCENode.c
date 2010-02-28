@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/07/2007
-   updated: 24/01/2010 */
+   updated: 28/02/2010 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -281,8 +281,8 @@ void SCE_Node_Detach (SCE_SNode *node)
         node->parent = NULL;
         /* yo dawg, if this node was a child then it will be reattached
            as a child and then updated, otherwise it is now a root
-           it does not need any update */
-        /*SCE_Node_HasMoved (node):*/
+           and it does not need any update */
+        /*SCE_Node_HasMoved (node);*/
     }
 }
 
@@ -291,7 +291,7 @@ void SCE_Node_Detach (SCE_SNode *node)
  * \param node the node to assert
  * \param child 
  *
- * Inserts \p node between \p child and its parent. If \p child hasn't a parent,
+ * Inserts \p node between \p child and its parent. If \p child has no parent,
  * this function just attach \p child to \p node.
  * \sa SCE_Node_Attach()
  * \note This function is just a bit useless.

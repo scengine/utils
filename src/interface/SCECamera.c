@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 15/03/2009 */
+   updated: 28/02/2010 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -59,6 +59,8 @@ void SCE_Camera_Init (SCE_SCamera *cam)
     /* TODO: epsilon */
     SCE_BoundingSphere_GetSphere (&cam->sphere)->radius = 0.00001f;
     cam->node = NULL;
+    SCE_List_InitIt (&cam->it);
+    SCE_List_SetData (&cam->it, cam);
 }
 
 /**
@@ -198,6 +200,14 @@ float* SCE_Camera_GetFinalView (SCE_SCamera *cam)
 float* SCE_Camera_GetFinalViewInverse (SCE_SCamera *cam)
 {
     return cam->finalviewinv;
+}
+
+/**
+ * \brief Returns the iterator of a camera
+ */
+SCE_SListIterator* SCE_Camera_GetIterator (SCE_SCamera *cam)
+{
+    return &cam->it;
 }
 
 

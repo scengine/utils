@@ -90,10 +90,10 @@ struct sce_sscene
     SCE_SList *instances;       /**< Instances */
     SCE_SList *selected;        /**< Selected instances */
     SCE_SList *selected_join;   /**< Where to join lists */
-    SCE_SList *egroups;         /**< Scene's entities groups list */
-    SCE_SList *entities;        /**< Scene's entities */
-    SCE_SList *lights;          /**< Scene's lights list */
-    SCE_SList *cameras;         /**< Cameras in the scene */
+
+    SCE_SList entities;         /**< Scene's entities */
+    SCE_SList lights;           /**< Scene's lights list */
+    SCE_SList cameras;          /**< Cameras in the scene */
 
     SCE_SSkybox *skybox;        /**< Scene skybox */
 
@@ -133,8 +133,8 @@ void SCE_Scene_RemoveEntity (SCE_SScene*, SCE_SSceneEntity*);
 void SCE_Scene_AddModel (SCE_SScene*, SCE_SModel*);
 void SCE_Scene_RemoveModel (SCE_SScene*, SCE_SModel*);
 /*int SCE_Scene_AddEntityGroup (SCE_SScene*, SCE_SSceneEntityGroup*);*/
-int SCE_Scene_AddLight (SCE_SScene*, SCE_SLight*);
-int SCE_Scene_AddCamera (SCE_SScene*, SCE_SCamera*);
+void SCE_Scene_AddLight (SCE_SScene*, SCE_SLight*);
+void SCE_Scene_AddCamera (SCE_SScene*, SCE_SCamera*);
 
 void SCE_Scene_AddResource (SCE_SScene*, int, SCE_SSceneResource*);
 void SCE_Scene_RemoveResource (SCE_SSceneResource*);

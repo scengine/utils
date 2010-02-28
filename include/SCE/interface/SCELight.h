@@ -17,11 +17,12 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 13/03/2008
-   updated: 15/03/2009 */
+   updated: 28/02/2010 */
 
 #ifndef SCELIGHT_H
 #define SCELIGHT_H
 
+#include <SCE/utils/SCEList.h>
 #include <SCE/core/SCECLight.h>
 #include <SCE/interface/SCEBoundingSphere.h>
 #include <SCE/interface/SCENode.h>
@@ -34,16 +35,17 @@ extern "C" {
 /** \copydoc sce_slight */
 typedef struct sce_slight SCE_SLight;
 /**
- * \brief A light! (omg)
+ * \brief A light
  */
-struct sce_slight
-{
+struct sce_slight {
+    /* TODO: make it as non-pointer */
     SCE_CLight *clight; /* lumiere coeur */
     float intensity;    /* coefficient d'intensite */
     float radius;       /* rayon de portee de la lumiere */
     int activated;      /* defini si la lumiere est active */
-    SCE_SBoundingSphere sphere; /**< Bounding sphere (if is omnidirectionnal) */
+    SCE_SBoundingSphere sphere; /**< Bounding sphere (if omnidirectionnal) */
     SCE_SNode *node;    /* noeud de la lumiere */
+    SCE_SListIterator it;
 };
 
 void SCE_Light_Init (SCE_SLight*);
@@ -56,6 +58,7 @@ void SCE_Light_Activate (SCE_SLight*, int);
 int SCE_Light_IsActivated (SCE_SLight*);
 
 SCE_SNode* SCE_Light_GetNode (SCE_SLight*);
+SCE_SListIterator* SCE_Light_GetIterator (SCE_SLight*);
 
 void SCE_Light_SetColor (SCE_SLight*, float, float, float);
 void SCE_Light_SetColorv (SCE_SLight*, float*);

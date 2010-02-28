@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 19/01/2008
-   updated: 06/11/2009 */
+   updated: 28/02/2010 */
 
 #include <SCE/SCEMinimal.h>
 
@@ -135,31 +135,6 @@ static void SCE_Scene_InitStates (SCE_SSceneStates *states)
     states->lod = SCE_FALSE;
 }
 
-static void SCE_Scene_Init (SCE_SScene *scene)
-{
-    unsigned int i;
-    scene->rootnode = NULL;
-    scene->node_updated = SCE_FALSE;
-    scene->n_nodes = 0;
-    scene->octree = NULL;
-    scene->contribution_size = 0.01f;
-    for (i = 0; i < SCE_SCENE_NUM_RESOURCE_GROUP; i++)
-        scene->rgroups[i] = NULL;
-    scene->instances = NULL;
-    scene->selected = NULL;
-    scene->selected_join = NULL;
-    scene->egroups = NULL;
-    scene->entities = NULL;
-    scene->lights = NULL;
-    scene->cameras = NULL;
-    scene->skybox = NULL;
-    scene->rclear = scene->gclear = scene->bclear = scene->aclear = 0.5;
-    scene->dclear = 1.0;
-    scene->rendertarget = NULL;
-    scene->cubeface = 0;
-    scene->camera = NULL;
-    SCE_Scene_InitStates (&scene->states);
-}
 static void SCE_Scene_RemoveLightNode (void *scene, void *light)
 {
     SCE_Scene_RemoveNode (scene, SCE_Light_GetNode (light));
@@ -167,6 +142,38 @@ static void SCE_Scene_RemoveLightNode (void *scene, void *light)
 static void SCE_Scene_RemoveCameraNode (void *scene, void *cam)
 {
     SCE_Scene_RemoveNode (scene, SCE_Camera_GetNode (cam));
+}
+static void SCE_Scene_Init (SCE_SScene *scene)
+{
+    unsigned int i;
+
+    SCE_Scene_InitStates (&scene->states);
+
+    scene->rootnode = NULL;
+    scene->node_updated = SCE_FALSE;
+    scene->n_nodes = 0;
+    scene->octree = NULL;
+    scene->contribution_size = 0.01f;
+
+    for (i = 0; i < SCE_SCENE_NUM_RESOURCE_GROUP; i++)
+        scene->rgroups[i] = NULL;
+
+    scene->instances = NULL;
+    scene->selected = NULL;
+    scene->selected_join = NULL;
+
+    SCE_List_Init (&scene->entities);
+    SCE_List_Init (&scene->lights);
+    SCE_List_SetFreeFunc2 (&scene->lights, SCE_Scene_RemoveLightNode, scene);
+    SCE_List_Init (&scene->cameras);
+    SCE_List_SetFreeFunc2 (&scene->cameras, SCE_Scene_RemoveCameraNode, scene);
+
+    scene->skybox = NULL;
+    scene->rclear = scene->gclear = scene->bclear = scene->aclear = 0.5;
+    scene->dclear = 1.0;
+    scene->rendertarget = NULL;
+    scene->cubeface = 0;
+    scene->camera = NULL;
 }
 /**
  * \brief Creates a new scene
@@ -178,7 +185,6 @@ SCE_SScene* SCE_Scene_Create (void)
     SCE_SSceneOctree *stree = NULL;
     SCE_SOctreeElement *el = NULL;
 
-    SCE_btstart ();
     if (!(scene = SCE_malloc (sizeof *scene)))
         goto failure;
     SCE_Scene_Init (scene);
@@ -196,14 +202,6 @@ SCE_SScene* SCE_Scene_Create (void)
         goto failure;
     if (!(scene->selected = SCE_List_Create (NULL)))
         goto failure;
-    if (!(scene->egroups = SCE_List_Create (NULL)))
-        goto failure;
-    if (!(scene->entities = SCE_List_Create (NULL)))
-        goto failure;
-    if (!(scene->lights = SCE_List_Create2 (scene, SCE_Scene_RemoveLightNode)))
-        goto failure;
-    if (!(scene->cameras = SCE_List_Create2 (scene,SCE_Scene_RemoveCameraNode)))
-        goto failure;
 
     SCE_Octree_SetSize (scene->octree, SCE_SCENE_OCTREE_SIZE,
                         SCE_SCENE_OCTREE_SIZE, SCE_SCENE_OCTREE_SIZE);
@@ -211,19 +209,12 @@ SCE_SScene* SCE_Scene_Create (void)
         goto failure;
     SCE_Octree_SetData (scene->octree, stree);
 
-    /* TODO: sucks */
-    SCE_List_CanDeleteIterators (scene->egroups, SCE_TRUE);
-    SCE_List_CanDeleteIterators (scene->lights, SCE_TRUE);
-    SCE_List_CanDeleteIterators (scene->cameras, SCE_TRUE);
-    goto success;
-
+    return scene;
 failure:
 /*    SCE_Scene_DeleteOctree (stree);*/
-    SCE_Scene_Delete (scene), scene = NULL;
+    SCE_Scene_Delete (scene);
     SCEE_LogSrc ();
-success:
-    SCE_btend ();
-    return scene;
+    return NULL;
 }
 
 /**
@@ -234,10 +225,9 @@ void SCE_Scene_Delete (SCE_SScene *scene)
 {
     if (scene) {
         unsigned int i;
-        SCE_List_Delete (scene->cameras);
-        SCE_List_Delete (scene->lights);
-        SCE_List_Delete (scene->entities);
-        SCE_List_Delete (scene->egroups);
+        SCE_List_Clear (&scene->cameras);
+        SCE_List_Clear (&scene->lights);
+        SCE_List_Clear (&scene->entities);
         for (i = 0; i < SCE_SCENE_NUM_RESOURCE_GROUP; i++)
             SCE_SceneResource_DeleteGroup (scene->rgroups[i]);
         SCE_Octree_DeleteRecursive (scene->octree);
@@ -496,7 +486,7 @@ void SCE_Scene_AddEntity (SCE_SScene *scene, SCE_SSceneEntity *entity)
 {
     /* TODO: why it doesn't add the resources too?? */
     SCE_List_Remove (SCE_SceneEntity_GetIterator (entity));
-    SCE_List_Prependl (scene->entities, SCE_SceneEntity_GetIterator (entity));
+    SCE_List_Prependl (&scene->entities, SCE_SceneEntity_GetIterator (entity));
 }
 /**
  * \brief Removes an entity from a scene
@@ -586,41 +576,26 @@ void SCE_Scene_RemoveModel (SCE_SScene *scene, SCE_SModel *mdl)
 
 /**
  * \brief Adds a light to a scene
- * \param scene a scene
- * \param light a light to add to the given scene
- * \returns SCE_ERROR on error, SCE_OK otherwise
- * \todo lol (ptdr)
  */
-int SCE_Scene_AddLight (SCE_SScene *scene, SCE_SLight *light)
+void SCE_Scene_AddLight (SCE_SScene *scene, SCE_SLight *light)
 {
     SCE_SNode *node = NULL;
-    /* TODO: add an iterator to the light */
-    if (SCE_List_PrependNewl (scene->lights, light) < 0) {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
-    }
+    SCE_List_Appendl (&scene->lights, SCE_Light_GetIterator (light));
     node = SCE_Light_GetNode (light);
     SCE_Node_GetElement (node)->insert = SCE_Scene_InsertLight;
     SCE_Scene_AddNode (scene, node);
-    return SCE_OK;
 }
 
 /**
  * \brief Adds a camera to a scene
- * \todo foo
  */
-int SCE_Scene_AddCamera (SCE_SScene *scene, SCE_SCamera *camera)
+void SCE_Scene_AddCamera (SCE_SScene *scene, SCE_SCamera *camera)
 {
     SCE_SNode *node = NULL;
-    /* TODO: add an iterator to the camera */
-    if (SCE_List_PrependNewl (scene->cameras, camera) < 0) {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
-    }
+    SCE_List_Appendl (&scene->cameras, SCE_Camera_GetIterator (camera));
     node = SCE_Camera_GetNode (camera);
     SCE_Node_GetElement (node)->insert = SCE_Scene_InsertCamera;
     SCE_Scene_AddNode (scene, node);
-    return SCE_OK;
 }
 
 /**
@@ -739,7 +714,7 @@ int SCE_Scene_MakeOctree (SCE_SScene *scene, unsigned int rec,
 
 int SCE_Scene_SetupBatching (SCE_SScene *scene, unsigned int n, int *order)
 {
-    if (SCE_Batch_SortEntities (scene->entities, SCE_SCENE_NUM_RESOURCE_GROUP,
+    if (SCE_Batch_SortEntities (&scene->entities, SCE_SCENE_NUM_RESOURCE_GROUP,
                                 scene->rgroups, 2, order) < 0) {
         SCEE_LogSrc ();
         return SCE_ERROR;
@@ -750,7 +725,7 @@ int SCE_Scene_SetupBatching (SCE_SScene *scene, unsigned int n, int *order)
 int SCE_Scene_SetupDefaultBatching (SCE_SScene *scene)
 {
     int order[] = {SCE_SCENE_SHADERS_GROUP, SCE_SCENE_TEXTURES0_GROUP};
-    if (SCE_Batch_SortEntities (scene->entities, SCE_SCENE_NUM_RESOURCE_GROUP,
+    if (SCE_Batch_SortEntities (&scene->entities, SCE_SCENE_NUM_RESOURCE_GROUP,
                                 scene->rgroups, 2, order) < 0) {
         SCEE_LogSrc ();
         return SCE_ERROR;
@@ -866,7 +841,7 @@ static void SCE_Scene_DetermineEntities (SCE_SScene *scene)
 static void SCE_Scene_FlushEntities (SCE_SScene *scene)
 {
     SCE_SListIterator *it = NULL;
-    SCE_SList *entities = scene->entities;
+    SCE_SList *entities = &scene->entities;
     SCE_List_ForEach (it, entities)
         SCE_SceneEntity_Flush (SCE_List_GetData (it));
 }
@@ -952,7 +927,7 @@ static void SCE_Scene_RenderEntities (SCE_SScene *scene)
 {
     SCE_SSceneEntity *entity = NULL;
     SCE_SListIterator *it;
-    SCE_List_ForEach (it, scene->entities) {
+    SCE_List_ForEach (it, &scene->entities) {
         entity = SCE_List_GetData (it);
         if (SCE_SceneEntity_HasInstance (entity)) {
             SCE_SceneEntity_UseResources (entity);
@@ -1039,7 +1014,7 @@ void SCE_Scene_Render (SCE_SScene *scene, SCE_SCamera *cam,
     else {
         SCE_Light_ActivateLighting (SCE_TRUE);
         /* TODO: activation de toutes les lumières (bourrin & temporaire) */
-        SCE_List_ForEach (it, scene->lights)
+        SCE_List_ForEach (it, &scene->lights)
             SCE_Light_Use (SCE_List_GetData (it));
     }
 

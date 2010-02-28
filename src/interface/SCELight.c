@@ -29,13 +29,15 @@ static int use_lighting = SCE_TRUE;
 
 void SCE_Light_Init (SCE_SLight *light)
 {
-    light->clight = NULL;
+    light->clight = NULL;       /* TODO: bouh */
     light->intensity = 1.0f;
     light->radius = 16.0f;
     light->activated = SCE_TRUE;
     light->node = NULL;
     SCE_BoundingSphere_Init (&light->sphere);
     SCE_BoundingSphere_GetSphere (&light->sphere)->radius = light->radius;
+    SCE_List_InitIt (&light->it);
+    SCE_List_SetData (&light->it, light);
 }
 
 SCE_SLight* SCE_Light_Create (void)
@@ -82,6 +84,10 @@ int SCE_Light_IsActivated (SCE_SLight *light)
 SCE_SNode* SCE_Light_GetNode (SCE_SLight *light)
 {
     return light->node;
+}
+SCE_SListIterator* SCE_Light_GetIterator (SCE_SLight *light)
+{
+    return &light->it;
 }
 
 void SCE_Light_SetColor (SCE_SLight *light, float r, float g, float b)

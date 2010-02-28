@@ -17,19 +17,19 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 15/03/2009 */
+   updated: 28/02/2010 */
 
 #ifndef SCECAMERA_H
 #define SCECAMERA_H
 
 #include <SCE/utils/SCEVector.h>
+#include <SCE/utils/SCEList.h>
 #include <SCE/interface/SCEBoundingSphere.h>
 #include <SCE/interface/SCEFrustum.h>
 #include <SCE/interface/SCENode.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -60,18 +60,19 @@ typedef struct sce_scamera SCE_SCamera;
  */
 struct sce_scamera
 {
-    SCE_TMatrix4 finalview;    /* matrice de vue combinee avec le noeud */
-    SCE_TMatrix4 finalviewinv; /* finalview inversee */
-    SCE_TMatrix4 view;         /* matrice de vue */
-    SCE_TMatrix4 viewinv;      /* 'view' inversee */
-    SCE_TMatrix4 proj;         /* matrice de projection */
-    SCE_TMatrix4 projinv;      /* 'proj' inversee */
-    SCE_TMatrix4 finalviewproj;/* final view projection matrix */
-    SCE_TMatrix4 finalviewprojinv; /* final inverse view projection matrix */
-    SCE_SViewport viewport;    /* viewport de la camera */
-    SCE_SFrustum frustum;      /* frustum de vue de la camera */
-    SCE_SBoundingSphere sphere;/* bounding sphere for the octree element */
-    SCE_SNode *node;           /* noeud de la camera */
+    SCE_TMatrix4 finalview;    /**< Combined \c view and \c world matrices */
+    SCE_TMatrix4 finalviewinv; /**< Inverse of \c finalview */
+    SCE_TMatrix4 view;         /**< View matrix */
+    SCE_TMatrix4 viewinv;      /**< Inverse of \c view */
+    SCE_TMatrix4 proj;         /**< Projection matrix */
+    SCE_TMatrix4 projinv;      /**< Inverse of \c proj */
+    SCE_TMatrix4 finalviewproj;/**< Final view projection matrix */
+    SCE_TMatrix4 finalviewprojinv; /**< Final inverse view projection matrix */
+    SCE_SViewport viewport;    /**< Camera's viewport (GL viewport) */
+    SCE_SFrustum frustum;      /**< Camera's frustum */
+    SCE_SBoundingSphere sphere;/**< Bounding sphere for the octree element */
+    SCE_SNode *node;           /**< Node of the camera */
+    SCE_SListIterator it;      /**< Own iterator (used by the scene manager) */
 };
 
 /** @} */
@@ -91,13 +92,13 @@ float* SCE_Camera_GetFinalViewProj (SCE_SCamera*);
 float* SCE_Camera_GetFinalViewProjInverse (SCE_SCamera*);
 
 void SCE_Camera_GetPositionv (SCE_SCamera*, SCE_TVector3);
-
 SCE_SNode* SCE_Camera_GetNode (SCE_SCamera*);
-
 SCE_SFrustum* SCE_Camera_GetFrustum (SCE_SCamera*);
 
 float* SCE_Camera_GetFinalView (SCE_SCamera*);
 float* SCE_Camera_GetFinalViewInverse (SCE_SCamera*);
+
+SCE_SListIterator* SCE_Camera_GetIterator (SCE_SCamera*);
 
 void SCE_Camera_Update (SCE_SCamera*);
 
