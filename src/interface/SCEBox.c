@@ -172,7 +172,11 @@ void SCE_Box_GetCenterv (SCE_SBox *box, SCE_TVector3 center)
 
 float* SCE_Box_GetOrigin (SCE_SBox *box)
 {
-    return box->p;
+    /* as box->p is a float[8][3], it is the same to return box->p or box->p[0],
+     * (we always return the address of box->p[0][0] that is the first of all)
+     * but GCC complains when we returns box->p, then make him happy by
+     * returning box->p[0]. */
+    return box->p[0];
 }
 
 void SCE_Box_GetOriginv (SCE_SBox *box, SCE_TVector3 o)
@@ -190,7 +194,8 @@ void SCE_Box_GetOriginv (SCE_SBox *box, SCE_TVector3 o)
  */
 float* SCE_Box_GetPoints (SCE_SBox *box)
 {
-    return box->p;
+    /* see comment in SCE_Box_GetOrigin() */
+    return box->p[0];
 }
 /**
  * \brief Gets the eigth corners of a box

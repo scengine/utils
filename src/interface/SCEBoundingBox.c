@@ -73,7 +73,7 @@ SCE_SBox* SCE_BoundingBox_GetBox (SCE_SBoundingBox *box)
  */
 float* SCE_BoundingBox_GetPoints (SCE_SBoundingBox *box)
 {
-    return box->box.p;
+    return SCE_Box_GetPoints (&box->box);
 }
 
 /**
