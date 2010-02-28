@@ -55,7 +55,7 @@ static int resource_type = 0;
 
 static SCE_STexture *bound = NULL, *textmp = NULL;
 
-static SCE_SList *texused = NULL;
+static SCE_SList texused;
 #if 0
 static SCE_SListIterator *mark = NULL;
 #endif
@@ -74,9 +74,8 @@ static void* SCE_Texture_LoadResource (const char*, int, void*);
 int SCE_Init_Texture (void)
 {
     unsigned int i;
-    texused = SCE_List_Create (SCE_Texture_PopTexture);
-    if (!texused)
-        goto fail;
+    SCE_List_Init (&texused);
+    SCE_List_SetFreeFunc (&texused, SCE_Texture_PopTexture);
     for (i = 0; i < SCE_MAX_TEXTURE_UNITS; i++)
         unitused[i] = NULL;
     resource_type = SCE_Resource_RegisterType (
@@ -85,14 +84,13 @@ int SCE_Init_Texture (void)
         goto fail;
     return SCE_OK;
 fail:
-    SCE_List_Delete (texused);
     SCEE_LogSrc ();
     return SCE_ERROR;
 }
 
 void SCE_Quit_Texture (void)
 {
-    SCE_List_Delete (texused);
+    SCE_List_Clear (&texused);
 }
 
 /** \deprecated */
@@ -105,7 +103,7 @@ void SCE_Texture_Bind (SCE_STexture *tex)
 static void SCE_Texture_Init (SCE_STexture *tex)
 {
     unsigned int i;
-    for (i=0; i<6; i++)
+    for (i = 0; i < 6; i++)
         tex->fb[i] = NULL;
     tex->tex = NULL;
     tex->unit = 0;
@@ -125,8 +123,7 @@ static void SCE_Texture_SetupParameters (SCE_STexture *tex)
     /* assignation de quelques parametres pour les textures cubemap */
     if (type == SCE_RENDER_COLOR_CUBE || type == SCE_TEX_CUBE ||
         type == SCE_RENDER_DEPTH_CUBE || type == SCE_RENDER_DEPTH ||
-        type == SCE_RENDER_COLOR)
-    {
+        type == SCE_RENDER_COLOR) {
         SCE_CBindTexture (tex->tex);
         SCE_CSetTextureParam_ (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         SCE_CSetTextureParam_ (GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -148,8 +145,7 @@ static int SCE_Texture_MakeRender (SCE_STexture *tex, int type)
     if (SCE_CCreateRenderTexture_ (type, 0, 0, 0, w, h) < 0)
         goto failure;
     /* s'il s'agit d'une color, on ajoute un depth buffer */
-    if (type == SCE_COLOR_BUFFER)
-    {
+    if (type == SCE_COLOR_BUFFER) {
         if (SCE_CAddRenderBuffer_ (SCE_DEPTH_BUFFER, 0, w, h) < 0)
             goto failure;
     }
@@ -178,8 +174,7 @@ static int SCE_Texture_MakeRenderCube (SCE_STexture *tex, int type)
     if (!tex->tex)
         goto failure;
 
-    for (i=0; i<6; i++)
-    {
+    for (i = 0; i < 6; i++) {
         tex->fb[i] = SCE_CCreateFramebuffer ();
         if (!tex->fb[i])
             goto failure;
@@ -190,8 +185,7 @@ static int SCE_Texture_MakeRenderCube (SCE_STexture *tex, int type)
         data.h = h;
         data.type = SCE_UNSIGNED_BYTE;
 
-        if (type == SCE_DEPTH_BUFFER)
-        {
+        if (type == SCE_DEPTH_BUFFER) {
             data.fmt = GL_DEPTH_COMPONENT;
             data.pxf = GL_DEPTH_COMPONENT24;
         }
@@ -206,8 +200,7 @@ static int SCE_Texture_MakeRenderCube (SCE_STexture *tex, int type)
                                tex->tex, 0, SCE_FALSE);
 
         /* s'il s'agit d'une color, on ajoute un depth buffer */
-        if (type == SCE_COLOR_BUFFER)
-        {
+        if (type == SCE_COLOR_BUFFER) {
             if (SCE_CAddRenderBuffer(tex->fb[i], SCE_DEPTH_BUFFER, 0, w, h) < 0)
                 goto failure;
         }
@@ -246,8 +239,7 @@ SCE_STexture* SCE_Texture_Create (SCEenum type, int w, int h/*, int d*/)
 
     SCE_Texture_Init (tex);
     tex->type = type;
-    switch (type)
-    {
+    switch (type) {
     case SCE_RENDER_DEPTH:
         type = SCE_DEPTH_BUFFER;
     case SCE_RENDER_COLOR:
@@ -309,8 +301,7 @@ void SCE_Texture_Delete (SCE_STexture *tex)
 void SCE_Texture_Delete_ (void)
 {
     SCE_btstart ();
-    if (bound)
-    {
+    if (bound) {
         unsigned int i;
         SCE_SceneResource_RemoveResource (&bound->s_resource);
         for (i=0; i<6; i++)
@@ -499,21 +490,18 @@ int SCE_Texture_Build (SCE_STexture *tex, int use_mipmap)
     if (SCE_CGetTextureTarget (tex->tex) != SCE_TEX_CUBE)
         hw_mipmap = (SCE_CGetTextureNumMipmaps_ (0) <= 1 && hw_mipmap);
     /* adding some data if needed */
-    if (!SCE_CHasTextureData (tex->tex))
-    {
+    if (!SCE_CHasTextureData (tex->tex)) {
         SCE_CTexData d;
         SCE_CInitTexData (&d);
         d.w = tex->w; d.h = tex->h;/* d.d = tex->d;*/
-        if (SCE_CAddTextureTexDataDup (tex->tex, tex->type /* hope */, &d) < 0)
-        {
+        if (SCE_CAddTextureTexDataDup (tex->tex, tex->type /* hope */, &d) < 0) {
             SCEE_LogSrc ();
             SCE_btend ();
             return SCE_ERROR;
         }
     }
 
-    if (SCE_CBuildTexture (tex->tex, use_mipmap, hw_mipmap) < 0)
-    {
+    if (SCE_CBuildTexture (tex->tex, use_mipmap, hw_mipmap) < 0) {
         SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
@@ -537,8 +525,7 @@ int SCE_Texture_Build_ (int use_mipmap)
 int SCE_Texture_Update (SCE_STexture *tex)
 {
     SCE_btstart ();
-    if (SCE_CUpdateTexture (tex->tex, -1, -1) < 0)
-    {
+    if (SCE_CUpdateTexture (tex->tex, -1, -1) < 0) {
         SCEE_LogSrc ();
         SCE_btend ();
         return SCE_ERROR;
@@ -570,8 +557,7 @@ static void* SCE_Texture_LoadResource (const char *name, int force, void *data)
 
     SCE_btstart ();
     tex = SCE_Texture_Create (type, w, h);
-    if (!tex)
-    {
+    if (!tex) {
         SCEE_LogSrc ();
         SCE_btend ();
         return NULL;
@@ -583,12 +569,10 @@ static void* SCE_Texture_LoadResource (const char *name, int force, void *data)
     if (force > 0)
         force--;                /* downgrading depth */
     tex->tex = SCE_CLoadTexturev (type, w, h, d, force, rinfo->names);
-    if (!tex->tex)
-    {
+    if (!tex->tex) {
         SCE_Texture_Delete (tex), tex = NULL;
         SCEE_LogSrc ();
-    }
-    else
+    } else
         SCE_Texture_SetupParameters (tex);
 
     SCE_btend ();
@@ -643,8 +627,7 @@ SCE_STexture* SCE_Texture_Load (int type, int w, int h, int d, int force, ...)
     SCE_btstart ();
     va_start (args, force);
     name = va_arg (args, const char*);
-    while (name && i < 42 - 1)
-    {
+    while (name && i < 42 - 1) {
         names[i] = name;
         name = va_arg (args, const char*);
         i++;
@@ -652,8 +635,7 @@ SCE_STexture* SCE_Texture_Load (int type, int w, int h, int d, int force, ...)
     va_end (args);
     names[i] = NULL;
 #ifdef SCE_DEBUG
-    if (i == 0)
-    {
+    if (i == 0) {
         SCEE_Log (SCE_INVALID_ARG);
         SCEE_LogMsg ("excpected at least 1 file name, but 0 given");
         SCE_btend ();
@@ -691,8 +673,7 @@ int SCE_Texture_AddRenderCTexture (SCE_STexture *tex, int id,
     unsigned int i = 0;
 
     target = SCE_CGetTextureTarget (tex->tex);
-    if (target != SCE_CGetTextureTarget (ctex))
-    {
+    if (target != SCE_CGetTextureTarget (ctex)) {
 #ifdef SCE_DEBUG
         SCEE_Log (SCE_INVALID_ARG);
         SCEE_LogMsg ("you can't add a render texture "
@@ -703,18 +684,15 @@ int SCE_Texture_AddRenderCTexture (SCE_STexture *tex, int id,
 
     /* adding texture to framebuffer */
     if (target == SCE_TEX_CUBE)
-        for (i=0; i<6; i++)
-        {
+        for (i=0; i<6; i++) {
             if (SCE_CAddRenderTexture (tex->fb[i], id, SCE_TEX_POSX + i, ctex,
-                                       SCE_TRUE, SCE_FALSE) < 0)
-            {
+                                       SCE_TRUE, SCE_FALSE) < 0) {
                 SCEE_LogSrc ();
                 return SCE_ERROR;
             }
         }
     else if (SCE_CAddRenderTexture (tex->fb[0], id, target,
-                                    ctex, SCE_TRUE, SCE_FALSE) < 0)
-    {
+                                    ctex, SCE_TRUE, SCE_FALSE) < 0) {
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
@@ -747,10 +725,8 @@ void SCE_Texture_Blit (SCE_SIntRect *rdst, SCE_STexture *dst,
     SCE_SFloatRect r2 = {{0.0f, 0.0f}, {1.0f, 1.0f}};
     int w = 1;
     int h = 1;
-    if (rdst)
-    {
-        if (dst)
-        {
+    if (rdst) {
+        if (dst) {
             w = SCE_Texture_GetWidth (dst, 0, 0);
             h = SCE_Texture_GetHeight (dst, 0, 0);
         }
@@ -759,8 +735,7 @@ void SCE_Texture_Blit (SCE_SIntRect *rdst, SCE_STexture *dst,
         r1.p2[0] = (float)rdst->p2[0] / (float)w;
         r1.p2[1] = (float)rdst->p2[1] / (float)h;
     }
-    if (rsrc)
-    {
+    if (rsrc) {
         w = SCE_Texture_GetWidth (src, 0, 0);
         h = SCE_Texture_GetHeight (src, 0, 0);
         r2.p1[0] = (float)rsrc->p1[0] / (float)w;
@@ -776,8 +751,7 @@ static void SCE_Texture_RenderQuad (SCE_SFloatRect *r)
 {
     SCE_TMatrix4 mat;
     /* mise en place des matrices */
-    if (r)
-    {
+    if (r) {
         SCE_CSetActiveMatrix (SCE_MAT_TEXTURE);
         SCE_CPushMatrix ();
         SCE_Quad_MakeMatrixFromRectanglef (mat, r);
@@ -793,8 +767,7 @@ static void SCE_Texture_RenderQuad (SCE_SFloatRect *r)
     SCE_Quad_Draw (-1., -1., 2., 2.);
 
     SCE_CPopMatrix ();
-    if (r)
-    {
+    if (r) {
         SCE_CSetActiveMatrix (SCE_MAT_TEXTURE);
         SCE_CPopMatrix ();
     }
@@ -825,19 +798,16 @@ void SCE_Texture_Blitf (SCE_SFloatRect *rdst, SCE_STexture *dst,
 {
     int w = 1, h = 1;
 
-    if (dst && !dst->fb[0])
-    {
+    if (dst && !dst->fb[0]) {
         dst->fb[0] = SCE_CCreateFramebuffer ();
-        if (!dst->fb[0])
-        {
+        if (!dst->fb[0]) {
             SCEE_LogSrc ();
             return; /* \o/ */
         }
         SCE_CAddRenderTexture (dst->fb[0], SCE_COLOR_BUFFER, 0,
                                dst->tex, 0, SCE_FALSE);
     }
-    if (dst)
-    {
+    if (dst) {
         w = SCE_Texture_GetWidth (dst, 0, 0);
         h = SCE_Texture_GetHeight (dst, 0, 0);
     }
@@ -880,26 +850,20 @@ static void SCE_Texture_Set (SCE_STexture *tex)
  */
 void SCE_Texture_Use (SCE_STexture *tex)
 {
-    if (!tex)
-    {
-        SCE_SListIterator *it = SCE_List_GetFirst (texused);
-        if (it)
-            SCE_List_Erase (texused, it);
-    }
-    else
-    {
+    if (!tex) {
+        if (SCE_List_HasElements (&texused))
+            SCE_List_Erase (&texused, SCE_List_GetFirst (&texused));
+    } else {
         tex->toremove = SCE_FALSE;
-        if (!tex->used)
-        {
+        if (!tex->used) {
             textmp = unitused[tex->unit];
-            if (textmp)
-            {
+            if (textmp) {
                 SCE_List_Removel (&textmp->it);
                 textmp->used = SCE_FALSE;
             }
             SCE_Texture_Set (tex);
             /* add the texture to the used list */
-            SCE_List_Prependl (texused, &tex->it);
+            SCE_List_Prependl (&texused, &tex->it);
             tex->used = SCE_TRUE;
             unitused[tex->unit] = tex;
         }
@@ -911,23 +875,22 @@ void SCE_Texture_Use (SCE_STexture *tex)
  */
 void SCE_Texture_Flush (void)
 {
-    SCE_List_Clear (texused);
+    SCE_List_Clear (&texused);
 }
 
 void SCE_Texture_BeginLot (void)
 {
     SCE_SListIterator *it;
-    SCE_List_ForEach (it, texused)
+    SCE_List_ForEach (it, &texused)
         ((SCE_STexture*)SCE_List_GetData (it))->toremove = SCE_TRUE;
 }
 
 void SCE_Texture_EndLot (void)
 {
     SCE_SListIterator *it, *pro;
-    SCE_List_ForEachProtected (pro, it, texused)
-    {
+    SCE_List_ForEachProtected (pro, it, &texused) {
         if (((SCE_STexture*)SCE_List_GetData (it))->toremove)
-            SCE_List_Erase (texused, it);
+            SCE_List_Erase (&texused, it);
     }
 }
 
@@ -940,7 +903,7 @@ void SCE_Texture_EndLot (void)
  */
 void SCE_Texture_Mark (void)
 {
-    mark = SCE_List_GetFirst (texused);
+    mark = SCE_List_GetFirst (&texused);
 }
 /**
  * \internal
@@ -952,12 +915,11 @@ void SCE_Texture_Mark (void)
  */
 void SCE_Texture_Restore (void)
 {
-    SCE_SListIterator *it = SCE_List_GetFirst (texused), *toerase;
-    while (it != mark)
-    {
+    SCE_SListIterator *it = SCE_List_GetFirst (&texused), *toerase;
+    while (it != mark) {
         toerase = it;
         it = SCE_List_GetNext (it);
-        SCE_List_Erase (texused, toerase);
+        SCE_List_Erase (&texused, toerase);
     }
 }
 #endif
@@ -975,14 +937,12 @@ void SCE_Texture_Restore (void)
  */
 void SCE_Texture_RenderTo (SCE_STexture *tex, SCEuint cubeface)
 {
-    if (tex)
-    {
+    if (tex) {
         if (SCE_CGetTextureTarget (tex->tex) == SCE_TEX_CUBE)
             SCE_CUseFramebuffer (tex->fb[cubeface], NULL);
         else
             SCE_CUseFramebuffer (tex->fb[0], NULL);
-    }
-    else
+    } else
         SCE_CUseFramebuffer (NULL, NULL);
 }
 void SCE_Texture_RenderTo_ (SCEuint cubeface)
