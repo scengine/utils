@@ -21,6 +21,7 @@
 
 #include <SCE/SCEMinimal.h>
 
+#include <SCE/utils/SCEUtils.h>
 #include <SCE/utils/SCEListFastForeach.h>
 #include <SCE/core/SCECMatrix.h>
 #include <SCE/interface/SCENode.h>
@@ -405,7 +406,7 @@ static void SCE_Node_ToUpdateRec (SCE_SNode *node)
  */
 void SCE_Node_HasMoved (SCE_SNode *node)
 {
-    node->marks |= SCE_NODE_HAS_MOVED;
+    SCE_FLAG_ADD (node->marks, SCE_NODE_HAS_MOVED);
     SCE_Node_ToUpdate (node);
 }
 static void SCE_Node_NotToUpdate (SCE_SNode *node)
@@ -425,8 +426,7 @@ static void SCE_Node_NotToUpdateRec (SCE_SNode *node)
  */
 void SCE_Node_HasNotMoved (SCE_SNode *node)
 {
-    node->marks |= SCE_NODE_HAS_MOVED;
-    node->marks ^= SCE_NODE_HAS_MOVED;
+    SCE_FLAG_REMOVE (node->marks, SCE_NODE_HAS_MOVED);
     SCE_Node_NotToUpdateRec (node);
 }
 /**
@@ -435,7 +435,7 @@ void SCE_Node_HasNotMoved (SCE_SNode *node)
  */
 int SCE_Node_IsMoved (SCE_SNode *node)
 {
-    return node->marks & SCE_NODE_HAS_MOVED;
+    return SCE_FLAG_TEST (node->marks, SCE_NODE_HAS_MOVED);
 }
 
 /**
@@ -444,7 +444,7 @@ int SCE_Node_IsMoved (SCE_SNode *node)
 void SCE_Node_Force (SCE_SNode *node)
 {
     SCE_SListIterator *it;
-    node->marks |= SCE_NODE_FORCE;
+    SCE_FLAG_ADD (node->marks, SCE_NODE_FORCE);
     SCE_List_ForEach (it, &node->child)
         SCE_Node_Force (SCE_List_GetData (it));
 }
@@ -453,15 +453,14 @@ void SCE_Node_Force (SCE_SNode *node)
  */
 void SCE_Node_DontForce (SCE_SNode *node)
 {
-    node->marks |= SCE_NODE_FORCE;
-    node->marks ^= SCE_NODE_FORCE;
+    SCE_FLAG_REMOVE (node->marks, SCE_NODE_FORCE);
 }
 /**
  * \brief Did someone force the updating of \p node?
  */
 int SCE_Node_IsForced (SCE_SNode *node)
 {
-    return node->marks & SCE_NODE_FORCE;
+    return SCE_FLAG_TEST (node->marks, SCE_NODE_FORCE);
 }
 
 
