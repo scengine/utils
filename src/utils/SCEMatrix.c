@@ -997,14 +997,17 @@ void SCE_Matrix4_LookAt (SCE_TMatrix4 m, SCE_TVector3 pos,
     /* Recompute up as: up = side x forward */
     SCE_Vector3_Cross (up, side, forward);
 
-    SCE_Matrix4_Set (m,
-                     side[0], up[0], -forward[0], -pos[0],
+    SCE_Matrix4_Set (m, side[0], up[0], -forward[0], -pos[0],
                      side[1], up[1], -forward[1], -pos[1],
                      side[2], up[2], -forward[2], -pos[2],
                      0.0f,    0.0f,  0.0f,        1.0f);
 }
 
 void SCE_Matrix4_GetTranslation (SCE_TMatrix4 m, SCE_TVector3 v)
+{
+    v[0] = m[3]; v[1] = m[7]; v[2] = m[11];
+}
+void SCE_Matrix4x3_GetTranslation (SCE_TMatrix4x3 m, SCE_TVector3 v)
 {
     v[0] = m[3]; v[1] = m[7]; v[2] = m[11];
 }
