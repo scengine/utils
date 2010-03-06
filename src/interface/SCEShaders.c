@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2009  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* created: 06/03/2006
-   updated: 08/07/2009 */
+/* created: 06/03/2007
+   updated: 06/03/2010 */
 
 #include <ctype.h>
 
@@ -996,26 +996,20 @@ int SCE_Shader_Build (SCE_SShader *shader)
 
 
 /* revise le 19/10/2007 */
-int SCE_Shader_AddSource (SCE_SShader *shader, int type, char *src)
+int SCE_Shader_AddSource (SCE_SShader *shader, int type, const char *src)
 {
     /* taille de la reallocation */
     size_t realen;
     int first_alloc = 1;
     char *addsrc = NULL;
 
-    SCE_btstart ();
     if (!src)
-    {
-        SCE_btend ();
         return SCE_OK;
-    }
 
 #ifdef SCE_DEBUG
     if (type != SCE_PIXEL_SHADER && type != SCE_VERTEX_SHADER &&
-        type != SCE_UNKNOWN_SHADER)
-    {
+        type != SCE_UNKNOWN_SHADER) {
         SCEE_Log (SCE_INVALID_ARG);
-        SCE_btend ();
         return SCE_ERROR;
     }
 #endif
@@ -1026,17 +1020,14 @@ int SCE_Shader_AddSource (SCE_SShader *shader, int type, char *src)
     /* + 2 car, 1: retour chariot. 2: caractere de fin de chaine */
     realen = strlen(src) + 2;
 
-    if (addsrc)
-    {
+    if (addsrc) {
         first_alloc = 0;
         realen += strlen (addsrc);
     }
 
     addsrc = SCE_realloc (addsrc, realen);
-    if (!addsrc)
-    {
+    if (!addsrc) {
         SCEE_LogSrc ();
-        SCE_btend ();
         return SCE_ERROR;
     }
     /* s'il s'agit de la premiere allocation, on initialise le contenu */
@@ -1051,7 +1042,6 @@ int SCE_Shader_AddSource (SCE_SShader *shader, int type, char *src)
     else
         shader->vs_addsrc = addsrc;
 
-    SCE_btend ();
     return SCE_OK;
 }
 
