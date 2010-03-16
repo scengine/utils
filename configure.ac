@@ -10,7 +10,8 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # check for programs
-AC_PROG_LIBTOOL
+LT_PREREQ([2.2.0])
+LT_INIT
 AC_PROG_CC
 
 # basic setup
