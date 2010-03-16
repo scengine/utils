@@ -98,9 +98,6 @@ See the file ./doc/html/todo.html
 - Allow VA render mode for IBO.
 - Allow double-build of meshes (call Mesh_Build() more than once).
 - Fix skyboxes problem
+- Multi-threaded particles (treat range of particles).
 
-<<<<<<< .mine
-52
-=======
-- 53
->>>>>>> .r270
+54

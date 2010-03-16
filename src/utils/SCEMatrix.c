@@ -1011,3 +1011,12 @@ void SCE_Matrix4x3_GetTranslation (SCE_TMatrix4x3 m, SCE_TVector3 v)
 {
     v[0] = m[3]; v[1] = m[7]; v[2] = m[11];
 }
+
+void SCE_Matrix4_SetTranslation (SCE_TMatrix4 m, SCE_TVector3 v)
+{
+    m[3] = v[0]; m[7] = v[1]; m[11] = v[2];
+}
+void SCE_Matrix4x3_SetTranslation (SCE_TMatrix4x3 m, SCE_TVector3 v)
+{
+    m[3] = v[0]; m[7] = v[1]; m[11] = v[2];
+}
