@@ -95,9 +95,9 @@ static SCE_SError *error = &errors[0];
 
 /**
  * \internal
- * \brief Stream used for loggin
+ * \brief Stream used for loggin, default to stderr
  */
-static FILE *stream = NULL;
+static FILE *stream = stderr;
 
 static void SCE_Error_Init (SCE_SError *err)
 {
