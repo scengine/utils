@@ -243,12 +243,9 @@ static SCE_SMemAlloc* SCE_Mem_NewAllocFromArray (size_t size)
     SCE_SMemAlloc *m = NULL;
     /* considers this function is called with a good size */
     SCE_SMemArray *a = &arrays[size-1];
-    if (pthread_mutex_lock (&arrays_m) == 0) {
-        if (!(m = SCE_Mem_GetNextAlloc (a))) {
-            if (!(SCE_Mem_AddNewBlock (a) < 0))
-                m = SCE_Mem_GetNextAlloc (a); /* can't fail */
-        }
-        pthread_mutex_unlock (&arrays_m);
+    if (!(m = SCE_Mem_GetNextAlloc (a))) {
+        if (!(SCE_Mem_AddNewBlock (a) < 0))
+            m = SCE_Mem_GetNextAlloc (a); /* can't fail */
     }
     return m;
 }
