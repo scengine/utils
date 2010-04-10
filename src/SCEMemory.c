@@ -22,10 +22,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <SCE/SCEGLee.h>
 
-#include <SCE/utils/SCEError.h>
-#include <SCE/utils/SCEMemory.h>
+#include "SCE/utils/SCEError.h"
+#include "SCE/utils/SCEMemory.h"
 
 /**
  * \file SCEMemory.c
@@ -477,7 +476,6 @@ void SCE_Mem_Free (const char *file, int line, void *p)
  * \param p the memory to duplicate
  * \param size allocated size of \p p, in bytes
  * \returns the newly allocated memory
- * \sa SCE_Mem_Convert(), SCE_Mem_ConvertDup()
  */
 void* SCE_Mem_Dup (const void *p, size_t size)
 {
@@ -489,130 +487,6 @@ void* SCE_Mem_Dup (const void *p, size_t size)
     return new;
 }
 
-/**
- * \brief Converts data from one to another type
- * \param tdest destination data type
- * \param dest destination data pointer (must be already allocated)
- * \param tsrc source data type
- * \param src source data pointer
- * \param n number of elements in \p src (not bytes, just the number of typed
- * values)
- * \sa SCE_Mem_Dup(), SCE_Mem_ConvertDup()
- */
-void SCE_Mem_Convert(int tdest, void *dest, int tsrc, const void *src, size_t n)
-{
-    union SCE_UMemType {
-        GLubyte *ub;
-        GLbyte *b;
-        GLushort *us;
-        GLshort *s;
-        GLuint *ui;
-        GLint *i;
-        GLfloat *f;
-        GLdouble *d;
-        size_t *st;
-    };
-
-    size_t i;
-    union SCE_UMemType tin, tout;
-
-    if (tdest == tsrc) {
-        memcpy (dest, src, n * SCE_CSizeof (tdest));
-        return;
-    }
-
-#define SCE_MEM_FOR(type, namedest, namesrc)\
-    case type:\
-        tout.namedest = dest;\
-        for (i = 0; i < n; i++)\
-            tout.namedest[i] = tin.namesrc[i];\
-        break;
-
-#define SCE_MEM_SWITCH(type, namesrc)\
-    case type:\
-        tin.namesrc = (void*)src;\
-        switch (tdest) {\
-        SCE_MEM_FOR (SCE_UNSIGNED_BYTE,  ub, namesrc)\
-        SCE_MEM_FOR (SCE_BYTE,           b,  namesrc)\
-        SCE_MEM_FOR (SCE_UNSIGNED_SHORT, us, namesrc)\
-        SCE_MEM_FOR (SCE_SHORT,          s,  namesrc)\
-        SCE_MEM_FOR (SCE_UNSIGNED_INT,   ui, namesrc)\
-        SCE_MEM_FOR (SCE_INT,            i,  namesrc)\
-        SCE_MEM_FOR (SCE_FLOAT,          f,  namesrc)\
-        SCE_MEM_FOR (SCE_DOUBLE,         d,  namesrc)\
-        SCE_MEM_FOR (SCE_SIZE_T,         st, namesrc)\
-        }\
-        break;
-
-    switch (tsrc) {
-    SCE_MEM_SWITCH (SCE_UNSIGNED_BYTE,  ub)
-    SCE_MEM_SWITCH (SCE_BYTE,           b)
-    SCE_MEM_SWITCH (SCE_UNSIGNED_SHORT, us)
-    SCE_MEM_SWITCH (SCE_SHORT,          s)
-    SCE_MEM_SWITCH (SCE_UNSIGNED_INT,   ui)
-    SCE_MEM_SWITCH (SCE_INT,            i)
-    SCE_MEM_SWITCH (SCE_FLOAT,          f)
-    SCE_MEM_SWITCH (SCE_DOUBLE,         d)
-    SCE_MEM_SWITCH (SCE_SIZE_T,         st)
-    }
-}
-
-/**
- * \brief Converts data and allocates memory for them
- * \param tdest destination type
- * \param tsrc source type
- * \param src data to convert
- * \param n number of variables into \p src
- *
- * This function is a combination of SCE_Mem_Dup() and SCE_Mem_Convert(). It
- * allocates memory for the further converted data, and calls SCE_Mem_Convert().
- * Total size of \p src is \p n * SCE_CSizeof (\p tsrc).
- * \sa SCE_Mem_Dup(), SCE_Mem_Convert()
- */
-void* SCE_Mem_ConvertDup (int tdest, int tsrc, const void *src, size_t n)
-{
-    size_t size;
-    void *dest = NULL;
-
-    /* TODO: mosh */
-    switch (tdest) {
-    case SCE_DOUBLE:
-        size = sizeof (GLdouble);
-        break;
-    case SCE_FLOAT:
-        size = sizeof (GLfloat);
-        break;
-    case SCE_INT:
-    case SCE_UNSIGNED_INT:
-        size = sizeof (GLint);
-        break;
-    case SCE_SHORT:
-    case SCE_UNSIGNED_SHORT:
-        size = sizeof (GLshort);
-        break;
-    case SCE_BYTE:
-    case SCE_UNSIGNED_BYTE:
-        size = sizeof (GLbyte);
-    default:
-#ifdef SCE_DEBUG
-        SCEE_Log (SCE_INVALID_ARG);
-        SCEE_LogMsg ("invalid type for the destination");
-#endif
-        return NULL;
-    }
-
-    if (tdest == tsrc)
-        return SCE_Mem_Dup (src, size * n);
-
-    dest = SCE_malloc (size * n);
-    if (!dest) {
-        SCEE_LogSrc ();
-        return NULL;
-    }
-
-    SCE_Mem_Convert (tdest, dest, tsrc, src, n);
-    return dest;
-}
 
 /*#ifdef SCE_DEBUG*/
 void SCE_Mem_List (void)
