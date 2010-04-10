@@ -19,7 +19,7 @@
 /* created: 26/02/2008
    updated: 24/08/2009 */
 
-#include <SCE/utils/SCELine.h>
+#include "SCE/utils/SCELine.h"
 
 /**
  * \file SCELine.c

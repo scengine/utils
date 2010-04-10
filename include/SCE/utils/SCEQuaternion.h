@@ -22,7 +22,7 @@
 #ifndef SCEQUATERNION_H
 #define SCEQUATERNION_H
 
-#include <SCE/utils/SCEVector.h>
+#include "SCE/utils/SCEVector.h"
 
 #ifdef __cplusplus
 extern "C"

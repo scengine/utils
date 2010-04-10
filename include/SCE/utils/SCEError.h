@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <SCE/SCECommon.h>
+#include "SCE/utils/SCEMacros.h"
 
 #ifdef __cplusplus
 extern "C" {

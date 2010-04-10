@@ -23,7 +23,7 @@
 #define SCEVECTOR_H
 
 #include <string.h> /* for memcpy */
-#include <SCE/utils/SCEMath.h>
+#include "SCE/utils/SCEMath.h"
 
 #ifdef __cplusplus
 extern "C" {
