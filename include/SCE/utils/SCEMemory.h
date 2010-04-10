@@ -23,8 +23,7 @@
 #define SCEMEMORY_H
 
 #include <stdlib.h>
-#include <SCE/SCECommon.h>
-#include <SCE/core/SCECTypes.h>
+#include "SCE/utils/SCEMacros.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,9 +92,6 @@ void SCE_Mem_Free (const char*, int, void*);
 void* SCE_Mem_Dup (const void*, size_t)
     SCE_GNUC_MALLOC
     SCE_GNUC_ALLOC_SIZE (2);
-
-void SCE_Mem_Convert (int, void*, int, const void*, size_t);
-void* SCE_Mem_ConvertDup (int, int, const void*, size_t);
 
 #ifdef SCE_DEBUG
 int SCE_Mem_IsValid (void*);
