@@ -21,10 +21,10 @@
 
 #include <stdio.h>
 
-#include <SCE/utils/SCEMemory.h>
-#include <SCE/utils/SCEString.h>
+#include "SCE/utils/SCEMemory.h"
+#include "SCE/utils/SCEString.h"
 
-#include <SCE/utils/SCETime.h>
+#include "SCE/utils/SCETime.h"
 
 /**
  * \file SCETime.c

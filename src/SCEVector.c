@@ -19,8 +19,8 @@
 /* created: 21/12/2006
    updated: 24/08/2009 */
 
-#include <SCE/utils/SCEMath.h>
-#include <SCE/utils/SCEVector.h>
+#include "SCE/utils/SCEMath.h"
+#include "SCE/utils/SCEVector.h"
 
 
 /**

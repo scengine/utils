@@ -17,10 +17,10 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 13/02/2009
-   updated: 13/02/2009 */
+   updated: 10/04/2010 */
 
-#ifndef SCEUTILS_H
-#define SCEUTILS_H
+#ifndef SCEMACROS_H
+#define SCEMACROS_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -19,7 +19,9 @@
 /* created: 26/02/2008
    updated: 27/02/2008 */
 
-#include <SCE/utils/SCERectangle.h>
+#include "SCE/utils/SCEVector.h"
+
+#include "SCE/utils/SCERectangle.h"
 
 /**
  * \file SCERectangle.c

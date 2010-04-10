@@ -21,8 +21,8 @@
 
 #ifdef SCE_USE_BACKTRACER
 #include <stdio.h>
-#include <SCE/utils/SCEError.h>
-#include <SCE/utils/SCEBacktracer.h>
+#include "SCE/utils/SCEError.h"
+#include "SCE/utils/SCEBacktracer.h"
 
 
 /* flux de sortie des informations */

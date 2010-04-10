@@ -17,11 +17,14 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 02/11/2009 */
+   updated: 10/04/2010 */
 
-#include <SCE/SCEMinimal.h>
+#include <stdlib.h>
 
-#include <SCE/utils/SCEList.h>
+#include "SCE/utils/SCEMacros.h"
+#include "SCE/utils/SCEError.h"
+#include "SCE/utils/SCEMemory.h"
+#include "SCE/utils/SCEList.h"
 
 /**
  * \file SCEList.c

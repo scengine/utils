@@ -36,11 +36,11 @@
 #include <stdio.h>
 #endif
 
-#include <SCE/utils/SCEError.h>
-#include <SCE/utils/SCEMemory.h>
-#include <SCE/utils/SCEMath.h>
+#include "SCE/utils/SCEError.h"
+#include "SCE/utils/SCEMemory.h"
+#include "SCE/utils/SCEMath.h"
 
-#include <SCE/utils/SCEString.h>
+#include "SCE/utils/SCEString.h"
 
 /**
  * \file SCEString.c

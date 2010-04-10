@@ -17,11 +17,9 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/10/2007
-   updated: 05/04/2009 */
+   updated: 10/04/2010 */
 
-#include <SCE/SCEMinimal.h>
-
-#include <SCE/utils/SCEQuaternion.h>
+#include "SCE/utils/SCEQuaternion.h"
 
 /**
  * \file SCEQuaternion.c

@@ -17,11 +17,12 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 26/01/2009
-   updated: 27/01/2009 */
+   updated: 10/04/2010 */
 
-#include <SCE/SCEMinimal.h>
+#include <stdlib.h>
 
-#include <SCE/utils/SCEListFastForeach.h>
+#include "SCE/utils/SCEMacros.h"
+#include "SCE/utils/SCEListFastForeach.h"
 
 #define SCE_NUM_SIZES 9
 

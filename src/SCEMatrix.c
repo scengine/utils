@@ -21,9 +21,9 @@
 
 #include <string.h>
 
-#include <SCE/utils/SCEMath.h>
+#include "SCE/utils/SCEMath.h"
 
-#include <SCE/utils/SCEMatrix.h>
+#include "SCE/utils/SCEMatrix.h"
 
 
 int SCE_Init_Matrix (void)

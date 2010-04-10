@@ -17,15 +17,17 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/01/2007
-   updated: 07/07/2009 */
+   updated: 10/04/2010 */
 
+#include <stdlib.h>
 #include <stdio.h>
-#include <SCE/SCEMinimal.h>
 
-#include <SCE/utils/SCEString.h>
-#include <SCE/utils/SCEList.h>
-#include <SCE/utils/SCEMedia.h>
-#include <SCE/utils/SCEResource.h>
+#include "SCE/utils/SCEMemory.h"
+#include "SCE/utils/SCEError.h"
+#include "SCE/utils/SCEString.h"
+#include "SCE/utils/SCEList.h"
+#include "SCE/utils/SCEMedia.h"
+#include "SCE/utils/SCEResource.h"
 
 /**
  * \file SCEResources.c
@@ -90,7 +92,6 @@ static SCE_SResourceType* SCE_Resource_CreateType (void)
         SCEE_LogSrc ();
     else
         SCE_Resource_InitType (res);
-    SCE_btend ();
     return res;
 }
 static void SCE_Resource_DeleteType (void *r)
@@ -114,25 +115,21 @@ static void SCE_Resource_Init (SCE_SResource *r)
 static SCE_SResource* SCE_Resource_Create (void)
 {
     SCE_SResource *res = NULL;
-    SCE_btstart ();
     res = SCE_malloc (sizeof *res);
     if (!res)
         SCEE_LogSrc ();
     else
         SCE_Resource_Init (res);
-    SCE_btend ();
     return res;
 }
 static void SCE_Resource_Delete (void *r)
 {
-    SCE_btstart ();
     if (r)
     {
         SCE_SResource *res = r;
         SCE_free (res->name);
         SCE_free (res);
     }
-    SCE_btend ();
 }
 
 
@@ -143,12 +140,10 @@ static void SCE_Resource_Delete (void *r)
  */
 int SCE_Init_Resource (void)
 {
-    SCE_btstart ();
     SCE_List_Init (&resources);
     SCE_List_SetFreeFunc (&resources, SCE_Resource_Delete);
     SCE_List_Init (&resources_type);
     SCE_List_SetFreeFunc (&resources_type, SCE_Resource_DeleteType);
-    SCE_btend ();
     return SCE_OK;
 }
 /**
@@ -156,10 +151,8 @@ int SCE_Init_Resource (void)
  */
 void SCE_Quit_Resource (void)
 {
-    SCE_btstart ();
     SCE_List_Clear (&resources);
     SCE_List_Clear (&resources_type);
-    SCE_btend ();
 }
 
 
@@ -333,7 +326,6 @@ void* SCE_Resource_Load (int type, const char *name, int forcenew, void *data)
     void *resource = NULL;
     SCE_SResource *res = NULL;
 
-    SCE_btstart ();
     if (!forcenew)
         res = SCE_Resource_LocateFromTypeAndName (type, name);
     if (res) {
@@ -345,7 +337,6 @@ void* SCE_Resource_Load (int type, const char *name, int forcenew, void *data)
             SCEE_LogSrcMsg ("failed to create new resource '%s'", name);
         }
     }
-    SCE_btend ();
     return resource;
 }
 
@@ -366,7 +357,6 @@ int SCE_Resource_Free (void *data)
                                    resource */
     SCE_SResource *res = NULL;
 
-    SCE_btstart ();
     if (!data)
         ret = SCE_FALSE;
     else {
@@ -378,7 +368,6 @@ int SCE_Resource_Free (void *data)
         }
     }
 
-    SCE_btend ();
     return ret;
 }
 
@@ -397,12 +386,10 @@ unsigned int SCE_Resource_NumUsed (const char *name, void *data)
 {
     SCE_SResource *res = NULL;
 
-    SCE_btstart ();
     if (name)
         res = SCE_Resource_LocateFromName (name);
     if (!res)
         res = SCE_Resource_LocateFromData (data);
-    SCE_btend ();
     return (res ? res->nb_used : 0);
 }
 

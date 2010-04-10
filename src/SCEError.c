@@ -24,9 +24,9 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include <SCE/utils/SCETime.h>
+#include "SCE/utils/SCETime.h"
 
-#include <SCE/utils/SCEError.h>
+#include "SCE/utils/SCEError.h"
 
 /**
  * \file SCEError.c

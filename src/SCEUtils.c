@@ -17,11 +17,11 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 13/02/2009
-   updated: 13/02/2009 */
+   updated: 10/04/2010 */
 
-#include <SCE/SCEMinimal.h>
+#include <stdio.h>
 
-#include <SCE/utils/SCEUtils.h>
+#include "SCE/utils/SCEUtils.h"
 
 /**
  * \defgroup utils Useful functions
@@ -46,35 +46,30 @@ int SCE_Init_Utils (FILE *outlog)
     if (SCE_Init_Mem () < 0)
     {
         fprintf (stderr, "SCEngine error: can't initialize memory manager");
-        SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_Init_Matrix () < 0)
     {
         SCEE_LogSrc ();
         SCEE_LogSrcMsg ("can't initialize matrices manager");
-        SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_Init_FastList () < 0)
     {
         SCEE_LogSrc ();
         SCEE_LogSrcMsg ("can't initialize fast lists manager");
-        SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_Init_Media () < 0)
     {
         SCEE_LogSrc ();
         SCEE_LogSrcMsg ("can't initialize medias manager");
-        SCE_btend ();
         return SCE_ERROR;
     }
     if (SCE_Init_Resource () < 0)
     {
         SCEE_LogSrc ();
         SCEE_LogSrcMsg ("can't initialize resources manager");
-        SCE_btend ();
         return SCE_ERROR;
     }
     initialized = SCE_TRUE;

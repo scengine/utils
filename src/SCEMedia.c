@@ -17,15 +17,16 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 05/01/2007
-   updated: 06/11/2008 */
+   updated: 10/04/2010 */
 
+#include <stdio.h>
 #include <errno.h>
 
-#include <SCE/SCEMinimal.h>
-
-#include <SCE/utils/SCEString.h>
-#include <SCE/utils/SCEList.h>
-#include <SCE/utils/SCEMedia.h>
+#include "SCE/utils/SCEError.h"
+#include "SCE/utils/SCEMemory.h"
+#include "SCE/utils/SCEString.h"
+#include "SCE/utils/SCEList.h"
+#include "SCE/utils/SCEMedia.h"
 
 
 /**
@@ -98,17 +99,13 @@ static void SCE_Media_DeleteType (void *t)
  */
 int SCE_Init_Media (void)
 {
-    SCE_btstart ();
     SCE_List_Init (&funs);
     SCE_List_SetFreeFunc (&funs, SCE_Media_DeleteType);
-    SCE_btend ();
     return SCE_OK;
 }
 void SCE_Quit_Media (void)
 {
-    SCE_btstart ();
     SCE_List_Clear (&funs);
-    SCE_btend ();
 }
 
 
@@ -218,7 +215,6 @@ void* SCE_Media_Load (int type, const char *fname, void *param)
     FILE *file = NULL;
     void *media = NULL;
 
-    SCE_btstart ();
     /* always opened as binary */
     file = fopen (fname, "rb");
     if (!file)
@@ -226,7 +222,6 @@ void* SCE_Media_Load (int type, const char *fname, void *param)
         int errval = errno;
         SCEE_Log (SCE_FILE_NOT_FOUND);
         SCEE_LogMsg ("can't open '%s': %s", fname, strerror (errval));
-        SCE_btend ();
         return NULL;
     }
 
@@ -249,7 +244,6 @@ void* SCE_Media_Load (int type, const char *fname, void *param)
         SCEE_LogSrcMsg ("failed to load '%s'", fname);
     }
 
-    SCE_btend ();
     return media;
 }
 

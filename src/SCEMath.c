@@ -19,7 +19,9 @@
 /* created: 22/12/2006
    updated: 21/06/2009 */
 
-#include <SCE/utils/SCEMath.h>
+#include <math.h>
+
+#include "SCE/utils/SCEMath.h"
 
 /**
  * \file SCEMath.c

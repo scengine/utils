@@ -19,7 +19,9 @@
 /* created: 28/02/2008
    updated: 07/01/2009 */
 
-#include <SCE/utils/SCEPlane.h>
+#include "SCE/utils/SCEVector.h"
+
+#include "SCE/utils/SCEPlane.h"
 
 
 /**

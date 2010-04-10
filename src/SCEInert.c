@@ -19,7 +19,7 @@
 /* created: 16/05/2007
    updated: 10/04/2008 */
 
-#include <SCE/utils/SCEInert.h>
+#include "SCE/utils/SCEInert.h"
 
 void SCE_Inert_Init (SCE_SInertVar *ivar)
 {

@@ -17,14 +17,15 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 05/01/2007
-   updated: 07/07/2009 */
+   updated: 10/04/2010 */
 
 #ifndef SCEMEDIA_H
 #define SCEMEDIA_H
 
+#include <stdio.h>
+
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
     /* obsolete, void type is 0 */
