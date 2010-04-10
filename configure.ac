@@ -185,6 +185,7 @@ AC_SUBST([DOC_TARGET])
 # output files
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile
+                 Doxyfile
                  doc/Makefile
                  src/Makefile
                  include/Makefile

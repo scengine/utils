@@ -1,7 +1,6 @@
 SUBDIRS = src include doc
 pkgconfig_DATA = sceutils.pc
-EXTRA_DIST = $(pkgconfig_DATA) \
-             Doxyfile
+EXTRA_DIST = $(pkgconfig_DATA)
 
 .PHONY: doc
 
