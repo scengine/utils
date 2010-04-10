@@ -1,13 +1,18 @@
 # Process this file with autoconf to produce a configure script.
 
 # prelude
-AC_INIT([SCE], [0.1.0])
+AC_PREREQ([2.64])
+AC_INIT([SCEngine],
+        [0.1.0],
+        [martin.antony@yahoo.fr],
+        [scengine],
+        [http://scengine.tuxfamily.org/])
 AC_CONFIG_SRCDIR([src/SCEngine.c])
 AC_CONFIG_AUX_DIR([build/aux])
 AC_CONFIG_MACRO_DIR([build/m4])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([1.11.1 -Wall -Werror foreign])
 
-m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+AM_SILENT_RULES([yes])
 
 # check for programs
 LT_PREREQ([2.2.0])
