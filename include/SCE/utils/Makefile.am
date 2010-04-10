@@ -4,6 +4,7 @@ sce_include_utils_HEADERS = SCEBacktracer.h \
                             SCELine.h \
                             SCEListFastForeach.h \
                             SCEList.h \
+                            SCEMacros.h \
                             SCEMath.h \
                             SCEMatrix.h \
                             SCEMedia.h \

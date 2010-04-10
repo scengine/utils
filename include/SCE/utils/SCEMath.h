@@ -23,7 +23,7 @@
 #define SCEMATH_H
 
 #include <math.h>
-#include <SCE/SCECommon.h>
+#include "SCE/utils/SCEMacros.h"
 
 #ifdef __cplusplus
 extern "C"

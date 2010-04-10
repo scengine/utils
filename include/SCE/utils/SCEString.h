@@ -28,7 +28,7 @@
  */
 #include <string.h>
 #include <stdarg.h>
-#include <SCE/SCECommon.h>
+#include "SCE/utils/SCEMacros.h"
 
 #ifdef __cplusplus
 extern "C"

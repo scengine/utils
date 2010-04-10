@@ -23,8 +23,8 @@
 #define SCEMEMORY_H
 
 #include <stdlib.h>
-#include <SCE/SCECommon.h>
-#include <SCE/core/SCECTypes.h>
+#include "SCE/utils/SCEMacros.h"
+#include "SCE/core/SCECTypes.h"
 
 #ifdef __cplusplus
 extern "C" {

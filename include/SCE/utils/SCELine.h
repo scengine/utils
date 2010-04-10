@@ -22,7 +22,7 @@
 #ifndef SCELINE_H
 #define SCELINE_H
 
-#include <SCE/utils/SCEVector.h>
+#include "SCE/utils/SCEVector.h"
 
 #ifdef __cplusplus
 extern "C" {
