@@ -91,7 +91,7 @@ float SCE_Math_InvSqrt (float) SCE_GNUC_PURE;
 
 int SCE_Math_Powi (int, unsigned int) SCE_GNUC_PURE;
 
-int SCE_Math_PowerOfTwo (int) SCE_GNUC_PURE;
+int SCE_Math_PowerOfTwo (unsigned int) SCE_GNUC_PURE;
 
 int SCE_Math_Clamp (int, int, int) SCE_GNUC_PURE;
 float SCE_Math_Clampf (float, float, float) SCE_GNUC_PURE;

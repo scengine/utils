@@ -120,14 +120,20 @@ float SCE_Math_InvSqrt (float number)
  */
 int SCE_Math_Powi (int x, unsigned int n)
 {
-    if (n == 0)
+    unsigned int d;
+    int m = 1;
+    if (!n)
         return 1;
-    else if (n == 1)
+    if (n == 1)
         return x;
-    else if (n%2)
-        return x * SCE_Math_Powi (x*x, (n-1)/2);
-    else
-        return SCE_Math_Powi (x*x, n/2);
+    while (n > 1) {
+        d = n / 2;
+        if (2 * d != n)
+            m *= x;
+        n = d;
+        x *= x;
+    }
+    return x * m;
 }
 
 /**
@@ -137,7 +143,7 @@ int SCE_Math_Powi (int x, unsigned int n)
  * 
  * Checks if the given number is power of two and return the exposant if it is.
  */
-int SCE_Math_PowerOfTwo (int n)
+int SCE_Math_PowerOfTwo (unsigned int n)
 {
     return (!(n & (n - 1)) && n);
 }
