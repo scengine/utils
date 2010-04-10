@@ -3,8 +3,8 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: SCEngine
-Description: Simple C 3D Engine
+Name: SCEngine's utility library
+Description: Simple C 3D Engine utility library
 Version: @VERSION@
 Libs: -L${libdir} -l@PACKAGE_NAME@
 Cflags: -I${includedir} @DEBUG_CFLAGS@

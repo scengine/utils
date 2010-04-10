@@ -2,12 +2,12 @@
 
 # prelude
 AC_PREREQ([2.64])
-AC_INIT([SCEngine],
+AC_INIT([SCEngine utility library],
         [0.1.0],
         [martin.antony@yahoo.fr],
-        [scengine],
+        [sceutils],
         [http://scengine.tuxfamily.org/])
-AC_CONFIG_SRCDIR([src/SCEngine.c])
+AC_CONFIG_SRCDIR([src/SCEUtils.c])
 AC_CONFIG_AUX_DIR([build/aux])
 AC_CONFIG_MACRO_DIR([build/m4])
 AM_INIT_AUTOMAKE([1.11.1 -Wall -Werror foreign])
@@ -37,23 +37,18 @@ AC_PROG_CC
 # ---------------------------------------------------------------------
 # | Broken old interface (e.g. removed functions) | CURRENT+1:0:0     |
 # ---------------------------------------------------------------------
-SCE_LIB_VERSION="10:0:0"
-AC_SUBST([SCE_LIB_VERSION])
+SCE_UTILS_LTVERSION="0:0:0"
+AC_SUBST([SCE_UTILS_LTVERSION])
 
 pkgconfigdir="$libdir/pkgconfig"
 sce_includedir="$includedir/SCE"
-sce_include_coredir="$sce_includedir/core"
-sce_include_interfacedir="$sce_includedir/interface"
 sce_include_utilsdir="$sce_includedir/utils"
 AC_SUBST(pkgconfigdir)
 AC_SUBST(sce_includedir)
-AC_SUBST(sce_include_coredir)
-AC_SUBST(sce_include_interfacedir)
 AC_SUBST(sce_include_utilsdir)
 
 # legacy version names
-AC_DEFINE([SCE_VERSION_STRING], [VERSION], [Version of the SCEngine])
-AC_DEFINE([FFM_VERSION_STRING], ["0.1"], [Version of the FFM sublib])
+AC_DEFINE([SCE_UTILS_VERSION_STRING], [VERSION], [Version of the SCEngine])
 
 # check for libs & headers
 
@@ -66,7 +61,7 @@ AC_DEFUN([AX_REQUIRE_HEADER],
                            [$2],
                            [AC_MSG_ERROR([[$1 not found]])])])
 
-# AX_REQUIRE_LIBRARY(LIBRARY, FUNC, IF-PRESENT)
+# AX_REQUIRE_LIB(LIBRARY, FUNC, IF-PRESENT)
 # ----------------------------
 # Check presence of HEADER and exit if not present, or execute IF-PRESENT if
 # prsent
@@ -75,69 +70,24 @@ AC_DEFUN([AX_REQUIRE_LIB],
                        [$3],
                        [AC_MSG_ERROR([[$1 not found]])])])
 
-# GL/GLU
-AX_REQUIRE_HEADER([GL/gl.h])
-AX_REQUIRE_LIB([GL], [glEnable])
-AX_REQUIRE_HEADER([GL/glu.h])
-AX_REQUIRE_LIB([GLU], [gluPerspective])
-# IL/ILU
-AX_REQUIRE_HEADER([IL/il.h])
-AX_REQUIRE_LIB([IL], [ilInit])
-AX_REQUIRE_HEADER([IL/ilu.h])
-AX_REQUIRE_LIB([ILU], [iluInit])
-
-# Cg
-AC_ARG_ENABLE(
-  [cg],
-  AC_HELP_STRING([--enable-cg], [enable Cg shaders support [[default=no]]]),
-  [enable_cg="$enableval"],
-  [enable_cg="no"]
-)
-AC_MSG_CHECKING([[whether to compile Cg support]])
-if test "x$enable_cg" = "xyes"; then
-  AC_MSG_RESULT([[yes]])
-  AX_REQUIRE_HEADER([Cg/cg.h])
-  AX_REQUIRE_LIB([Cg], [cgSetErrorCallback])
-  AX_REQUIRE_HEADER([Cg/cgGL.h])
-  AX_REQUIRE_LIB([CgGL], [cgGLGetLatestProfile])
-  AC_DEFINE([SCE_USE_CG], [1], [whether to use Cg or not])
-else
-  AC_MSG_RESULT([[no]])
-fi
+AX_REQUIRE_LIB([pthread], [pthread_create])
+AX_REQUIRE_LIB([m], [acos])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stddef.h stdlib.h string.h])
+AC_CHECK_HEADERS([stddef.h stdlib.h string.h ctype.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_SIZE_T
 AC_STRUCT_TM
-AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
 AC_FUNC_VPRINTF
 # FIXME: these ones are not conditional, we need them
 AC_CHECK_FUNCS([memset pow sqrt strerror strstr strtol strtoul])
 # Conditional functions (we use them if possible)
 AC_CHECK_FUNCS([fabsf cosf sinf tanf powf sqrtf atanf atan2f])
-
-# backtracer
-AC_ARG_ENABLE(
-  [bt],
-  AC_HELP_STRING([--enable-bt], [enable backtracer for debugging [[default=no]]]),
-  [enable_bt="$enableval"],
-  [enable_bt="no"]
-)
-AC_MSG_CHECKING([[whether to enable backtracer]])
-if test "x$enable_bt" = "xyes"; then
-  AC_DEFINE([SCE_USE_BACKTRACER], [1], [is backtracer enabled])
-  AC_MSG_RESULT([[yes]])
-else
-  AC_MSG_RESULT([[no]])
-fi
 
 # paranoiac compilation
 AC_ARG_ENABLE(
@@ -239,17 +189,13 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  include/Makefile
                  include/SCE/Makefile
-                 include/SCE/core/Makefile
-                 include/SCE/interface/Makefile
                  include/SCE/utils/Makefile
-                 scengine.pc
+                 sceutils.pc
                  ])
 AC_OUTPUT
 
 echo "------------------------------------------"
-echo "SCE version                    : $VERSION ($SCE_LIB_VERSION)"
-echo "Cg shaders support             : $enable_cg"
-echo "Backtracer enabled             : $enable_bt"
+echo "SCEUtils version               : $VERSION ($SCE_UTILS_LTVERSION)"
 echo "Debugging enabled              : $enable_debug"
 echo "Paranoiac compiler options     : $enable_paranoia"
 echo "Base installation directory    : $prefix"
