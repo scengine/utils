@@ -26,6 +26,11 @@
 extern "C" {
 #endif
 
+#define SCE_OK 0
+#define SCE_ERROR (-1)
+#define SCE_TRUE 1
+#define SCE_FALSE 0
+
 /**
  * \addtogroup utils
  * \def SCE_FLAG_ADD
