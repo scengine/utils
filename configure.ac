@@ -70,7 +70,9 @@ AC_DEFUN([AX_REQUIRE_LIB],
                        [$3],
                        [AC_MSG_ERROR([[$1 not found]])])])
 
+AX_REQUIRE_HEADER([pthread.h])
 AX_REQUIRE_LIB([pthread], [pthread_create])
+AX_REQUIRE_HEADER([math.h])
 AX_REQUIRE_LIB([m], [acos])
 
 # Checks for header files.
