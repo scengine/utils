@@ -17,18 +17,21 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 13/02/2009
-   updated: 13/02/2009 */
+   updated: 17/04/2010 */
 
 #ifndef SCEUTILS_H
 #define SCEUTILS_H
 
+/* external dependencies */
 #include <stdio.h>
 
+/* internal dependencies */
 #include "SCE/utils/SCEMacros.h"
 #include "SCE/utils/SCEBacktracer.h"
 #include "SCE/utils/SCEError.h"
 #include "SCE/utils/SCEMemory.h"
 #include "SCE/utils/SCETime.h"
+#include "SCE/utils/SCEType.h"
 
 #include "SCE/utils/SCEMath.h"
 #include "SCE/utils/SCEVector.h"

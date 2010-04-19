@@ -18,5 +18,6 @@ libsceutils_la_SOURCES = SCELine.c \
                          SCEQuaternion.c \
                          SCETime.c \
                          SCEList.c \
+                         SCEType.c \
                          SCEBacktracer.c
 

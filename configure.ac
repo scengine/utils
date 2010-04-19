@@ -77,7 +77,7 @@ AX_REQUIRE_LIB([m], [acos])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stddef.h stdlib.h string.h ctype.h])
+AC_CHECK_HEADERS([stddef.h stdlib.h string.h ctype.h math.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -87,7 +87,7 @@ AC_STRUCT_TM
 # Checks for library functions.
 AC_FUNC_VPRINTF
 # FIXME: these ones are not conditional, we need them
-AC_CHECK_FUNCS([memset pow sqrt strerror strstr strtol strtoul])
+AC_CHECK_FUNCS([memset pow sqrt strerror strstr strtol strtoul memcpy])
 # Conditional functions (we use them if possible)
 AC_CHECK_FUNCS([fabsf cosf sinf tanf powf sqrtf atanf atan2f])
 

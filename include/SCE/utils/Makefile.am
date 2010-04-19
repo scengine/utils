@@ -16,4 +16,5 @@ sce_include_utils_HEADERS = SCEBacktracer.h \
                             SCEString.h \
                             SCETime.h \
                             SCEUtils.h \
+                            SCEType.h \
                             SCEVector.h
