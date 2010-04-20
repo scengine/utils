@@ -49,15 +49,17 @@ int SCE_Init_Utils (FILE *outlog)
     int ret = SCE_OK;
     if (pthread_mutex_lock (&init_mutex) != 0) {
         ret = SCE_ERROR;
+        SCE_Init_Error (outlog);
         SCEE_Log (42);
         SCEE_LogMsg ("failed to lock initialization mutex");
     } else {
         init_n++;
-        if (init_n < 1) {
+        if (init_n == 1) {
             SCE_Init_Error (outlog);
             ret = SCE_ERROR;
             if (SCE_Init_Mem () < 0) {
-                fprintf (stderr, "SCEngine error: can't initialize memory manager");
+                SCEE_LogSrc ();
+                SCEE_LogSrcMsg ("can't initialize memory manager");
             } else if (SCE_Init_Matrix () < 0) {
                 SCEE_LogSrc ();
                 SCEE_LogSrcMsg ("can't initialize matrices manager");
