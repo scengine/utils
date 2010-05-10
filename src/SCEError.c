@@ -120,7 +120,7 @@ int SCE_Init_Error (FILE *outlog)
 {
     stream = (outlog ? outlog : stderr);
     SCE_Error_Clear ();
-    return 0;
+    return 0;                   /* NOTE: return SCE_OK ? */
 }
 
 /**

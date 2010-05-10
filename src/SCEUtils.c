@@ -48,38 +48,37 @@ int SCE_Init_Utils (FILE *outlog)
 {
     int ret = SCE_OK;
     if (pthread_mutex_lock (&init_mutex) != 0) {
-        ret = SCE_ERROR;
         SCE_Init_Error (outlog);
         SCEE_Log (42);
         SCEE_LogMsg ("failed to lock initialization mutex");
-    } else {
-        init_n++;
-        if (init_n == 1) {
-            SCE_Init_Error (outlog);
-            ret = SCE_ERROR;
-            if (SCE_Init_Mem () < 0) {
-                SCEE_LogSrc ();
-                SCEE_LogSrcMsg ("can't initialize memory manager");
-            } else if (SCE_Init_Matrix () < 0) {
-                SCEE_LogSrc ();
-                SCEE_LogSrcMsg ("can't initialize matrices manager");
-            } else if (SCE_Init_FastList () < 0) {
-                SCEE_LogSrc ();
-                SCEE_LogSrcMsg ("can't initialize fast lists manager");
-            } else if (SCE_Init_Media () < 0) {
-                SCEE_LogSrc ();
-                SCEE_LogSrcMsg ("can't initialize medias manager");
-            } else if (SCE_Init_Resource () < 0) {
-                SCEE_LogSrc ();
-                SCEE_LogSrcMsg ("can't initialize resources manager");
-            } else {
-                ret = SCE_OK;
-            }
+        return SCE_ERROR;
+    }
+    init_n++;
+    if (init_n == 1) {
+        SCE_Init_Error (outlog);
+        ret = SCE_ERROR;
+        if (SCE_Init_Mem () < 0) {
+            SCEE_LogSrc ();
+            SCEE_LogSrcMsg ("can't initialize memory manager");
+        } else if (SCE_Init_Matrix () < 0) {
+            SCEE_LogSrc ();
+            SCEE_LogSrcMsg ("can't initialize matrices manager");
+        } else if (SCE_Init_FastList () < 0) {
+            SCEE_LogSrc ();
+            SCEE_LogSrcMsg ("can't initialize fast lists manager");
+        } else if (SCE_Init_Media () < 0) {
+            SCEE_LogSrc ();
+            SCEE_LogSrcMsg ("can't initialize medias manager");
+        } else if (SCE_Init_Resource () < 0) {
+            SCEE_LogSrc ();
+            SCEE_LogSrcMsg ("can't initialize resources manager");
+        } else {
+            ret = SCE_OK;
         }
-        pthread_mutex_unlock (&init_mutex);
-        if (ret == SCE_ERROR) {
-            SCE_Quit_Utils ();
-        }
+    }
+    pthread_mutex_unlock (&init_mutex);
+    if (ret == SCE_ERROR) {
+        SCE_Quit_Utils ();
     }
     return ret;
 }
