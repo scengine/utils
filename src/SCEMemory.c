@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 01/08/2009 */
+   updated: 14/05/2010 */
 
 #include <stdlib.h>
 #include <string.h>
@@ -67,7 +67,8 @@ typedef struct SCE_SMemAlloc {
 static SCE_SMemAlloc allocs = {
     "root allocations list", 0, 0, NULL, NULL, NULL
 };
-static pthread_mutex_t allocs_m = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t allocs_m;
+static pthread_mutexattr_t allocs_mattr;
 
 
 typedef struct SCE_SMemArrayBlock {
@@ -103,6 +104,16 @@ int SCE_Init_Mem (void)
         SCE_Mem_InitArray (&arrays[i]);
         arrays[i].alloc_size = i + 1;
     }
+
+#if 0
+    /* lol pthread_mutex_recursive is not defined. */
+    pthread_mutexattr_init (&allocs_mattr);
+    pthread_mutexattr_settype (&allocs_mattr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init (&allocs_m, &allocs_mattr);
+#else
+    pthread_mutex_init (&allocs_m, NULL);
+#endif
+
     return SCE_OK;
 }
 void SCE_Quit_Mem (void)
@@ -291,10 +302,15 @@ static SCE_SMemAlloc* SCE_Mem_LocateAllocFromPointer (void *p)
 {
     SCE_SMemAlloc *i = NULL;
     SCE_SMemAlloc *al = p;
-    al = &al[-1];
-    SCE_Mem_For (i) {
-        if (i == al)
-            return i;
+    if (pthread_mutex_lock (&allocs_m) == 0) {
+        al = &al[-1];
+        SCE_Mem_For (i) {
+            if (i == al) {
+                pthread_mutex_unlock (&allocs_m);
+                return i;
+            }
+        }
+        pthread_mutex_unlock (&allocs_m);
     }
     return NULL;
 }
@@ -321,15 +337,18 @@ static void SCE_Mem_AddAlloc (SCE_SMemAlloc *m)
 
 static void SCE_Mem_EraseAlloc (SCE_SMemAlloc *m)
 {
-    m->prev->next = m->next;
-    if (m->next)
-        m->next->prev = m->prev;
+    if (pthread_mutex_lock (&allocs_m) == 0) {
+        m->prev->next = m->next;
+        if (m->next)
+            m->next->prev = m->prev;
 #if 0
-    if (m->size <= SCE_NUM_MEMORY_ARRAYS)
-        SCE_Mem_EraseAllocFromArray (m);
-    else
+        if (m->size <= SCE_NUM_MEMORY_ARRAYS)
+            SCE_Mem_EraseAllocFromArray (m);
+        else
 #endif
         SCE_Mem_DeleteAlloc (m);
+        pthread_mutex_unlock (&allocs_m);
+    }
 }
 
 
