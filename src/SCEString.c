@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2007
-   updated: 24/02/2008 */
+   updated: 19/05/2010 */
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -416,6 +416,28 @@ char* SCE_String_CatDupMulti (const char* str, ...)
     }
 
     return new;
+}
+
+/**
+ * \brief Replaces occurrences of a character by another
+ * \param str a string
+ * \param a
+ * \param b
+ * \returns the number of characters replaced
+ *
+ * All occurrences of \p a shall be replaced by \p b
+ */
+int SCE_String_ReplaceChar (char *str, char a, char b)
+{
+    int rep = 0;
+    while (*str) {
+        if (*str == a) {
+            *str = b;
+            rep++;
+        }
+        str++;
+    }
+    return rep;
 }
 
 /** @} */

@@ -16,23 +16,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
  
-/* Cree le : 28 fevrier 2007
-   derniere modification le 13/02/2008 */
+/* created: 28/02/2007
+   updated: 19/05/2010 */
 
 #ifndef SCESTRING_H
 #define SCESTRING_H
 
-
-/* on fait de cet en-tete le seul et unique
- * en-tete de gestion des chaines de caracteres
- */
 #include <string.h>
 #include <stdarg.h>
 #include "SCE/utils/SCEMacros.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* retourne le chiffre auquel correspond la chaine str */
@@ -57,6 +52,8 @@ char* SCE_String_Dup (const char*);
 char* SCE_String_CatDup (const char*, const char*);
 
 char* SCE_String_CatDupMulti (const char* str, ...) SCE_GNUC_NULL_TERMINATED;
+
+int SCE_String_ReplaceChar (char*, char, char);
 
 #ifdef __cplusplus
 } /* extern "C" */
