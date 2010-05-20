@@ -73,14 +73,12 @@ static unsigned int SCE_String_lenof (long arg)
     unsigned int size = 1;
     long nb = 1;
 
-    if (arg < 0)
-    {
+    if (arg < 0) {
         arg = -arg;
         size++;
     }
 
-    while (1)
-    {
+    while (1) {
         nb = nb*10;
         if (arg >= nb)
             size++;
@@ -113,17 +111,14 @@ double SCE_String_Valof (const char *str)
      * overflows */
     while (str[str_ilen] != '\0' &&
            str[str_ilen] != '\n' &&
-           str[str_ilen] != '.')
-    {
+           str[str_ilen] != '.') {
         str_ilen++;
     }
     /* --> longueur de la partie decimale (si elle existe uniquement) */
-    if (str[str_ilen] == '.')
-    {
+    if (str[str_ilen] == '.') {
         /* FIXME: same problem here */
         while (str[str_dlen+str_ilen+1] != '\0' &&
-               str[str_dlen+str_ilen] != '\n')
-        {
+               str[str_dlen+str_ilen] != '\n') {
             str_dlen++;
         }
     }
@@ -134,16 +129,13 @@ double SCE_String_Valof (const char *str)
     coeff = SCE_Math_Powi (10, str_ilen - val);
 
     /* calcul de la valeur entiere */
-    for (i=val; i<str_ilen; i++)
-    {
+    for (i=val; i<str_ilen; i++) {
         unit_tmp = str[i] - '0';
-        if (unit_tmp > 9)
-        {
+        if (unit_tmp > 9) {
             SCEE_SendMsg ("argument %d : '%c' is not a number\n", i, str[i]);
             /* on saute, on s'en occupe pas */
             unit_tmp = 0;
-        }
-        else
+        } else
             coeff /= 10.0f;
 
         res += unit_tmp * coeff;
@@ -151,16 +143,13 @@ double SCE_String_Valof (const char *str)
 
     coeff = 1.0f;
     /* calcul de la valeur decimale */
-    for (i=str_ilen+1; i<str_dlen+str_ilen+1; i++)
-    {
+    for (i = str_ilen + 1; i < str_dlen + str_ilen + 1; i++) {
         unit_tmp = str[i] - '0';
-        if (unit_tmp > 9)
-        {
+        if (unit_tmp > 9) {
             SCEE_SendMsg ("argument %d : '%c' is not a number\n", i, str[i]);
             /* on saute, on s'en occupe pas */
             unit_tmp = 0;
-        }
-        else
+        } else
             coeff /= 10.0f;
 
         res += unit_tmp*coeff;
@@ -199,33 +188,27 @@ const char* SCE_String_Strof (double arg, unsigned int nd)
     memset (str, '\0', sizeof str);
 
     /* si arg a une valeur decimale : */
-    if (vf != 0.0)
-    {
+    if (vf != 0.0) {
         dec = vf * SCE_Math_Powi (10, nd);
-        dec1 = vf * SCE_Math_Powi (10, nd+1);
+        dec1 = vf * SCE_Math_Powi (10, nd + 1);
 
-        if (dec1 + 5 >= SCE_Math_Powi (10, nd+1))
-        {
+        if (dec1 + 5 >= SCE_Math_Powi (10, nd + 1)) {
             arg++;
             dec = 0;
-        }
-        else
-        {
+        } else {
             if (dec1 - (dec*10) >= 5)
                 dec++;
         }
 
         lenof_dec = SCE_String_lenof (dec);
 
-        if (arg < 0)
-        {
+        if (arg < 0) {
             str[0] = '-';
             arg = -arg;
             i++;
         }
 
-        while (i < lenof_arg)
-        {
+        while (i < lenof_arg) {
             div = SCE_Math_Powi (10, lenof_arg-i-1);
 
             str[i] = (arg/div) + '0';
@@ -237,18 +220,13 @@ const char* SCE_String_Strof (double arg, unsigned int nd)
         str[i] = '.';
         i++;
 
-        if (lenof_dec < nd)
-        {
-            for (j=0; j<(nd-lenof_dec); j++)
-            {
+        if (lenof_dec < nd) {
+            for (j = 0; j < nd - lenof_dec; j++, i++)
                 str[i] = '0';
-                i++;
-            }
             lenof_dec = nd;
         }
 
-        while (i < lenof_arg+lenof_dec+1)
-        {
+        while (i < lenof_arg+lenof_dec+1) {
             div = SCE_Math_Powi (10, lenof_dec-i+lenof_arg);
 
             str[i] = (dec/div) + '0';
@@ -256,20 +234,16 @@ const char* SCE_String_Strof (double arg, unsigned int nd)
 
             dec = dec - ((int)(dec/div) * div);
         }
-    }
-    else
-    {
-        if (arg < 0)
-        {
+    } else {
+        if (arg < 0) {
             str[0] = '-';
             arg = -arg;
             i++;
         }
 
-        while (i < lenof_arg)
-        {
+        while (i < lenof_arg) {
             div = SCE_Math_Powi (10, lenof_arg-i-1);
-            
+
             str[i] = (arg/div) + '0';
             i++;
 
@@ -286,12 +260,11 @@ const char* SCE_String_Strof (double arg, unsigned int nd)
  * \param c   Character sought
  * \returns the number of occurrences of \p c in \p str
  */
-unsigned int SCE_String_NChrInStr(const char *str, char c)
+unsigned int SCE_String_NChrInStr (const char *str, char c)
 {
     unsigned int nb = 0;
 
-    for (; *str != '\0'; str++)
-    {
+    for (; *str != '\0'; str++) {
         if (*str == c)
             nb++;
     }
@@ -332,33 +305,25 @@ char* SCE_String_GetExt (const char *str)
 int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
 {
     int rv;
-    
+
     /* NULL-safety */
-    if (! str1 || ! str2)
-    {
+    if (! str1 || ! str2) {
         if (str1)
             rv = 1;
         else if (str2)
             rv = -1;
         else
             rv = 0;
-    }
-    else
-    {
-        if (cmp_case)
-        {
-            for (rv = 0; (rv = *str1 - *str2) == 0; str1++, str2++)
-            {
+    } else {
+        if (cmp_case) {
+            for (rv = 0; (rv = *str1 - *str2) == 0; str1++, str2++) {
                 if (*str1 == 0)
                     break;
             }
-        }
-        else
-        {
+        } else {
             for (rv = 0;
                  (rv = (tolower (*str1) - tolower (*str2))) == 0;
-                 str1++, str2++)
-            {
+                 str1++, str2++) {
                 if (*str1 == 0)
                     break;
             }
@@ -376,8 +341,9 @@ int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
  */
 char* SCE_String_Dup (const char *src)
 {
-    if (src)
-    {
+    if (!src)
+        return NULL;
+    else {
         size_t s = strlen (src) + 1;
         char *new = SCE_malloc (s);
         if (!new)
@@ -386,8 +352,6 @@ char* SCE_String_Dup (const char *src)
             memcpy (new, src, s);
         return new;
     }
-    else
-        return NULL;
 }
 
 /**
@@ -407,8 +371,7 @@ char* SCE_String_CatDup (const char *a, const char *b)
     new = SCE_malloc (size);
     if (!new)
         SCEE_LogSrc ();
-    else
-    {
+    else {
         memset (new, '\0', size);
         if (a) strcat (new, a);
         if (b) strcat (new, b);
@@ -431,28 +394,27 @@ char* SCE_String_CatDupMulti (const char* str, ...)
     char *new;
     char *tmp;
     va_list ap;
-    
+
     size += strlen (str);
     va_start (ap, str);
     while ((tmp = va_arg (ap, char*)) != NULL)
         size += strlen (tmp);
     va_end (ap);
-    
+
     new = SCE_malloc (size);
     if (! new)
         SCEE_LogSrc ();
-    else
-    {
+    else {
         strcpy (new, str);
-        
+
         va_start (ap, str);
         while ((tmp = va_arg (ap, char*)) != NULL)
             strcat (new, tmp);
         va_end (ap);
-        
+
         new[size -1] = '\0';
     }
-    
+
     return new;
 }
 
