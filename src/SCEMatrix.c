@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 07/04/2009 */
+   updated: 21/05/2010 */
 
 #include <string.h>
 
@@ -409,6 +409,19 @@ void SCE_Matrix4_MulTranslatev (SCE_TMatrix4 m, SCE_TVector3 v)
     SCE_Matrix4_Mul (tm2, tm, m);
 }
 
+
+float SCE_Matrix4_Trace (const SCE_TMatrix4 m)
+{
+    return m[0] + m[5] + m[10] + m[15];
+}
+float SCE_Matrix3_Trace (const SCE_TMatrix3 m)
+{
+    return m[0] + m[4] + m[8];
+}
+float SCE_Matrix4x3_Trace (const SCE_TMatrix4x3 m)
+{
+    return m[0] + m[5] + m[10];
+}
 
 void SCE_Matrix4_RotX (SCE_TMatrix4 m, float a)
 {

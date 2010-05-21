@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 04/08/2009 */
+   updated: 21/05/2010 */
 
 #ifndef SCEMATRIX_H
 #define SCEMATRIX_H
@@ -105,6 +105,10 @@ void SCE_Matrix4_Translatev (SCE_TMatrix4, SCE_TVector3);
 
 void SCE_Matrix4_MulTranslate (SCE_TMatrix4, float, float, float);
 void SCE_Matrix4_MulTranslatev (SCE_TMatrix4, SCE_TVector3);
+
+float SCE_Matrix4_Trace (const SCE_TMatrix4);
+float SCE_Matrix3_Trace (const SCE_TMatrix3);
+float SCE_Matrix4x3_Trace (const SCE_TMatrix4x3);
 
 void SCE_Matrix4_RotX (SCE_TMatrix4, float);
 void SCE_Matrix3_RotX (SCE_TMatrix3, float);
