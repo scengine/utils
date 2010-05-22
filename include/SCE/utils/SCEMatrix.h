@@ -134,6 +134,10 @@ void SCE_Matrix4_MulRotatev(SCE_TMatrix4, float, SCE_TVector3);
 void SCE_Matrix3_MulRotate (SCE_TMatrix3, float, float, float, float);
 void SCE_Matrix3_MulRotatev(SCE_TMatrix3, float, SCE_TVector3);
 
+void SCE_Matrix4_GetRotationv (SCE_TMatrix4, float*, SCE_TVector3);
+void SCE_Matrix3_GetRotationv (SCE_TMatrix3, float*, SCE_TVector3);
+void SCE_Matrix4x3_GetRotationv (SCE_TMatrix4x3, float*, SCE_TVector3);
+
 void SCE_Matrix4_Scale (SCE_TMatrix4, float, float, float);
 void SCE_Matrix4_Scalev (SCE_TMatrix4, SCE_TVector3);
 void SCE_Matrix3_Scale (SCE_TMatrix3, float, float, float);
