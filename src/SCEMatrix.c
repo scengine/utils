@@ -764,8 +764,14 @@ void SCE_Matrix4_ToQuaternion (SCE_TMatrix4 m, SCE_TQuaternion q)
 }
 void SCE_Matrix3_ToQuaternion (SCE_TMatrix3 m, SCE_TQuaternion q)
 {
-    float t;
-    if (m[0] > m[4]) {
+    float t = SCE_Matrix3_Trace (m);
+    if (t > 0.0f) {
+        t = SCE_Math_InvSqrt (t + 1.0f) * 0.5f;
+        q[0] = (m[7] - m[5]) * t;
+        q[1] = (m[2] - m[6]) * t;
+        q[2] = (m[3] - m[1]) * t;
+        q[3] = 0.25f / t;
+    } else if (m[0] > m[4]) {
         if (m[0] > m[8]) {
             t = SCE_Math_InvSqrt (1.0f + m[0] - m[4] - m[8]) * 0.5f;
             q[0] = 0.25f / t;
@@ -797,8 +803,14 @@ void SCE_Matrix3_ToQuaternion (SCE_TMatrix3 m, SCE_TQuaternion q)
 }
 void SCE_Matrix4x3_ToQuaternion (SCE_TMatrix4x3 m, SCE_TQuaternion q)
 {
-    float t;
-    if (m[0] > m[5]) {
+    float t = SCE_Matrix4x3_Trace (m);
+    if (t > 0.0f) {
+        t = SCE_Math_InvSqrt (t + 1.0f) * 0.5f;
+        q[0] = (m[9] - m[6]) * t;
+        q[1] = (m[2] - m[8]) * t;
+        q[2] = (m[4] - m[1]) * t;
+        q[3] = 0.25f / t;
+    } else if (m[0] > m[5]) {
         if (m[0] > m[10]) {
             t = SCE_Math_InvSqrt (1.0f + m[0] - m[5] - m[10]) * 0.5f;
             q[0] = 0.25f / t;
