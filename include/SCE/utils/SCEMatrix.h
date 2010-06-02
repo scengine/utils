@@ -142,11 +142,15 @@ void SCE_Matrix4_Scale (SCE_TMatrix4, float, float, float);
 void SCE_Matrix4_Scalev (SCE_TMatrix4, SCE_TVector3);
 void SCE_Matrix3_Scale (SCE_TMatrix3, float, float, float);
 void SCE_Matrix3_Scalev (SCE_TMatrix3, SCE_TVector3);
+void SCE_Matrix4x3_Scale (SCE_TMatrix4x3, float, float, float);
+void SCE_Matrix4x3_Scalev (SCE_TMatrix4x3, SCE_TVector3);
 
 void SCE_Matrix4_MulScale (SCE_TMatrix4, float, float, float);
 void SCE_Matrix4_MulScalev (SCE_TMatrix4, SCE_TVector3);
 void SCE_Matrix3_MulScale (SCE_TMatrix3, float, float, float);
 void SCE_Matrix3_MulScalev (SCE_TMatrix3, SCE_TVector3);
+void SCE_Matrix4x3_MulScale (SCE_TMatrix4x3, float, float, float);
+void SCE_Matrix4x3_MulScalev (SCE_TMatrix4x3, SCE_TVector3);
 
 void SCE_Matrix4_FromQuaternion (SCE_TMatrix4, SCE_TQuaternion);
 void SCE_Matrix3_FromQuaternion (SCE_TMatrix3, SCE_TQuaternion);

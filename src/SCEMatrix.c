@@ -696,6 +696,21 @@ void SCE_Matrix3_Scalev (SCE_TMatrix3 m, SCE_TVector3 v)
                      0.,   0.,   v[2]);
 }
 
+void SCE_Matrix4x3_Scale (SCE_TMatrix4x3 m, float x, float y, float z)
+{
+    SCE_Matrix4x3_Set (m,
+                       x,  0., 0., 0.,
+                       0., y,  0., 0.,
+                       0., 0., z,  0.);
+}
+void SCE_Matrix4x3_Scalev (SCE_TMatrix4x3 m, SCE_TVector3 v)
+{
+    SCE_Matrix4x3_Set (m,
+                       v[0], 0.,   0.,   0.,
+                       0.,   v[1], 0.,   0.,
+                       0.,   0.,   v[2], 0.);
+}
+
 void SCE_Matrix4_MulScale (SCE_TMatrix4 m, float x, float y, float z)
 {
     SCE_TMatrix4 tm;
@@ -720,6 +735,19 @@ void SCE_Matrix3_MulScalev (SCE_TMatrix3 m, SCE_TVector3 v)
     SCE_TMatrix3 tm;
     SCE_Matrix3_Scalev (tm, v);
     SCE_Matrix3_MulCopy (m, tm);
+}
+
+void SCE_Matrix4x3_MulScale (SCE_TMatrix4x3 m, float x, float y, float z)
+{
+    SCE_TMatrix4x3 tm;
+    SCE_Matrix4x3_Scale (tm, x, y, z);
+    SCE_Matrix4x3_MulCopy (m, tm);
+}
+void SCE_Matrix4x3_MulScalev (SCE_TMatrix4x3 m, SCE_TVector3 v)
+{
+    SCE_TMatrix4x3 tm;
+    SCE_Matrix4x3_Scalev (tm, v);
+    SCE_Matrix4x3_MulCopy (m, tm);
 }
 
 
