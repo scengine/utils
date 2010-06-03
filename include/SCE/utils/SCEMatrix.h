@@ -112,17 +112,23 @@ float SCE_Matrix4x3_Trace (const SCE_TMatrix4x3);
 
 void SCE_Matrix4_RotX (SCE_TMatrix4, float);
 void SCE_Matrix3_RotX (SCE_TMatrix3, float);
+void SCE_Matrix4x3_RotX (SCE_TMatrix4x3, float);
 void SCE_Matrix4_RotY (SCE_TMatrix4, float);
 void SCE_Matrix3_RotY (SCE_TMatrix3, float);
+void SCE_Matrix4x3_RotY (SCE_TMatrix4x3, float);
 void SCE_Matrix4_RotZ (SCE_TMatrix4, float);
 void SCE_Matrix3_RotZ (SCE_TMatrix3, float);
+void SCE_Matrix4x3_RotZ (SCE_TMatrix4x3, float);
 
 void SCE_Matrix4_MulRotX (SCE_TMatrix4, float);
 void SCE_Matrix3_MulRotX (SCE_TMatrix3, float);
+void SCE_Matrix4x3_MulRotX (SCE_TMatrix4x3, float);
 void SCE_Matrix4_MulRotY (SCE_TMatrix4, float);
 void SCE_Matrix3_MulRotY (SCE_TMatrix3, float);
+void SCE_Matrix4x3_MulRotY (SCE_TMatrix4x3, float);
 void SCE_Matrix4_MulRotZ (SCE_TMatrix4, float);
 void SCE_Matrix3_MulRotZ (SCE_TMatrix3, float);
+void SCE_Matrix4x3_MulRotZ (SCE_TMatrix4x3, float);
 
 void SCE_Matrix4_Rotate (SCE_TMatrix4, float, float, float, float);
 void SCE_Matrix4_Rotatev (SCE_TMatrix4, float, SCE_TVector3);

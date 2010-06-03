@@ -427,7 +427,6 @@ void SCE_Matrix4_RotX (SCE_TMatrix4 m, float a)
 {
     float cosinus = SCE_Math_Cosf (a);
     float sinus = SCE_Math_Sinf (a);
-
     SCE_Matrix4_Set (m,
                      1., 0.,      0.,       0.,
                      0., cosinus, -sinus,   0.,
@@ -438,17 +437,24 @@ void SCE_Matrix3_RotX (SCE_TMatrix3 m, float a)
 {
     float cosinus = SCE_Math_Cosf (a);
     float sinus = SCE_Math_Sinf (a);
-
     SCE_Matrix3_Set (m,
                      1., 0.,      0.,
                      0., cosinus, -sinus,
                      0., sinus,   cosinus);
 }
+void SCE_Matrix4x3_RotX (SCE_TMatrix4x3 m, float a)
+{
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
+    SCE_Matrix4x3_Set (m,
+                       1., 0.,      0.,       0.,
+                       0., cosinus, -sinus,   0.,
+                       0., sinus,   cosinus,  0.);
+}
 void SCE_Matrix4_RotY (SCE_TMatrix4 m, float a)
 {
     float cosinus = SCE_Math_Cosf (a);
     float sinus = SCE_Math_Sinf (a);
-
     SCE_Matrix4_Set (m,
                      cosinus, 0., -sinus,  0.,
                      0.,      1., 0.,      0.,
@@ -459,17 +465,24 @@ void SCE_Matrix3_RotY (SCE_TMatrix3 m, float a)
 {
     float cosinus = SCE_Math_Cosf (a);
     float sinus = SCE_Math_Sinf (a);
-
     SCE_Matrix3_Set (m,
                      cosinus, 0., -sinus,
                      0.,      1., 0.,
                      sinus,   0., cosinus);
 }
+void SCE_Matrix4x3_RotY (SCE_TMatrix4x3 m, float a)
+{
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
+    SCE_Matrix4x3_Set (m,
+                       cosinus, 0., -sinus,  0.,
+                       0.,      1., 0.,      0.,
+                       sinus,   0., cosinus, 0.);
+}
 void SCE_Matrix4_RotZ (SCE_TMatrix4 m, float a)
 {
     float cosinus = SCE_Math_Cosf (a);
     float sinus = SCE_Math_Sinf (a);
-
     SCE_Matrix4_Set (m,
                      cosinus, -sinus,  0., 0.,
                      sinus,   cosinus, 0., 0.,
@@ -480,11 +493,19 @@ void SCE_Matrix3_RotZ (SCE_TMatrix3 m, float a)
 {
     float cosinus = SCE_Math_Cosf (a);
     float sinus = SCE_Math_Sinf (a);
-
     SCE_Matrix3_Set (m,
                      cosinus, -sinus,  0.,
                      sinus,   cosinus, 0.,
                      0.,      0.,      1.);
+}
+void SCE_Matrix4x3_RotZ (SCE_TMatrix4x3 m, float a)
+{
+    float cosinus = SCE_Math_Cosf (a);
+    float sinus = SCE_Math_Sinf (a);
+    SCE_Matrix4x3_Set (m,
+                       cosinus, -sinus,  0., 0.,
+                       sinus,   cosinus, 0., 0.,
+                       0.,      0.,      1., 0.);
 }
 
 void SCE_Matrix4_MulRotX (SCE_TMatrix4 m, float a)
@@ -501,6 +522,13 @@ void SCE_Matrix3_MulRotX (SCE_TMatrix3 m, float a)
     SCE_Matrix3_RotX (tm, a);
     SCE_Matrix3_Mul (tm2, tm, m);
 }
+void SCE_Matrix4x3_MulRotX (SCE_TMatrix4x3 m, float a)
+{
+    SCE_TMatrix4x3 tm, tm2;
+    SCE_Matrix4x3_Copy (tm2, m);
+    SCE_Matrix4x3_RotX (tm, a);
+    SCE_Matrix4x3_Mul (tm2, tm, m);
+}
 
 void SCE_Matrix4_MulRotY (SCE_TMatrix4 m, float a)
 {
@@ -516,6 +544,13 @@ void SCE_Matrix3_MulRotY (SCE_TMatrix3 m, float a)
     SCE_Matrix3_RotX (tm, a);
     SCE_Matrix3_Mul (tm2, tm, m);
 }
+void SCE_Matrix4x3_MulRotY (SCE_TMatrix4x3 m, float a)
+{
+    SCE_TMatrix4x3 tm, tm2;
+    SCE_Matrix4x3_Copy (tm2, m);
+    SCE_Matrix4x3_RotY (tm, a);
+    SCE_Matrix4x3_Mul (tm2, tm, m);
+}
 
 void SCE_Matrix4_MulRotZ (SCE_TMatrix4 m, float a)
 {
@@ -530,6 +565,13 @@ void SCE_Matrix3_MulRotZ (SCE_TMatrix3 m, float a)
     SCE_Matrix3_Copy (tm2, m);
     SCE_Matrix3_RotX (tm, a);
     SCE_Matrix3_Mul (tm2, tm, m);
+}
+void SCE_Matrix4x3_MulRotZ (SCE_TMatrix4x3 m, float a)
+{
+    SCE_TMatrix4x3 tm, tm2;
+    SCE_Matrix4x3_Copy (tm2, m);
+    SCE_Matrix4x3_RotZ (tm, a);
+    SCE_Matrix4x3_Mul (tm2, tm, m);
 }
 
 
