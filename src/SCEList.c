@@ -920,4 +920,78 @@ void SCE_List_QuickSort (SCE_SList *l, SCE_FListCompareData func)
     SCE_List_QuickSortRange (l, 0, SCE_List_GetLength (l), func);
 }
 
+/**
+ * @brief Swaps to elements in a list
+ * @param a The element to swap with @b
+ * @param b The elemet to swap with @a
+ */
+void SCE_List_Swapl (SCE_SListIterator *a, SCE_SListIterator *b)
+{
+    if (a->next == b) {
+        a->prev->next = b;
+        b->next->prev = a;
+        a->next = b->next;
+        b->prev = a->prev;
+        a->prev = b;
+        b->next = a;
+    } else if (b->next == a) {
+        b->prev->next = a;
+        a->next->prev = b;
+        b->next = a->next;
+        a->prev = b->prev;
+        b->prev = a;
+        a->next = b;
+    } else {
+        SCE_SListIterator *prev_a = a->prev;
+        SCE_SListIterator *prev_b = b->prev;
+
+        SCE_List_Removel (a);
+        SCE_List_Removel (b);
+        SCE_List_Append (prev_a, b);
+        SCE_List_Append (prev_b, a);
+    }
+}
+
+/**
+ * @brief Swaps to elements
+ * @param a The element to swap with @b
+ * @param b The elemet to swap with @a
+ */
+void SCE_List_Swap (SCE_SListIterator *a, SCE_SListIterator *b)
+{
+    if (a->next == b) {
+        if (a->prev) a->prev->next = b;
+        if (b->next) b->next->prev = a;
+        a->next = b->next;
+        b->prev = a->prev;
+        a->prev = b;
+        b->next = a;
+    } else if (b->next == a) {
+        if (b->prev) b->prev->next = a;
+        if (a->next) a->next->prev = b;
+        b->next = a->next;
+        a->prev = b->prev;
+        b->prev = a;
+        a->next = b;
+    } else {
+        SCE_SListIterator *prev_a = a->prev;
+        SCE_SListIterator *next_a = a->next;
+        SCE_SListIterator *prev_b = b->prev;
+        SCE_SListIterator *next_b = b->next;
+
+        SCE_List_Remove (a);
+        SCE_List_Remove (b);
+        if (prev_a) {
+            SCE_List_Append (prev_a, b);
+        } else {
+            SCE_List_Prepend (b, next_a);
+        }
+        if (prev_b) {
+            SCE_List_Append (prev_b, a);
+        } else {
+            SCE_List_Prepend (a, next_b);
+        }
+    }
+}
+
 /** @} */

@@ -135,6 +135,8 @@ SCE_SListIterator* SCE_List_LocateIterator (const SCE_SList*, void*,
                                             SCE_FListCompareData);
 unsigned int SCE_List_LocateIndex (const SCE_SList*, void*,
                                    SCE_FListCompareData);
+void SCE_List_Swapl (SCE_SListIterator *a, SCE_SListIterator *b);
+void SCE_List_Swap (SCE_SListIterator *a, SCE_SListIterator *b);
 void SCE_List_QuickSortRange (SCE_SList*, unsigned int, unsigned int,
                               SCE_FListCompareData);
 void SCE_List_QuickSort (SCE_SList*, SCE_FListCompareData);
