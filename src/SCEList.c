@@ -993,12 +993,26 @@ void SCE_List_Swap (SCE_SListIterator *a, SCE_SListIterator *b)
 void SCE_List_GnomeSort (SCE_SList *l, SCE_FListCompareData func)
 {
     SCE_SListIterator *it = SCE_List_GetFirst (l);
+    SCE_SListIterator *last_it = it;
+    unsigned int cur = 0, last = 0;
 
     while (&l->last != it) {
         if (SCE_List_IsFirst (l, it) || func (it->data, it->prev->data) >= 0) {
-            it = it->next;
+            if (cur < last) {
+                it = last_it->next;
+                cur = last + 1;
+            } else {
+                it = it->next;
+                cur ++;
+            }
         } else {
             SCE_List_Swapl (it, it->prev);
+            if (cur > last) {
+                last_it = it->next;
+                last = cur;
+            } else {
+                cur --;
+            }
         }
     }
 }
