@@ -983,4 +983,24 @@ void SCE_List_Swap (SCE_SListIterator *a, SCE_SListIterator *b)
     }
 }
 
+/**
+ * @brief Sorts a list
+ * @param l a list
+ * @param func a function used to compare two elements of the list
+ * 
+ * This function sorts a list using the GnomeSort algorithm.
+ */
+void SCE_List_GnomeSort (SCE_SList *l, SCE_FListCompareData func)
+{
+    SCE_SListIterator *it = SCE_List_GetFirst (l);
+
+    while (&l->last != it) {
+        if (SCE_List_IsFirst (l, it) || func (it->data, it->prev->data) >= 0) {
+            it = it->next;
+        } else {
+            SCE_List_Swapl (it, it->prev);
+        }
+    }
+}
+
 /** @} */

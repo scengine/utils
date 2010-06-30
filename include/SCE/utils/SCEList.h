@@ -140,6 +140,7 @@ void SCE_List_Swap (SCE_SListIterator *a, SCE_SListIterator *b);
 void SCE_List_QuickSortRange (SCE_SList*, unsigned int, unsigned int,
                               SCE_FListCompareData);
 void SCE_List_QuickSort (SCE_SList*, SCE_FListCompareData);
+void SCE_List_GnomeSort (SCE_SList*, SCE_FListCompareData);
 
 /**
  * \brief Sorts a list
