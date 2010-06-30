@@ -836,7 +836,6 @@ void SCE_List_Sort (SCE_SList *l, SCE_FListCompareData comesafter)
 }
 #endif
 
-/* FIXME: review list usage */
 /* part of the quicksort implementation */
 static unsigned int SCE_List_QuickSortPartition (SCE_SList *l,
                                                  unsigned int start,
@@ -851,12 +850,7 @@ static unsigned int SCE_List_QuickSortPartition (SCE_SList *l,
             it_s = SCE_List_GetIterator (l, start);
             it_e = SCE_List_GetIterator (l, end);
             if (func (it_s->data, it_e->data) > 0) {
-                void *tmp;
-                
-                /* FIXME: swap elements and not their data? */
-                tmp = it_s->data;
-                it_s->data = it_e->data;
-                it_e->data = tmp;
+                SCE_List_Swapl (it_s, it_e);
                 break;
             }
             end --;
@@ -868,12 +862,7 @@ static unsigned int SCE_List_QuickSortPartition (SCE_SList *l,
             it_s = SCE_List_GetIterator (l, start);
             it_e = SCE_List_GetIterator (l, end);
             if (func (it_s->data, it_e->data) > 0) {
-                void *tmp;
-                
-                /* FIXME: swap elements and not their data? */
-                tmp = it_s->data;
-                it_s->data = it_e->data;
-                it_e->data = tmp;
+                SCE_List_Swapl (it_s, it_e);
                 break;
             }
             start ++;
