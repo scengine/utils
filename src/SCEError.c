@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <pthread.h>
 
 #include "SCE/utils/SCETime.h"
 #include "SCE/utils/SCEError.h"
@@ -105,6 +106,11 @@ struct sce_serrorlog {
  * Contains all the data of the current error.
  */
 static SCE_SErrorLog scelogs[SCE_MAX_ERROR_THREADS];
+/**
+ * \internal
+ * \brief Mutex that protects \c scelogs
+ */
+static pthread_mutex_t logsmutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  * \internal
@@ -133,22 +139,28 @@ static void SCE_Error_InitLog (SCE_SErrorLog *l)
 
 static SCE_SErrorLog* SCE_Error_GetLog (void)
 {
+    SCE_SErrorLog *l = NULL;
     size_t i;
     pthread_t th;
     th = pthread_self ();
-    for (i = 0; i < SCE_MAX_ERROR_THREADS; i++) {
-        if (scelogs[i].current > 0 && pthread_equal (th, scelogs[i].owner))
-            return &scelogs[i];
-    }
-    /* search for the first available log */
-    for (i = 0; i < SCE_MAX_ERROR_THREADS; i++) {
-        if (scelogs[i].current == 0) {
-            scelogs[i].owner = th;
-            return &scelogs[i];
+    if (!pthread_mutex_lock (&logsmutex)) {
+        for (i = 0; i < SCE_MAX_ERROR_THREADS; i++) {
+            if (scelogs[i].current > 0 && pthread_equal (th, scelogs[i].owner)) {
+                l = &scelogs[i];
+                break;
+            }
         }
+        /* search for the first available log */
+        for (i = 0; i < SCE_MAX_ERROR_THREADS; i++) {
+            if (scelogs[i].current == 0) {
+                scelogs[i].owner = th;
+                l = &scelogs[i];
+                break;
+            }
+        }
+        pthread_mutex_unlock (&logsmutex);
     }
-    /* onoes */
-    return NULL;
+    return l;                   /* NOTE: may return NULL */
 }
 
 /**
