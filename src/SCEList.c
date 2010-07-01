@@ -843,29 +843,28 @@ static unsigned int SCE_List_QuickSortPartition (SCE_SList *l,
                                                  SCE_FListCompareData func)
 {
     while (start < end) {
+        SCE_SListIterator *it_s;
+        SCE_SListIterator *it_e;
+
+        it_s = SCE_List_GetIterator (l, start);
+        it_e = SCE_List_GetIterator (l, end);
         while (start < end) {
-            SCE_SListIterator *it_s;
-            SCE_SListIterator *it_e;
-            
-            it_s = SCE_List_GetIterator (l, start);
-            it_e = SCE_List_GetIterator (l, end);
             if (func (it_s->data, it_e->data) > 0) {
                 SCE_List_Swapl (it_s, it_e);
                 break;
             }
             end --;
+            it_e = it_e->prev;
         }
+        it_s = SCE_List_GetIterator (l, start);
+        it_e = SCE_List_GetIterator (l, end);
         while (start < end) {
-            SCE_SListIterator *it_s;
-            SCE_SListIterator *it_e;
-            
-            it_s = SCE_List_GetIterator (l, start);
-            it_e = SCE_List_GetIterator (l, end);
             if (func (it_s->data, it_e->data) > 0) {
                 SCE_List_Swapl (it_s, it_e);
                 break;
             }
             start ++;
+            it_s = it_s->next;
         }
     }
     return start;
