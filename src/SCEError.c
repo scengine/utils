@@ -96,6 +96,7 @@ typedef struct sce_serrorlog SCE_SErrorLog;
 struct sce_serrorlog {
     pthread_t owner;            /**< Thread that raised this error */
     unsigned int current;
+    int used;                   /**< Is this log used? */
     SCE_SError errors[SCE_BACKTRACE_DEPTH];
 };
 
@@ -133,6 +134,7 @@ static void SCE_Error_InitLog (SCE_SErrorLog *l)
     size_t i;
     l->owner;                   /* wat do */
     l->current = 0;
+    l->used = SCE_FALSE;
     for (i = 0; i < SCE_BACKTRACE_DEPTH; i++)
         SCE_Error_Init (&l->errors[i]);
 }
@@ -144,18 +146,16 @@ static SCE_SErrorLog* SCE_Error_GetLog (void)
     pthread_t th;
     th = pthread_self ();
     if (!pthread_mutex_lock (&logsmutex)) {
-        for (i = 0; i < SCE_MAX_ERROR_THREADS; i++) {
-            if (scelogs[i].current > 0 && pthread_equal (th, scelogs[i].owner)) {
+        for (i = 0; i < SCE_MAX_ERROR_THREADS && !l; i++) {
+            if (scelogs[i].used && pthread_equal (th, scelogs[i].owner))
                 l = &scelogs[i];
-                break;
-            }
         }
         /* search for the first available log */
-        for (i = 0; i < SCE_MAX_ERROR_THREADS; i++) {
-            if (scelogs[i].current == 0) {
+        for (i = 0; i < SCE_MAX_ERROR_THREADS && !l; i++) {
+            if (!scelogs[i].used) {
                 scelogs[i].owner = th;
-                l = &scelogs[i];
-                break;
+                scelogs[i].used = SCE_TRUE;
+                l = &scelogs[i]; 
             }
         }
         pthread_mutex_unlock (&logsmutex);
@@ -203,7 +203,12 @@ void SCE_Error_Log (const char *file, const char *func, unsigned int line,
 {
     SCE_SError *error = NULL;
     SCE_SErrorLog *l = SCE_Error_GetLog ();
-    error = &l->errors[l->current];
+    error = l->errors;
+    l->current = 0;
+    if (error->code != SCE_NO_ERROR) {
+        SCEE_SendMsg ("SCEError: warning: an error is already logged "
+                      "for this thread, consider it erased\n");
+    }
     error->date = time (NULL);
     error->line = line;
     error->code = code;
