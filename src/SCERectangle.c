@@ -87,6 +87,12 @@ void SCE_Rectangle_Setf (SCE_SFloatRect *r, float x1, float y1,
     r->p1[0] = x1; r->p2[0] = x2; r->p1[1] = y1; r->p2[1] = y2;
 }
 
+/**
+ * \brief Defines the origin and the dimensions at once
+ * \param x,y new origin
+ * \param w,h new dimensions
+ * \sa SCE_Rectangle_Set()
+ */
 void SCE_Rectangle_SetFromOrigin (SCE_SIntRect *r, int x, int y,
                                   unsigned int w, unsigned int h)
 {
@@ -94,6 +100,12 @@ void SCE_Rectangle_SetFromOrigin (SCE_SIntRect *r, int x, int y,
     r->p2[0] = x + w; r->p2[1] = y + h;
 }
 
+/**
+ * \brief Defines the origin and the dimensions at once
+ * \param x,y new origin
+ * \param w,h new dimensions
+ * \sa SCE_Rectangle_Setf()
+ */
 void SCE_Rectangle_SetFromOriginf (SCE_SFloatRect *r, float x, float y,
                                    float w, float h)
 {
