@@ -159,6 +159,44 @@ void SCE_Rectangle_Movefv (SCE_SFloatRect *r, SCE_TVector2 v)
 }
 
 /**
+ * \brief Defines new dimensions
+ * \param w,h new dimensions of the rectangle
+ */
+void SCE_Rectangle_Resize (SCE_SIntRect *r, int w, int h)
+{
+    r->p2[0] = r->p1[0] + w;
+    r->p2[1] = r->p1[1] + h;
+}
+/**
+ * \brief Defines new dimensions
+ * \param w,h new dimensions of the rectangle
+ */
+void SCE_Rectangle_Resizef (SCE_SFloatRect *r, float w, float h)
+{
+    r->p2[0] = r->p1[0] + w;
+    r->p2[1] = r->p1[1] + h;
+}
+
+/**
+ * \brief Adds an offset to the current dimensions
+ * \param w,h offset to add
+ */
+void SCE_Rectangle_Add (SCE_SIntRect *r, int w, int h)
+{
+    r->p2[0] += w;
+    r->p2[1] += h;
+}
+/**
+ * \brief Adds an offset to the current dimensions
+ * \param w,h offset to add
+ */
+void SCE_Rectangle_Addf (SCE_SFloatRect *r, float w, float h)
+{
+    r->p2[0] += w;
+    r->p2[1] += h;
+}
+
+/**
  * \brief Gets the rectangle area
  * \param r a rectangle
  * \return the rectangle area
