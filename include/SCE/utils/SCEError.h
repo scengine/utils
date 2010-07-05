@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 16/09/2006
-   updated: 20/01/2010 */
+   updated: 05/07/2010 */
 
 #ifndef SCEERROR_H
 #define SCEERROR_H
@@ -31,6 +31,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * \brief Number of threads that can raise an error simultaneously
+ */
+#define SCE_MAX_ERROR_THREADS 4
+
+/**
+ * \brief Backtracer depth
+ */
+#define SCE_BACKTRACE_DEPTH 24
+
+/**
+ * \brief Maximum size for error messages
+ */
+#define SCE_MAX_ERROR_MSG_LEN 8192
+
+/**
+ * \brief Maximum size for information strings
+ */
+#define SCE_MAX_ERROR_INFO_LEN 512
 
 #define SCEE_Log(c) SCE_Error_Log (__FILE__, SCE_FUNCTION, __LINE__, c)
 #define SCEE_LogFromErrno(a,c)\
