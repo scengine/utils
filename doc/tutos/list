@@ -64,7 +64,7 @@ Si vous n'avez pas envie de vous embêter avec les itérateurs, vous pouvez les 
 
     SCE_List_CanDeleteIterators (&list, SCE_TRUE);
 
-Ceci appellera `SCE_free()` sur chaque itérateurs lorsque `SCE_List_Clear()` sera appelée.
+Ceci appellera `SCE_free()` sur chaque itérateur lorsque `SCE_List_Clear()` sera appelée.
 
 ### Transférer l'intégralité des éléments d'une liste dans une autre
 
@@ -88,7 +88,69 @@ Ceci appellera `SCE_free()` sur chaque itérateurs lorsque `SCE_List_Clear()` se
 
 ### Supprimer un élément via son itérateur
 
-L'avantage de cette méthode est qu'elle s'effectue en `O(1)`. L'inconvénient c'est qu'il faut connaître l'itérateur que l'on veut supprimer. Il y a à la fin de cet article une section dédiée au bon usage des itérateurs qui aborde le problème.il est possible d'ajouter des itérateurs et que ça marchera bien, mais je ne vous conseille pas forcément d'essayer.
+L'avantage de cette méthode est qu'elle s'effectue en `O(1)`. L'inconvénient c'est qu'il faut connaître l'itérateur que l'on veut supprimer. Il y a à la fin de cet article une section dédiée au bon usage des itérateurs qui aborde le problème.
+
+    SCE_List_Removel (&it); /* O(1) */
+
+Ceci n'appelle pas la fonction callback de la liste pour supprimer les données utilisateur. Utilisez `SCE_List_Erase()` pour cela.
+
+Pour supprimer un élément qui n'est pas dans une `SCE_SList` appelez simplement `SCE_List_Remove()`.
+
+### Supprimer un élément via sa donnée utilisateur
+
+L'avantage de cette méthode par rapport à l'autre c'est qu'elle est intuitive et ne nécessite pas de connaître des itérateurs obscurs, parfois gérés par le gestionnaire de listes comme nous l'avons déjà vu. En revanche la complexité grimpe à `O(n)`, en toute logique.
+
+    void SCE_List_RemoveFromData (SCE_SList *list, void *userdata);
+    void SCE_List_EraseFromData (SCE_SList *list, void *userdata);
+
+## Itérer dans des listes
+
+Maintenant qu'on a de belles listes on veut regarder ce qu'il y a dedans. Il existe différentes macros permettant d'itérer dans des listes, dont la plus basique :
+
+    SCE_SList list;
+    SCE_SListIterator *it;
+    
+    /* ... */
+    
+    SCE_List_ForEach (it, &list) {    /* se lit "for each it into list" */
+      MyType *mydata = SCE_List_GetData (it);
+      /* ... */
+    }
+
+Vous pouvez également itérer à partir d'un itérateur donné en utilisant `SCE_List_ForEachNext()`. La macro n'attend qu'un argument : l'itérateur.
+
+### Itération en mode protégé
+
+Si jamais il vous vient à l'idée de faire des bêtises comme :
+
+    SCE_List_ForEach (it, &list) {    /* se lit "for each it into list" */
+      MyType *mydata = SCE_List_GetData (it);
+      if (foobar) {
+        SCE_List_Removel (it);
+      }
+    }
+
+il faudra penser à sécuriser l'itération :
+
+    SCE_SListIterator *pro;
+    SCE_List_ForEachProtected (pro, it, &list) {    /* se lit "for each it into list" */
+      MyType *mydata = SCE_List_GetData (it);
+      if (foobar) {
+        SCE_List_Removel (it);
+      }
+    }
+
+Plus globalement il existe quasiment toujours des versions suffixées `Protected` qui fonctionnent de la même façon : on fourni un itérateur en plus pour conserver une itération sans embrouilles qui fonctionne comme avant, lorsqu'on ne faisait pas de bêtises.
+
+## Fusion de listes
+
+Un peu à l'instar des fonctions `AppendAll()` et `PrependAll()` il est possible de fusionner deux ou plusieurs listes afin de pouvoir parcourir tous les éléments à l'aide d'une seule boucle et ce de façon transparente. Cependant elles ne déplacent pas les éléments des listes : chaque liste conserve ses propres éléments !
+
+Pour raccorder simplement deux listes, faites `SCE_List_Join (list1, list2);` Ceci joint la fin de `list1` avec le début de `list2`. Si `list1` est déjà raccordée avec d'autres copines, il faudra demander gentiment si `list2` peut s'insérer avec `SCE_List_Insert (list1, list2)`. En fait vous avez vu, on crée en quelques sortes des listes de listes !
+
+Pour extraire une liste, disons `list1`, d'un groupe de copines, appelez `SCE_List_Extract (list1)`. Ceci raccordera entre elles ses voisines, par analogie avec `SCE_List_Remove()` pour les itérateurs. Vous pouvez casser la liaison supérieure ou inférieure d'une liste avec `SCE_List_BreakStart()` et `SCE_List_BreakEnd()` ou bien casser toute une suite de listes en fournissant simplement l'une d'entre elles, n'importe laquelle, avec `SCE_List_BreakAll()`. La fonction `SCE_List_Break()` permet de détacher une liste mais sans raccorder ses voisines entre elles. Ça fait un trou et crée alors deux suites de listes.
+
+Gardez à l'esprit qu'il est impossible de supprimer un itérateur d'une liste si celle-ci est dans une suite de listes. En pratique on peut le faire en fait, mais que si l'itérateur n'est ni le premier ni le dernier. Je crois qu'il est possible d'ajouter des itérateurs et que ça marchera bien, mais je ne vous conseille pas forcément d'essayer.
 
 ### Petits exemples pour les petits étourdis
 
@@ -119,6 +181,47 @@ L'avantage de cette méthode est qu'elle s'effectue en `O(1)`. L'inconvénient c
 
 ### Tester si une liste est vide
 
+    int SCE_List_HasElements (SCE_SList *list);
+
 ### Récupérer le premier ou le dernier élément
 
+    SCE_SListIterator* SCE_List_GetFirst (SCE_SList *list);
+    SCE_SListIterator* SCE_List_GetLast (SCE_SList *list);
+
+### Connaître le nombre d'éléments dans une liste
+
+    unsigned int SCE_List_GetLength (SCE_SList *list);
+
+### Récupérer le n-ième itérateur
+
+    SCE_SListIterator* SCE_List_GetIterator (SCE_SList *list, unsigned int index);
+
 ## Du bon usage des itérateurs et de leur `void*`
+
+Idéologiquement on ne voudrait pas utiliser `SCE_List_AppendNewl()`, `SCE_List_RemoveFromData()` et toutes ces fonctions qui s'occupent des itérateurs à votre place, car ça augmente la complexité et les allocations dynamiques pour rien.
+
+Si vous êtes prévoyant, vous allez vous débrouiller pour savoir quelles structures vous voudrez mettre dans des listes. Dans ces structures vous allez donc mettre un petit itérateur tout prêt tout joli.
+
+    struct Foo {
+      /* ... */
+      SCE_SListIterator it;
+    };
+    
+    void init_foo (struct Foo *f)
+    {
+      /* ... */
+      SCE_List_InitIt (&f->it);
+      SCE_List_SetData (&f->it, f);
+    }
+    
+    SCE_SListIterator* get_foo_iterator (struct Foo *f)
+    {
+      return &f->it;
+    }
+
+Et voilà.
+
+## Jobs
+
+* Créer une petite fonction qui se charge de faire les deux appels redondants montrés dans `init_foo()`, genre `void SCE_List_Assign (SCE_SListIterator *it, void *data)`.
+* Utiliser une union C pour les deux pointeurs de fonction différents dans `SCE_SList`.
