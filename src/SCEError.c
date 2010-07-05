@@ -17,15 +17,15 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 16/09/2006
-   updated: 20/01/2010 */
+   updated: 28/06/2010 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <pthread.h>
 
 #include "SCE/utils/SCETime.h"
-
 #include "SCE/utils/SCEError.h"
 
 /**
@@ -51,9 +51,14 @@
 /** @{ */
 
 /**
+ * \brief Number of threads that can raise an error simultaneously
+ */
+#define SCE_MAX_ERROR_THREADS 4
+
+/**
  * \brief Backtracer depth
  */
-#define SCE_MAX_ERRORS 16
+#define SCE_BACKTRACE_DEPTH 24
 
 /**
  * \brief Maximum size for error messages
@@ -72,14 +77,27 @@ typedef struct sce_serror SCE_SError;
 /**
  * \brief A SCE Error
  */
-struct sce_serror
-{
+struct sce_serror {
     time_t date;       /**< Date when error has occured */
     int code;          /**< Code of the error */
     unsigned int line; /**< Line of the file where the error occured */
     char func[SCE_MAX_ERROR_INFO_LEN];/**< Function where the error occured */
-    char file[SCE_MAX_ERROR_INFO_LEN];/**< Filename where the error occred */
+    char file[SCE_MAX_ERROR_INFO_LEN];/**< Filename where the error occured */
     char msg[SCE_MAX_ERROR_MSG_LEN];  /**< Error message */
+};
+
+/**
+ * \copydoc sce_serror
+ */
+typedef struct sce_serrorlog SCE_SErrorLog;
+/**
+ * \brief A complete log of an error
+ */
+struct sce_serrorlog {
+    pthread_t owner;            /**< Thread that raised this error */
+    unsigned int current;
+    int used;                   /**< Is this log used? */
+    SCE_SError errors[SCE_BACKTRACE_DEPTH];
 };
 
 /**
@@ -88,10 +106,12 @@ struct sce_serror
  *
  * Contains all the data of the current error.
  */
-static SCE_SError errors[SCE_MAX_ERRORS];
-
-static unsigned int current_error = 0;
-static SCE_SError *error = &errors[0];
+static SCE_SErrorLog scelogs[SCE_MAX_ERROR_THREADS];
+/**
+ * \internal
+ * \brief Mutex that protects \c scelogs
+ */
+static pthread_mutex_t logsmutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  * \internal
@@ -109,17 +129,53 @@ static void SCE_Error_Init (SCE_SError *err)
     memset (err->func, '\0', SCE_MAX_ERROR_INFO_LEN);
 }
 
+static void SCE_Error_InitLog (SCE_SErrorLog *l)
+{
+    size_t i;
+    l->owner;                   /* wat do */
+    l->current = 0;
+    l->used = SCE_FALSE;
+    for (i = 0; i < SCE_BACKTRACE_DEPTH; i++)
+        SCE_Error_Init (&l->errors[i]);
+}
+
+static SCE_SErrorLog* SCE_Error_GetLog (void)
+{
+    SCE_SErrorLog *l = NULL;
+    size_t i;
+    pthread_t th;
+    th = pthread_self ();
+    if (!pthread_mutex_lock (&logsmutex)) {
+        for (i = 0; i < SCE_MAX_ERROR_THREADS && !l; i++) {
+            if (scelogs[i].used && pthread_equal (th, scelogs[i].owner))
+                l = &scelogs[i];
+        }
+        /* search for the first available log */
+        for (i = 0; i < SCE_MAX_ERROR_THREADS && !l; i++) {
+            if (!scelogs[i].used) {
+                scelogs[i].owner = th;
+                scelogs[i].used = SCE_TRUE;
+                l = &scelogs[i]; 
+            }
+        }
+        pthread_mutex_unlock (&logsmutex);
+    }
+    return l;                   /* NOTE: may return NULL */
+}
+
 /**
  * \brief Initializes the error manager
  * \param outlog File used for logging
- * \returns 0 if no error occured, else a negative integer
+ * \returns 0 if no error occured, a negative integer otherwise
  *
  * This function initializes \c error, with null data and set the stream used for logging.
  */
 int SCE_Init_Error (FILE *outlog)
 {
+    size_t i;
     stream = (outlog ? outlog : stderr);
-    SCE_Error_Clear ();
+    for (i = 0; i < SCE_MAX_ERROR_THREADS; i++)
+        SCE_Error_InitLog (&scelogs[i]);
     return 0;                   /* NOTE: return SCE_OK ? */
 }
 
@@ -130,22 +186,10 @@ int SCE_Init_Error (FILE *outlog)
  */
 void SCE_Error_Clear (void)
 {
-    unsigned int i;
-    for (i = 0; i < SCE_MAX_ERRORS; i++)
-        SCE_Error_Init (&errors[i]);
-    current_error = 0;
-    error = &errors[0];
+    SCE_SErrorLog *l = SCE_Error_GetLog ();
+    SCE_Error_InitLog (l);
 }
 
-/**
- * \internal
- * \brief Increments current error in the backtracer list
- */
-static void SCE_Error_Incr (void)
-{
-    current_error++;
-    error = &errors[current_error];
-}
 
 /**
  * \brief Set error data into \c error
@@ -157,13 +201,21 @@ static void SCE_Error_Incr (void)
 void SCE_Error_Log (const char *file, const char *func, unsigned int line,
                     int code)
 {
+    SCE_SError *error = NULL;
+    SCE_SErrorLog *l = SCE_Error_GetLog ();
+    error = l->errors;
+    l->current = 0;
+    if (error->code != SCE_NO_ERROR) {
+        SCEE_SendMsg ("SCEError: warning: an error is already logged "
+                      "for this thread, consider it erased\n");
+    }
     error->date = time (NULL);
     error->line = line;
     error->code = code;
     strncpy (error->file, file, SCE_MAX_ERROR_INFO_LEN);
     if (func)
         strncpy (error->func, func, SCE_MAX_ERROR_INFO_LEN);
-    SCE_Error_GetCodeMsg (errors[0].code, error->msg, SCE_MAX_ERROR_MSG_LEN);
+    SCE_Error_GetCodeMsg (error->code, error->msg, SCE_MAX_ERROR_MSG_LEN);
 }
 
 
@@ -178,6 +230,9 @@ void SCE_Error_Log (const char *file, const char *func, unsigned int line,
 void SCE_Error_LogMsg (const char *fmt, ...)
 {
     va_list args;
+    SCE_SError *error = NULL;
+    SCE_SErrorLog *l = SCE_Error_GetLog ();
+    error = &l->errors[l->current];
     memset (error->msg, '\0', SCE_MAX_ERROR_MSG_LEN);
     va_start (args, fmt);
     vsnprintf (error->msg, SCE_MAX_ERROR_MSG_LEN, fmt, args);
@@ -220,16 +275,24 @@ void SCE_Error_SendMsg (const char *fmt, ...)
  */
 void SCE_Error_LogSrc (const char *file, const char *func, unsigned int line)
 {
-    SCE_Error_Incr ();
-    error->line = line;
-    strncpy (error->file, file, SCE_MAX_ERROR_INFO_LEN);
-    if (func)
-        strncpy (error->func, func, SCE_MAX_ERROR_INFO_LEN);
+    SCE_SError *error = NULL;
+    SCE_SErrorLog *l = SCE_Error_GetLog ();
+    l->current++;
+    if (l->current < SCE_BACKTRACE_DEPTH) {
+        error = &l->errors[l->current];
+        error->line = line;
+        strncpy (error->file, file, SCE_MAX_ERROR_INFO_LEN);
+        if (func)
+            strncpy (error->func, func, SCE_MAX_ERROR_INFO_LEN);
+    }
 }
 
 void SCE_Error_LogSrcMsg (const char *fmt, ...)
 {
     va_list args;
+    SCE_SError *error = NULL;
+    SCE_SErrorLog *l = SCE_Error_GetLog ();
+    error = &l->errors[l->current];
     va_start (args, fmt);
     vsnprintf (error->msg, SCE_MAX_ERROR_MSG_LEN, fmt, args);
     va_end (args);
@@ -241,7 +304,10 @@ void SCE_Error_LogSrcMsg (const char *fmt, ...)
  */
 int SCE_Error_GetCode (void)
 {
-    return error[0].code;
+    SCE_SError *error = NULL;
+    SCE_SErrorLog *l = SCE_Error_GetLog ();
+    error = &l->errors[l->current];
+    return error->code;
 }
 
 /**
@@ -250,8 +316,7 @@ int SCE_Error_GetCode (void)
 void SCE_Error_GetCodeMsg (int code, char *str, size_t size)
 {
     /* according to SCE_EError */
-    static const char messages[SCE_NUM_ERRORS][18] =
-    {
+    static const char messages[SCE_NUM_ERRORS][18] = {
         "no error",
         "out of memory",
         "invalid operation",
@@ -271,7 +336,8 @@ void SCE_Error_GetCodeMsg (int code, char *str, size_t size)
  */
 int SCE_Error_HaveError (void)
 {
-    return (errors[0].code != SCE_NO_ERROR);
+    SCE_SErrorLog *l = SCE_Error_GetLog ();
+    return (l->errors[0].code != SCE_NO_ERROR);
 }
 
 /**
@@ -285,15 +351,17 @@ void SCE_Error_Out (void)
     const struct tm *time_info = NULL;
     char date[32] = {0};
     int i = 0;
+    SCE_SError *errors = NULL;
+    SCE_SErrorLog *l = SCE_Error_GetLog ();
 
+    errors = l->errors;
     time_info = gmtime (&errors[0].date);
     SCE_Time_MakeString (date, time_info);
 
     fprintf (stream, "\n[log %s]\n", date);
-    for (i = current_error; i >= 0; i--)
-    {
+    for (i = l->current; i >= 0; i--) {
         fprintf (stream, "%s%s:%s (%d): %s%c\n",
-                 (i == current_error ? "error: " : " from: "),
+                 (i == l->current ? "error: " : " from: "),
                  errors[i].file,
                  errors[i].func, errors[i].line, errors[i].msg,
                  (i == 0 ? '.' : ':'));
@@ -307,11 +375,13 @@ void SCE_Error_Out (void)
  */
 void SCE_Error_SoftOut (void)
 {
-    int i = 0;
+    size_t i = 0;
+    SCE_SError *errors = NULL;
+    SCE_SErrorLog *l = SCE_Error_GetLog ();
 
+    errors = l->errors;
     fprintf (stream, "error:\n");
-    for (i = current_error; i >= 0; i--)
-    {
+    for (i = l->current; i >= 0; i--) {
         /* only if there is a message available */
         if (errors[i].msg[0])
             fprintf (stream, "  %s%c\n", errors[i].msg, (i == 0 ? '.' : ':'));
