@@ -1,0 +1,99 @@
+Ou comment bien utiliser le gestionnaire d'erreurs du SCEngine.
+
+## Fonctionnement - backtracer
+
+Le fonctionnement est globalement simple, si on rencontre un problème on génère une erreur. Si une de nos fonctions a échoué on se dit qu'elle a déjà généré une erreur et donc on se contente d'enregistrer la "source" de celle-ci afin de compléter la trace.
+
+Il y a ici un principe important à retenir : si une de nos fonctions échoue alors on peut aveuglément compléter la trace, ceci implique que toute fonction qui échoue doit soit générer une erreur soit elle-même compléter la trace d'une erreur générée plus loin dans l'arboréscence d'appel.
+
+Voici un exemple de sortie pouvant être produite par le backtracer :
+
+    [log Mon Jul 5 11:34:11 2010]
+    error: main.c:main (13): function foo failed to perform foo:
+     from: main.c:foo (5): I failed because I'm too bad.
+    [end log]
+
+Vous remarquerez que le gestionnaire se charge d'enregistrer les noms de fichiers, numéro de ligne et même le nom des fonctions si le compilateur le permet.
+
+## Génération d'un nouveau journal d'erreurs
+
+Il y a deux fonctions pour générer une erreur. La première, la plus basique, demande simplement un code d'erreur :
+
+    SCEE_Log (42);
+
+Notez que SCEE est un diminutif de SCE_Error, c'est un des seuls modules qui utilise une notation allégée pour... alléger le code source.
+
+La seconde fonction utilise `errno` et demande simplement un message d'erreur non formaté :
+
+    SCEE_LogErrno ("fopen() s'est viandé");
+
+C'est une macro qui utilise directement `errno`, mais si vous souhaitez spécifier explicitement le code errno faites ceci :
+
+    code = errno;
+    /* ... */
+    SCEE_LogFromErrno (code, "fopen() s'est viandé");
+
+### Enregistrement d'un message d'erreur
+
+    SCEE_LogMsg ("ceci est un message formaté !%d%d c'est %s", 1, 1, "monstrueux");
+
+Cette fonction permet d'enregistrer un message d'erreur lors de la génération de celle-ci, ça sera le message de la source de l'erreur. Avec `SCEE_LogErrnor()` le message est construit avec la chaîne donnée et le message d'erreur associé au code errno. Cela dit rien ne vous empêche de l'écraser en appelant `SCEE_LogMsg()` après, mais du coup vous perdez un peu l'intérêt de `SCEE_LogErrno()` hein.
+
+**Important**: vous devez impérativement appeler soit `SCEE_Log()` soit `SCEE_LogErrno()` ou `SCEE_LogFromErrno()` en premier si vous voulez générer une erreur. L'enregistrement du message ne vient qu'après.
+
+### Codes de retour
+
+Le module défini `SCE_OK`, indiquant que tout s'est bien déroulé, et `SCE_ERROR` qui indique qu'un journal a été ouvert car le déroulement prévu a échoué. Par convention les fonctions susceptibles d'échouer retourneront donc l'une de ces deux valeurs dans un entier `int`. Si la fonction doit retourner un pointeur, elle retournera `NULL` pour indiquer qu'elle a échoué. Ces conventions sont utilisées et respectées pour chaque fonction du moteur. Pensez tout de même à lire la documentation, certaines fonctions renvoient `int` mais n'échouent jamais !
+
+### Codes d'erreur
+
+Quelques codes sont définis par défaut. Ils produisent automatiquement le message d'erreur correspondant lorsqu'il sont utilisés, mais beaucoup d'entre eux ne sont jamais utilisés en fait.
+
+* `SCE_NO_ERROR`: signifie qu'il n'y a en fait aucune erreur, cette constante est définie à 0.
+* `SCE_OUT_OF_MEMORY`: générée par `SCE_malloc()` et compagnie.
+* `SCE_INVALID_OPERATION`: orly.
+* `SCE_INVALID_POINTER`: quasiment jamais utilisé par le moteur.
+* `SCE_INVALID_ARG`: ça c'est débile car va à l'encontre de la politique de gestion des erreurs que je n'ai pas encore expliquée mais qui est d'usage dans tout le SCEngine.
+* `SCE_INVALID_SIZE`.
+* `SCE_INVALID_ENUM`: ça non plus c'est jamais utilisé.
+* `SCE_FILE_NOT_FOUND`: ça c'est inutile car quand on est beau on utilise `errno` (sauf si on fait de la magie).
+* `SCE_BAD_FORMAT`: c'est quand on trouve qu'un fichier ne contient pas ce qu'il devrait.
+* `SCE_GL_ERROR`: permet de gérer les erreurs OpenGL, mais ça sert à rien non plus parce que si le code source est correct il n'y a pas d'erreurs OpenGL (ou très très peu !), c'est juste de débogage.
+* `SCE_ERRNO_ERROR`: encore une fois c'est débile parce que dans ce cas là on utilise le code errno et non pas une valeur arbitraire.
+* `SCE_NUM_ERRORS`: ça permet de savoir combien de codes sont définis par défaut histoire d'éviter les conflits.
+
+## Construction du journal
+
+Maintenant, une de vos fonctions ou une fonction du moteur a échoué, vous savez donc qu'elle a enregistré une erreur avec le gestionnaire. Deux choix s'offrent à vous : soit vous êtes à un niveau suffisamment élevé pour être capable de juger de la gravité de l'erreur et ainsi agir en conséquence, soit vous n'en savez rien et préférez etite file lue régulièrement par un thread et où l'autre écrit parfois dedans, des genre de signaux quoi.
+
+## Exemple
+
+Un exemple simple qui produit la sortie montrée en début d'article.
+
+    #include <SCE/utils/SCEUtils.h>
+    
+    int foo (void)
+    {
+      SCEE_Log (42);
+      SCEE_LogMsg ("I failed because I'm too bad");
+      return SCE_ERROR;
+    }
+    
+    int main (void)
+    {
+      if (foo () < 0) {
+        SCEE_LogSrc ();
+        SCEE_LogSrcMsg ("function foo failed to perform foo");
+        SCEE_Out ();
+        SCEE_Clear ();
+      }
+      return 0;
+    }
+
+## Jobs
+
+* Permettre de spécifier explicitement un flux de sortie lors de l'affichage du journal.
+* Utiliser des flux de sortie définis par l'utilisateur avec les callbacks qui vont bien, voir `SCE_Error_Out()` pour savoir quelles fonctions sont utilisées pour la sortie.
+* Définir un comportement lorsque l'utilisateur essaye d'utiliser plus que `SCE_MAX_ERROR_THREADS` journaux simultanément.
+* Apporter des fonctions de communication entre les threads pour faire remonter les erreurs au delà des threads dans lesquels elles ont été générées.
+* Nettoyer les codes d'erreur par défaut, il y en a beaucoup trop et en particulier des inutiles.

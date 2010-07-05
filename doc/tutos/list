@@ -1,0 +1,124 @@
+Ou comment bien utiliser les listes chaînées du SCEngine.
+
+## Structures et initialisation
+
+Les listes sont doublement chaînées (comme ça l'implémentation est plus chiante). Les listes sont constituées d'itérateurs :
+
+    SCE_SListIterator it;
+
+Il est possible de construire deux types de listes. Soit on assemble des `SCE_SListIterator` entre eux et voilà, soit en emballe le tout dans une `SCE_SList`, ce qu'on préfèrera faire en général parce que ça permet de faire des trucs cool en plus, comme par exemple d'ajouter à la fin en `O(1)` ou de supprimer tous les itérateurs d'un coup.
+
+### Initialisation des structures
+
+Les structures s'initialisent de façon usuelle, respectivement avec `SCE_List_InitIt()` et `SCE_List_Init()`.
+
+### Gestion des données de la liste
+
+Un itérateur contient des données utilisateur, un `void*` naïf mais qui fait son boulot :
+
+    SCE_List_SetData (&it, userdata);
+    void *foo = SCE_List_GetData (&it);
+
+Les listes contiennent une fonction callback qui sera appelée lors de la suppression de la liste sur chaque élément. Ça peut être pratique on sait jamais :
+
+    void freefunc (void *data) {
+      /* ici 'data' c'est ce que retourne SCE_List_GetData() */
+      my_free (data);
+    }
+    SCE_List_SetFreeFunc (&list, freefunc);
+
+Un autre prototype pour la fonction de suppression est disponible, `void (*SCE_FListFreeFunc2)(void*, void*)`, il est à spécifier avec `SCE_List_SetFreeFunc2()` (un nom recherché autant que rafiné). Je vous laisse consulter la documentation pour l'utilisation des paramètres. Si vous me demandez à quoi peut bien servir cet autre prototype je vous dirai que je n'en sais rien, j'en ai eu besoin une fois alors je l'ai implémenté. C'est cool d'être le lead dev des libs qu'on utilise hein (ça permet de faire des bêtises et des hacks).
+
+### Vidange
+
+Si vous voulez supprimer tous les éléments d'une liste en appelant sur chacun d'eux le callback que vous avez spécifié, appelez `SCE_List_Clear()`. La liste elle-même est conservée et prête à l'emploi, elle est juste vide.
+
+### Gestion dynamique de la mémoire
+
+Il est possible que vous vouliez gérer la mémoire de vos listes de façon dynamique. Je vais vous dire honnêtement : ça ne sert à rien et c'est plus chiant. Cependant les fonctions usuelles `SCE_List_Create()` et `SCE_List_Delete()` existent. Notez que `SCE_List_Delete()` appelle `SCE_List_Clear()`.
+
+## Ajout et suppression
+
+Voici venir les barbap^W^W l'étape la plus palpitante. Si vous travaillez avec une `SCE_SList` les fonctions pour cela seront généralement suffixées par `l` (la lettre), et sinon bah elles ne le seront pas.
+
+### Ajouter en début ou en fin de liste
+
+    SCE_List_Appendl (&list, &it); /* O(1) */
+    SCE_List_Prependl (&list, &it); /* O(1) */
+
+Et si vous n'utilisez pas une `SCE_SList` ça va vous faire marrer mais les fonctions `Append()` et `Prepend()` n'ajoutent pas en début ou en fin de liste, mais insèrent avant ou après l'itérateur donné.
+
+    /*   it0--it1--it2   */
+    
+    SCE_List_Append (it1, it3); /* O(1) */
+    
+    /*   it0--it1--it3--it2   */
+    
+    SCE_List_Prepend (it3, it4); /* O(1) */
+    
+    /*   it0--it1--it4--it3--it2   */
+
+### Déleguer la gestion de la mémoire
+
+Si vous n'avez pas envie de vous embêter avec les itérateurs, vous pouvez les laisser se créer tout seuls en appelant `SCE_List_AppendNewl()` et `SCE_List_PrependNewl()`, mais alors il faudra aussi penser à ce que les itérateurs soient supprimés automatiquement en appelant une fonction au nom bien moche :
+
+    SCE_List_CanDeleteIterators (&list, SCE_TRUE);
+
+Ceci appellera `SCE_free()` sur chaque itérateurs lorsque `SCE_List_Clear()` sera appelée.
+
+### Transférer l'intégralité des éléments d'une liste dans une autre
+
+    /*   list1: a--b   */
+    /*   list2: c--d   */
+    
+    SCE_List_AppendAll (&list1, &list2); /* O(1) */
+    
+    /*   list1: a--b--c--d   */
+    /*   list2: *empty*   */
+
+Ça se passe de commentaires.
+
+    /*   list1: a--b   */
+    /*   list2: c--d   */
+    
+    SCE_List_PrependAll (&list1, &list2); /* O(1) */
+    
+    /*   list1: c--d--a--b   */
+    /*   list2: *empty*   */
+
+### Supprimer un élément via son itérateur
+
+L'avantage de cette méthode est qu'elle s'effectue en `O(1)`. L'inconvénient c'est qu'il faut connaître l'itérateur que l'on veut supprimer. Il y a à la fin de cet article une section dédiée au bon usage des itérateurs qui aborde le problème.il est possible d'ajouter des itérateurs et que ça marchera bien, mais je ne vous conseille pas forcément d'essayer.
+
+### Petits exemples pour les petits étourdis
+
+    /*   list1: a--b   */
+    /*   list2: c--d   */
+    /*   list3: e--f   */
+    
+    SCE_List_Join (list1, list2);
+    
+    /*   list1--list2   */
+    /*   a--b--c--d   */
+    
+    SCE_List_Insert (list1, list3);
+    
+    /*   list1--list3--list2   */
+    /*   a--b--e--f--c--d   */
+    
+    SCE_List_Extract (list3);
+    
+    /*   list1--list2   */
+    /*   a--b--c--d   */
+    
+    SCE_List_BreakAll (list2);  /* fait pareil que SCE_List_BreakAll (list1) */
+    
+    /* et voila tout est redevenu comme avant */
+
+## Bonus
+
+### Tester si une liste est vide
+
+### Récupérer le premier ou le dernier élément
+
+## Du bon usage des itérateurs et de leur `void*`
