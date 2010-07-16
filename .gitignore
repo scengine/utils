@@ -22,6 +22,9 @@ config.*
 *.la
 *.so
 
+# bs
+*~
+
 # .pc file is generated from .in
 /sceutils.pc
 
