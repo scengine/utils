@@ -81,12 +81,14 @@ Un exemple simple qui produit la sortie montrée en début d'article.
     
     int main (void)
     {
+      SCE_Init_Utils (stderr);
       if (foo () < 0) {
         SCEE_LogSrc ();
         SCEE_LogSrcMsg ("function foo failed to perform foo");
         SCEE_Out ();
         SCEE_Clear ();
       }
+      SCE_Quit_Utils ();
       return 0;
     }
 
