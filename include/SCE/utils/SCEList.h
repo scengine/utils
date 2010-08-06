@@ -154,8 +154,9 @@ void SCE_List_GnomeSort (SCE_SList*, SCE_FListCompareData);
  *          change later.
  * 
  * \see SCE_List_QuickSort()
+ * \see SCE_List_GnomeSort()
  */
-#define SCE_List_Sort(l, func) (SCE_List_QuickSort ((l), (func)))
+#define SCE_List_Sort(l, func) (SCE_List_GnomeSort ((l), (func)))
 
 /**
  * \brief Gets data of an iterator
