@@ -909,9 +909,9 @@ void SCE_List_QuickSort (SCE_SList *l, SCE_FListCompareData func)
 }
 
 /**
- * @brief Swaps to elements in a list
+ * @brief Swaps two elements in a list
  * @param a The element to swap with @b
- * @param b The elemet to swap with @a
+ * @param b The element to swap with @a
  */
 void SCE_List_Swapl (SCE_SListIterator *a, SCE_SListIterator *b)
 {
@@ -941,9 +941,9 @@ void SCE_List_Swapl (SCE_SListIterator *a, SCE_SListIterator *b)
 }
 
 /**
- * @brief Swaps to elements
+ * @brief Swaps two elements
  * @param a The element to swap with @b
- * @param b The elemet to swap with @a
+ * @param b The element to swap with @a
  */
 void SCE_List_Swap (SCE_SListIterator *a, SCE_SListIterator *b)
 {
