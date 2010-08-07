@@ -89,6 +89,7 @@ void SCE_Rectangle_Setf (SCE_SFloatRect *r, float x1, float y1,
 
 /**
  * \brief Defines the origin and the dimensions at once
+ * \param r An integer rectangle
  * \param x,y new origin
  * \param w,h new dimensions
  * \sa SCE_Rectangle_Set()
@@ -102,6 +103,7 @@ void SCE_Rectangle_SetFromOrigin (SCE_SIntRect *r, int x, int y,
 
 /**
  * \brief Defines the origin and the dimensions at once
+ * \param r A floating-point rectangle
  * \param x,y new origin
  * \param w,h new dimensions
  * \sa SCE_Rectangle_Setf()
@@ -160,6 +162,7 @@ void SCE_Rectangle_Movefv (SCE_SFloatRect *r, SCE_TVector2 v)
 
 /**
  * \brief Defines new dimensions
+ * \param r An integer rectangle
  * \param w,h new dimensions of the rectangle
  */
 void SCE_Rectangle_Resize (SCE_SIntRect *r, int w, int h)
@@ -169,6 +172,7 @@ void SCE_Rectangle_Resize (SCE_SIntRect *r, int w, int h)
 }
 /**
  * \brief Defines new dimensions
+ * \param r A floating-point rectangle
  * \param w,h new dimensions of the rectangle
  */
 void SCE_Rectangle_Resizef (SCE_SFloatRect *r, float w, float h)
@@ -179,6 +183,7 @@ void SCE_Rectangle_Resizef (SCE_SFloatRect *r, float w, float h)
 
 /**
  * \brief Adds an offset to the current dimensions
+ * \param r An integer rectangle
  * \param w,h offset to add
  */
 void SCE_Rectangle_Add (SCE_SIntRect *r, int w, int h)
@@ -188,6 +193,7 @@ void SCE_Rectangle_Add (SCE_SIntRect *r, int w, int h)
 }
 /**
  * \brief Adds an offset to the current dimensions
+ * \param r A floating-point rectangle
  * \param w,h offset to add
  */
 void SCE_Rectangle_Addf (SCE_SFloatRect *r, float w, float h)

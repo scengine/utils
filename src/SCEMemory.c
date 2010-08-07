@@ -423,9 +423,10 @@ void* SCE_Mem_Calloc (const char *file, unsigned int line, size_t s, size_t n)
 
 /**
  * \brief Reallocs wrapper
- * \param aloc Old pointer
- * \param size New size wanted for the block
- * \param file, line Where the block is asked
+ * \param file File from which the block is requested
+ * \param line Line at which the block is requested
+ * \param p Old pointer
+ * \param s New size wanted for the block
  * \returns A pointer to the reallocated block on success, NULL on failure
  * \sa SCE_Mem_Alloc SCE_Mem_Free
  * 
@@ -468,6 +469,9 @@ void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
 
 /**
  * \brief Frees a pointer allocated by SCE_Mem_Alloc
+ * \param file File from which the block is requested
+ * \param line Line at which the block is requested
+ * \param p Pointer to free
  * 
  * You will generally want to call SCE_free() that wraps this function.
  * 
