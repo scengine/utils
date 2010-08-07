@@ -30,9 +30,9 @@
 #include "SCE/utils/SCEResource.h"
 
 /**
- * \file SCEResources.c
+ * \file SCEResource.c
  * \copydoc resources
- * \file SCEResources.h
+ * \file SCEResource.h
  * \copydoc resources
  */
 
@@ -159,6 +159,8 @@ void SCE_Quit_Resource (void)
 /**
  * \brief Registers a new type of resource
  * \param media load directly from media manager?
+ * \param load load function for the new type
+ * \param save save function for the new type
  * \returns the resource type identifier, used on resource loading
  */
 int SCE_Resource_RegisterType (int media, SCE_FLoadResourceFunc load,
@@ -315,6 +317,7 @@ fail:
 }
 /**
  * \brief Loads a resource
+ * \param type Data type ID
  * \param name the name of the resource to load
  * \param forcenew force a new loading? (without getting an existing resource if
  * any)
@@ -418,3 +421,5 @@ char* SCE_Resource_GetName (void *data)
     res = SCE_Resource_LocateFromData (data);
     return (res ? res->name : NULL);
 }
+
+/** @} */

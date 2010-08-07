@@ -113,6 +113,8 @@ void SCE_Vector3_RotateZ (SCE_TVector3 v, float cos_, float sin_)
 /**
  * \brief Constructs a vector with the minimal values of each other's ones
  * \param newv the new vector (can be \p v1 or \p v2)
+ * \param v1 first vector
+ * \param v2 second vector
  */
 void SCE_Vector3_GetMin (SCE_TVector3 newv, const SCE_TVector3 v1,
                          const SCE_TVector3 v2)
@@ -124,6 +126,8 @@ void SCE_Vector3_GetMin (SCE_TVector3 newv, const SCE_TVector3 v1,
 /**
  * \brief Constructs a vector with the maximum values of each other's ones
  * \param newv the new vector (can be \p v1 or \p v2)
+ * \param v1 first vector
+ * \param v2 second vector
  */
 void SCE_Vector3_GetMax (SCE_TVector3 newv, const SCE_TVector3 v1,
                          const SCE_TVector3 v2)

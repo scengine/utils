@@ -221,9 +221,12 @@ void SCE_Error_LogMsg (const char *fmt, ...)
 
 /**
  * \brief Logs an error message from the errno value
- * \param prefix prefix for the error message (e.g. name of function that
+ * \param file File in which the error occured
+ * \param func Function in which the error occured
+ * \param line Line at which the error occured
+ * \param errnum The errno value
+ * \param prefix Prefix for the error message (e.g. name of function that
  *               propagated errno) or NULL
- * \param errnum the errno value
  */
 void SCE_Error_LogFromErrno (const char *file, const char *func,
                              unsigned int line, int errnum, const char* prefix)

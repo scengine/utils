@@ -23,11 +23,11 @@
 
 /**
  * \file SCELine.c
- * \copydoc line
+ * \copydoc lines
  * \brief Mathematical lines managment
  * 
  * \file SCELine.h
- * \copydoc line
+ * \copydoc lines
  * \brief Mathematical lines managment
  */
 
@@ -87,7 +87,7 @@ void SCE_Line_MovePoint1 (SCE_SLine *line, float x, float y)
 /**
  * \brief Translates the first point of a line by a given vector
  * \param line first line to write to
- * \param x second x coordinate offset
+ * \param v second vector coordinate offset
  */
 void SCE_Line_MovePoint1v (SCE_SLine *line, float *v)
 {
@@ -106,7 +106,7 @@ void SCE_Line_MovePoint2 (SCE_SLine *line, float x, float y)
 /**
  * \brief Translates the second point of a line by a given vector
  * \param line first line to write to
- * \param x second x coordinate offset
+ * \param v second vector coordinate offset
  */
 void SCE_Line_MovePoint2v (SCE_SLine *line, float *v)
 {

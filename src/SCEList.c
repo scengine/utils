@@ -64,6 +64,7 @@ SCE_SListIterator* SCE_List_CreateIt (void)
 }
 /**
  * \brief Deletes an iterator
+ * \param it The iterator to delete
  */
 void SCE_List_DeleteIt (SCE_SListIterator *it)
 {
@@ -119,6 +120,9 @@ SCE_SList* SCE_List_Create (SCE_FListFreeFunc f)
 /**
  * \brief Creates a new list like SCE_List_Create(), but with a different free
  * function
+ * \param arg user data for \p f
+ * \param f a SCE_FListFreeFunc function to free the list's data at deletion
+ * \returns a newly allocated SCE_SList, or NULL on error
  *
  * When the list is deleted, call that for each iterator:
  * \p f (\p arg, SCE_List_GetData (iterator))
@@ -184,8 +188,9 @@ void SCE_List_Delete (SCE_SList *l)
 }
 
 /**
- * \brief Defines if the iterators of \p l can be deleted by callin
+ * \brief Defines if the iterators of \p l can be deleted by calling
  * SCE_List_DeleteIt() on \p l deletion
+ * \param l A list
  * \param canfree can be SCE_TRUE or SCE_FALSE
  */
 void SCE_List_CanDeleteIterators (SCE_SList *l, int canfree)
@@ -195,6 +200,8 @@ void SCE_List_CanDeleteIterators (SCE_SList *l, int canfree)
 
 /**
  * \brief Defines the free function to use for the given list
+ * \param l A list
+ * \param f The new list's free function
  * \sa SCE_List_Create()
  */
 void SCE_List_SetFreeFunc (SCE_SList *l, SCE_FListFreeFunc f)
@@ -205,6 +212,9 @@ void SCE_List_SetFreeFunc (SCE_SList *l, SCE_FListFreeFunc f)
 }
 /**
  * \brief Defines the free function to use for the given list
+ * \param l A list
+ * \param f The new list's second free function
+ * \param a User-defined argument for \p f
  * \sa SCE_List_Create2()
  */
 void SCE_List_SetFreeFunc2 (SCE_SList *l, SCE_FListFreeFunc2 f, void *a)
@@ -217,6 +227,8 @@ void SCE_List_SetFreeFunc2 (SCE_SList *l, SCE_FListFreeFunc2 f, void *a)
 
 /**
  * \brief Attaches \p new at the end of \p it
+ * \param it A list iterator
+ * \param new Another list iterator to attach right after \p it
  */
 void SCE_List_Attach (SCE_SListIterator *it, SCE_SListIterator *new)
 {
@@ -224,7 +236,9 @@ void SCE_List_Attach (SCE_SListIterator *it, SCE_SListIterator *new)
     new->prev = it;
 }
 /**
- * \brief
+ * \brief Prepends a list iterator to another one
+ * \param it A list iterator
+ * \param new Another list iterator to prepend right before \p it
  */
 void SCE_List_Prepend (SCE_SListIterator *it, SCE_SListIterator *new)
 {
@@ -235,7 +249,9 @@ void SCE_List_Prepend (SCE_SListIterator *it, SCE_SListIterator *new)
     it->prev = new;
 }
 /**
- * \brief
+ * \brief Appends a list iterator to another one
+ * \param it A list iterator
+ * \param new Another list iterator to append right after \p it
  */
 void SCE_List_Append (SCE_SListIterator *it, SCE_SListIterator *new)
 {
@@ -503,6 +519,7 @@ void SCE_List_EraseLast (SCE_SList *l)
 
 /**
  * \brief Removes an element of a list
+ * \param l A list
  * \param data the data assigned to the iterator to detach
  * 
  * This function calls SCE_List_Remove() on the iterator returned by
@@ -519,6 +536,7 @@ void SCE_List_RemoveFromData (SCE_SList *l, void *data)
 
 /**
  * \brief Fully remove an element of a list
+ * \param l A list
  * \param data the data assigned to the iterator to remove
  *
  * This function calls SCE_List_Erase() on the iterator returned by
