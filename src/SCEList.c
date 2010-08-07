@@ -836,7 +836,6 @@ void SCE_List_Sort (SCE_SList *l, SCE_FListCompareData comesafter)
 }
 #endif
 
-/* FIXME: review list usage */
 /* part of the quicksort implementation */
 static unsigned int SCE_List_QuickSortPartition (SCE_SList *l,
                                                  unsigned int start,
@@ -844,39 +843,28 @@ static unsigned int SCE_List_QuickSortPartition (SCE_SList *l,
                                                  SCE_FListCompareData func)
 {
     while (start < end) {
+        SCE_SListIterator *it_s;
+        SCE_SListIterator *it_e;
+
+        it_s = SCE_List_GetIterator (l, start);
+        it_e = SCE_List_GetIterator (l, end);
         while (start < end) {
-            SCE_SListIterator *it_s;
-            SCE_SListIterator *it_e;
-            
-            it_s = SCE_List_GetIterator (l, start);
-            it_e = SCE_List_GetIterator (l, end);
             if (func (it_s->data, it_e->data) > 0) {
-                void *tmp;
-                
-                /* FIXME: swap elements and not their data? */
-                tmp = it_s->data;
-                it_s->data = it_e->data;
-                it_e->data = tmp;
+                SCE_List_Swapl (it_s, it_e);
                 break;
             }
             end --;
+            it_e = it_e->prev;
         }
+        it_s = SCE_List_GetIterator (l, start);
+        it_e = SCE_List_GetIterator (l, end);
         while (start < end) {
-            SCE_SListIterator *it_s;
-            SCE_SListIterator *it_e;
-            
-            it_s = SCE_List_GetIterator (l, start);
-            it_e = SCE_List_GetIterator (l, end);
             if (func (it_s->data, it_e->data) > 0) {
-                void *tmp;
-                
-                /* FIXME: swap elements and not their data? */
-                tmp = it_s->data;
-                it_s->data = it_e->data;
-                it_e->data = tmp;
+                SCE_List_Swapl (it_s, it_e);
                 break;
             }
             start ++;
+            it_s = it_s->next;
         }
     }
     return start;
@@ -918,6 +906,114 @@ void SCE_List_QuickSortRange (SCE_SList *l, unsigned int start,
 void SCE_List_QuickSort (SCE_SList *l, SCE_FListCompareData func)
 {
     SCE_List_QuickSortRange (l, 0, SCE_List_GetLength (l), func);
+}
+
+/**
+ * @brief Swaps two elements in a list
+ * @param a The element to swap with @b
+ * @param b The element to swap with @a
+ */
+void SCE_List_Swapl (SCE_SListIterator *a, SCE_SListIterator *b)
+{
+    if (a->next == b) {
+        a->prev->next = b;
+        b->next->prev = a;
+        a->next = b->next;
+        b->prev = a->prev;
+        a->prev = b;
+        b->next = a;
+    } else if (b->next == a) {
+        b->prev->next = a;
+        a->next->prev = b;
+        b->next = a->next;
+        a->prev = b->prev;
+        b->prev = a;
+        a->next = b;
+    } else {
+        SCE_SListIterator *prev_a = a->prev;
+        SCE_SListIterator *prev_b = b->prev;
+
+        SCE_List_Removel (a);
+        SCE_List_Removel (b);
+        SCE_List_Append (prev_a, b);
+        SCE_List_Append (prev_b, a);
+    }
+}
+
+/**
+ * @brief Swaps two elements
+ * @param a The element to swap with @b
+ * @param b The element to swap with @a
+ */
+void SCE_List_Swap (SCE_SListIterator *a, SCE_SListIterator *b)
+{
+    if (a->next == b) {
+        if (a->prev) a->prev->next = b;
+        if (b->next) b->next->prev = a;
+        a->next = b->next;
+        b->prev = a->prev;
+        a->prev = b;
+        b->next = a;
+    } else if (b->next == a) {
+        if (b->prev) b->prev->next = a;
+        if (a->next) a->next->prev = b;
+        b->next = a->next;
+        a->prev = b->prev;
+        b->prev = a;
+        a->next = b;
+    } else {
+        SCE_SListIterator *prev_a = a->prev;
+        SCE_SListIterator *next_a = a->next;
+        SCE_SListIterator *prev_b = b->prev;
+        SCE_SListIterator *next_b = b->next;
+
+        SCE_List_Remove (a);
+        SCE_List_Remove (b);
+        if (prev_a) {
+            SCE_List_Append (prev_a, b);
+        } else {
+            SCE_List_Prepend (b, next_a);
+        }
+        if (prev_b) {
+            SCE_List_Append (prev_b, a);
+        } else {
+            SCE_List_Prepend (a, next_b);
+        }
+    }
+}
+
+/**
+ * @brief Sorts a list
+ * @param l a list
+ * @param func a function used to compare two elements of the list
+ * 
+ * This function sorts a list using the GnomeSort algorithm.
+ */
+void SCE_List_GnomeSort (SCE_SList *l, SCE_FListCompareData func)
+{
+    SCE_SListIterator *it = SCE_List_GetFirst (l);
+    SCE_SListIterator *last_it = it;
+    unsigned int cur = 0, last = 0;
+
+    while (&l->last != it) {
+        if (SCE_List_IsFirst (l, it) || func (it->data, it->prev->data) >= 0) {
+            if (cur < last) {
+                it = last_it->next;
+                cur = last + 1;
+            } else {
+                it = it->next;
+                cur ++;
+            }
+        } else {
+            SCE_List_Swapl (it, it->prev);
+            if (cur > last) {
+                last_it = it->next;
+                last = cur;
+            } else {
+                cur --;
+            }
+        }
+    }
 }
 
 /** @} */

@@ -135,9 +135,12 @@ SCE_SListIterator* SCE_List_LocateIterator (const SCE_SList*, void*,
                                             SCE_FListCompareData);
 unsigned int SCE_List_LocateIndex (const SCE_SList*, void*,
                                    SCE_FListCompareData);
+void SCE_List_Swapl (SCE_SListIterator *a, SCE_SListIterator *b);
+void SCE_List_Swap (SCE_SListIterator *a, SCE_SListIterator *b);
 void SCE_List_QuickSortRange (SCE_SList*, unsigned int, unsigned int,
                               SCE_FListCompareData);
 void SCE_List_QuickSort (SCE_SList*, SCE_FListCompareData);
+void SCE_List_GnomeSort (SCE_SList*, SCE_FListCompareData);
 
 /**
  * \brief Sorts a list
@@ -151,8 +154,9 @@ void SCE_List_QuickSort (SCE_SList*, SCE_FListCompareData);
  *          change later.
  * 
  * \see SCE_List_QuickSort()
+ * \see SCE_List_GnomeSort()
  */
-#define SCE_List_Sort(l, func) (SCE_List_QuickSort ((l), (func)))
+#define SCE_List_Sort(l, func) (SCE_List_GnomeSort ((l), (func)))
 
 /**
  * \brief Gets data of an iterator
