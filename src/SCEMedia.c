@@ -51,8 +51,7 @@
 
 /* a media type */
 typedef struct sce_smediatype SCE_SMediaType;
-struct sce_smediatype
-{
+struct sce_smediatype {
     int type;                   /* abstract type (comes from SCEResource) */
     char *exts;
     SCE_FMediaLoadFunc load;
@@ -75,8 +74,7 @@ static void SCE_Media_InitType (SCE_SMediaType *type)
 static SCE_SMediaType* SCE_Media_CreateType (void)
 {
     SCE_SMediaType *type = NULL;
-    if (!(type = SCE_malloc (sizeof *type)))
-    {
+    if (!(type = SCE_malloc (sizeof *type))) {
         SCEE_LogSrc ();
         return NULL;
     }
@@ -85,8 +83,7 @@ static SCE_SMediaType* SCE_Media_CreateType (void)
 }
 static void SCE_Media_DeleteType (void *t)
 {
-    if (t)
-    {
+    if (t) {
         SCE_SMediaType *type = t;
         SCE_free (type->exts);
         SCE_free (type);
@@ -115,8 +112,7 @@ static int SCE_Media_ExtFound (const char *lot, const char *ext)
     const char *p = NULL;
     const char *s = lot;
     /* very important for types without extension, which have a NULL 'exts' */
-    if (!lot)
-    {
+    if (!lot) {
         if (!ext)
             return SCE_TRUE;
         else
@@ -125,8 +121,7 @@ static int SCE_Media_ExtFound (const char *lot, const char *ext)
     if (!ext)
         return SCE_FALSE;
     extlen = strlen (ext);
-    while (*s != '\0' && (p = strstr (s, ext)))
-    {
+    while (*s != '\0' && (p = strstr (s, ext))) {
         if ( (p == lot || p[-1] == ' ') &&
              (p[extlen] == '\0' || p[extlen] == ' ') )
             return SCE_TRUE;
@@ -142,8 +137,7 @@ static SCE_SMediaType* SCE_Media_LocateFromExt (const char *ext)
     if (!ext)
         return NULL;
 
-    SCE_List_ForEach (it, &funs)
-    {
+    SCE_List_ForEach (it, &funs) {
         t = SCE_List_GetData (it);
         if (SCE_Media_ExtFound (t->exts, ext))
             return t;
@@ -155,8 +149,7 @@ static SCE_SMediaType* SCE_Media_LocateFromType (int type)
     SCE_SMediaType *t = NULL;
     SCE_SListIterator *it = NULL;
 
-    SCE_List_ForEach (it, &funs)
-    {
+    SCE_List_ForEach (it, &funs) {
         t = SCE_List_GetData (it);
         if (t->type == type)
             return t;
@@ -169,8 +162,7 @@ static SCE_SMediaType* SCE_Media_LocateFromTypeAndExt (int type,
     SCE_SMediaType *t = NULL;
     SCE_SListIterator *it = NULL;
 
-    SCE_List_ForEach (it, &funs)
-    {
+    SCE_List_ForEach (it, &funs) {
         t = SCE_List_GetData (it);
         if (t->type == type && SCE_Media_ExtFound (t->exts, ext))
             return t;
@@ -184,8 +176,7 @@ int SCE_Media_Register (int type, const char *ext, SCE_FMediaLoadFunc load,
 {
     SCE_SMediaType *t = NULL;
 
-    if (!(t = SCE_Media_CreateType ()))
-    {
+    if (!(t = SCE_Media_CreateType ())) {
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
@@ -194,10 +185,8 @@ int SCE_Media_Register (int type, const char *ext, SCE_FMediaLoadFunc load,
     t->load = load;
     t->save = save;
 
-    if (ext)
-    {
-        if (!(t->exts = SCE_String_Dup (ext)))
-        {
+    if (ext) {
+        if (!(t->exts = SCE_String_Dup (ext))) {
             SCE_Media_DeleteType (t);
             SCEE_LogSrc ();
             return SCE_ERROR;
@@ -217,8 +206,7 @@ void* SCE_Media_Load (int type, const char *fname, void *param)
 
     /* always opened as binary */
     file = fopen (fname, "rb");
-    if (!file)
-    {
+    if (!file) {
         int errval = errno;
         SCEE_Log (SCE_FILE_NOT_FOUND);
         SCEE_LogMsg ("can't open '%s': %s", fname, strerror (errval));
@@ -228,8 +216,7 @@ void* SCE_Media_Load (int type, const char *fname, void *param)
     t = SCE_Media_LocateFromTypeAndExt (type, SCE_String_GetExt (fname));
     if (t)
         media = t->load (file, fname, param);
-    else
-    {
+    else {
         /* la fonction de chargement du type du fichier
            n'a pas ete trouvee... */
         SCEE_Log (SCE_INVALID_ARG);
@@ -238,8 +225,7 @@ void* SCE_Media_Load (int type, const char *fname, void *param)
     }
     fclose (file);
 
-    if (!media)
-    {
+    if (!media) {
         SCEE_LogSrc ();
         SCEE_LogSrcMsg ("failed to load '%s'", fname);
     }
@@ -252,8 +238,7 @@ int SCE_Media_Save (int type, void *data, const char *fname)
 {
     SCE_SMediaType *t = NULL;
     t = SCE_Media_LocateFromTypeAndExt (type, SCE_String_GetExt (fname));
-    if (!t)
-    {
+    if (!t) {
         SCEE_Log (SCE_INVALID_ARG);
         return SCE_ERROR;
     }
