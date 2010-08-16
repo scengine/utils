@@ -312,7 +312,6 @@ static void* SCE_Resource_LoadNew (int type, const char *name, int force,
 fail:
     SCEE_LogSrc ();
     SCEE_LogSrcMsg ("failed to load resource '%s'", name);
-    SCE_List_Erase (&resources, &res->it);
     return NULL;
 }
 /**
