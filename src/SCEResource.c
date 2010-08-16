@@ -96,8 +96,7 @@ static SCE_SResourceType* SCE_Resource_CreateType (void)
 }
 static void SCE_Resource_DeleteType (void *r)
 {
-    if (r)
-    {
+    if (r) {
         SCE_SResourceType *res = r;
         SCE_free (res);
     }
@@ -124,8 +123,7 @@ static SCE_SResource* SCE_Resource_Create (void)
 }
 static void SCE_Resource_Delete (void *r)
 {
-    if (r)
-    {
+    if (r) {
         SCE_SResource *res = r;
         SCE_free (res->name);
         SCE_free (res);
@@ -140,6 +138,7 @@ static void SCE_Resource_Delete (void *r)
  */
 int SCE_Init_Resource (void)
 {
+    res_type_id = 0;
     SCE_List_Init (&resources);
     SCE_List_SetFreeFunc (&resources, SCE_Resource_Delete);
     SCE_List_Init (&resources_type);
@@ -153,6 +152,7 @@ void SCE_Quit_Resource (void)
 {
     SCE_List_Clear (&resources);
     SCE_List_Clear (&resources_type);
+    res_type_id = 0;
 }
 
 
