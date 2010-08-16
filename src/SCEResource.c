@@ -191,6 +191,8 @@ static SCE_SResourceType* SCE_Resource_LocateType (int type)
         if (t->type == type)
             return t;
     }
+    SCEE_Log (SCE_INVALID_ARG);
+    SCEE_LogMsg ("resource type %d is not registered", type);
     return NULL;
 }
 
@@ -258,8 +260,7 @@ int SCE_Resource_Add (int type, const char *name, void *data)
     SCE_SResourceType *t = NULL;
     t = SCE_Resource_LocateType (type);
     if (!t) {
-        SCEE_Log (SCE_INVALID_ARG);
-        SCEE_LogMsg ("no resource of type %d is registered", type);
+        SCEE_LogSrc ();
         return SCE_ERROR;
     }
     res = SCE_Resource_LocateFromTypeAndName (type, name);
@@ -275,7 +276,7 @@ int SCE_Resource_Add (int type, const char *name, void *data)
         else {
             SCEE_Log (SCE_INVALID_OPERATION);
             SCEE_LogMsg ("resource named '%s' of type %d already exists!",
-                           name, type);
+                         name, type);
             return SCE_ERROR;
         }
     }
@@ -290,11 +291,7 @@ static void* SCE_Resource_LoadNew (int type, const char *name, int force,
     SCE_SResource *res = NULL;
 
     t = SCE_Resource_LocateType (type);
-    if (!t) {
-        SCEE_Log (SCE_INVALID_ARG);
-        SCEE_LogMsg ("no resource of type %d is registered", type);
-        return NULL;
-    }
+    if (!t) goto fail;
     if (!force) {
         if (!(res = SCE_Resource_SafeAdd (t, name, NULL)))
             goto fail;
@@ -311,7 +308,8 @@ static void* SCE_Resource_LoadNew (int type, const char *name, int force,
     return resource;
 fail:
     SCEE_LogSrc ();
-    SCEE_LogSrcMsg ("failed to load resource '%s'", name);
+    SCEE_LogSrcMsg ("failed to create new resource '%s' of type %d",
+                    name, type);
     return NULL;
 }
 /**
@@ -334,10 +332,8 @@ void* SCE_Resource_Load (int type, const char *name, int forcenew, void *data)
         resource = res->data;
         res->nb_used++;
     } else {
-        if (!(resource = SCE_Resource_LoadNew (type, name, forcenew, data))) {
+        if (!(resource = SCE_Resource_LoadNew (type, name, forcenew, data)))
             SCEE_LogSrc ();
-            SCEE_LogSrcMsg ("failed to create new resource '%s'", name);
-        }
     }
     return resource;
 }
