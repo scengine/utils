@@ -452,8 +452,10 @@ void SCE_String_MergePaths (char *dst, const char *a, const char *b)
     size_t len;
     strcpy (dst, a);
     len = strlen (dst);
-    if (dst[len - 1] != '/')
-        dst[len++] = '/';
+    if (len > 0) {
+        if (dst[len - 1] != '/')
+            dst[len++] = '/';
+    }
     strcpy (&dst[len], b);
 }
 /**
