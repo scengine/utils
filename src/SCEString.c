@@ -440,4 +440,41 @@ int SCE_String_ReplaceChar (char *str, char a, char b)
     return rep;
 }
 
+
+/**
+ * \brief Merge two path strings into one
+ * \param dst string destination
+ * \param a,b paths to merge
+ * \sa SCE_String_CombinePaths()
+ */
+void SCE_String_MergePaths (char *dst, const char *a, const char *b)
+{
+    size_t len;
+    strcpy (dst, a);
+    len = strlen (dst);
+    if (dst[len - 1] != '/')
+        dst[len++] = '/';
+    strcpy (&dst[len], b);
+}
+/**
+ * \brief Combine two path strings into one newly allocated
+ * \param a,b path to merge
+ * \returns an allocated string corresponding of the path \p a / \p b
+ * \sa SCE_String_MergePaths()
+ */
+char* SCE_String_CombinePaths (const char *a, const char *b)
+{
+    char *final = NULL;
+    int s = 0;
+    size_t alen = strlen (a);
+    if (a[alen - 1] != '/')
+        alen++;
+    if (!(final = SCE_malloc (alen + strlen (b) + 1))) {
+        SCEE_LogSrc ();
+        return NULL;
+    }
+    SCE_String_MergePaths (final, a, b);
+    return final;
+}
+
 /** @} */
