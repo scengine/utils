@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2007
-   updated: 19/05/2010 */
+   updated: 17/08/2010 */
 
 #ifndef SCESTRING_H
 #define SCESTRING_H
@@ -54,6 +54,9 @@ char* SCE_String_CatDup (const char*, const char*);
 char* SCE_String_CatDupMulti (const char* str, ...) SCE_GNUC_NULL_TERMINATED;
 
 int SCE_String_ReplaceChar (char*, char, char);
+
+void SCE_String_MergePaths (char*, const char*, const char*);
+char* SCE_String_CombinePaths (const char*, const char*);
 
 #ifdef __cplusplus
 } /* extern "C" */
