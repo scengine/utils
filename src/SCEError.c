@@ -248,6 +248,7 @@ void SCE_Error_SendMsg (const char *fmt, ...)
     va_start (args, fmt);
     vfprintf (stream, fmt, args);
     va_end (args);
+    fflush (stream);
 }
 
 /**
