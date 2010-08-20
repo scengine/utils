@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2007
-   updated: 17/08/2010 */
+   updated: 20/08/2010 */
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -338,14 +338,40 @@ int SCE_String_Cmp (const char *str1, const char *str2, int cmp_case)
  * \param src the string to copy
  * \returns a newly allocated duplication of \p src or NULL on error or if
  *          \p str is NULL
+ * \sa SCE_String_NDup(), SCE_String_CatDup()
  */
 char* SCE_String_Dup (const char *src)
 {
     if (!src)
         return NULL;
     else {
+        char *new = NULL;
         size_t s = strlen (src) + 1;
-        char *new = SCE_malloc (s);
+        new = SCE_malloc (s);
+        if (!new)
+            SCEE_LogSrc ();
+        else
+            memcpy (new, src, s);
+        return new;
+    }
+}
+/**
+ * \brief Duplicates a string
+ * \param src the string to copy
+ * \param n maximum characters to copy
+ * \returns a newly allocated duplication of \p src or NULL on error or if
+ *          \p str is NULL
+ * \sa SCE_String_Dup(), SCE_String_CatDup()
+ */
+char* SCE_String_NDup (const char *src, size_t n)
+{
+    if (!src)
+        return NULL;
+    else {
+        char *new = NULL;
+        size_t s = strlen (src) + 1;
+        s = (n < s ? n : s);
+        new = SCE_malloc (s);
         if (!new)
             SCEE_LogSrc ();
         else
@@ -354,11 +380,13 @@ char* SCE_String_Dup (const char *src)
     }
 }
 
+
 /**
  * \brief Duplicates the concatenation of two strings
  * \param a first string
  * \param b second string to concatenate with the first
  * \returns a newly allocated string containing both \p a and \p b strings 
+ * \sa SCE_String_Dup(), SCE_String_CatDupMulti()
  */
 char* SCE_String_CatDup (const char *a, const char *b)
 {
@@ -387,6 +415,7 @@ char* SCE_String_CatDup (const char *a, const char *b)
  * \param ... a NULL-ended list of strings to concatenate
  * \returns a newly allocated string containing the concatenation of every
  * parameters
+ * \sa SCE_String_CatDup()
  */
 char* SCE_String_CatDupMulti (const char* str, ...)
 {

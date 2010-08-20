@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2007
-   updated: 17/08/2010 */
+   updated: 20/08/2010 */
 
 #ifndef SCESTRING_H
 #define SCESTRING_H
@@ -48,9 +48,9 @@ char* SCE_String_GetExt (const char*);
 int SCE_String_Cmp (const char*, const char*, int);
 
 char* SCE_String_Dup (const char*);
+char* SCE_String_NDup (const char*, size_t);
 
 char* SCE_String_CatDup (const char*, const char*);
-
 char* SCE_String_CatDupMulti (const char* str, ...) SCE_GNUC_NULL_TERMINATED;
 
 int SCE_String_ReplaceChar (char*, char, char);
