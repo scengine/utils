@@ -369,13 +369,15 @@ char* SCE_String_NDup (const char *src, size_t n)
         return NULL;
     else {
         char *new = NULL;
-        size_t s = strlen (src) + 1;
-        s = (n < s ? n : s);
-        new = SCE_malloc (s);
+        size_t s;
+        for (s = 0; s < n && src[s]; s++);
+        new = SCE_malloc (s + 1);
         if (!new)
             SCEE_LogSrc ();
-        else
+        else {
             memcpy (new, src, s);
+            new[s] = 0;
+        }
         return new;
     }
 }
