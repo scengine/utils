@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/01/2007
-   updated: 10/04/2010 */
+   updated: 31/08/2010 */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -107,7 +107,7 @@ static void SCE_Resource_Init (SCE_SResource *r)
     r->type = NULL;
     r->data = NULL;
     r->name = NULL;
-    r->nb_used = 0;
+    r->nb_used = 1;
     SCE_List_InitIt (&r->it);
     SCE_List_SetData (&r->it, r);
 }
@@ -367,7 +367,8 @@ void* SCE_Resource_Load (int type, const char *name, int forcenew, void *data)
 int SCE_Resource_Free (void *data)
 {
     int ret = SCE_TRUE;         /* 'coz the user could want to delete a forced
-                                   resource */
+                                   resource (also we let the user know when he
+                                   does shit, segfault builds character.) */
     SCE_SResource *res = NULL;
 
     if (!data)
@@ -375,9 +376,10 @@ int SCE_Resource_Free (void *data)
     else {
         res = SCE_Resource_LocateFromData (data);
         if (res) {
-            res->nb_used--;
             if (res->nb_used == 0)
                 SCE_List_Erase (&resources, &res->it);
+            else
+                ret = SCE_FALSE;
         }
     }
 
