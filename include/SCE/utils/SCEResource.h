@@ -42,6 +42,7 @@ int SCE_Resource_RegisterType (int, SCE_FLoadResourceFunc,
                                SCE_FSaveResourceFunc);
 
 int SCE_Resource_Add (int, const char*, void*);
+int SCE_Resource_AddUser (void*);
 void* SCE_Resource_Load (int, const char*, int, void*);
 int SCE_Resource_Free (void*);
 

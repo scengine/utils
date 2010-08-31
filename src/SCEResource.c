@@ -269,10 +269,9 @@ int SCE_Resource_Add (int type, const char *name, void *data)
             SCEE_LogSrc ();
             return SCE_ERROR;
         }
-    }
-    else {
+    } else {
         if (res->data == data)
-            res->nb_used++;
+            res->nb_used++;     /* TODO: not thread-safe */
         else {
             SCEE_Log (SCE_INVALID_OPERATION);
             SCEE_LogMsg ("resource named '%s' of type %d already exists!",
@@ -280,6 +279,22 @@ int SCE_Resource_Add (int type, const char *name, void *data)
             return SCE_ERROR;
         }
     }
+    return SCE_OK;
+}
+/**
+ * \brief Adds an user to an existing resource
+ * \returns SCE_ERROR if the resource doesn't exist, SCE_OK otherwise
+ * \sa SCE_Resource_Add()
+ */
+int SCE_Resource_AddUser (void *data)
+{
+    SCE_SResource *res = NULL;
+    if (!(res = SCE_Resource_LocateFromData (data))) {
+        SCEE_Log (SCE_INVALID_ARG);
+        SCEE_LogMsg ("resource not found");
+        return SCE_ERROR;
+    }
+    res->nb_used++;
     return SCE_OK;
 }
 
