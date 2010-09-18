@@ -182,12 +182,12 @@ void SCE_Matrix4_Sub (SCE_TMatrix4 a, SCE_TMatrix4 b)
 
 void SCE_Matrix4_Transpose (const SCE_TMatrix4 m, SCE_TMatrix4 n)
 {
-    n[1] = m[4];
-    n[2] = m[8];
-    n[3] = m[12];
-    n[6] = m[9];
-    n[7] = m[13];
-    n[11] = m[14];
+    n[1] = m[4]; n[4] = m[1];
+    n[2] = m[8]; n[8] = m[2];
+    n[3] = m[12]; n[12] = m[3];
+    n[6] = m[9]; n[9] = m[6];
+    n[7] = m[13]; n[13] = m[7];
+    n[11] = m[14]; n[14] = m[11];
 }
 void SCE_Matrix4_TransposeCopy (SCE_TMatrix4 m)
 {
@@ -201,9 +201,9 @@ void SCE_Matrix4_TransposeCopy (SCE_TMatrix4 m)
 }
 void SCE_Matrix3_Transpose (const SCE_TMatrix3 m, SCE_TMatrix3 n)
 {
-    n[1] = m[3];
-    n[2] = m[6];
-    n[5] = m[7];
+    n[1] = m[3]; n[3] = m[1];
+    n[2] = m[6]; n[6] = m[2];
+    n[5] = m[7]; n[7] = m[5];
 }
 void SCE_Matrix3_TransposeCopy (SCE_TMatrix3 m)
 {
