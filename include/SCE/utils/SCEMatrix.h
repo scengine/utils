@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 21/05/2010 */
+   updated: 19/09/2010 */
 
 #ifndef SCEMATRIX_H
 #define SCEMATRIX_H
@@ -198,6 +198,10 @@ void SCE_Matrix4x3_GetTranslation (SCE_TMatrix4, SCE_TVector3);
 
 void SCE_Matrix4_SetTranslation (SCE_TMatrix4, SCE_TVector3);
 void SCE_Matrix4x3_SetTranslation (SCE_TMatrix4x3, SCE_TVector3);
+
+void SCE_Matrix4_GetScale (const SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix4x3_GetScale (const SCE_TMatrix4x3, SCE_TVector3);
+void SCE_Matrix3_GetScale (const SCE_TMatrix3, SCE_TVector3);
 
 #ifdef __cplusplus
 } /* extern "C" */

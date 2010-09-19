@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 21/05/2010 */
+   updated: 19/09/2010 */
 
 #include <string.h>
 
@@ -1093,4 +1093,35 @@ void SCE_Matrix4_SetTranslation (SCE_TMatrix4 m, SCE_TVector3 v)
 void SCE_Matrix4x3_SetTranslation (SCE_TMatrix4x3 m, SCE_TVector3 v)
 {
     m[3] = v[0]; m[7] = v[1]; m[11] = v[2];
+}
+
+void SCE_Matrix4_GetScale (const SCE_TMatrix4 m, SCE_TVector3 v)
+{
+    SCE_TVector3 w;
+    w[0] = m[0]; w[1] = m[4]; w[2] = m[8];
+    v[0] = SCE_Vector3_Length (w);
+    w[0] = m[1]; w[1] = m[5]; w[2] = m[9];
+    v[1] = SCE_Vector3_Length (w);
+    w[0] = m[2]; w[1] = m[6]; w[2] = m[10];
+    v[2] = SCE_Vector3_Length (w);
+}
+void SCE_Matrix4x3_GetScale (const SCE_TMatrix4x3 m, SCE_TVector3 v)
+{
+    SCE_TVector3 w;
+    w[0] = m[0]; w[1] = m[4]; w[2] = m[8];
+    v[0] = SCE_Vector3_Length (w);
+    w[0] = m[1]; w[1] = m[5]; w[2] = m[9];
+    v[1] = SCE_Vector3_Length (w);
+    w[0] = m[2]; w[1] = m[6]; w[2] = m[10];
+    v[2] = SCE_Vector3_Length (w);
+}
+void SCE_Matrix3_GetScale (const SCE_TMatrix3 m, SCE_TVector3 v)
+{
+    SCE_TVector3 w;
+    w[0] = m[0]; w[1] = m[3]; w[2] = m[6];
+    v[0] = SCE_Vector3_Length (w);
+    w[0] = m[1]; w[1] = m[4]; w[2] = m[7];
+    v[1] = SCE_Vector3_Length (w);
+    w[0] = m[2]; w[1] = m[5]; w[2] = m[8];
+    v[2] = SCE_Vector3_Length (w);
 }
