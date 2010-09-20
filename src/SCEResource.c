@@ -376,6 +376,7 @@ int SCE_Resource_Free (void *data)
     else {
         res = SCE_Resource_LocateFromData (data);
         if (res) {
+            res->nb_used--;
             if (res->nb_used == 0)
                 SCE_List_Erase (&resources, &res->it);
             else
