@@ -17,10 +17,10 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 07/01/2009 */
+   updated: 27/10/2010 */
 
 #include "SCE/utils/SCEVector.h"
-
+#include "SCE/utils/SCELine.h"
 #include "SCE/utils/SCEPlane.h"
 
 
@@ -128,5 +128,26 @@ float SCE_Plane_DistanceToPointv (SCE_SPlane *p, SCE_TVector3 v)
 {
     return SCE_Vector3_Dot (p->n, v) + p->d;
 }
+
+/**
+ * \brief Checks for intersection with a line and return the intersection point
+ * \param p a plane
+ * \param l a line
+ * \param v here will be written the intersection point
+ * \returns SCE_TRUE if the intersection point exists
+ */
+int SCE_Plane_LineIntersection (SCE_SPlane *p, SCE_SLine3 *l, SCE_TVector3 v)
+{
+    float a, k;
+    float div = SCE_Vector3_Dot (p->n, l->n);
+    /* TODO: Math_IsNull() */
+    if (SCE_Math_Fabsf (div) < 0.0001f)
+        return SCE_FALSE;
+    a = -SCE_Vector3_Dot (p->n, l->o) - p->d;
+    k = a / div;
+    SCE_Vector3_Operator3 (v, =, l->o, +, l->n, *, k);
+    return SCE_TRUE;
+}
+
 
 /** @} */

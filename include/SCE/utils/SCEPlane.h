@@ -17,21 +17,20 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 06/01/2009 */
+   updated: 27/10/2010 */
 
 #ifndef SCEPLANE_H
 #define SCEPLANE_H
 
 #include <SCE/utils/SCEVector.h>
+#include <SCE/utils/SCELine.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef struct sce_splane SCE_SPlane;
-struct sce_splane
-{
+struct sce_splane {
     SCE_TVector3 n;
     float d;
 };
@@ -48,6 +47,8 @@ void SCE_Plane_Normalize (SCE_SPlane*, int);
 
 float SCE_Plane_DistanceToPoint (SCE_SPlane*, float, float, float);
 float SCE_Plane_DistanceToPointv (SCE_SPlane*, SCE_TVector3);
+
+int SCE_Plane_LineIntersection (SCE_SPlane*, SCE_SLine3*, SCE_TVector3);
 
 #ifdef __cplusplus
 } /* extern "C" */
