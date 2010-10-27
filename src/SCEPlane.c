@@ -90,6 +90,21 @@ void SCE_Plane_SetFromPointv (SCE_SPlane *p, SCE_TVector3 n, SCE_TVector3 v)
 }
 
 /**
+ * \brief Makes a plane from a triangle
+ * \param p the plane to make
+ * \param a,b,c points of the triangle
+ */
+void SCE_Plane_SetFromTriangle (SCE_SPlane *p, SCE_TVector3 a, SCE_TVector3 b,
+                                SCE_TVector3 c)
+{
+    SCE_TVector3 n, ab, ac;
+    SCE_Vector3_Operator2v (ab, =, b, -, a);
+    SCE_Vector3_Operator2v (ac, =, c, -, a);
+    SCE_Vector3_Cross (n, ab, ac);
+    SCE_Plane_SetFromPointv (p, n, a);
+}
+
+/**
  * \brief Normalize a plane
  * \param p the plane to normalize
  * \param normalize_distance 
