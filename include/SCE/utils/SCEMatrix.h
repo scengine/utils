@@ -173,8 +173,8 @@ void SCE_Matrix4_MulV3Copyw (SCE_TMatrix4, SCE_TVector3, float);
 void SCE_Matrix4_MulV4 (SCE_TMatrix4, SCE_TVector4, SCE_TVector4);
 void SCE_Matrix4_MulV4Copy (SCE_TMatrix4, SCE_TVector4);
 
-void SCE_Matrix3_MulV3 (SCE_TMatrix4, SCE_TVector3, SCE_TVector3);
-void SCE_Matrix3_MulV3Copy (SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix3_MulV3 (SCE_TMatrix3, SCE_TVector3, SCE_TVector3);
+void SCE_Matrix3_MulV3Copy (SCE_TMatrix3, SCE_TVector3);
 
 void SCE_Matrix4x3_MulV3 (SCE_TMatrix4x3, SCE_TVector3, SCE_TVector3);
 void SCE_Matrix4x3_MulV3w (SCE_TMatrix4x3, SCE_TVector3, float, SCE_TVector3);

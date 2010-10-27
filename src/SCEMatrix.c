@@ -963,13 +963,13 @@ void SCE_Matrix4_MulV4Copy (SCE_TMatrix4 m, SCE_TVector4 v)
     v[1]  = tv[1];
     v[2]  = tv[2];
 }
-void SCE_Matrix3_MulV3 (SCE_TMatrix4 m, SCE_TVector3 v, SCE_TVector3 v2)
+void SCE_Matrix3_MulV3 (SCE_TMatrix3 m, SCE_TVector3 v, SCE_TVector3 v2)
 {
     v2[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2];
     v2[1] = m[3]*v[0] + m[4]*v[1] + m[5]*v[2];
     v2[2] = m[6]*v[0] + m[7]*v[1] + m[8]*v[2];
 }
-void SCE_Matrix3_MulV3Copy (SCE_TMatrix4 m, SCE_TVector3 v)
+void SCE_Matrix3_MulV3Copy (SCE_TMatrix3 m, SCE_TVector3 v)
 {
     float tv[2];
     tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2];
