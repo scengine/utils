@@ -214,4 +214,21 @@ int SCE_Line_Intersects (SCE_SLine *l1, SCE_SLine *l2)
     return 0;
 }
 
+
+
+void SCE_Line3_Init (SCE_SLine3 *l)
+{
+    SCE_Vector3_Set (l->o, 0.0, 0.0, 0.0);
+    SCE_Vector3_Set (l->n, 1.0, 0.0, 0.0);
+}
+void SCE_Line3_SetOrigin (SCE_SLine3 *l, SCE_TVector3 v)
+{
+    SCE_Vector3_Copy (l->o, v);
+}
+void SCE_Line3_SetNormal (SCE_SLine3 *l, SCE_TVector3 v)
+{
+    SCE_Vector3_Copy (l->n, v);
+}
+
+
 /** @} */

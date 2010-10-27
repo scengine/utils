@@ -56,6 +56,17 @@ int SCE_Line_GetIntersectionv (SCE_SLine*, SCE_SLine*, SCE_TVector2);
 
 int SCE_Line_Intersects (SCE_SLine*, SCE_SLine*);
 
+
+typedef struct sce_sline3 SCE_SLine3;
+struct sce_sline3 {
+    SCE_TVector3 o, n;
+    /* x = o[0] + k*n[0], y = o[1] + k*n[1], z = o[2] + k*n[2] */
+};
+
+void SCE_Line3_Init (SCE_SLine3*);
+void SCE_Line3_SetOrigin (SCE_SLine3*, SCE_TVector3);
+void SCE_Line3_SetNormal (SCE_SLine3*, SCE_TVector3);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
