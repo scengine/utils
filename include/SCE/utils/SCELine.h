@@ -65,6 +65,7 @@ struct sce_sline3 {
 };
 
 void SCE_Line3_Init (SCE_SLine3*);
+void SCE_Line3_Set (SCE_SLine3*, SCE_TVector3, SCE_TVector3);
 void SCE_Line3_SetOrigin (SCE_SLine3*, SCE_TVector3);
 void SCE_Line3_SetNormal (SCE_SLine3*, SCE_TVector3);
 

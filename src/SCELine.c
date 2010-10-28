@@ -176,8 +176,7 @@ int SCE_Line_GetIntersection (SCE_SLine *l1, SCE_SLine *l2, float *x, float *y)
     SCE_Line_GetEquation (l1, &a, &b);
     SCE_Line_GetEquation (l2, &c, &d);
 
-    if (SCE_Math_Fabsf (a - c) > 0.0)
-    {
+    if (SCE_Math_Fabsf (a - c) > 0.0) {
         *x = (d - b) / (a - c); /* ax + b = cx + d */
         *y = a*(*x) + b;        /* y = ax + b */
         return 0;
@@ -202,8 +201,7 @@ int SCE_Line_Intersects (SCE_SLine *l1, SCE_SLine *l2)
 {
     float x, y;
 
-    switch (SCE_Line_GetIntersection (l1, l2, &x, &y))
-    {
+    switch (SCE_Line_GetIntersection (l1, l2, &x, &y)) {
     case 0:
         /* x doit etre compris dans l'intervalle des deux segments */
         return (SCE_Line_IsInXInterval(l1, x) && SCE_Line_IsInXInterval(l2, x)&&
@@ -220,6 +218,16 @@ void SCE_Line3_Init (SCE_SLine3 *l)
 {
     SCE_Vector3_Set (l->o, 0.0, 0.0, 0.0);
     SCE_Vector3_Set (l->n, 1.0, 0.0, 0.0);
+}
+/**
+ * \brief Makes the line that cross two given points
+ * \param l the line to make
+ * \param a,b two points
+ */
+void SCE_Line3_Set (SCE_SLine3 *l, SCE_TVector3 a, SCE_TVector3 b)
+{
+    SCE_Vector3_Copy (l->o, a);
+    SCE_Vector3_Operator2v (l->n, =, b, -, a);
 }
 void SCE_Line3_SetOrigin (SCE_SLine3 *l, SCE_TVector3 v)
 {
