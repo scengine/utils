@@ -17,12 +17,13 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 24/08/2009 */
+   updated: 28/10/2010 */
 
 #ifndef SCELINE_H
 #define SCELINE_H
 
 #include "SCE/utils/SCEVector.h"
+#include "SCE/utils/SCEMatrix.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +50,7 @@ void SCE_Line_MovePoint2v (SCE_SLine*, float*);
 int SCE_Line_IsInXInterval (SCE_SLine*, float);
 int SCE_Line_IsInYInterval (SCE_SLine*, float);
 
-void SCE_Line_GetEquation(SCE_SLine*, float*, float*);
+void SCE_Line_GetEquation (SCE_SLine*, float*, float*);
 
 int SCE_Line_GetIntersection (SCE_SLine*, SCE_SLine*, float*, float*);
 int SCE_Line_GetIntersectionv (SCE_SLine*, SCE_SLine*, SCE_TVector2);
@@ -66,6 +67,9 @@ struct sce_sline3 {
 void SCE_Line3_Init (SCE_SLine3*);
 void SCE_Line3_SetOrigin (SCE_SLine3*, SCE_TVector3);
 void SCE_Line3_SetNormal (SCE_SLine3*, SCE_TVector3);
+
+void SCE_Line3_Mul (SCE_SLine3*, SCE_SLine3*, SCE_TMatrix4x3);
+void SCE_Line3_MulCopy (SCE_SLine3*, SCE_TMatrix4x3);
 
 #ifdef __cplusplus
 } /* extern "C" */

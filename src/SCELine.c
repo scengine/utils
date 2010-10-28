@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 24/08/2009 */
+   updated: 28/10/2010 */
 
 #include "SCE/utils/SCELine.h"
 
@@ -230,5 +230,40 @@ void SCE_Line3_SetNormal (SCE_SLine3 *l, SCE_TVector3 v)
     SCE_Vector3_Copy (l->n, v);
 }
 
+/**
+ * \brief Applies a matrix to a line and store the result into another
+ * \param a store the result here
+ * \param b the matrix will be applyied to this line
+ * \param m a matrix
+ * \sa SCE_Line3_MulCopy()
+ */
+void SCE_Line3_Mul (SCE_SLine3 *a, SCE_SLine3 *b, SCE_TMatrix4x3 m)
+{
+    SCE_TMatrix3 rot;
+    SCE_TVector3 trans;
+
+    SCE_Matrix3_CopyM4x3 (rot, m);
+    SCE_Matrix3_MulV3 (rot, b->n, a->n);
+
+    SCE_Matrix4x3_GetTranslation (m, trans);
+    SCE_Vector3_Operator2v (a->o, =, b->o, +, trans);
+}
+/**
+ * \brief Applies a matrix to a line
+ * \param l store the result here
+ * \param m a matrix
+ * \sa SCE_Line3_Mul()
+ */
+void SCE_Line3_MulCopy (SCE_SLine3 *l, SCE_TMatrix4x3 m)
+{
+    SCE_TMatrix3 rot;
+    SCE_TVector3 trans;
+
+    SCE_Matrix3_CopyM4x3 (rot, m);
+    SCE_Matrix3_MulV3Copy (rot, l->n);
+
+    SCE_Matrix4x3_GetTranslation (m, trans);
+    SCE_Vector3_Operator1v (l->o, +=, trans);
+}
 
 /** @} */
