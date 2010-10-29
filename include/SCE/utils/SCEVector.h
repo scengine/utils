@@ -47,9 +47,9 @@ typedef float SCE_TVector2[2];
     SCE_Math_Sqrt(((a)[0]*(a)[0])+((a)[1]*(a)[1]))
 
 /* TODO: use '=' instead... ? */
-#define SCE_Vector4_Copy(v1, v2) memcpy (v1, v2, 4 * sizeof (*(v2)))
-#define SCE_Vector3_Copy(v1, v2) memcpy (v1, v2, 3 * sizeof (*(v2)))
-#define SCE_Vector2_Copy(v1, v2) memcpy (v1, v2, 2 * sizeof (*(v2)))
+#define SCE_Vector4_Copy(v1, v2) memcpy (v1, v2, 4 * sizeof (float))
+#define SCE_Vector3_Copy(v1, v2) memcpy (v1, v2, 3 * sizeof (float))
+#define SCE_Vector2_Copy(v1, v2) memcpy (v1, v2, 2 * sizeof (float))
 
 #define SCE_Vector2_Set(v, x, y) do {\
         (v)[0] = (x), (v)[1] = (y);} while (0)
