@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 27/10/2010 */
+   updated: 29/10/2010 */
 
 #include "SCE/utils/SCEVector.h"
 #include "SCE/utils/SCELine.h"
@@ -164,5 +164,63 @@ int SCE_Plane_LineIntersection (SCE_SPlane *p, SCE_SLine3 *l, SCE_TVector3 v)
     return SCE_TRUE;
 }
 
+static int SCE_Plane_SameSign (float a, float b)
+{
+    return (a < 0.0f && b < 0.0f || a > 0.0f && b > 0.0f);
+}
+
+/**
+ * \brief Checks for intersection between a triangle and a line
+ * \param a,b,c a triangle
+ * \param l a line
+ * \param d will store the intersection point here, even if it is outside
+ * the triangle
+ * \returns SCE_TRUE if the line intersects the triangle, SCE_FALSE otherwise
+ */
+int SCE_Plane_TriangleLineIntersection (SCE_TVector3 a, SCE_TVector3 b,
+                                        SCE_TVector3 c, SCE_SLine3 *l,
+                                        SCE_TVector3 d)
+{
+    SCE_SPlane p;
+    SCE_TVector3 n, ab, ac, bc, v;
+    float dot1, dot2;
+
+    /* much like SCE_Plane_SetFromTriangle(), but we need those vectors
+       so we compute them only once */
+    SCE_Vector3_Operator2v (ab, =, b, -, a);
+    SCE_Vector3_Operator2v (ac, =, c, -, a);
+    SCE_Vector3_Operator2v (bc, =, c, -, b);
+    SCE_Vector3_Cross (n, ab, ac);
+    SCE_Plane_SetFromPointv (&p, n, a);
+
+    if (!SCE_Plane_LineIntersection (&p, l, d))
+        return SCE_FALSE;
+
+    /* split with ab */
+    SCE_Vector3_Cross (n, p.n, ab);
+    SCE_Vector3_Operator2v (v, =, d, -, a); /* AD */
+    dot1 = SCE_Vector3_Dot (v, n);
+    dot2 = SCE_Vector3_Dot (ac, n);
+    if (!SCE_Plane_SameSign (dot1, dot2))
+        return SCE_FALSE;
+
+    /* split with ac */
+    SCE_Vector3_Cross (n, p.n, ac);
+    /* SCE_Vector3_Operator2v (v, =, d, -, a); /* AD */
+    dot1 = SCE_Vector3_Dot (v, n);
+    dot2 = SCE_Vector3_Dot (ab, n);
+    if (!SCE_Plane_SameSign (dot1, dot2))
+        return SCE_FALSE;
+
+    /* split with bc */
+    SCE_Vector3_Cross (n, p.n, bc);
+    SCE_Vector3_Operator2v (v, =, d, -, b); /* BD */
+    dot1 = SCE_Vector3_Dot (v, n);
+    dot2 = - SCE_Vector3_Dot (ab, n); /* no need to compute the BA vector */
+    if (!SCE_Plane_SameSign (dot1, dot2))
+        return SCE_FALSE;
+
+    return SCE_TRUE;
+}
 
 /** @} */

@@ -17,13 +17,13 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 27/10/2010 */
+   updated: 29/10/2010 */
 
 #ifndef SCEPLANE_H
 #define SCEPLANE_H
 
-#include <SCE/utils/SCEVector.h>
-#include <SCE/utils/SCELine.h>
+#include "SCE/utils/SCEVector.h"
+#include "SCE/utils/SCELine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,6 +52,10 @@ float SCE_Plane_DistanceToPoint (SCE_SPlane*, float, float, float);
 float SCE_Plane_DistanceToPointv (SCE_SPlane*, SCE_TVector3);
 
 int SCE_Plane_LineIntersection (SCE_SPlane*, SCE_SLine3*, SCE_TVector3);
+
+int SCE_Plane_TriangleLineIntersection (SCE_TVector3, SCE_TVector3,
+                                        SCE_TVector3, SCE_SLine3*,
+                                        SCE_TVector3);
 
 #ifdef __cplusplus
 } /* extern "C" */
