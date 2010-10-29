@@ -156,7 +156,7 @@ int SCE_Plane_LineIntersection (SCE_SPlane *p, SCE_SLine3 *l, SCE_TVector3 v)
     float a, k;
     float div = SCE_Vector3_Dot (p->n, l->n);
     /* TODO: Math_IsNull() */
-    if (SCE_Math_Fabsf (div) < 0.0001f)
+    if (SCE_Math_Fabsf (div) < 0.000001f)
         return SCE_FALSE;
     a = -SCE_Vector3_Dot (p->n, l->o) - p->d;
     k = a / div;
