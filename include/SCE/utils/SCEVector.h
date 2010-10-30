@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 24/08/2009 */
+   updated: 30/10/2010 */
 
 #ifndef SCEVECTOR_H
 #define SCEVECTOR_H
@@ -32,6 +32,10 @@ extern "C" {
 typedef float SCE_TVector4[4];
 typedef float SCE_TVector3[3];
 typedef float SCE_TVector2[2];
+
+#define SCE_Vec4(v) (v)[0], (v)[1], (v)[2], (v)[3]
+#define SCE_Vec3(v) (v)[0], (v)[1], (v)[2]
+#define SCE_Vec2(v) (v)[0], (v)[1]
 
 #define SCE_Vector3_Distance(a, b)\
     SCE_Math_Sqrt ((((a)[0]-(b)[0])*((a)[0]-(b)[0]))+\
