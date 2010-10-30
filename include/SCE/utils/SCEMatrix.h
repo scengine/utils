@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 19/09/2010 */
+   updated: 30/10/2010 */
 
 #ifndef SCEMATRIX_H
 #define SCEMATRIX_H
@@ -49,14 +49,35 @@ typedef float SCE_TMatrix4x3[12];
     (ma)[4]  = e; (ma)[5]  = f; (ma)[6]  = g; (ma)[7]  = h; \
     (ma)[8]  = i; (ma)[9]  = j; (ma)[10] = k; (ma)[11] = l;}
 
-#define SCE_Mat4L(n, m) m[n * 4], m[n * 4 + 1], m[n * 4 + 2], m[n * 4 + 3]
-#define SCE_Mat3L(n, m) m[n * 3], m[n * 3 + 1], m[n * 3 + 2]
-#define SCE_Mat4x3L(n, m) m[n * 4], m[n * 4 + 1], m[n * 4 + 2], m[n * 4 + 3]
 
-#define SCE_Mat4C(n, m) m[n], m[n + 4], m[n + 8], m[n + 12]
-#define SCE_Mat4C3(n, m) m[n], m[n + 4], m[n + 8]
-#define SCE_Mat3C(n, m) m[n], m[n + 3], m[n + 6]
-#define SCE_Mat4x3C(n, m) m[n], m[n + 4], m[n + 8]
+#define SCE_Mat4L(n, m) (m)[(n)*4], (m)[(n)*4+1], (m)[(n)*4+2], (m)[(n)*4+3]
+#define SCE_Mat3L(n, m) (m)[(n)*3], (m)[(n)*3+1], (m)[(n)*3+2]
+#define SCE_Mat4x3L(n, m) SCE_Mat4L (n, m)
+#define SCE_GetMat4L(n, m, v) do {                    \
+        (v)[0] = (m)[(n)*4+0]; (v)[1] = (m)[(n)*4+1]; \
+        (v)[2] = (m)[(n)*4+2]; (v)[3] = (m)[(n)*4+3]; \
+    } while (0)
+#define SCE_GetMat3L(n, m, v) do {                                      \
+        (v)[0] = (m)[(n)*3]; (v)[1] = (m)[(n)*3+1]; (v)[2] = (m)[(n)*3+2]; \
+    } while (0)
+#define SCE_GetMat4x3L(n, m, v) SCE_GetMat4L (n, m, v)
+
+
+#define SCE_Mat4C(n, m) (m)[n], (m)[(n)+4], (m)[(n)+8], (m)[(n)+12]
+#define SCE_Mat4C3(n, m) (m)[n], (m)[(n)+4], (m)[(n)+8]
+#define SCE_Mat3C(n, m) (m)[n], (m)[(n)+3], (m)[(n)+6]
+#define SCE_Mat4x3C(n, m) SCE_Mat4C3 (n, m)
+#define SCE_GetMat4C(n, m, v) do {                  \
+        (v)[0] = (m)[n + 0]; (v)[1] = (m)[(n)+4];   \
+        (v)[2] = (m)[(n)+8]; (v)[3] = (m)[(n)+12];  \
+    } while (0)
+#define SCE_GetMat4C3(n, m, v) do {                                 \
+        (v)[0] = (m)[n]; (v)[1] = (m)[(n)+4]; (v)[2] = (m)[(n)+8];  \
+    } while (0)
+#define SCE_GetMat3C(n, m, v) do {                                  \
+        (v)[0] = (m)[n]; (v)[1] = (m)[(n)+3]; (v)[2] = (m)[(n)+6];  \
+    } while (0)
+#define SCE_GetMat4x3C(n, m, v) SCE_GetMat4C3 (n, m, v)
 
 /* copies n into m */
 #define SCE_Matrix4_Copy(m, n) memcpy ((m), (n), 16 * sizeof (float))
