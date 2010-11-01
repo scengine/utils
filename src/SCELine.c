@@ -248,13 +248,9 @@ void SCE_Line3_SetNormal (SCE_SLine3 *l, SCE_TVector3 v)
 void SCE_Line3_Mul (SCE_SLine3 *a, SCE_SLine3 *b, SCE_TMatrix4x3 m)
 {
     SCE_TMatrix3 rot;
-    SCE_TVector3 trans;
-
     SCE_Matrix3_CopyM4x3 (rot, m);
     SCE_Matrix3_MulV3 (rot, b->n, a->n);
-
-    SCE_Matrix4x3_GetTranslation (m, trans);
-    SCE_Vector3_Operator2v (a->o, =, b->o, +, trans);
+    SCE_Matrix4x3_MulV3 (m, b->o, a->o);
 }
 /**
  * \brief Applies a matrix to a line
@@ -265,13 +261,9 @@ void SCE_Line3_Mul (SCE_SLine3 *a, SCE_SLine3 *b, SCE_TMatrix4x3 m)
 void SCE_Line3_MulCopy (SCE_SLine3 *l, SCE_TMatrix4x3 m)
 {
     SCE_TMatrix3 rot;
-    SCE_TVector3 trans;
-
     SCE_Matrix3_CopyM4x3 (rot, m);
     SCE_Matrix3_MulV3Copy (rot, l->n);
-
-    SCE_Matrix4x3_GetTranslation (m, trans);
-    SCE_Vector3_Operator1v (l->o, +=, trans);
+    SCE_Matrix4x3_MulV3Copy (m, l->o);
 }
 
 /** @} */
