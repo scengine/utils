@@ -239,6 +239,16 @@ void SCE_Line3_SetNormal (SCE_SLine3 *l, SCE_TVector3 v)
 }
 
 /**
+ * \brief Normalizes the vector that can be set using SCE_Line3_SetNormal()
+ * \param l the line to normalize
+ * \sa SCE_Line3_SetNormal()
+ */
+void SCE_Line3_Normalize (SCE_SLine3 *l)
+{
+    SCE_Vector3_Normalize (l->n);
+}
+
+/**
  * \brief Applies a matrix to a line and store the result into another
  * \param a store the result here
  * \param b the matrix will be applyied to this line
