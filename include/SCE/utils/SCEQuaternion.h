@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/10/2007
-   updated: 05/04/2009 */
+   updated: 08/11/2010 */
 
 #ifndef SCEQUATERNION_H
 #define SCEQUATERNION_H
@@ -25,8 +25,7 @@
 #include "SCE/utils/SCEVector.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef float SCE_TQuaternion[4];
@@ -35,7 +34,7 @@ typedef float SCE_TQuaternion[4];
         (q)[0] = x; (q)[1] = y; (q)[2] = z; (q)[3] = w;} while (0);
 #define SCE_Quaternion_Identity(q) SCE_Quaternion_Set (q, 0., 0., 0., 1.)
 
-#define SCE_Quaternion_Copy(r, q) memcpy (r, q, 4 * sizeof (*(r)))
+#define SCE_Quaternion_Copy(r, q) memcpy (r, q, sizeof (SCE_TQuaternion))
 
 void SCE_Quaternion_Normalize (SCE_TQuaternion);
 
