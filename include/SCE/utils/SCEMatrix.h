@@ -229,6 +229,10 @@ void SCE_Matrix4_GetScale (const SCE_TMatrix4, SCE_TVector3);
 void SCE_Matrix4x3_GetScale (const SCE_TMatrix4x3, SCE_TVector3);
 void SCE_Matrix3_GetScale (const SCE_TMatrix3, SCE_TVector3);
 
+void SCE_Matrix4_NoScaling (SCE_TMatrix4);
+void SCE_Matrix4x3_NoScaling (SCE_TMatrix4x3);
+void SCE_Matrix3_NoScaling (SCE_TMatrix3);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

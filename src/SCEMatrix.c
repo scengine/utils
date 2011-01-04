@@ -1127,3 +1127,25 @@ void SCE_Matrix3_GetScale (const SCE_TMatrix3 m, SCE_TVector3 v)
     w[0] = m[2]; w[1] = m[5]; w[2] = m[8];
     v[2] = SCE_Vector3_Length (w);
 }
+
+void SCE_Matrix4_NoScaling (SCE_TMatrix4 m)
+{
+    SCE_TVector3 s;
+    SCE_Matrix4_GetScale (m, s);
+    SCE_Vector3_Operator1v (s, = 1.0 /, s);
+    SCE_Matrix4_MulScalev (m, s);
+}
+void SCE_Matrix4x3_NoScaling (SCE_TMatrix4x3 m)
+{
+    SCE_TVector3 s;
+    SCE_Matrix4x3_GetScale (m, s);
+    SCE_Vector3_Operator1v (s, = 1.0 /, s);
+    SCE_Matrix4x3_MulScalev (m, s);
+}
+void SCE_Matrix3_NoScaling (SCE_TMatrix3 m)
+{
+    SCE_TVector3 s;
+    SCE_Matrix3_GetScale (m, s);
+    SCE_Vector3_Operator1v (s, = 1.0 /, s);
+    SCE_Matrix3_MulScalev (m, s);
+}
