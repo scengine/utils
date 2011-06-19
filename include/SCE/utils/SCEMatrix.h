@@ -33,6 +33,22 @@ typedef float SCE_TMatrix4[16];
 typedef float SCE_TMatrix3[9];
 typedef float SCE_TMatrix4x3[12];
 
+#define SCE_MATRIX4_IDENTITY\
+    {1.0, 0.0, 0.0, 0.0,    \
+     0.0, 1.0, 0.0, 0.0,    \
+     0.0, 0.0, 1.0, 0.0,    \
+     0.0, 0.0, 0.0, 1.0}
+
+#define SCE_MATRIX3_IDENTITY\
+    {1.0, 0.0, 0.0,         \
+     0.0, 1.0, 0.0,         \
+     0.0, 0.0, 1.0}
+
+#define SCE_MATRIX4x3_IDENTITY\
+    {1.0, 0.0, 0.0, 0.0,    \
+     0.0, 1.0, 0.0, 0.0,    \
+     0.0, 0.0, 1.0, 0.0}
+
 #define SCE_Matrix4_Set(ma, a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p){\
     (ma)[0]  = a; (ma)[1]  = b; (ma)[2]  = c; (ma)[3]  = d; \
     (ma)[4]  = e; (ma)[5]  = f; (ma)[6]  = g; (ma)[7]  = h; \
