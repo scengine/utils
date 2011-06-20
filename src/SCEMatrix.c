@@ -25,6 +25,9 @@
 
 #include "SCE/utils/SCEMatrix.h"
 
+const SCE_TMatrix4 sce_matrix4_id = SCE_MATRIX4_IDENTITY;
+const SCE_TMatrix3 sce_matrix3_id = SCE_MATRIX3_IDENTITY;
+const SCE_TMatrix4x3 sce_matrix4x3_id = SCE_MATRIX4x3_IDENTITY;
 
 int SCE_Init_Matrix (void)
 {

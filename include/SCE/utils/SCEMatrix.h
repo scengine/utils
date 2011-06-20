@@ -33,6 +33,10 @@ typedef float SCE_TMatrix4[16];
 typedef float SCE_TMatrix3[9];
 typedef float SCE_TMatrix4x3[12];
 
+extern const SCE_TMatrix4 sce_matrix4_id;
+extern const SCE_TMatrix3 sce_matrix3_id;
+extern const SCE_TMatrix4x3 sce_matrix4x3_id;
+
 #define SCE_MATRIX4_IDENTITY\
     {1.0, 0.0, 0.0, 0.0,    \
      0.0, 1.0, 0.0, 0.0,    \
