@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 05/01/2007
-   updated: 10/04/2010 */
+   updated: 25/06/2011 */
 
 #include <stdio.h>
 #include <errno.h>
@@ -61,6 +61,9 @@ struct sce_smediatype {
 
 static SCE_SList funs;
 
+static SCE_FMediaParsePathFunc parse_fun = NULL;
+static void *parse_data = NULL;
+
 
 static void SCE_Media_InitType (SCE_SMediaType *type)
 {
@@ -103,6 +106,13 @@ int SCE_Init_Media (void)
 void SCE_Quit_Media (void)
 {
     SCE_List_Clear (&funs);
+}
+
+
+void SCE_Media_SetParsePathFunc (SCE_FMediaParsePathFunc fun, void *data)
+{
+    parse_fun = fun;
+    parse_data = data;
 }
 
 
@@ -203,19 +213,31 @@ void* SCE_Media_Load (int type, const char *fname, void *param)
     SCE_SMediaType *t = NULL;
     FILE *file = NULL;
     void *media = NULL;
+    int parsed = SCE_FALSE;
+    char *path = (char*)fname;
+
+    if (parse_fun) {
+        if (!(path = parse_fun (parse_data, type, fname))) {
+            SCEE_LogSrc ();
+            return NULL;
+        }
+        parsed = SCE_TRUE;
+    }
 
     /* always opened as binary */
-    file = fopen (fname, "rb");
+    file = fopen (path, "rb");
     if (!file) {
         int errval = errno;
         SCEE_Log (SCE_FILE_NOT_FOUND);
-        SCEE_LogMsg ("can't open '%s': %s", fname, strerror (errval));
+        SCEE_LogMsg ("can't open '%s': %s", path, strerror (errval));
+        if (parsed)
+            SCE_free (path);
         return NULL;
     }
 
-    t = SCE_Media_LocateFromTypeAndExt (type, SCE_String_GetExt (fname));
+    t = SCE_Media_LocateFromTypeAndExt (type, SCE_String_GetExt (path));
     if (t)
-        media = t->load (file, fname, param);
+        media = t->load (file, path, param);
     else {
         /* la fonction de chargement du type du fichier
            n'a pas ete trouvee... */
@@ -227,7 +249,7 @@ void* SCE_Media_Load (int type, const char *fname, void *param)
 
     if (!media) {
         SCEE_LogSrc ();
-        SCEE_LogSrcMsg ("failed to load '%s'", fname);
+        SCEE_LogSrcMsg ("failed to load '%s'", path);
     }
 
     return media;
