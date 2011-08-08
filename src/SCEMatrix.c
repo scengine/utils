@@ -56,27 +56,27 @@ void SCE_Matrix4x3_Identity (SCE_TMatrix4x3 m)
     m[9] = m[11] = 0.0f;
 }
 
-void SCE_Matrix4_CopyM3 (SCE_TMatrix4 m, SCE_TMatrix3 n)
+void SCE_Matrix4_CopyM3 (SCE_TMatrix4 m, const SCE_TMatrix3 n)
 {
     m[0] = n[0]; m[1] = n[1]; m[2] = n[2];
     m[4] = n[3]; m[5] = n[4]; m[6] = n[5];
     m[8] = n[6]; m[9] = n[7]; m[10] = n[8];
 }
 
-void SCE_Matrix3_CopyM4 (SCE_TMatrix3 m, SCE_TMatrix4 n)
+void SCE_Matrix3_CopyM4 (SCE_TMatrix3 m, const SCE_TMatrix4 n)
 {
     m[0] = n[0]; m[1] = n[1]; m[2] = n[2];
     m[3] = n[4]; m[4] = n[5]; m[5] = n[6];
     m[6] = n[8]; m[7] = n[9]; m[8] = n[10];
 }
-void SCE_Matrix3_CopyM4x3 (SCE_TMatrix3 m, SCE_TMatrix4x3 n)
+void SCE_Matrix3_CopyM4x3 (SCE_TMatrix3 m, const SCE_TMatrix4x3 n)
 {
     m[0] = n[0]; m[1] = n[1]; m[2] = n[2];
     m[3] = n[4]; m[4] = n[5]; m[5] = n[6];
     m[6] = n[8]; m[7] = n[9]; m[8] = n[10];
 }
 
-void SCE_Matrix4x3_CopyM3 (SCE_TMatrix4 m, SCE_TMatrix3 n)
+void SCE_Matrix4x3_CopyM3 (SCE_TMatrix4 m, const SCE_TMatrix3 n)
 {
     m[0] = n[0]; m[1] = n[1]; m[2] = n[2];
     m[4] = n[3]; m[5] = n[4]; m[6] = n[5];
@@ -84,7 +84,8 @@ void SCE_Matrix4x3_CopyM3 (SCE_TMatrix4 m, SCE_TMatrix3 n)
 }
 
 
-float* SCE_Matrix4_Mul (SCE_TMatrix4 m, SCE_TMatrix4 n, SCE_TMatrix4 r)
+float* SCE_Matrix4_Mul (const SCE_TMatrix4 m, const SCE_TMatrix4 n,
+                        SCE_TMatrix4 r)
 {
     r[0]  = (m[0] *n[0]) + (m[1] *n[4]) + (m[2] *n[8]) + (m[3] *n[12]);
     r[1]  = (m[0] *n[1]) + (m[1] *n[5]) + (m[2] *n[9]) + (m[3] *n[13]);
@@ -115,7 +116,8 @@ float* SCE_Matrix4_MulCopy (SCE_TMatrix4 m, SCE_TMatrix4 n)
     SCE_Matrix4_Copy (m, tm);
     return m;
 }
-float* SCE_Matrix3_Mul (SCE_TMatrix3 m, SCE_TMatrix3 n, SCE_TMatrix3 r)
+float* SCE_Matrix3_Mul (const SCE_TMatrix3 m, const SCE_TMatrix3 n,
+                        SCE_TMatrix3 r)
 {
     r[0] = m[0]*n[0] + m[1]*n[3] + m[2]*n[6];
     r[1] = m[0]*n[1] + m[1]*n[4] + m[2]*n[7];
@@ -139,7 +141,8 @@ float* SCE_Matrix3_MulCopy (SCE_TMatrix3 m, SCE_TMatrix3 n)
     return m;
 }
 
-float* SCE_Matrix4x3_Mul (SCE_TMatrix4x3 m, SCE_TMatrix4x3 n, SCE_TMatrix4x3 r)
+float* SCE_Matrix4x3_Mul (const SCE_TMatrix4x3 m, const SCE_TMatrix4x3 n,
+                          SCE_TMatrix4x3 r)
 {
     r[0]  = (m[0] *n[0]) + (m[1] *n[4]) + (m[2] *n[8]);
     r[1]  = (m[0] *n[1]) + (m[1] *n[5]) + (m[2] *n[9]);
@@ -157,7 +160,7 @@ float* SCE_Matrix4x3_Mul (SCE_TMatrix4x3 m, SCE_TMatrix4x3 n, SCE_TMatrix4x3 r)
     r[11] = (m[8] *n[3]) + (m[9] *n[7]) + (m[10]*n[11]) + m[11];
     return r;
 }
-float* SCE_Matrix4x3_MulCopy (SCE_TMatrix4x3 m, SCE_TMatrix4x3 n)
+float* SCE_Matrix4x3_MulCopy (SCE_TMatrix4x3 m, const SCE_TMatrix4x3 n)
 {
     SCE_TMatrix4x3 tm;
     SCE_Matrix4x3_Mul (m, n, tm);
@@ -166,7 +169,7 @@ float* SCE_Matrix4x3_MulCopy (SCE_TMatrix4x3 m, SCE_TMatrix4x3 n)
 }
 
 
-void SCE_Matrix4_Add (SCE_TMatrix4 a, SCE_TMatrix4 b)
+void SCE_Matrix4_Add (SCE_TMatrix4 a, const SCE_TMatrix4 b)
 {
     a[0] += b[0]; a[1] += b[1]; a[2] += b[2]; a[3] += b[3];
     a[4] += b[4]; a[5] += b[5]; a[6] += b[6]; a[7] += b[7];
@@ -174,7 +177,7 @@ void SCE_Matrix4_Add (SCE_TMatrix4 a, SCE_TMatrix4 b)
     a[12] += b[12]; a[13] += b[13]; a[14] += b[14]; a[15] += b[15];
 }
 
-void SCE_Matrix4_Sub (SCE_TMatrix4 a, SCE_TMatrix4 b)
+void SCE_Matrix4_Sub (SCE_TMatrix4 a, const SCE_TMatrix4 b)
 {
     a[0] -= b[0]; a[1] -= b[1]; a[2] -= b[2]; a[3] -= b[3];
     a[4] -= b[4]; a[5] -= b[5]; a[6] -= b[6]; a[7] -= b[7];
@@ -351,8 +354,8 @@ void SCE_Matrix4x3_InverseCopy (SCE_TMatrix4x3 m)
 }
 
 
-void SCE_Matrix4_Interpolate (SCE_TMatrix4 m, SCE_TMatrix4 n, float w,
-                              SCE_TMatrix4 r)
+void SCE_Matrix4_Interpolate (const SCE_TMatrix4 m, const SCE_TMatrix4 n,
+                              float w, SCE_TMatrix4 r)
 {
     float x = 1.0f - w;
     SCE_Matrix4_Set
@@ -362,8 +365,8 @@ void SCE_Matrix4_Interpolate (SCE_TMatrix4 m, SCE_TMatrix4 n, float w,
          m[8]*x+n[8]*w,   m[9]*x+n[9]*w,   m[10]*x+n[10]*w, m[11]*x+n[11]*w,
          m[12]*x+n[12]*w, m[13]*x+n[13]*w, m[14]*x+n[14]*w, m[15]*x+n[15]*x);
 }
-void SCE_Matrix3_Interpolate (SCE_TMatrix3 m, SCE_TMatrix3 n, float w,
-                              SCE_TMatrix3 r)
+void SCE_Matrix3_Interpolate (const SCE_TMatrix3 m, const SCE_TMatrix3 n,
+                              float w, SCE_TMatrix3 r)
 {
     float x = 1.0f - w;
     SCE_Matrix3_Set(r,
@@ -371,8 +374,8 @@ void SCE_Matrix3_Interpolate (SCE_TMatrix3 m, SCE_TMatrix3 n, float w,
                     m[3]*x+n[3]*w,m[4]*x+n[4]*w,m[5]*x+n[5]*w,
                     m[6]*x+n[6]*w,m[7]*x+n[7]*w,m[8]*x+n[8]*x);
 }
-void SCE_Matrix4x3_Interpolate (SCE_TMatrix4x3 m, SCE_TMatrix4x3 n, float w,
-                                SCE_TMatrix4x3 r)
+void SCE_Matrix4x3_Interpolate (const SCE_TMatrix4x3 m, const SCE_TMatrix4x3 n,
+                                float w, SCE_TMatrix4x3 r)
 {
     float x = 1.0f - w;
     SCE_Matrix4x3_Set
@@ -390,7 +393,7 @@ void SCE_Matrix4_Translate (SCE_TMatrix4 m, float x, float y, float z)
     m[1] = m[2] = m[4]  = m[6] = m[14] =
     m[8] = m[9] = m[12] = m[13] = 0.0f;
 }
-void SCE_Matrix4_Translatev (SCE_TMatrix4 m, SCE_TVector3 v)
+void SCE_Matrix4_Translatev (SCE_TMatrix4 m, const SCE_TVector3 v)
 {
     m[3] = v[0]; m[7] = v[1]; m[11] = v[2];
     m[0] = m[5] = m[10] = m[15] = 1.0f;
@@ -406,7 +409,7 @@ void SCE_Matrix4_MulTranslate (SCE_TMatrix4 m, float x, float y, float z)
     SCE_Matrix4_Mul (tm2, tm, m);
 }
 
-void SCE_Matrix4_MulTranslatev (SCE_TMatrix4 m, SCE_TVector3 v)
+void SCE_Matrix4_MulTranslatev (SCE_TMatrix4 m, const SCE_TVector3 v)
 {
     SCE_TMatrix4 tm, tm2;
     SCE_Matrix4_Copy (tm2, m);
@@ -580,8 +583,8 @@ void SCE_Matrix4x3_MulRotZ (SCE_TMatrix4x3 m, float a)
 }
 
 
-void SCE_Matrix4_Rotate (SCE_TMatrix4 m, float a, float x, float y, float z)
-{
+void SCE_Matrix4_Rotate (SCE_TMatrix4 m, float a, float x, float y, float z){
+
 #define UN_COS 0
 #define XSIN 1
 #define YSIN 2
@@ -614,7 +617,7 @@ void SCE_Matrix4_Rotate (SCE_TMatrix4 m, float a, float x, float y, float z)
     m[3] = m[7] = m[11] = m[12] = m[13] = m[14] = 0.0f;
     m[15] = 1.0f;
 }
-void SCE_Matrix4_Rotatev (SCE_TMatrix4 m, float a, SCE_TVector3 axe)
+void SCE_Matrix4_Rotatev (SCE_TMatrix4 m, float a, const SCE_TVector3 axe)
 {
     SCE_Matrix4_Rotate (m, a, axe[0], axe[1], axe[2]);
 }
@@ -650,7 +653,7 @@ void SCE_Matrix3_Rotate (SCE_TMatrix3 m, float a, float x, float y, float z)
 #undef YSIN
 #undef ZSIN
 }
-void SCE_Matrix3_Rotatev (SCE_TMatrix3 m, float a, SCE_TVector3 axe)
+void SCE_Matrix3_Rotatev (SCE_TMatrix3 m, float a, const SCE_TVector3 axe)
 {
     SCE_Matrix3_Rotate (m, a, axe[0], axe[1], axe[2]);
 }
@@ -661,7 +664,7 @@ void SCE_Matrix4_MulRotate (SCE_TMatrix4 m, float a, float x, float y, float z)
     SCE_Matrix4_Rotate (tm, a, x, y, z);
     SCE_Matrix4_MulCopy (m, tm);
 }
-void SCE_Matrix4_MulRotatev (SCE_TMatrix4 m, float a, SCE_TVector3 v)
+void SCE_Matrix4_MulRotatev (SCE_TMatrix4 m, float a, const SCE_TVector3 v)
 {
     SCE_TMatrix4 tm;
     SCE_Matrix4_Rotatev (tm, a, v);
@@ -674,7 +677,7 @@ void SCE_Matrix3_MulRotate (SCE_TMatrix3 m, float a, float x, float y, float z)
     SCE_Matrix3_Rotate (tm, a, x, y, z);
     SCE_Matrix3_MulCopy (m, tm);
 }
-void SCE_Matrix3_MulRotatev (SCE_TMatrix3 m, float a, SCE_TVector3 v)
+void SCE_Matrix3_MulRotatev (SCE_TMatrix3 m, float a, const SCE_TVector3 v)
 {
     SCE_TMatrix4 tm;
     SCE_Matrix3_Rotatev (tm, a, v);
@@ -719,7 +722,7 @@ void SCE_Matrix4_Scale (SCE_TMatrix4 m, float x, float y, float z)
                      0., 0., z,  0.,
                      0., 0., 0., 1.);
 }
-void SCE_Matrix4_Scalev (SCE_TMatrix4 m, SCE_TVector3 v)
+void SCE_Matrix4_Scalev (SCE_TMatrix4 m, const SCE_TVector3 v)
 {
     SCE_Matrix4_Set (m,
                      v[0], 0.,   0.,   0.,
@@ -735,7 +738,7 @@ void SCE_Matrix3_Scale (SCE_TMatrix3 m, float x, float y, float z)
                      0., y,  0.,
                      0., 0., z);
 }
-void SCE_Matrix3_Scalev (SCE_TMatrix3 m, SCE_TVector3 v)
+void SCE_Matrix3_Scalev (SCE_TMatrix3 m, const SCE_TVector3 v)
 {
     SCE_Matrix3_Set (m,
                      v[0], 0.,   0.,
@@ -750,7 +753,7 @@ void SCE_Matrix4x3_Scale (SCE_TMatrix4x3 m, float x, float y, float z)
                        0., y,  0., 0.,
                        0., 0., z,  0.);
 }
-void SCE_Matrix4x3_Scalev (SCE_TMatrix4x3 m, SCE_TVector3 v)
+void SCE_Matrix4x3_Scalev (SCE_TMatrix4x3 m, const SCE_TVector3 v)
 {
     SCE_Matrix4x3_Set (m,
                        v[0], 0.,   0.,   0.,
@@ -764,7 +767,7 @@ void SCE_Matrix4_MulScale (SCE_TMatrix4 m, float x, float y, float z)
     SCE_Matrix4_Scale (tm, x, y, z);
     SCE_Matrix4_MulCopy (m, tm);
 }
-void SCE_Matrix4_MulScalev (SCE_TMatrix4 m, SCE_TVector3 v)
+void SCE_Matrix4_MulScalev (SCE_TMatrix4 m, const SCE_TVector3 v)
 {
     SCE_TMatrix4 tm;
     SCE_Matrix4_Scalev (tm, v);
@@ -777,7 +780,7 @@ void SCE_Matrix3_MulScale (SCE_TMatrix3 m, float x, float y, float z)
     SCE_Matrix3_Scale (tm, x, y, z);
     SCE_Matrix3_MulCopy (m, tm);
 }
-void SCE_Matrix3_MulScalev (SCE_TMatrix3 m, SCE_TVector3 v)
+void SCE_Matrix3_MulScalev (SCE_TMatrix3 m, const SCE_TVector3 v)
 {
     SCE_TMatrix3 tm;
     SCE_Matrix3_Scalev (tm, v);
@@ -790,7 +793,7 @@ void SCE_Matrix4x3_MulScale (SCE_TMatrix4x3 m, float x, float y, float z)
     SCE_Matrix4x3_Scale (tm, x, y, z);
     SCE_Matrix4x3_MulCopy (m, tm);
 }
-void SCE_Matrix4x3_MulScalev (SCE_TMatrix4x3 m, SCE_TVector3 v)
+void SCE_Matrix4x3_MulScalev (SCE_TMatrix4x3 m, const SCE_TVector3 v)
 {
     SCE_TMatrix4x3 tm;
     SCE_Matrix4x3_Scalev (tm, v);
@@ -798,7 +801,7 @@ void SCE_Matrix4x3_MulScalev (SCE_TMatrix4x3 m, SCE_TVector3 v)
 }
 
 
-void SCE_Matrix4_FromQuaternion (SCE_TMatrix4 m, SCE_TQuaternion q)
+void SCE_Matrix4_FromQuaternion (SCE_TMatrix4 m, const SCE_TQuaternion q)
 {
     float xx, xy, xz, xw, yy, yz, yw, zz, zw;
     xx = q[0] * q[0]; xy = q[0] * q[1]; xz = q[0] * q[2];
@@ -810,7 +813,7 @@ void SCE_Matrix4_FromQuaternion (SCE_TMatrix4 m, SCE_TQuaternion q)
                      2.f*(xz-yw),     2.f*(yz + xw),   1.f-2.f*(xx+yy), 0.f,
                      0.f,             0.f,             0.f,             1.f);
 }
-void SCE_Matrix3_FromQuaternion (SCE_TMatrix3 m, SCE_TQuaternion q)
+void SCE_Matrix3_FromQuaternion (SCE_TMatrix3 m, const SCE_TQuaternion q)
 {
     float xx, xy, xz, xw, yy, yz, yw, zz, zw;
     xx = q[0] * q[0]; xy = q[0] * q[1]; xz = q[0] * q[2];
@@ -821,7 +824,7 @@ void SCE_Matrix3_FromQuaternion (SCE_TMatrix3 m, SCE_TQuaternion q)
                      2.f*(xy+zw),     1.f-2.f*(xx+zz), 2.f*(yz-xw),
                      2.f*(xz-yw),     2.f*(yz + xw),   1.f-2.f*(xx+yy));
 }
-void SCE_Matrix4x3_FromQuaternion (SCE_TMatrix4x3 m, SCE_TQuaternion q)
+void SCE_Matrix4x3_FromQuaternion (SCE_TMatrix4x3 m, const SCE_TQuaternion q)
 {
     float xx, xy, xz, xw, yy, yz, yw, zz, zw;
     xx = q[0] * q[0]; xy = q[0] * q[1]; xz = q[0] * q[2];
@@ -833,11 +836,11 @@ void SCE_Matrix4x3_FromQuaternion (SCE_TMatrix4x3 m, SCE_TQuaternion q)
                        2.f*(xz-yw),     2.f*(yz + xw),   1.f-2.f*(xx+yy), 0.f);
 }
 
-void SCE_Matrix4_ToQuaternion (SCE_TMatrix4 m, SCE_TQuaternion q)
+void SCE_Matrix4_ToQuaternion (const SCE_TMatrix4 m, SCE_TQuaternion q)
 {
     SCE_Matrix4x3_ToQuaternion (m, q);
 }
-void SCE_Matrix3_ToQuaternion (SCE_TMatrix3 m, SCE_TQuaternion q)
+void SCE_Matrix3_ToQuaternion (const SCE_TMatrix3 m, SCE_TQuaternion q)
 {
     float t = SCE_Matrix3_Trace (m);
     if (t > 0.0f) {
@@ -876,7 +879,7 @@ void SCE_Matrix3_ToQuaternion (SCE_TMatrix3 m, SCE_TQuaternion q)
         }
     }
 }
-void SCE_Matrix4x3_ToQuaternion (SCE_TMatrix4x3 m, SCE_TQuaternion q)
+void SCE_Matrix4x3_ToQuaternion (const SCE_TMatrix4x3 m, SCE_TQuaternion q)
 {
     float t = SCE_Matrix4x3_Trace (m);
     if (t > 0.0f) {
@@ -917,20 +920,21 @@ void SCE_Matrix4x3_ToQuaternion (SCE_TMatrix4x3 m, SCE_TQuaternion q)
 }
 
 
-void SCE_Matrix4_MulV3 (SCE_TMatrix4 m, SCE_TVector3 v, SCE_TVector3 v2)
+void SCE_Matrix4_MulV3 (const SCE_TMatrix4 m, const SCE_TVector3 v,
+                        SCE_TVector3 v2)
 {
     v2[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3];
     v2[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7];
     v2[2] = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11];
 }
-void SCE_Matrix4_MulV3w (SCE_TMatrix4 m, SCE_TVector3 v, float w,
+void SCE_Matrix4_MulV3w (const SCE_TMatrix4 m, const SCE_TVector3 v, float w,
                          SCE_TVector3 v2)
 {
     v2[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3] * w;
     v2[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7] * w;
     v2[2] = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11] * w;
 }
-void SCE_Matrix4_MulV3Copy (SCE_TMatrix4 m, SCE_TVector3 v)
+void SCE_Matrix4_MulV3Copy (const SCE_TMatrix4 m, SCE_TVector3 v)
 {
     float tv[2];
     tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3];
@@ -939,7 +943,7 @@ void SCE_Matrix4_MulV3Copy (SCE_TMatrix4 m, SCE_TVector3 v)
     v[0]  = tv[0];
     v[1]  = tv[1];
 }
-void SCE_Matrix4_MulV3Copyw (SCE_TMatrix4 m, SCE_TVector3 v, float w)
+void SCE_Matrix4_MulV3Copyw (const SCE_TMatrix4 m, SCE_TVector3 v, float w)
 {
     float tv[2];
     tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3] * w;
@@ -948,14 +952,15 @@ void SCE_Matrix4_MulV3Copyw (SCE_TMatrix4 m, SCE_TVector3 v, float w)
     v[0]  = tv[0];
     v[1]  = tv[1];
 }
-void SCE_Matrix4_MulV4 (SCE_TMatrix4 m, SCE_TVector4 v, SCE_TVector4 v2)
+void SCE_Matrix4_MulV4 (const SCE_TMatrix4 m, const SCE_TVector4 v,
+                        SCE_TVector4 v2)
 {
     v2[0] = m[0]*v[0]  + m[1]*v[1]  + m[2]*v[2]  + m[3]*v[3];
     v2[1] = m[4]*v[0]  + m[5]*v[1]  + m[6]*v[2]  + m[7]*v[3];
     v2[2] = m[8]*v[0]  + m[9]*v[1]  + m[10]*v[2] + m[11]*v[3];
     v2[3] = m[12]*v[0] + m[13]*v[1] + m[14]*v[2] + m[15]*v[3];
 }
-void SCE_Matrix4_MulV4Copy (SCE_TMatrix4 m, SCE_TVector4 v)
+void SCE_Matrix4_MulV4Copy (const SCE_TMatrix4 m, SCE_TVector4 v)
 {
     float tv[3];
     tv[0] = m[0]*v[0]  + m[1]*v[1]  + m[2]*v[2]  + m[3]*v[3];
@@ -966,13 +971,14 @@ void SCE_Matrix4_MulV4Copy (SCE_TMatrix4 m, SCE_TVector4 v)
     v[1]  = tv[1];
     v[2]  = tv[2];
 }
-void SCE_Matrix3_MulV3 (SCE_TMatrix3 m, SCE_TVector3 v, SCE_TVector3 v2)
+void SCE_Matrix3_MulV3 (const SCE_TMatrix3 m, const SCE_TVector3 v,
+                        SCE_TVector3 v2)
 {
     v2[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2];
     v2[1] = m[3]*v[0] + m[4]*v[1] + m[5]*v[2];
     v2[2] = m[6]*v[0] + m[7]*v[1] + m[8]*v[2];
 }
-void SCE_Matrix3_MulV3Copy (SCE_TMatrix3 m, SCE_TVector3 v)
+void SCE_Matrix3_MulV3Copy (const SCE_TMatrix3 m, SCE_TVector3 v)
 {
     float tv[2];
     tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2];
@@ -981,33 +987,35 @@ void SCE_Matrix3_MulV3Copy (SCE_TMatrix3 m, SCE_TVector3 v)
     v[0]  = tv[0];
     v[1]  = tv[1];
 }
-void SCE_Matrix4x3_MulV3 (SCE_TMatrix4x3 m, SCE_TVector3 v, SCE_TVector3 v2)
+void SCE_Matrix4x3_MulV3 (const SCE_TMatrix4x3 m, const SCE_TVector3 v,
+                          SCE_TVector3 v2)
 {
     v2[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3];
     v2[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7];
     v2[2] = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11];
 }
-void SCE_Matrix4x3_MulV3w (SCE_TMatrix4x3 m, SCE_TVector3 v, float w,
-                           SCE_TVector3 v2)
+void SCE_Matrix4x3_MulV3w (const SCE_TMatrix4x3 m, const SCE_TVector3 v,
+                           float w, SCE_TVector3 v2)
 {
     v2[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3] * w;
     v2[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7] * w;
     v2[2] = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11] * w;
 }
-void SCE_Matrix4x3_MulV3Add (SCE_TMatrix4x3 m, SCE_TVector3 v, SCE_TVector3 v2)
+void SCE_Matrix4x3_MulV3Add (const SCE_TMatrix4x3 m, const SCE_TVector3 v,
+                             SCE_TVector3 v2)
 {
     v2[0] += m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3];
     v2[1] += m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7];
     v2[2] += m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11];
 }
-void SCE_Matrix4x3_MulV3Addw (SCE_TMatrix4x3 m, SCE_TVector3 v, float w,
-                              SCE_TVector3 v2)
+void SCE_Matrix4x3_MulV3Addw (const SCE_TMatrix4x3 m, const SCE_TVector3 v,
+                              float w, SCE_TVector3 v2)
 {
     v2[0] += m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3] * w;
     v2[1] += m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7] * w;
     v2[2] += m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11] * w;
 }
-void SCE_Matrix4x3_MulV3Copy (SCE_TMatrix4x3 m, SCE_TVector3 v)
+void SCE_Matrix4x3_MulV3Copy (const SCE_TMatrix4x3 m, SCE_TVector3 v)
 {
     float tv[2];
     tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2] + m[3];
@@ -1016,7 +1024,7 @@ void SCE_Matrix4x3_MulV3Copy (SCE_TMatrix4x3 m, SCE_TVector3 v)
     v[0]  = tv[0];
     v[1]  = tv[1];
 }
-void SCE_Matrix4x3_MulV3Copyw (SCE_TMatrix4x3 m, SCE_TVector3 v, float w)
+void SCE_Matrix4x3_MulV3Copyw (const SCE_TMatrix4x3 m, SCE_TVector3 v, float w)
 {
     float tv[2];
     tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2] + m[3] * w;
@@ -1025,19 +1033,21 @@ void SCE_Matrix4x3_MulV3Copyw (SCE_TMatrix4x3 m, SCE_TVector3 v, float w)
     v[0]  = tv[0];
     v[1]  = tv[1];
 }
-void SCE_Matrix4x3_MulV4 (SCE_TMatrix4x3 m, SCE_TVector4 v, SCE_TVector3 v2)
+void SCE_Matrix4x3_MulV4 (const SCE_TMatrix4x3 m, const SCE_TVector4 v,
+                          SCE_TVector3 v2)
 {
     v2[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3]*v[3];
     v2[1] = m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7]*v[3];
     v2[2] = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11]*v[3];
 }
-void SCE_Matrix4x3_MulV4Add (SCE_TMatrix4x3 m, SCE_TVector4 v, SCE_TVector3 v2)
+void SCE_Matrix4x3_MulV4Add (const SCE_TMatrix4x3 m, const SCE_TVector4 v,
+                             SCE_TVector3 v2)
 {
     v2[0] += m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3]*v[3];
     v2[1] += m[4]*v[0] + m[5]*v[1] + m[6]*v[2]  + m[7]*v[3];
     v2[2] += m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11]*v[3];
 }
-void SCE_Matrix4x3_MulV4Copy (SCE_TMatrix4x3 m, SCE_TVector4 v)
+void SCE_Matrix4x3_MulV4Copy (const SCE_TMatrix4x3 m, SCE_TVector4 v)
 {
     float tv[2];
     tv[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2]  + m[3]*v[3];
@@ -1060,8 +1070,8 @@ void SCE_Matrix4_Projection (SCE_TMatrix4 m, float a, float r, float n, float f)
 }
 
 
-void SCE_Matrix4_LookAt (SCE_TMatrix4 m, SCE_TVector3 pos,
-                         SCE_TVector3 view, SCE_TVector3 up1)
+void SCE_Matrix4_LookAt (SCE_TMatrix4 m, const SCE_TVector3 pos,
+                         const SCE_TVector3 view, const SCE_TVector3 up1)
 {
     /* this code comes from the mesa implementation of GLU */
     SCE_TVector3 forward, side, up;
@@ -1082,20 +1092,20 @@ void SCE_Matrix4_LookAt (SCE_TMatrix4 m, SCE_TVector3 pos,
                      0.0f,    0.0f,  0.0f,        1.0f);
 }
 
-void SCE_Matrix4_GetTranslation (SCE_TMatrix4 m, SCE_TVector3 v)
+void SCE_Matrix4_GetTranslation (const SCE_TMatrix4 m, SCE_TVector3 v)
 {
     v[0] = m[3]; v[1] = m[7]; v[2] = m[11];
 }
-void SCE_Matrix4x3_GetTranslation (SCE_TMatrix4x3 m, SCE_TVector3 v)
+void SCE_Matrix4x3_GetTranslation (const SCE_TMatrix4x3 m, SCE_TVector3 v)
 {
     v[0] = m[3]; v[1] = m[7]; v[2] = m[11];
 }
 
-void SCE_Matrix4_SetTranslation (SCE_TMatrix4 m, SCE_TVector3 v)
+void SCE_Matrix4_SetTranslation (SCE_TMatrix4 m, const SCE_TVector3 v)
 {
     m[3] = v[0]; m[7] = v[1]; m[11] = v[2];
 }
-void SCE_Matrix4x3_SetTranslation (SCE_TMatrix4x3 m, SCE_TVector3 v)
+void SCE_Matrix4x3_SetTranslation (SCE_TMatrix4x3 m, const SCE_TVector3 v)
 {
     m[3] = v[0]; m[7] = v[1]; m[11] = v[2];
 }

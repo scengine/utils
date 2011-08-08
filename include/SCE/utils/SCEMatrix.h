@@ -114,20 +114,21 @@ void SCE_Matrix4_Identity (SCE_TMatrix4);
 void SCE_Matrix3_Identity (SCE_TMatrix3);
 void SCE_Matrix4x3_Identity (SCE_TMatrix4x3);
 
-void SCE_Matrix4_CopyM3 (SCE_TMatrix4, SCE_TMatrix3);
-void SCE_Matrix3_CopyM4 (SCE_TMatrix3, SCE_TMatrix4);
-void SCE_Matrix3_CopyM4x3 (SCE_TMatrix3, SCE_TMatrix4x3);
-void SCE_Matrix4x3_CopyM3 (SCE_TMatrix4x3, SCE_TMatrix3);
+void SCE_Matrix4_CopyM3 (SCE_TMatrix4, const SCE_TMatrix3);
+void SCE_Matrix3_CopyM4 (SCE_TMatrix3, const SCE_TMatrix4);
+void SCE_Matrix3_CopyM4x3 (SCE_TMatrix3, const SCE_TMatrix4x3);
+void SCE_Matrix4x3_CopyM3 (SCE_TMatrix4x3, const SCE_TMatrix3);
 
-float* SCE_Matrix4_Mul (SCE_TMatrix4, SCE_TMatrix4, SCE_TMatrix4);
+float* SCE_Matrix4_Mul (const SCE_TMatrix4, const SCE_TMatrix4, SCE_TMatrix4);
 float* SCE_Matrix4_MulCopy (SCE_TMatrix4, SCE_TMatrix4);
-float* SCE_Matrix3_Mul (SCE_TMatrix3, SCE_TMatrix3, SCE_TMatrix3);
+float* SCE_Matrix3_Mul (const SCE_TMatrix3, const SCE_TMatrix3, SCE_TMatrix3);
 float* SCE_Matrix3_MulCopy (SCE_TMatrix3, SCE_TMatrix3);
-float* SCE_Matrix4x3_Mul (SCE_TMatrix4x3, SCE_TMatrix4x3, SCE_TMatrix4x3);
-float* SCE_Matrix4x3_MulCopy (SCE_TMatrix4x3, SCE_TMatrix4x3);
+float* SCE_Matrix4x3_Mul (const SCE_TMatrix4x3, const SCE_TMatrix4x3,
+                          SCE_TMatrix4x3);
+float* SCE_Matrix4x3_MulCopy (SCE_TMatrix4x3, const SCE_TMatrix4x3);
 
-void SCE_Matrix4_Add (SCE_TMatrix4, SCE_TMatrix4);
-void SCE_Matrix4_Sub (SCE_TMatrix4, SCE_TMatrix4);
+void SCE_Matrix4_Add (SCE_TMatrix4, const SCE_TMatrix4);
+void SCE_Matrix4_Sub (SCE_TMatrix4, const SCE_TMatrix4);
 
 void SCE_Matrix4_Transpose (const SCE_TMatrix4, SCE_TMatrix4);
 void SCE_Matrix4_TransposeCopy (SCE_TMatrix4);
@@ -141,16 +142,18 @@ void SCE_Matrix3_InverseCopy (SCE_TMatrix3);
 void SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3, SCE_TMatrix4x3);
 void SCE_Matrix4x3_InverseCopy (SCE_TMatrix4x3);
 
-void SCE_Matrix4_Interpolate (SCE_TMatrix4, SCE_TMatrix4, float, SCE_TMatrix4);
-void SCE_Matrix3_Interpolate (SCE_TMatrix3, SCE_TMatrix3, float, SCE_TMatrix3);
-void SCE_Matrix4x3_Interpolate (SCE_TMatrix4x3, SCE_TMatrix4x3, float,
-                                SCE_TMatrix4x3);
+void SCE_Matrix4_Interpolate (const SCE_TMatrix4, const SCE_TMatrix4, float,
+                              SCE_TMatrix4);
+void SCE_Matrix3_Interpolate (const SCE_TMatrix3, const SCE_TMatrix3, float,
+                              SCE_TMatrix3);
+void SCE_Matrix4x3_Interpolate (const SCE_TMatrix4x3, const SCE_TMatrix4x3,
+                                float, SCE_TMatrix4x3);
 
 void SCE_Matrix4_Translate (SCE_TMatrix4, float, float, float);
-void SCE_Matrix4_Translatev (SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix4_Translatev (SCE_TMatrix4, const SCE_TVector3);
 
 void SCE_Matrix4_MulTranslate (SCE_TMatrix4, float, float, float);
-void SCE_Matrix4_MulTranslatev (SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix4_MulTranslatev (SCE_TMatrix4, const SCE_TVector3);
 
 float SCE_Matrix4_Trace (const SCE_TMatrix4);
 float SCE_Matrix3_Trace (const SCE_TMatrix3);
@@ -177,73 +180,80 @@ void SCE_Matrix3_MulRotZ (SCE_TMatrix3, float);
 void SCE_Matrix4x3_MulRotZ (SCE_TMatrix4x3, float);
 
 void SCE_Matrix4_Rotate (SCE_TMatrix4, float, float, float, float);
-void SCE_Matrix4_Rotatev (SCE_TMatrix4, float, SCE_TVector3);
+void SCE_Matrix4_Rotatev (SCE_TMatrix4, float, const SCE_TVector3);
 void SCE_Matrix3_Rotate (SCE_TMatrix3, float, float, float, float);
-void SCE_Matrix3_Rotatev (SCE_TMatrix3, float, SCE_TVector3);
+void SCE_Matrix3_Rotatev (SCE_TMatrix3, float, const SCE_TVector3);
 
 void SCE_Matrix4_MulRotate (SCE_TMatrix4, float, float, float, float);
-void SCE_Matrix4_MulRotatev(SCE_TMatrix4, float, SCE_TVector3);
+void SCE_Matrix4_MulRotatev(SCE_TMatrix4, float, const SCE_TVector3);
 void SCE_Matrix3_MulRotate (SCE_TMatrix3, float, float, float, float);
-void SCE_Matrix3_MulRotatev(SCE_TMatrix3, float, SCE_TVector3);
+void SCE_Matrix3_MulRotatev(SCE_TMatrix3, float, const SCE_TVector3);
 
 void SCE_Matrix4_GetRotationv (SCE_TMatrix4, float*, SCE_TVector3);
 void SCE_Matrix3_GetRotationv (SCE_TMatrix3, float*, SCE_TVector3);
 void SCE_Matrix4x3_GetRotationv (SCE_TMatrix4x3, float*, SCE_TVector3);
 
 void SCE_Matrix4_Scale (SCE_TMatrix4, float, float, float);
-void SCE_Matrix4_Scalev (SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix4_Scalev (SCE_TMatrix4, const SCE_TVector3);
 void SCE_Matrix3_Scale (SCE_TMatrix3, float, float, float);
-void SCE_Matrix3_Scalev (SCE_TMatrix3, SCE_TVector3);
+void SCE_Matrix3_Scalev (SCE_TMatrix3, const SCE_TVector3);
 void SCE_Matrix4x3_Scale (SCE_TMatrix4x3, float, float, float);
-void SCE_Matrix4x3_Scalev (SCE_TMatrix4x3, SCE_TVector3);
+void SCE_Matrix4x3_Scalev (SCE_TMatrix4x3, const SCE_TVector3);
 
 void SCE_Matrix4_MulScale (SCE_TMatrix4, float, float, float);
-void SCE_Matrix4_MulScalev (SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix4_MulScalev (SCE_TMatrix4, const SCE_TVector3);
 void SCE_Matrix3_MulScale (SCE_TMatrix3, float, float, float);
-void SCE_Matrix3_MulScalev (SCE_TMatrix3, SCE_TVector3);
+void SCE_Matrix3_MulScalev (SCE_TMatrix3, const SCE_TVector3);
 void SCE_Matrix4x3_MulScale (SCE_TMatrix4x3, float, float, float);
-void SCE_Matrix4x3_MulScalev (SCE_TMatrix4x3, SCE_TVector3);
+void SCE_Matrix4x3_MulScalev (SCE_TMatrix4x3, const SCE_TVector3);
 
-void SCE_Matrix4_FromQuaternion (SCE_TMatrix4, SCE_TQuaternion);
-void SCE_Matrix3_FromQuaternion (SCE_TMatrix3, SCE_TQuaternion);
-void SCE_Matrix4x3_FromQuaternion (SCE_TMatrix4x3, SCE_TQuaternion);
+void SCE_Matrix4_FromQuaternion (SCE_TMatrix4, const SCE_TQuaternion);
+void SCE_Matrix3_FromQuaternion (SCE_TMatrix3, const SCE_TQuaternion);
+void SCE_Matrix4x3_FromQuaternion (SCE_TMatrix4x3, const SCE_TQuaternion);
 
-void SCE_Matrix4_ToQuaternion (SCE_TMatrix4, SCE_TQuaternion);
-void SCE_Matrix3_ToQuaternion (SCE_TMatrix3, SCE_TQuaternion);
-void SCE_Matrix4x3_ToQuaternion (SCE_TMatrix4x3, SCE_TQuaternion);
+void SCE_Matrix4_ToQuaternion (const SCE_TMatrix4, SCE_TQuaternion);
+void SCE_Matrix3_ToQuaternion (const SCE_TMatrix3, SCE_TQuaternion);
+void SCE_Matrix4x3_ToQuaternion (const SCE_TMatrix4x3, SCE_TQuaternion);
 
-void SCE_Matrix4_MulV3 (SCE_TMatrix4, SCE_TVector3, SCE_TVector3);
-void SCE_Matrix4_MulV3w (SCE_TMatrix4, SCE_TVector3, float, SCE_TVector3);
-void SCE_Matrix4_MulV3Copy (SCE_TMatrix4, SCE_TVector3);
-void SCE_Matrix4_MulV3Copyw (SCE_TMatrix4, SCE_TVector3, float);
-void SCE_Matrix4_MulV4 (SCE_TMatrix4, SCE_TVector4, SCE_TVector4);
-void SCE_Matrix4_MulV4Copy (SCE_TMatrix4, SCE_TVector4);
+void SCE_Matrix4_MulV3 (const SCE_TMatrix4, const SCE_TVector3, SCE_TVector3);
+void SCE_Matrix4_MulV3w (const SCE_TMatrix4, const SCE_TVector3, float,
+                         SCE_TVector3);
+void SCE_Matrix4_MulV3Copy (const SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix4_MulV3Copyw (const SCE_TMatrix4, SCE_TVector3, float);
+void SCE_Matrix4_MulV4 (const SCE_TMatrix4, const SCE_TVector4, SCE_TVector4);
+void SCE_Matrix4_MulV4Copy (const SCE_TMatrix4, SCE_TVector4);
 
-void SCE_Matrix3_MulV3 (SCE_TMatrix3, SCE_TVector3, SCE_TVector3);
-void SCE_Matrix3_MulV3Copy (SCE_TMatrix3, SCE_TVector3);
+void SCE_Matrix3_MulV3 (const SCE_TMatrix3, const SCE_TVector3, SCE_TVector3);
+void SCE_Matrix3_MulV3Copy (const SCE_TMatrix3, SCE_TVector3);
 
-void SCE_Matrix4x3_MulV3 (SCE_TMatrix4x3, SCE_TVector3, SCE_TVector3);
-void SCE_Matrix4x3_MulV3w (SCE_TMatrix4x3, SCE_TVector3, float, SCE_TVector3);
-void SCE_Matrix4x3_MulV3Add (SCE_TMatrix4x3, SCE_TVector3, SCE_TVector3);
-void SCE_Matrix4x3_MulV3Addw (SCE_TMatrix4x3, SCE_TVector3, float,SCE_TVector3);
-void SCE_Matrix4x3_MulV3Copy (SCE_TMatrix4x3, SCE_TVector3);
-void SCE_Matrix4x3_MulV3Copyw (SCE_TMatrix4x3, SCE_TVector3, float);
-void SCE_Matrix4x3_MulV4 (SCE_TMatrix4x3, SCE_TVector4, SCE_TVector3);
-void SCE_Matrix4x3_MulV4Add (SCE_TMatrix4x3, SCE_TVector4, SCE_TVector3);
-void SCE_Matrix4x3_MulV4Copy (SCE_TMatrix4x3, SCE_TVector4);
+void SCE_Matrix4x3_MulV3 (const SCE_TMatrix4x3, const SCE_TVector3,
+                          SCE_TVector3);
+void SCE_Matrix4x3_MulV3w (const SCE_TMatrix4x3, const SCE_TVector3,
+                           float, SCE_TVector3);
+void SCE_Matrix4x3_MulV3Add (const SCE_TMatrix4x3, const SCE_TVector3,
+                             SCE_TVector3);
+void SCE_Matrix4x3_MulV3Addw (const SCE_TMatrix4x3, const SCE_TVector3,
+                              float, SCE_TVector3);
+void SCE_Matrix4x3_MulV3Copy (const SCE_TMatrix4x3, SCE_TVector3);
+void SCE_Matrix4x3_MulV3Copyw (const SCE_TMatrix4x3, SCE_TVector3, float);
+void SCE_Matrix4x3_MulV4 (const SCE_TMatrix4x3, const SCE_TVector4,
+                          SCE_TVector3);
+void SCE_Matrix4x3_MulV4Add (const SCE_TMatrix4x3, const SCE_TVector4,
+                             SCE_TVector3);
+void SCE_Matrix4x3_MulV4Copy (const SCE_TMatrix4x3, SCE_TVector4);
 
 void SCE_Matrix4_Projection (SCE_TMatrix4, float, float, float, float);
 
-void SCE_Matrix4_LookAt (SCE_TMatrix4, SCE_TVector3,
-                         SCE_TVector3, SCE_TVector3);
+void SCE_Matrix4_LookAt (SCE_TMatrix4, const SCE_TVector3,
+                         const SCE_TVector3, const SCE_TVector3);
 
 /* NOTE: should be named GetTranslationv... */
-void SCE_Matrix4_GetTranslation (SCE_TMatrix4, SCE_TVector3);
-void SCE_Matrix4x3_GetTranslation (SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix4_GetTranslation (const SCE_TMatrix4, SCE_TVector3);
+void SCE_Matrix4x3_GetTranslation (const SCE_TMatrix4, SCE_TVector3);
 /*void SCE_Matrix4_GetRotation (SCE_TMatrix4, float*, SCE_TVector3);*/
 
-void SCE_Matrix4_SetTranslation (SCE_TMatrix4, SCE_TVector3);
-void SCE_Matrix4x3_SetTranslation (SCE_TMatrix4x3, SCE_TVector3);
+void SCE_Matrix4_SetTranslation (SCE_TMatrix4, const SCE_TVector3);
+void SCE_Matrix4x3_SetTranslation (SCE_TMatrix4x3, const SCE_TVector3);
 
 void SCE_Matrix4_GetScale (const SCE_TMatrix4, SCE_TVector3);
 void SCE_Matrix4x3_GetScale (const SCE_TMatrix4x3, SCE_TVector3);
