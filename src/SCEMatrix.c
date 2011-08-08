@@ -109,7 +109,7 @@ float* SCE_Matrix4_Mul (const SCE_TMatrix4 m, const SCE_TMatrix4 n,
 
     return r;
 }
-float* SCE_Matrix4_MulCopy (SCE_TMatrix4 m, SCE_TMatrix4 n)
+float* SCE_Matrix4_MulCopy (SCE_TMatrix4 m, const SCE_TMatrix4 n)
 {
     SCE_TMatrix4 tm;
     SCE_Matrix4_Mul (m, n, tm);
@@ -133,7 +133,7 @@ float* SCE_Matrix3_Mul (const SCE_TMatrix3 m, const SCE_TMatrix3 n,
 
     return r;
 }
-float* SCE_Matrix3_MulCopy (SCE_TMatrix3 m, SCE_TMatrix3 n)
+float* SCE_Matrix3_MulCopy (SCE_TMatrix3 m, const SCE_TMatrix3 n)
 {
     SCE_TMatrix3 tm;
     SCE_Matrix3_Mul (m, n, tm);
