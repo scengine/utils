@@ -433,6 +433,8 @@ void* SCE_Mem_Calloc (const char *file, unsigned int line, size_t s, size_t n)
  * You will generally want to call SCE_realloc() that wraps this function.
  * 
  * \see SCE_realloc()
+ * \todo this function doesn't work
+ * \warning this function doesn't work, do not use it
  */
 void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
 {
