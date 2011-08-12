@@ -139,7 +139,7 @@ float SCE_Plane_DistanceToPoint (SCE_SPlane *p, float x, float y, float z)
  * 
  * \see SCE_Plane_DistanceToPoint()
  */
-float SCE_Plane_DistanceToPointv (SCE_SPlane *p, SCE_TVector3 v)
+float SCE_Plane_DistanceToPointv (const SCE_SPlane *p, const SCE_TVector3 v)
 {
     return SCE_Vector3_Dot (p->n, v) + p->d;
 }

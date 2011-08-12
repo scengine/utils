@@ -49,7 +49,7 @@ void SCE_Plane_SetFromTriangle (SCE_SPlane*, SCE_TVector3, SCE_TVector3,
 void SCE_Plane_Normalize (SCE_SPlane*, int);
 
 float SCE_Plane_DistanceToPoint (SCE_SPlane*, float, float, float);
-float SCE_Plane_DistanceToPointv (SCE_SPlane*, SCE_TVector3);
+float SCE_Plane_DistanceToPointv (const SCE_SPlane*, const SCE_TVector3);
 
 int SCE_Plane_LineIntersection (SCE_SPlane*, SCE_SLine3*, SCE_TVector3);
 
