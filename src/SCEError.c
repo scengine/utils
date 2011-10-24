@@ -184,11 +184,12 @@ void SCE_Error_Log (const char *file, const char *func, unsigned int line,
     SCE_SError *error = NULL;
     SCE_SErrorLog *l = SCE_Error_GetLog ();
     error = l->errors;
-    l->current = 0;
     if (error->code != SCE_NO_ERROR) {
         SCEE_SendMsg ("SCEError: warning: an error is already logged "
-                      "for this thread, consider it erased\n");
+                      "for this thread, consider it erased:\n");
+        SCEE_Out ();
     }
+    l->current = 0;
     error->date = time (NULL);
     error->line = line;
     error->code = code;
