@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 30/10/2010 */
+   updated: 16/10/2011 */
 
 #ifndef SCEMATRIX_H
 #define SCEMATRIX_H
@@ -118,6 +118,13 @@ void SCE_Matrix4_CopyM3 (SCE_TMatrix4, const SCE_TMatrix3);
 void SCE_Matrix3_CopyM4 (SCE_TMatrix3, const SCE_TMatrix4);
 void SCE_Matrix3_CopyM4x3 (SCE_TMatrix3, const SCE_TMatrix4x3);
 void SCE_Matrix4x3_CopyM3 (SCE_TMatrix4x3, const SCE_TMatrix3);
+
+void SCE_Matrix4_Base (SCE_TMatrix4, const SCE_TVector3, const SCE_TVector3,
+                       const SCE_TVector3);
+void SCE_Matrix3_Base (SCE_TMatrix3, const SCE_TVector3, const SCE_TVector3,
+                       const SCE_TVector3);
+void SCE_Matrix4x3_Base (SCE_TMatrix4x3, const SCE_TVector3, const SCE_TVector3,
+                         const SCE_TVector3);
 
 float* SCE_Matrix4_Mul (const SCE_TMatrix4, const SCE_TMatrix4, SCE_TMatrix4);
 float* SCE_Matrix4_MulCopy (SCE_TMatrix4, const SCE_TMatrix4);

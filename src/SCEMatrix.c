@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 19/09/2010 */
+   updated: 20/10/2011 */
 
 #include <string.h>
 
@@ -81,6 +81,29 @@ void SCE_Matrix4x3_CopyM3 (SCE_TMatrix4 m, const SCE_TMatrix3 n)
     m[0] = n[0]; m[1] = n[1]; m[2] = n[2];
     m[4] = n[3]; m[5] = n[4]; m[6] = n[5];
     m[8] = n[6]; m[9] = n[7]; m[10] = n[8];
+}
+
+
+void SCE_Matrix4_Base (SCE_TMatrix4 m, const SCE_TVector3 x,
+                       const SCE_TVector3 y, const SCE_TVector3 z)
+{
+    m[0] = x[0]; m[4] = x[1]; m[8] = x[2];
+    m[1] = y[0]; m[5] = y[1]; m[9] = y[2];
+    m[2] = z[0]; m[6] = z[1]; m[10] = z[2];
+}
+void SCE_Matrix3_Base (SCE_TMatrix3 m, const SCE_TVector3 x,
+                       const SCE_TVector3 y, const SCE_TVector3 z)
+{
+    m[0] = x[0]; m[3] = x[1]; m[6] = x[2];
+    m[1] = y[0]; m[4] = y[1]; m[7] = y[2];
+    m[2] = z[0]; m[5] = z[1]; m[8] = z[2];
+}
+void SCE_Matrix4x3_Base (SCE_TMatrix4x3 m, const SCE_TVector3 x,
+                         const SCE_TVector3 y, const SCE_TVector3 z)
+{
+    m[0] = x[0]; m[4] = x[1]; m[8] = x[2];
+    m[1] = y[0]; m[5] = y[1]; m[9] = y[2];
+    m[2] = z[0]; m[6] = z[1]; m[10] = z[2];
 }
 
 
