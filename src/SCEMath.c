@@ -45,6 +45,16 @@
 /** @{ */
 
 /**
+ * \brief Checks whether a number is zero or non-zero.
+ * \param number a number
+ * \return SCE_TRUE if \p number is zero, SCE_FALSE otherwise
+ */
+int SCE_Math_IsZero (float number)
+{
+    return SCE_Math_Fabsf (number) < SCE_EPSILONF;
+}
+
+/**
  * \brief Computes the square root of the given number
  * \param number a number
  * \returns the square root of the given number

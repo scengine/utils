@@ -88,6 +88,8 @@ extern "C" {
 # define SCE_Math_Atan2f(x, y) ((float)atan2 ((x), (y)))
 #endif
 
+int SCE_Math_IsZero (float) SCE_GNUC_PURE;
+
 float SCE_Math_Sqrt (float) SCE_GNUC_PURE;
 float SCE_Math_InvSqrt (float) SCE_GNUC_PURE;
 
