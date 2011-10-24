@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 21/06/2009 */
+   updated: 15/10/2011 */
 
 #ifndef SCEMATH_H
 #define SCEMATH_H
@@ -26,8 +26,7 @@
 #include "SCE/utils/SCEMacros.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define SCE_USE_SQRT_HACK 0
@@ -49,6 +48,9 @@ extern "C"
 #ifndef MIN
  #define MIN(a, b) (a < b ? a : b)
 #endif
+
+#define SCE_EPSILONF (0.000001f)
+#define SCE_EPSILOND (0.000000001)
 
 #ifdef HAVE_FABSF
 # define SCE_Math_Fabsf fabsf
