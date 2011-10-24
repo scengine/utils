@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 29/10/2010 */
+   updated: 17/10/2011 */
 
 #include "SCE/utils/SCEVector.h"
 #include "SCE/utils/SCELine.h"
@@ -63,7 +63,7 @@ void SCE_Plane_Set (SCE_SPlane *p, float x, float y, float z, float d)
  * \brief Vectorial version of SCE_Plane_Set()
  * \param p the plane to define
  */
-void SCE_Plane_Setv (SCE_SPlane *p, SCE_TVector3 n, float d)
+void SCE_Plane_Setv (SCE_SPlane *p, const SCE_TVector3 n, float d)
 {
     SCE_Vector3_Copy (p->n, n);
     p->d = d;
@@ -73,7 +73,7 @@ void SCE_Plane_Setv (SCE_SPlane *p, SCE_TVector3 n, float d)
  * \brief Makes a plane from a normal vector and a point included in the plane
  * \sa SCE_Plane_SetFromPointv()
  */
-void SCE_Plane_SetFromPoint (SCE_SPlane *p, SCE_TVector3 n,
+void SCE_Plane_SetFromPoint (SCE_SPlane *p, const SCE_TVector3 n,
                              float x, float y, float z)
 {
     SCE_Vector3_Copy (p->n, n);
@@ -83,7 +83,8 @@ void SCE_Plane_SetFromPoint (SCE_SPlane *p, SCE_TVector3 n,
  * \brief Makes a plane from a normal vector and a point included in the plane
  * \sa SCE_Plane_SetFromPoint()
  */
-void SCE_Plane_SetFromPointv (SCE_SPlane *p, SCE_TVector3 n, SCE_TVector3 v)
+void SCE_Plane_SetFromPointv (SCE_SPlane *p, const SCE_TVector3 n,
+                              const SCE_TVector3 v)
 {
     SCE_Vector3_Copy (p->n, n);
     p->d = - SCE_Vector3_Dot (n, v);
@@ -94,8 +95,8 @@ void SCE_Plane_SetFromPointv (SCE_SPlane *p, SCE_TVector3 n, SCE_TVector3 v)
  * \param p the plane to make
  * \param a,b,c points of the triangle
  */
-void SCE_Plane_SetFromTriangle (SCE_SPlane *p, SCE_TVector3 a, SCE_TVector3 b,
-                                SCE_TVector3 c)
+void SCE_Plane_SetFromTriangle (SCE_SPlane *p, const SCE_TVector3 a,
+                                const SCE_TVector3 b, const SCE_TVector3 c)
 {
     SCE_TVector3 n, ab, ac;
     SCE_Vector3_Operator2v (ab, =, b, -, a);
@@ -113,13 +114,13 @@ void SCE_Plane_Normalize (SCE_SPlane *p, int normalize_distance)
 {
     if (!normalize_distance)
         SCE_Vector3_Normalize (p->n);
-    else
-    {
+    else {
         float a = SCE_Vector3_Length (p->n);
         SCE_Vector3_Operator1 (p->n, /=, a);
         p->d /= a;
     }
 }
+
 
 /**
  * \brief Gets the shorter distance from a plane to a point
@@ -127,7 +128,7 @@ void SCE_Plane_Normalize (SCE_SPlane *p, int normalize_distance)
  * \param x,y,z point's coordinate
  * \returns the shorter distance from \p p to the given point
  */
-float SCE_Plane_DistanceToPoint (SCE_SPlane *p, float x, float y, float z)
+float SCE_Plane_DistanceToPoint (const SCE_SPlane *p, float x, float y, float z)
 {
     return p->n[0]*x + p->n[1]*y + p->n[2]*z + p->d;
 }
@@ -151,7 +152,8 @@ float SCE_Plane_DistanceToPointv (const SCE_SPlane *p, const SCE_TVector3 v)
  * \param v here will be written the intersection point
  * \returns SCE_TRUE if the intersection point exists
  */
-int SCE_Plane_LineIntersection (SCE_SPlane *p, SCE_SLine3 *l, SCE_TVector3 v)
+int SCE_Plane_LineIntersection (const SCE_SPlane *p, const SCE_SLine3 *l,
+                                SCE_TVector3 v)
 {
     float a, k;
     float div = SCE_Vector3_Dot (p->n, l->n);
@@ -177,8 +179,10 @@ static int SCE_Plane_SameSign (float a, float b)
  * the triangle
  * \returns SCE_TRUE if the line intersects the triangle, SCE_FALSE otherwise
  */
-int SCE_Plane_TriangleLineIntersection (SCE_TVector3 a, SCE_TVector3 b,
-                                        SCE_TVector3 c, SCE_SLine3 *l,
+int SCE_Plane_TriangleLineIntersection (const SCE_TVector3 a,
+                                        const SCE_TVector3 b,
+                                        const SCE_TVector3 c,
+                                        const SCE_SLine3 *l,
                                         SCE_TVector3 d)
 {
     SCE_SPlane p;

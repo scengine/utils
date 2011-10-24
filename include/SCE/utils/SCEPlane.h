@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 29/10/2010 */
+   updated: 17/10/2011 */
 
 #ifndef SCEPLANE_H
 #define SCEPLANE_H
@@ -38,23 +38,26 @@ struct sce_splane {
 void SCE_Plane_Init (SCE_SPlane*);
 
 void SCE_Plane_Set (SCE_SPlane*, float, float, float, float);
-void SCE_Plane_Setv (SCE_SPlane*, SCE_TVector3, float);
+void SCE_Plane_Setv (SCE_SPlane*, const SCE_TVector3, float);
 
-void SCE_Plane_SetFromPoint (SCE_SPlane*, SCE_TVector3, float, float, float);
-void SCE_Plane_SetFromPointv (SCE_SPlane*, SCE_TVector3, SCE_TVector3);
+void SCE_Plane_SetFromPoint (SCE_SPlane*, const SCE_TVector3, float, float,
+                             float);
+void SCE_Plane_SetFromPointv (SCE_SPlane*, const SCE_TVector3,
+                              const SCE_TVector3);
 
-void SCE_Plane_SetFromTriangle (SCE_SPlane*, SCE_TVector3, SCE_TVector3,
-                                SCE_TVector3);
+void SCE_Plane_SetFromTriangle (SCE_SPlane*, const SCE_TVector3,
+                                const SCE_TVector3, const SCE_TVector3);
 
 void SCE_Plane_Normalize (SCE_SPlane*, int);
 
-float SCE_Plane_DistanceToPoint (SCE_SPlane*, float, float, float);
+float SCE_Plane_DistanceToPoint (const SCE_SPlane*, float, float, float);
 float SCE_Plane_DistanceToPointv (const SCE_SPlane*, const SCE_TVector3);
 
-int SCE_Plane_LineIntersection (SCE_SPlane*, SCE_SLine3*, SCE_TVector3);
+int SCE_Plane_LineIntersection (const SCE_SPlane*, const SCE_SLine3*,
+                                SCE_TVector3);
 
-int SCE_Plane_TriangleLineIntersection (SCE_TVector3, SCE_TVector3,
-                                        SCE_TVector3, SCE_SLine3*,
+int SCE_Plane_TriangleLineIntersection (const SCE_TVector3, const SCE_TVector3,
+                                        const SCE_TVector3, const SCE_SLine3*,
                                         SCE_TVector3);
 
 #ifdef __cplusplus
