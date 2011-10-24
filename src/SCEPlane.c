@@ -159,6 +159,88 @@ float SCE_Plane_DistanceToPointv (const SCE_SPlane *p, const SCE_TVector3 v)
 {
     return SCE_Vector3_Dot (p->n, v) + p->d;
 }
+/**
+ * \brief Projects a point onto a plane
+ * \param p a plane
+ * \param v a point
+ */
+void SCE_Plane_Project (const SCE_SPlane *p, SCE_TVector3 v)
+{
+    float dist = SCE_Plane_DistanceToPointv (p, v);
+    SCE_Vector3_Operator2v (v, =, v, - dist *, p->n);
+}
+
+
+/**
+ * \brief Gets the intersection between two planes
+ * \param p1,p2 a pair of planes
+ * \param l intersection line
+ * \return SCE_TRUE if the planes collide, SCE_FALSE otherwise
+ * \sa SCE_Plane_Intersection3(), SCE_Plane_LineIntersection()
+ * \warning: this function is buggy, it doesn't handle parallel planes and stuff
+ */
+int SCE_Plane_Intersection (const SCE_SPlane *p1, const SCE_SPlane *p2,
+                            SCE_SLine3 *l)
+{
+    float x, y, z;
+    float alpha, beta;
+    float b2b1;
+    SCE_TVector3 v1, v2;
+
+    /* basic formula:
+       a1*x + b1*y + c1*z + d1 = 0
+       a2*x + b2*y + c2*z + d2 = 0
+     */
+
+    /* FIXME:
+       what if no point in the intersection line has such a coordinate? :) */
+    z = 1.0f;
+
+    /* a1*x + b1*y = - c1*z - d1 = alpha
+       a2*x + b2*y = - c2*z - d2 = beta
+     */
+    alpha = - p1->n[2] * z - p1->d;
+    beta  = - p2->n[2] * z - p2->d;
+
+    b2b1 = p2->n[1] / p1->n[1];
+    x = (beta - b2b1 * alpha) / (p2->n[0] - b2b1 * p1->n[0]);
+    y = (alpha - p1->n[0] * x) / p1->n[1];
+
+    SCE_Vector3_Set (v1, x, y, z);
+
+    z = 0.0f;
+
+    alpha = - p1->d;
+    beta  = - p2->d;
+
+    b2b1 = p2->n[1] / p1->n[1];
+    x = (beta - b2b1 * alpha) / (p2->n[0] - b2b1 * p1->n[0]);
+    y = (alpha - p1->n[0] * x) / p1->n[1];
+
+    SCE_Vector3_Set (v2, x, y, z);
+
+    SCE_Line3_Set (l, v1, v2);
+
+    return SCE_TRUE;
+}
+
+/**
+ * \brief Gets the intersection between three planes
+ * \param p1,p2,p3 a set of planes
+ * \param v intersection point
+ * \return SCE_TRUE if the planes collide, SCE_FALSE otherwise
+ * \sa SCE_Plane_Intersection(), SCE_Plane_LineIntersection()
+ * \warning: this function is buggy, it doesn't handle parallel planes and stuff
+ */
+int SCE_Plane_Intersection3 (const SCE_SPlane *p1, const SCE_SPlane *p2,
+                             const SCE_SPlane *p3, SCE_TVector3 v)
+{
+    SCE_SLine3 l;
+    SCE_Line3_Init (&l);
+    if (!SCE_Plane_Intersection (p1, p2, &l))
+        return SCE_FALSE;
+    return SCE_Plane_LineIntersection (p3, &l, v);
+}
 
 /**
  * \brief Checks for intersection with a line and return the intersection point
