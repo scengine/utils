@@ -106,6 +106,17 @@ void SCE_Plane_SetFromTriangle (SCE_SPlane *p, const SCE_TVector3 a,
 }
 
 /**
+ * \brief Copies a plane
+ * \param dst destination
+ * \param src source
+ */
+void SCE_Plane_Copy (SCE_SPlane *dst, const SCE_SPlane *src)
+{
+    SCE_Vector3_Copy (dst->n, src->n);
+    dst->d = src->d;
+}
+
+/**
  * \brief Normalize a plane
  * \param p the plane to normalize
  * \param normalize_distance 

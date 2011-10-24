@@ -48,6 +48,8 @@ void SCE_Plane_SetFromPointv (SCE_SPlane*, const SCE_TVector3,
 void SCE_Plane_SetFromTriangle (SCE_SPlane*, const SCE_TVector3,
                                 const SCE_TVector3, const SCE_TVector3);
 
+void SCE_Plane_Copy (SCE_SPlane*, const SCE_SPlane*);
+
 void SCE_Plane_Normalize (SCE_SPlane*, int);
 
 float SCE_Plane_DistanceToPoint (const SCE_SPlane*, float, float, float);
