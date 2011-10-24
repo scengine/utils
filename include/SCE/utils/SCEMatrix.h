@@ -250,6 +250,7 @@ void SCE_Matrix4x3_MulV4Add (const SCE_TMatrix4x3, const SCE_TVector4,
 void SCE_Matrix4x3_MulV4Copy (const SCE_TMatrix4x3, SCE_TVector4);
 
 void SCE_Matrix4_Projection (SCE_TMatrix4, float, float, float, float);
+void SCE_Matrix4_Ortho (SCE_TMatrix4, float, float, float, float);
 
 void SCE_Matrix4_LookAt (SCE_TMatrix4, const SCE_TVector3,
                          const SCE_TVector3, const SCE_TVector3);

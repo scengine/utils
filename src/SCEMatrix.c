@@ -1092,6 +1092,17 @@ void SCE_Matrix4_Projection (SCE_TMatrix4 m, float a, float r, float n, float f)
         m[8] = m[9] = m[12] = m[13] = m[15] = 0.0f;
 }
 
+void SCE_Matrix4_Ortho (SCE_TMatrix4 m, float w, float h, float n, float f)
+{
+    m[0] = 2.0f / w;
+    m[5] = 2.0f / h;
+    m[10] = -1.0f / (f - n);
+    m[15] = 1.0;
+
+    m[1] = m[2] = m[3] = m[4] = m[6] = m[7] =
+        m[8] = m[9] = m[12] = m[13] = m[14] = 0.0f;
+}
+
 
 void SCE_Matrix4_LookAt (SCE_TMatrix4 m, const SCE_TVector3 pos,
                          const SCE_TVector3 view, const SCE_TVector3 up1)
