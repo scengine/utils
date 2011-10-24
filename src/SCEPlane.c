@@ -265,7 +265,7 @@ int SCE_Plane_LineIntersection (const SCE_SPlane *p, const SCE_SLine3 *l,
 
 static int SCE_Plane_SameSign (float a, float b)
 {
-    return (a < 0.0f && b < 0.0f || a > 0.0f && b > 0.0f);
+    return ((a < 0.0f && b < 0.0f) || (a > 0.0f && b > 0.0f));
 }
 
 /**
