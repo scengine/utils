@@ -137,7 +137,11 @@ void SCE_Plane_Normalize (SCE_SPlane *p, int normalize_distance)
  * \brief Gets the shorter distance from a plane to a point
  * \param p a SCE_SPlane
  * \param x,y,z point's coordinate
- * \returns the shorter distance from \p p to the given point
+ * \returns the shorter distance from \p p to the given point. If the plane
+ * is facing the point, the returned value is positive, otherwise it is
+ * negative.
+ * \note The plane \p p has to be normalized
+ * \sa SCE_Plane_DistanceToPointv()
  */
 float SCE_Plane_DistanceToPoint (const SCE_SPlane *p, float x, float y, float z)
 {
@@ -145,8 +149,8 @@ float SCE_Plane_DistanceToPoint (const SCE_SPlane *p, float x, float y, float z)
 }
 /**
  * \brief Vectorial version of SCE_Plane_DistanceToPoint()
- * \param p a SCE_SPlane
- * \param v a SCE_TVector3 representing the point
+ * \param p a plane
+ * \param v a point
  * \returns the shorter distance from \p p to the given point \p v
  * 
  * \see SCE_Plane_DistanceToPoint()
@@ -221,7 +225,8 @@ int SCE_Plane_TriangleLineIntersection (const SCE_TVector3 a,
 
     /* split with ac */
     SCE_Vector3_Cross (n, p.n, ac);
-    /* SCE_Vector3_Operator2v (v, =, d, -, a); /* AD */
+    /* no need to recompute it */
+    /* SCE_Vector3_Operator2v (v, =, d, -, a);*/ /* AD */
     dot1 = SCE_Vector3_Dot (v, n);
     dot2 = SCE_Vector3_Dot (ab, n);
     if (!SCE_Plane_SameSign (dot1, dot2))
