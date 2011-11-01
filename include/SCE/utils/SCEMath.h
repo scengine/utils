@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 15/10/2011 */
+   updated: 30/10/2011 */
 
 #ifndef SCEMATH_H
 #define SCEMATH_H
@@ -87,6 +87,11 @@ extern "C" {
 #else
 # define SCE_Math_Atan2f(x, y) ((float)atan2 ((x), (y)))
 #endif
+#ifdef HAVE_FLOORF
+# define SCE_Math_Floorf floorf
+#else
+# define SCE_Math_Floorf(x) ((float)floorf (x))
+#endif
 
 int SCE_Math_IsZero (float) SCE_GNUC_PURE;
 
@@ -99,6 +104,8 @@ int SCE_Math_PowerOfTwo (unsigned int) SCE_GNUC_PURE;
 
 int SCE_Math_Clamp (int, int, int) SCE_GNUC_PURE;
 float SCE_Math_Clampf (float, float, float) SCE_GNUC_PURE;
+
+float SCE_Math_Fractf (float);
 
 #ifdef __cplusplus
 } /* extern "C" */

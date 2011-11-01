@@ -181,4 +181,15 @@ float SCE_Math_Clampf (float a, float min, float max)
     else return a;
 }
 
+
+/**
+ * \brief Returns the decimal part of a number
+ * \param x a number
+ * \return \p x - SCE_Math_Floorf (\p x)
+ */
+float SCE_Math_Fractf (float x)
+{
+    return x - SCE_Math_Floorf (x);
+}
+
 /** @} */
