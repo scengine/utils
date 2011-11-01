@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 17/10/2011 */
+   updated: 28/10/2011 */
 
 #include "SCE/utils/SCEVector.h"
 #include "SCE/utils/SCELine.h"
@@ -168,6 +168,23 @@ void SCE_Plane_Project (const SCE_SPlane *p, SCE_TVector3 v)
 {
     float dist = SCE_Plane_DistanceToPointv (p, v);
     SCE_Vector3_Operator2v (v, =, v, - dist *, p->n);
+}
+
+
+/**
+ * \brief Distance between two points alongside a given direction
+ * \param u a point
+ * \param v a point
+ * \param n a normalized direction vector
+ * \returns distance of \p v from the plane of normal \p n crossing \p u
+ * \sa SCE_Vector3_Distance()
+ */
+float SCE_Plane_DistanceAlong (const SCE_TVector3 u, const SCE_TVector3 v,
+                               const SCE_TVector3 n)
+{
+    SCE_SPlane p;
+    SCE_Plane_SetFromPointv (&p, n, u);
+    return SCE_Plane_DistanceToPointv (&p, v);
 }
 
 

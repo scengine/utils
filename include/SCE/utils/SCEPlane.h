@@ -56,6 +56,9 @@ float SCE_Plane_DistanceToPoint (const SCE_SPlane*, float, float, float);
 float SCE_Plane_DistanceToPointv (const SCE_SPlane*, const SCE_TVector3);
 void SCE_Plane_Project (const SCE_SPlane*, SCE_TVector3);
 
+float SCE_Plane_DistanceAlong (const SCE_TVector3, const SCE_TVector3,
+                               const SCE_TVector3);
+
 int SCE_Plane_Intersection (const SCE_SPlane*, const SCE_SPlane*, SCE_SLine3*);
 int SCE_Plane_Intersection3 (const SCE_SPlane*, const SCE_SPlane*,
                              const SCE_SPlane*, SCE_TVector3);
