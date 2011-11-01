@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 20/10/2011 */
+   updated: 28/10/2011 */
 
 #include <string.h>
 
@@ -104,6 +104,28 @@ void SCE_Matrix4x3_Base (SCE_TMatrix4x3 m, const SCE_TVector3 x,
     m[0] = x[0]; m[4] = x[1]; m[8] = x[2];
     m[1] = y[0]; m[5] = y[1]; m[9] = y[2];
     m[2] = z[0]; m[6] = z[1]; m[10] = z[2];
+}
+
+void SCE_Matrix4_GetBase (const SCE_TMatrix4 m, SCE_TVector3 x, SCE_TVector3 y,
+                          SCE_TVector3 z)
+{
+    SCE_GetMat4C3 (0, m, x);
+    SCE_GetMat4C3 (1, m, y);
+    SCE_GetMat4C3 (2, m, z);
+}
+void SCE_Matrix3_GetBase (const SCE_TMatrix3 m, SCE_TVector3 x, SCE_TVector3 y,
+                          SCE_TVector3 z)
+{
+    SCE_GetMat3C (0, m, x);
+    SCE_GetMat3C (1, m, y);
+    SCE_GetMat3C (2, m, z);
+}
+void SCE_Matrix4x3_GetBase (const SCE_TMatrix4x3 m, SCE_TVector3 x,
+                            SCE_TVector3 y, SCE_TVector3 z)
+{
+    SCE_GetMat4x3C (0, m, x);
+    SCE_GetMat4x3C (1, m, y);
+    SCE_GetMat4x3C (2, m, z);
 }
 
 

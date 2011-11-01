@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 16/10/2011 */
+   updated: 28/10/2011 */
 
 #ifndef SCEMATRIX_H
 #define SCEMATRIX_H
@@ -125,6 +125,12 @@ void SCE_Matrix3_Base (SCE_TMatrix3, const SCE_TVector3, const SCE_TVector3,
                        const SCE_TVector3);
 void SCE_Matrix4x3_Base (SCE_TMatrix4x3, const SCE_TVector3, const SCE_TVector3,
                          const SCE_TVector3);
+void SCE_Matrix4_GetBase (const SCE_TMatrix4, SCE_TVector3, SCE_TVector3,
+                          SCE_TVector3);
+void SCE_Matrix3_GetBase (const SCE_TMatrix3, SCE_TVector3, SCE_TVector3,
+                          SCE_TVector3);
+void SCE_Matrix4x3_GetBase (const SCE_TMatrix4x3, SCE_TVector3, SCE_TVector3,
+                            SCE_TVector3);
 
 float* SCE_Matrix4_Mul (const SCE_TMatrix4, const SCE_TMatrix4, SCE_TMatrix4);
 float* SCE_Matrix4_MulCopy (SCE_TMatrix4, const SCE_TMatrix4);
