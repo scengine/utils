@@ -258,6 +258,9 @@ void SCE_Matrix4x3_MulV4Copy (const SCE_TMatrix4x3, SCE_TVector4);
 void SCE_Matrix4_Projection (SCE_TMatrix4, float, float, float, float);
 void SCE_Matrix4_Ortho (SCE_TMatrix4, float, float, float, float);
 
+float SCE_Matrix4_GetOrthoWidth (const SCE_TMatrix4);
+float SCE_Matrix4_GetOrthoHeight (const SCE_TMatrix4);
+
 void SCE_Matrix4_LookAt (SCE_TMatrix4, const SCE_TVector3,
                          const SCE_TVector3, const SCE_TVector3);
 

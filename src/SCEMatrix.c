@@ -1126,6 +1126,29 @@ void SCE_Matrix4_Ortho (SCE_TMatrix4 m, float w, float h, float n, float f)
 }
 
 
+/**
+ * \brief Given an orthogonal matrix, it returns the width of its frustum
+ * \param m an orthogonal matrix built with SCE_Matrix4_Ortho()
+ * \return width of the frustum of \p m
+ * \sa SCE_Matrix4_GetOrthoHeight(), SCE_Matrix4_Ortho()
+ */
+float SCE_Matrix4_GetOrthoWidth (const SCE_TMatrix4 m)
+{
+    return 2.0 / m[0];
+}
+/**
+ * \brief Given an orthogonal matrix, it returns the height of its frustum
+ * \param m an orthogonal matrix built with SCE_Matrix4_Ortho()
+ * \return height of the frustum of \p m
+ * \sa SCE_Matrix4_GetOrthoWidth(), SCE_Matrix4_Ortho()
+ */
+float SCE_Matrix4_GetOrthoHeight (const SCE_TMatrix4 m)
+{
+    return 2.0 / m[5];
+}
+
+
+
 void SCE_Matrix4_LookAt (SCE_TMatrix4 m, const SCE_TVector3 pos,
                          const SCE_TVector3 view, const SCE_TVector3 up1)
 {
