@@ -1146,6 +1146,16 @@ float SCE_Matrix4_GetOrthoHeight (const SCE_TMatrix4 m)
 {
     return 2.0 / m[5];
 }
+/**
+ * \brief Given an orthogonal matrix, it returns the depth of its frustum
+ * \param m an orthogonal matrix built with SCE_Matrix4_Ortho()
+ * \return depth of the frustum of \p m
+ * \sa SCE_Matrix4_GetOrthoWidth(), SCE_Matrix4_Ortho()
+ */
+float SCE_Matrix4_GetOrthoDepth (const SCE_TMatrix4 m)
+{
+    return -1.0 / m[10];
+}
 
 
 
