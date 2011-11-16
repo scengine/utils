@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 28/10/2011 */
+   updated: 16/11/2011 */
 
 #include "SCE/utils/SCEVector.h"
 #include "SCE/utils/SCELine.h"
@@ -194,49 +194,36 @@ float SCE_Plane_DistanceAlong (const SCE_TVector3 u, const SCE_TVector3 v,
  * \param l intersection line
  * \return SCE_TRUE if the planes collide, SCE_FALSE otherwise
  * \sa SCE_Plane_Intersection3(), SCE_Plane_LineIntersection()
- * \warning: this function is buggy, it doesn't handle parallel planes and stuff
+ * \warning: this function doesn't handle parallel planes
  */
 int SCE_Plane_Intersection (const SCE_SPlane *p1, const SCE_SPlane *p2,
                             SCE_SLine3 *l)
 {
-    float x, y, z;
-    float alpha, beta;
-    float b2b1;
-    SCE_TVector3 v1, v2;
+    SCE_TVector3 n1, n2, v[2], cross;
+    float c1, c2, det, dot, d1, d2;
+    int i;
 
-    /* basic formula:
-       a1*x + b1*y + c1*z + d1 = 0
-       a2*x + b2*y + c2*z + d2 = 0
-     */
+    /* FIXME: check for parallel planes */
 
-    /* FIXME:
-       what if no point in the intersection line has such a coordinate? :) */
-    z = 1.0f;
+    SCE_Vector3_Copy (n1, p1->n);
+    SCE_Vector3_Copy (n2, p2->n);
+    d1 = -p1->d;
+    d2 = -p2->d;
 
-    /* a1*x + b1*y = - c1*z - d1 = alpha
-       a2*x + b2*y = - c2*z - d2 = beta
-     */
-    alpha = - p1->n[2] * z - p1->d;
-    beta  = - p2->n[2] * z - p2->d;
+    dot = SCE_Vector3_Dot (n1, n2);
+    det = SCE_Vector3_Dot (n1, n1) * SCE_Vector3_Dot (n2, n2) - dot * dot;
 
-    b2b1 = p2->n[1] / p1->n[1];
-    x = (beta - b2b1 * alpha) / (p2->n[0] - b2b1 * p1->n[0]);
-    y = (alpha - p1->n[0] * x) / p1->n[1];
+    c1 = (d1 * SCE_Vector3_Dot (n2, n2) - d2 * dot) / det;
+    c2 = (d2 * SCE_Vector3_Dot (n1, n1) - d1 * dot) / det;
 
-    SCE_Vector3_Set (v1, x, y, z);
+    SCE_Vector3_Cross (cross, n1, n2);
 
-    z = 0.0f;
+    for (i = 0; i < 2; i++) {
+        SCE_Vector3_Operator2v (v[i], = c1 *, n1, + c2 *, n2);
+        SCE_Vector3_Operator1v (v[i], += i *, cross);
+    }
 
-    alpha = - p1->d;
-    beta  = - p2->d;
-
-    b2b1 = p2->n[1] / p1->n[1];
-    x = (beta - b2b1 * alpha) / (p2->n[0] - b2b1 * p1->n[0]);
-    y = (alpha - p1->n[0] * x) / p1->n[1];
-
-    SCE_Vector3_Set (v2, x, y, z);
-
-    SCE_Line3_Set (l, v1, v2);
+    SCE_Line3_Set (l, v[0], v[1]);
 
     return SCE_TRUE;
 }
