@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 21/06/2009 */
+   updated: 17/11/2011 */
 
 #include <math.h>
 
@@ -158,6 +158,22 @@ int SCE_Math_Powi (int x, unsigned int n)
 int SCE_Math_PowerOfTwo (unsigned int n)
 {
     return (!(n & (n - 1)) && n);
+}
+
+/**
+ * \brief Nearest upper power of two of a number
+ * \param n a number
+ * \return you know.
+ */
+unsigned int SCE_Math_NextPowerOfTwo (unsigned int n)
+{
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    return n + 1;
 }
 
 /**

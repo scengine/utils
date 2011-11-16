@@ -204,6 +204,7 @@ int SCE_Plane_Intersection (const SCE_SPlane *p1, const SCE_SPlane *p2,
     int i;
 
     /* FIXME: check for parallel planes */
+    /* http://paulbourke.net/geometry/planeplane/ */
 
     SCE_Vector3_Copy (n1, p1->n);
     SCE_Vector3_Copy (n2, p2->n);
