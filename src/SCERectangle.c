@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 27/02/2008 */
+   updated: 20/11/2011 */
 
 #include "SCE/utils/SCEVector.h"
 
@@ -100,7 +100,6 @@ void SCE_Rectangle_SetFromOrigin (SCE_SIntRect *r, int x, int y,
     r->p1[0] = x;     r->p1[1] = y;
     r->p2[0] = x + w; r->p2[1] = y + h;
 }
-
 /**
  * \brief Defines the origin and the dimensions at once
  * \param r A floating-point rectangle
@@ -113,6 +112,44 @@ void SCE_Rectangle_SetFromOriginf (SCE_SFloatRect *r, float x, float y,
 {
     r->p1[0] = x;     r->p1[1] = y;
     r->p2[0] = x + w; r->p2[1] = y + h;
+}
+
+/**
+ * \brief Defines a rectangle from its center and dimensions
+ * \param r an integer rectangle
+ * \param x,y center of the rectangle
+ * \param w,h dimensions of the rectangle
+ */
+void SCE_Rectangle_SetFromCenter (SCE_SIntRect *r, int x, int y,
+                                  unsigned int w, unsigned int h)
+{
+    int w2 = w / 2, h2 = h / 2;
+    r->p1[0] = x - w2; r->p1[1] = y - h2;
+    r->p2[0] = x + w2; r->p2[1] = y + h2;
+}
+/**
+ * \brief Defines a rectangle from its center and dimensions
+ * \param r a floating-point rectangle
+ * \param x,y center of the rectangle
+ * \param w,h dimensions of the rectangle
+ */
+void SCE_Rectangle_SetFromCenterf (SCE_SFloatRect *r, float x, float y,
+                                   float w, float h)
+{
+    float w2 = w / 2.0, h2 = h / 2.0;
+    r->p1[0] = x - w2; r->p1[1] = y - h2;
+    r->p2[0] = x + w2; r->p2[1] = y + h2;
+}
+/**
+ * \brief Defines a rectangle from its center and dimensions
+ * \param r a floating-point rectangle
+ * \param c center of the rectangle
+ * \param w,h dimensions of the rectangle
+ */
+void SCE_Rectangle_SetFromCenterfv (SCE_SFloatRect *r, SCE_TVector2 c,
+                                    float w, float h)
+{
+    SCE_Rectangle_SetFromCenterf (r, c[0], c[1], w, h);
 }
 
 /**

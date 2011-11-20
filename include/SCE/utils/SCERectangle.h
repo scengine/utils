@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 27/02/2008 */
+   updated: 20/11/2011 */
 
 #ifndef SCERECTANGLE_H
 #define SCERECTANGLE_H
@@ -53,6 +53,11 @@ void SCE_Rectangle_Setf (SCE_SFloatRect*, float, float, float, float);
 void SCE_Rectangle_SetFromOrigin (SCE_SIntRect*, int, int,
                                   unsigned int, unsigned int);
 void SCE_Rectangle_SetFromOriginf (SCE_SFloatRect*, float, float, float, float);
+void SCE_Rectangle_SetFromCenter (SCE_SIntRect*, int, int,
+                                  unsigned int, unsigned int);
+void SCE_Rectangle_SetFromCenterf (SCE_SFloatRect*, float, float, float, float);
+void SCE_Rectangle_SetFromCenterfv (SCE_SFloatRect*, SCE_TVector2,
+                                    float, float);
 
 void SCE_Rectangle_Move (SCE_SIntRect*, int, int);
 void SCE_Rectangle_Movef (SCE_SFloatRect*, float, float);
