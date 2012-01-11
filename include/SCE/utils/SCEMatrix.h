@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 28/10/2011 */
+   updated: 11/01/2012 */
 
 #ifndef SCEMATRIX_H
 #define SCEMATRIX_H
@@ -276,6 +276,14 @@ void SCE_Matrix4x3_SetTranslation (SCE_TMatrix4x3, const SCE_TVector3);
 void SCE_Matrix4_GetScale (const SCE_TMatrix4, SCE_TVector3);
 void SCE_Matrix4x3_GetScale (const SCE_TMatrix4x3, SCE_TVector3);
 void SCE_Matrix3_GetScale (const SCE_TMatrix3, SCE_TVector3);
+
+void SCE_Matrix4_SetScale (SCE_TMatrix4, float, float, float);
+void SCE_Matrix4x3_SetScale (SCE_TMatrix4x3, float, float, float);
+void SCE_Matrix3_SetScale (SCE_TMatrix3, float, float, float);
+
+void SCE_Matrix4_SetScalev (SCE_TMatrix4, const SCE_TVector3);
+void SCE_Matrix4x3_SetScalev (SCE_TMatrix4x3, const SCE_TVector3);
+void SCE_Matrix3_SetScalev (SCE_TMatrix3, const SCE_TVector3);
 
 void SCE_Matrix4_NoScaling (SCE_TMatrix4);
 void SCE_Matrix4x3_NoScaling (SCE_TMatrix4x3);
