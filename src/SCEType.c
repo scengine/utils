@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2009  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 17/04/2010
-   updated: 17/04/2010 */
+   updated: 23/01/2012 */
 
 #include <string.h>
 #include "SCE/utils/SCEError.h"
@@ -27,6 +27,8 @@
 size_t SCE_Type_Sizeof (SCE_EType type)
 {
     switch (type) {
+    case SCE_NONE_TYPE:
+        return 0;               /* :trollface: */
     case SCE_DOUBLE:
         return sizeof (SCEdouble);
     case SCE_FLOAT:

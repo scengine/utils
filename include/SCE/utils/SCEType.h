@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2009  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 17/04/2010
-   updated: 17/04/2010 */
+   updated: 23/01/2012 */
 
 #ifndef SCETYPE_H
 #define SCETYPE_H
@@ -30,7 +30,8 @@ extern "C" {
 #endif
 
 enum sce_etype {
-    SCE_BYTE = 0,
+    SCE_NONE_TYPE = 0,
+    SCE_BYTE,
     SCE_UNSIGNED_BYTE,
     SCE_SHORT,
     SCE_UNSIGNED_SHORT,
@@ -38,7 +39,8 @@ enum sce_etype {
     SCE_UNSIGNED_INT,
     SCE_FLOAT,
     SCE_DOUBLE,
-    SCE_SIZE_T
+    SCE_SIZE_T,
+    SCE_NUM_TYPES
 };
 typedef enum sce_etype SCE_EType;
 
