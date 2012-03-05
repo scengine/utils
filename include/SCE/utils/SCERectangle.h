@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 20/11/2011 */
+   updated: 04/03/2012 */
 
 #ifndef SCERECTANGLE_H
 #define SCERECTANGLE_H
@@ -44,10 +44,17 @@ struct sce_sintrect {
     int p1[2], p2[2];
 };
 
+typedef struct sce_sintrect3 SCE_SIntRect3;
+struct sce_sintrect3 {
+    int p1[3], p2[3];
+};
+
 void SCE_Rectangle_Init (SCE_SIntRect*);
+void SCE_Rectangle3_Init (SCE_SIntRect3*);
 void SCE_Rectangle_Initf (SCE_SFloatRect*);
 
 void SCE_Rectangle_Set (SCE_SIntRect*, int, int, int, int);
+void SCE_Rectangle3_Set (SCE_SIntRect3*, int, int, int, int, int, int);
 void SCE_Rectangle_Setf (SCE_SFloatRect*, float, float, float, float);
 
 void SCE_Rectangle_SetFromOrigin (SCE_SIntRect*, int, int,
@@ -72,12 +79,16 @@ int SCE_Rectangle_GetArea (SCE_SIntRect*);
 float SCE_Rectangle_GetAreaf (SCE_SFloatRect*);
 
 int SCE_Rectangle_GetWidth (SCE_SIntRect*);
-float SCE_Rectangle_GetWidthf (SCE_SFloatRect*);
 int SCE_Rectangle_GetHeight (SCE_SIntRect*);
+int SCE_Rectangle3_GetWidth (SCE_SIntRect3*);
+int SCE_Rectangle3_GetHeight (SCE_SIntRect3*);
+int SCE_Rectangle3_GetDepth (SCE_SIntRect3*);
+float SCE_Rectangle_GetWidthf (SCE_SFloatRect*);
 float SCE_Rectangle_GetHeightf (SCE_SFloatRect*);
 
 void SCE_Rectangle_GetPoints (SCE_SIntRect*, int*, int*, int*, int*);
 void SCE_Rectangle_GetPointsv (SCE_SIntRect*, int*, int*);
+void SCE_Rectangle3_GetPointsv (SCE_SIntRect3*, int*, int*);
 void SCE_Rectangle_GetPointsf (SCE_SIntRect*, float*, float*, float*, float*);
 void SCE_Rectangle_GetPointsfv (SCE_SIntRect*, float*, float*);
 
@@ -103,6 +114,9 @@ void SCE_Rectangle_MakeLinesfv (SCE_SFloatRect*, SCE_SLine*);
 
 int SCE_Rectangle_Intersects (SCE_SIntRect*, SCE_SIntRect*);
 int SCE_Rectangle_Intersectsf (SCE_SFloatRect*, SCE_SFloatRect*);
+
+void SCE_Rectangle3_Union (const SCE_SIntRect3*, const SCE_SIntRect3*,
+                           SCE_SIntRect3*);
 
 #ifdef __cplusplus
 } /* extern "C" */

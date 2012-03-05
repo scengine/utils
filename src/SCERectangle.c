@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 20/11/2011 */
+   updated: 04/03/2012 */
 
 #include "SCE/utils/SCEVector.h"
 
@@ -46,6 +46,10 @@ void SCE_Rectangle_Init (SCE_SIntRect *r)
 {
     r->p1[0] = r->p1[1] = r->p2[0] = r->p2[1] = 0;
 }
+void SCE_Rectangle3_Init (SCE_SIntRect3 *r)
+{
+    r->p1[0] = r->p1[1] = r->p1[2] = r->p2[0] = r->p2[1] = r->p2[2] = 0;
+}
 /**
  * \brief Initialize a SCE_SFloatRect
  * \param r a SCE_SFloatRect to initialize
@@ -69,6 +73,12 @@ void SCE_Rectangle_Initf (SCE_SFloatRect *r)
 void SCE_Rectangle_Set (SCE_SIntRect *r, int x1, int y1, int x2, int y2)
 {
     r->p1[0] = x1; r->p2[0] = x2; r->p1[1] = y1; r->p2[1] = y2;
+}
+void SCE_Rectangle3_Set (SCE_SIntRect3 *r, int x1, int y1, int z1,
+                         int x2, int y2, int z2)
+{
+    r->p1[0] = x1; r->p1[1] = y1; r->p1[2] = z1;
+    r->p2[0] = x2; r->p2[1] = y2; r->p2[2] = z2;
 }
 /**
  * \brief Defines a rectangle
@@ -271,16 +281,6 @@ int SCE_Rectangle_GetWidth (SCE_SIntRect *r)
     return r->p2[0] - r->p1[0];
 }
 /**
- * \brief Gets the rectangle width
- * \param r a rectangle
- * \return the rectangle width
- * \see SCE_Rectangle_GetWidth(), SCE_Rectangle_GetHeightf()
- */
-float SCE_Rectangle_GetWidthf (SCE_SFloatRect *r)
-{
-    return r->p2[0] - r->p1[0];
-}
-/**
  * \brief Gets the rectangle height
  * \param r a rectangle
  * \return the rectangle height
@@ -289,6 +289,48 @@ float SCE_Rectangle_GetWidthf (SCE_SFloatRect *r)
 int SCE_Rectangle_GetHeight (SCE_SIntRect *r)
 {
     return r->p2[1] - r->p1[1];
+}
+
+/**
+ * \brief Gets the rectangle width
+ * \param r a rectangle
+ * \return rectangle's width
+ * \see SCE_Rectangle3_GetHeight(), SCE_Rectangle_GetWidth()
+ */
+int SCE_Rectangle3_GetWidth (SCE_SIntRect3 *r)
+{
+    return r->p2[0] - r->p1[0];
+}
+/**
+ * \brief Gets the rectangle height
+ * \param r a rectangle
+ * \return rectangle's height
+ * \see SCE_Rectangle3_GetWidth(), SCE_Rectangle_GetWidth()
+ */
+int SCE_Rectangle3_GetHeight (SCE_SIntRect3 *r)
+{
+    return r->p2[1] - r->p1[1];
+}
+/**
+ * \brief Gets the rectangle depth
+ * \param r a rectangle
+ * \return rectangle's depth
+ * \see SCE_Rectangle3_GetWidth(), SCE_Rectangle_GetWidth()
+ */
+int SCE_Rectangle3_GetDepth (SCE_SIntRect3 *r)
+{
+    return r->p2[2] - r->p1[2];
+}
+
+/**
+ * \brief Gets the rectangle width
+ * \param r a rectangle
+ * \return the rectangle width
+ * \see SCE_Rectangle_GetWidth(), SCE_Rectangle_GetHeightf()
+ */
+float SCE_Rectangle_GetWidthf (SCE_SFloatRect *r)
+{
+    return r->p2[0] - r->p1[0];
 }
 /**
  * \brief Gets the rectangle height
@@ -310,6 +352,11 @@ void SCE_Rectangle_GetPoints (SCE_SIntRect *r, int *x1, int *y1,
 void SCE_Rectangle_GetPointsv (SCE_SIntRect *r, int *p1, int *p2)
 {
     p1[0] = r->p1[0]; p1[1] = r->p1[1]; p2[0] = r->p2[0]; p2[1] = r->p2[1];
+}
+void SCE_Rectangle3_GetPointsv (SCE_SIntRect3 *r, int *p1, int *p2)
+{
+    p1[0] = r->p1[0]; p1[1] = r->p1[1]; p1[2] = r->p1[2];
+    p2[0] = r->p2[0]; p2[1] = r->p2[1]; p2[2] = r->p2[2];
 }
 void SCE_Rectangle_GetPointsf (SCE_SIntRect *r, float *x1, float *y1,
                                float *x2, float *y2)
@@ -538,6 +585,19 @@ int SCE_Rectangle_Intersectsf (SCE_SFloatRect *a, SCE_SFloatRect *b)
         return SCE_RECT_IN;
     else
         return SCE_RECT_INTERSECTS;
+}
+
+
+void SCE_Rectangle3_Union (const SCE_SIntRect3 *r1, const SCE_SIntRect3 *r2,
+                           SCE_SIntRect3 *r)
+{
+    r->p1[0] = MIN (r1->p1[0], r2->p1[0]);
+    r->p1[1] = MIN (r1->p1[1], r2->p1[1]);
+    r->p1[2] = MIN (r1->p1[2], r2->p1[2]);
+
+    r->p2[0] = MAX (r1->p2[0], r2->p2[0]);
+    r->p2[1] = MAX (r1->p2[1], r2->p2[1]);
+    r->p2[2] = MAX (r1->p2[2], r2->p2[2]);
 }
 
 /** @} */
