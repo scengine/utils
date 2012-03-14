@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 02/11/2009 */
+   updated: 14/03/2012 */
 
 #ifndef SCELIST_H
 #define SCELIST_H
@@ -77,6 +77,8 @@ void SCE_List_Delete (SCE_SList*);
 void SCE_List_CanDeleteIterators (SCE_SList*, int);
 void SCE_List_SetFreeFunc (SCE_SList*, SCE_FListFreeFunc);
 void SCE_List_SetFreeFunc2 (SCE_SList*, SCE_FListFreeFunc2, void*);
+
+int SCE_List_IsAttached (const SCE_SListIterator*);
 
 void SCE_List_Attach (SCE_SListIterator*, SCE_SListIterator*);
 void SCE_List_Prepend (SCE_SListIterator*, SCE_SListIterator*);

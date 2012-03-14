@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/09/2007
-   updated: 10/04/2010 */
+   updated: 14/03/2012 */
 
 #include <stdlib.h>
 
@@ -224,6 +224,15 @@ void SCE_List_SetFreeFunc2 (SCE_SList *l, SCE_FListFreeFunc2 f, void *a)
     l->f2arg = a;
 }
 
+/**
+ * \brief Check whether an iterator it attached to a list
+ * \param it an iterator
+ * \return SCE_TRUE if \p it is attached to a list, SCE_FALSE otherwise
+ */
+int SCE_List_IsAttached (const SCE_SListIterator *it)
+{
+    return it->prev && it->next;
+}
 
 /**
  * \brief Attaches \p new at the end of \p it
