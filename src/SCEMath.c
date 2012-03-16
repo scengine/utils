@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 17/11/2011 */
+   updated: 17/03/2012 */
 
 #include <math.h>
 
@@ -163,7 +163,8 @@ int SCE_Math_PowerOfTwo (unsigned int n)
 /**
  * \brief Nearest upper power of two of a number
  * \param n a number
- * \return you know.
+ * \return \p n if \p n is a power of two, the nearest upper power of
+ * two otherwise
  */
 unsigned int SCE_Math_NextPowerOfTwo (unsigned int n)
 {
@@ -207,5 +208,18 @@ float SCE_Math_Fractf (float x)
 {
     return x - SCE_Math_Floorf (x);
 }
+
+
+/**
+ * \brief Gets the class of a number in a ring
+ * \param x a value
+ * \param n another value
+ * \return the class of \p x in Z/nZ
+ */
+unsigned int SCE_Math_Ring (int x, unsigned int n)
+{
+    return ((x % n) + n) % n;
+}
+
 
 /** @} */
