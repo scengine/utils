@@ -216,7 +216,7 @@ float SCE_Math_Fractf (float x)
  * \param n another value
  * \return the class of \p x in Z/nZ
  */
-unsigned int SCE_Math_Ring (int x, unsigned int n)
+int SCE_Math_Ring (int x, int n)
 {
     return ((x % n) + n) % n;
 }

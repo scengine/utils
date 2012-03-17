@@ -108,7 +108,7 @@ float SCE_Math_Clampf (float, float, float) SCE_GNUC_PURE;
 
 float SCE_Math_Fractf (float);
 
-unsigned int SCE_Math_Ring (int, unsigned int);
+int SCE_Math_Ring (int, int);
 
 #ifdef __cplusplus
 } /* extern "C" */
