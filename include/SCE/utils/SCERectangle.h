@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 04/03/2012 */
+   updated: 18/03/2012 */
 
 #ifndef SCERECTANGLE_H
 #define SCERECTANGLE_H
@@ -75,22 +75,23 @@ void SCE_Rectangle_Resizef (SCE_SFloatRect*, float, float);
 void SCE_Rectangle_Add (SCE_SIntRect*, int, int);
 void SCE_Rectangle_Addf (SCE_SFloatRect*, float, float);
 
-int SCE_Rectangle_GetArea (SCE_SIntRect*);
-float SCE_Rectangle_GetAreaf (SCE_SFloatRect*);
+int SCE_Rectangle_GetArea (const SCE_SIntRect*);
+float SCE_Rectangle_GetAreaf (const SCE_SFloatRect*);
 
-int SCE_Rectangle_GetWidth (SCE_SIntRect*);
-int SCE_Rectangle_GetHeight (SCE_SIntRect*);
-int SCE_Rectangle3_GetWidth (SCE_SIntRect3*);
-int SCE_Rectangle3_GetHeight (SCE_SIntRect3*);
-int SCE_Rectangle3_GetDepth (SCE_SIntRect3*);
-float SCE_Rectangle_GetWidthf (SCE_SFloatRect*);
-float SCE_Rectangle_GetHeightf (SCE_SFloatRect*);
+int SCE_Rectangle_GetWidth (const SCE_SIntRect*);
+int SCE_Rectangle_GetHeight (const SCE_SIntRect*);
+int SCE_Rectangle3_GetWidth (const SCE_SIntRect3*);
+int SCE_Rectangle3_GetHeight (const SCE_SIntRect3*);
+int SCE_Rectangle3_GetDepth (const SCE_SIntRect3*);
+float SCE_Rectangle_GetWidthf (const SCE_SFloatRect*);
+float SCE_Rectangle_GetHeightf (const SCE_SFloatRect*);
 
-void SCE_Rectangle_GetPoints (SCE_SIntRect*, int*, int*, int*, int*);
-void SCE_Rectangle_GetPointsv (SCE_SIntRect*, int*, int*);
-void SCE_Rectangle3_GetPointsv (SCE_SIntRect3*, int*, int*);
-void SCE_Rectangle_GetPointsf (SCE_SIntRect*, float*, float*, float*, float*);
-void SCE_Rectangle_GetPointsfv (SCE_SIntRect*, float*, float*);
+void SCE_Rectangle_GetPoints (const SCE_SIntRect*, int*, int*, int*, int*);
+void SCE_Rectangle_GetPointsv (const SCE_SIntRect*, int*, int*);
+void SCE_Rectangle3_GetPointsv (const SCE_SIntRect3*, int*, int*);
+void SCE_Rectangle_GetPointsf (const SCE_SIntRect*, float*, float*,
+                               float*, float*);
+void SCE_Rectangle_GetPointsfv (const SCE_SIntRect*, float*, float*);
 
 int* SCE_Rectangle_GetBottomLeftPoint (SCE_SIntRect*);
 int* SCE_Rectangle_GetTopRightPoint (SCE_SIntRect*);

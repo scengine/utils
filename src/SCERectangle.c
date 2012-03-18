@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 04/03/2012 */
+   updated: 18/03/2012 */
 
 #include "SCE/utils/SCEVector.h"
 
@@ -255,7 +255,7 @@ void SCE_Rectangle_Addf (SCE_SFloatRect *r, float w, float h)
  * \return the rectangle area
  * \see SCE_Rectangle_GetAreaf()
  */
-int SCE_Rectangle_GetArea (SCE_SIntRect *r)
+int SCE_Rectangle_GetArea (const SCE_SIntRect *r)
 {
     return (r->p2[0] - r->p1[0]) * (r->p2[1] - r->p1[1]);
 }
@@ -265,7 +265,7 @@ int SCE_Rectangle_GetArea (SCE_SIntRect *r)
  * \return the rectangle area
  * \see SCE_Rectangle_GetArea()
  */
-float SCE_Rectangle_GetAreaf (SCE_SFloatRect *r)
+float SCE_Rectangle_GetAreaf (const SCE_SFloatRect *r)
 {
     return (r->p2[0] - r->p1[0]) * (r->p2[1] - r->p1[1]);
 }
@@ -276,7 +276,7 @@ float SCE_Rectangle_GetAreaf (SCE_SFloatRect *r)
  * \return the rectangle width
  * \see SCE_Rectangle_GetWidthf(), SCE_Rectangle_GetHeight()
  */
-int SCE_Rectangle_GetWidth (SCE_SIntRect *r)
+int SCE_Rectangle_GetWidth (const SCE_SIntRect *r)
 {
     return r->p2[0] - r->p1[0];
 }
@@ -286,7 +286,7 @@ int SCE_Rectangle_GetWidth (SCE_SIntRect *r)
  * \return the rectangle height
  * \sa SCE_Rectangle_GetHeightf(), SCE_Rectangle_GetWidth()
  */
-int SCE_Rectangle_GetHeight (SCE_SIntRect *r)
+int SCE_Rectangle_GetHeight (const SCE_SIntRect *r)
 {
     return r->p2[1] - r->p1[1];
 }
@@ -297,7 +297,7 @@ int SCE_Rectangle_GetHeight (SCE_SIntRect *r)
  * \return rectangle's width
  * \see SCE_Rectangle3_GetHeight(), SCE_Rectangle_GetWidth()
  */
-int SCE_Rectangle3_GetWidth (SCE_SIntRect3 *r)
+int SCE_Rectangle3_GetWidth (const SCE_SIntRect3 *r)
 {
     return r->p2[0] - r->p1[0];
 }
@@ -307,7 +307,7 @@ int SCE_Rectangle3_GetWidth (SCE_SIntRect3 *r)
  * \return rectangle's height
  * \see SCE_Rectangle3_GetWidth(), SCE_Rectangle_GetWidth()
  */
-int SCE_Rectangle3_GetHeight (SCE_SIntRect3 *r)
+int SCE_Rectangle3_GetHeight (const SCE_SIntRect3 *r)
 {
     return r->p2[1] - r->p1[1];
 }
@@ -317,7 +317,7 @@ int SCE_Rectangle3_GetHeight (SCE_SIntRect3 *r)
  * \return rectangle's depth
  * \see SCE_Rectangle3_GetWidth(), SCE_Rectangle_GetWidth()
  */
-int SCE_Rectangle3_GetDepth (SCE_SIntRect3 *r)
+int SCE_Rectangle3_GetDepth (const SCE_SIntRect3 *r)
 {
     return r->p2[2] - r->p1[2];
 }
@@ -328,7 +328,7 @@ int SCE_Rectangle3_GetDepth (SCE_SIntRect3 *r)
  * \return the rectangle width
  * \see SCE_Rectangle_GetWidth(), SCE_Rectangle_GetHeightf()
  */
-float SCE_Rectangle_GetWidthf (SCE_SFloatRect *r)
+float SCE_Rectangle_GetWidthf (const SCE_SFloatRect *r)
 {
     return r->p2[0] - r->p1[0];
 }
@@ -338,32 +338,32 @@ float SCE_Rectangle_GetWidthf (SCE_SFloatRect *r)
  * \return the rectangle height
  * \see SCE_Rectangle_GetHeight(), SCE_Rectangle_GetWidthf()
  */
-float SCE_Rectangle_GetHeightf (SCE_SFloatRect *r)
+float SCE_Rectangle_GetHeightf (const SCE_SFloatRect *r)
 {
     return r->p2[1] - r->p1[1];
 }
 
 
-void SCE_Rectangle_GetPoints (SCE_SIntRect *r, int *x1, int *y1,
+void SCE_Rectangle_GetPoints (const SCE_SIntRect *r, int *x1, int *y1,
                               int *x2, int *y2)
 {
     *x1 = r->p1[0]; *y1 = r->p1[1]; *x2 = r->p2[0]; *y2 = r->p2[1];
 }
-void SCE_Rectangle_GetPointsv (SCE_SIntRect *r, int *p1, int *p2)
+void SCE_Rectangle_GetPointsv (const SCE_SIntRect *r, int *p1, int *p2)
 {
     p1[0] = r->p1[0]; p1[1] = r->p1[1]; p2[0] = r->p2[0]; p2[1] = r->p2[1];
 }
-void SCE_Rectangle3_GetPointsv (SCE_SIntRect3 *r, int *p1, int *p2)
+void SCE_Rectangle3_GetPointsv (const SCE_SIntRect3 *r, int *p1, int *p2)
 {
     p1[0] = r->p1[0]; p1[1] = r->p1[1]; p1[2] = r->p1[2];
     p2[0] = r->p2[0]; p2[1] = r->p2[1]; p2[2] = r->p2[2];
 }
-void SCE_Rectangle_GetPointsf (SCE_SIntRect *r, float *x1, float *y1,
+void SCE_Rectangle_GetPointsf (const SCE_SIntRect *r, float *x1, float *y1,
                                float *x2, float *y2)
 {
     *x1 = r->p1[0]; *y1 = r->p1[1]; *x2 = r->p2[0]; *y2 = r->p2[1];
 }
-void SCE_Rectangle_GetPointsfv (SCE_SIntRect *r, SCE_TVector2 p1,
+void SCE_Rectangle_GetPointsfv (const SCE_SIntRect *r, SCE_TVector2 p1,
                                 SCE_TVector2 p2)
 {
     p1[0] = r->p1[0]; p1[1] = r->p1[1]; p2[0] = r->p2[0]; p2[1] = r->p2[1];
