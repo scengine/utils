@@ -67,6 +67,7 @@ void SCE_Rectangle_SetFromCenterfv (SCE_SFloatRect*, SCE_TVector2,
                                     float, float);
 
 void SCE_Rectangle_Move (SCE_SIntRect*, int, int);
+void SCE_Rectangle3_Move (SCE_SIntRect3*, int, int, int);
 void SCE_Rectangle_Movef (SCE_SFloatRect*, float, float);
 void SCE_Rectangle_Movev (SCE_SIntRect*, int*);
 void SCE_Rectangle_Movefv (SCE_SFloatRect*, SCE_TVector2);

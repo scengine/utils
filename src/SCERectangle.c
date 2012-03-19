@@ -179,6 +179,20 @@ void SCE_Rectangle_Move (SCE_SIntRect *r, int x, int y)
  * \param r the rectangle to move
  * \param x X offset
  * \param y Y offset
+ * \param z Z offset
+ * \see SCE_Rectangle_Move()
+ */
+void SCE_Rectangle3_Move (SCE_SIntRect3 *r, int x, int y, int z)
+{
+    r->p1[0] += x; r->p2[0] += x;
+    r->p1[1] += y; r->p2[1] += y;
+    r->p1[2] += z; r->p2[2] += z;
+}
+/**
+ * \brief Moves a rectangle
+ * \param r the rectangle to move
+ * \param x X offset
+ * \param y Y offset
  * \see SCE_Rectangle_Movefv()
  */
 void SCE_Rectangle_Movef (SCE_SFloatRect *r, float x, float y)
