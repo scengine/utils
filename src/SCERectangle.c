@@ -282,6 +282,16 @@ int SCE_Rectangle_GetArea (const SCE_SIntRect *r)
  * \brief Gets the rectangle area
  * \param r a rectangle
  * \return the rectangle area
+ * \see SCE_Rectangle_GetArea(), SCE_Rectangle_GetAreaf()
+ */
+int SCE_Rectangle3_GetArea (const SCE_SIntRect3 *r)
+{
+    return (r->p2[0]-r->p1[0]) * (r->p2[1]-r->p1[1]) * (r->p2[2]-r->p1[2]);
+}
+/**
+ * \brief Gets the rectangle area
+ * \param r a rectangle
+ * \return the rectangle area
  * \see SCE_Rectangle_GetArea()
  */
 float SCE_Rectangle_GetAreaf (const SCE_SFloatRect *r)

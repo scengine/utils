@@ -78,6 +78,7 @@ void SCE_Rectangle_Add (SCE_SIntRect*, int, int);
 void SCE_Rectangle_Addf (SCE_SFloatRect*, float, float);
 
 int SCE_Rectangle_GetArea (const SCE_SIntRect*);
+int SCE_Rectangle3_GetArea (const SCE_SIntRect3*);
 float SCE_Rectangle_GetAreaf (const SCE_SFloatRect*);
 
 int SCE_Rectangle_GetWidth (const SCE_SIntRect*);
