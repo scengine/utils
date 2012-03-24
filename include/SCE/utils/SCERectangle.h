@@ -123,6 +123,8 @@ void SCE_Rectangle3_Union (const SCE_SIntRect3*, const SCE_SIntRect3*,
 int SCE_Rectangle3_Intersection (const SCE_SIntRect3*, const SCE_SIntRect3*,
                                  SCE_SIntRect3*);
 
+int SCE_Rectangle3_IsInside (const SCE_SIntRect3*, const SCE_SIntRect3*);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

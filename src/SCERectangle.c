@@ -635,4 +635,21 @@ int SCE_Rectangle3_Intersection (const SCE_SIntRect3 *r1,
            r->p2[2] > r->p1[2];
 }
 
+/**
+ * \brief Checks whether a rectangle is inside another
+ * \param r1 a rectangle
+ * \param r2 another one.
+ * \returns SCE_TRUE if \p r2 is inside or perfectly match \p r1,
+ * SCE_FALSE otherwise
+ */
+int SCE_Rectangle3_IsInside (const SCE_SIntRect3 *r1, const SCE_SIntRect3 *r2)
+{
+    return r1->p1[0] <= r2->p1[0] &&
+           r1->p1[1] <= r2->p1[1] &&
+           r1->p1[2] <= r2->p1[2] &&
+           r1->p2[0] >= r2->p2[0] &&
+           r1->p2[1] >= r2->p2[1] &&
+           r1->p2[2] >= r2->p2[2];
+}
+
 /** @} */
