@@ -80,6 +80,11 @@ void SCE_Rectangle3_Set (SCE_SIntRect3 *r, int x1, int y1, int z1,
     r->p1[0] = x1; r->p1[1] = y1; r->p1[2] = z1;
     r->p2[0] = x2; r->p2[1] = y2; r->p2[2] = z2;
 }
+void SCE_Rectangle3_Setv (SCE_SIntRect3 *r, const int *p1, const int *p2)
+{
+    r->p1[0] = p1[0]; r->p1[1] = p1[1]; r->p1[2] = p1[2];
+    r->p2[0] = p2[0]; r->p2[1] = p2[1]; r->p2[2] = p2[2];
+}
 /**
  * \brief Defines a rectangle
  * \param r the rectangle to define

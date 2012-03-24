@@ -55,6 +55,7 @@ void SCE_Rectangle_Initf (SCE_SFloatRect*);
 
 void SCE_Rectangle_Set (SCE_SIntRect*, int, int, int, int);
 void SCE_Rectangle3_Set (SCE_SIntRect3*, int, int, int, int, int, int);
+void SCE_Rectangle3_Setv (SCE_SIntRect3*, const int*, const int*);
 void SCE_Rectangle_Setf (SCE_SFloatRect*, float, float, float, float);
 
 void SCE_Rectangle_SetFromOrigin (SCE_SIntRect*, int, int,
