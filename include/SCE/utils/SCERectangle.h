@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 18/03/2012 */
+   updated: 24/03/2012 */
 
 #ifndef SCERECTANGLE_H
 #define SCERECTANGLE_H
@@ -120,6 +120,8 @@ int SCE_Rectangle_Intersectsf (SCE_SFloatRect*, SCE_SFloatRect*);
 
 void SCE_Rectangle3_Union (const SCE_SIntRect3*, const SCE_SIntRect3*,
                            SCE_SIntRect3*);
+int SCE_Rectangle3_Intersection (const SCE_SIntRect3*, const SCE_SIntRect3*,
+                                 SCE_SIntRect3*);
 
 #ifdef __cplusplus
 } /* extern "C" */

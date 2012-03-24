@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 18/03/2012 */
+   updated: 24/03/2012 */
 
 #include "SCE/utils/SCEVector.h"
 
@@ -617,6 +617,22 @@ void SCE_Rectangle3_Union (const SCE_SIntRect3 *r1, const SCE_SIntRect3 *r2,
     r->p2[0] = MAX (r1->p2[0], r2->p2[0]);
     r->p2[1] = MAX (r1->p2[1], r2->p2[1]);
     r->p2[2] = MAX (r1->p2[2], r2->p2[2]);
+}
+
+int SCE_Rectangle3_Intersection (const SCE_SIntRect3 *r1,
+                                 const SCE_SIntRect3 *r2, SCE_SIntRect3 *r)
+{
+    r->p1[0] = MAX (r1->p1[0], r2->p1[0]);
+    r->p1[1] = MAX (r1->p1[1], r2->p1[1]);
+    r->p1[2] = MAX (r1->p1[2], r2->p1[2]);
+
+    r->p2[0] = MIN (r1->p2[0], r2->p2[0]);
+    r->p2[1] = MIN (r1->p2[1], r2->p2[1]);
+    r->p2[2] = MIN (r1->p2[2], r2->p2[2]);
+
+    return r->p2[0] > r->p1[0] &&
+           r->p2[1] > r->p1[1] &&
+           r->p2[2] > r->p1[2];
 }
 
 /** @} */
