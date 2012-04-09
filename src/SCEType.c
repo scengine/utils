@@ -24,33 +24,48 @@
 #include "SCE/utils/SCEMemory.h"
 #include "SCE/utils/SCEType.h"
 
+static size_t type_sizes[SCE_NUM_TYPES] = {
+    0,
+    sizeof (SCEbyte),
+    sizeof (SCEubyte),
+    sizeof (SCEshort),
+    sizeof (SCEushort),
+    sizeof (SCEint),
+    sizeof (SCEuint),
+    sizeof (SCEfloat),
+    sizeof (SCEdouble),
+    sizeof (size_t),            /* lul */
+    0,
+
+    sizeof (/*SCEhalf*/short),
+    1,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    8
+};
+
 size_t SCE_Type_Sizeof (SCE_EType type)
 {
-    switch (type) {
-    case SCE_NONE_TYPE:
-        return 0;               /* :trollface: */
-    case SCE_DOUBLE:
-        return sizeof (SCEdouble);
-    case SCE_FLOAT:
-        return sizeof (SCEfloat);
-    case SCE_INT:
-    case SCE_UNSIGNED_INT:
-        return sizeof (SCEint);
-    case SCE_SHORT:
-    case SCE_UNSIGNED_SHORT:
-        return sizeof (SCEshort);
-    case SCE_BYTE:
-    case SCE_UNSIGNED_BYTE:
-        return sizeof (SCEbyte);
-    case SCE_SIZE_T:
-        return sizeof (size_t);
 #ifdef SCE_DEBUG
-    default:
+    if (type < 0 || type >= SCE_NUM_TYPES) {
         SCEE_Log (SCE_INVALID_ARG);
         SCEE_LogMsg ("unknown data type %d", type);
-#endif
+        return 0;
     }
-    return 0;
+#endif
+    return type_sizes[type];
 }
 
 

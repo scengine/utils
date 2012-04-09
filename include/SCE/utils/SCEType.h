@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 17/04/2010
-   updated: 23/01/2012 */
+   updated: 08/04/2012 */
 
 #ifndef SCETYPE_H
 #define SCETYPE_H
@@ -40,6 +40,25 @@ enum sce_etype {
     SCE_FLOAT,
     SCE_DOUBLE,
     SCE_SIZE_T,
+    SCE_NUM_NORMAL_TYPES,
+    /* extra types for GL compatibility */
+    SCE_HALF_FLOAT,
+    SCE_UNSIGNED_BYTE_3_3_2,
+    SCE_UNSIGNED_BYTE_2_3_3_REV,
+    SCE_UNSIGNED_SHORT_5_6_5,
+    SCE_UNSIGNED_SHORT_5_6_5_REV,
+    SCE_UNSIGNED_SHORT_4_4_4_4,
+    SCE_UNSIGNED_SHORT_4_4_4_4_REV,
+    SCE_UNSIGNED_SHORT_5_5_5_1,
+    SCE_UNSIGNED_SHORT_1_5_5_5_REV,
+    SCE_UNSIGNED_INT_8_8_8_8,
+    SCE_UNSIGNED_INT_8_8_8_8_REV,
+    SCE_UNSIGNED_INT_10_10_10_2,
+    SCE_UNSIGNED_INT_2_10_10_10_REV,
+    SCE_UNSIGNED_INT_24_8,
+    SCE_UNSIGNED_INT_10F_11F_11F_REV,
+    SCE_UNSIGNED_INT_5_9_9_9_REV,
+    SCE_FLOAT_32_UNSIGNED_INT_24_8_REV,
     SCE_NUM_TYPES
 };
 typedef enum sce_etype SCE_EType;
