@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 24/03/2012 */
+   updated: 25/04/2012 */
 
 #include "SCE/utils/SCEVector.h"
 
@@ -47,6 +47,10 @@ void SCE_Rectangle_Init (SCE_SIntRect *r)
     r->p1[0] = r->p1[1] = r->p2[0] = r->p2[1] = 0;
 }
 void SCE_Rectangle3_Init (SCE_SIntRect3 *r)
+{
+    r->p1[0] = r->p1[1] = r->p1[2] = r->p2[0] = r->p2[1] = r->p2[2] = 0;
+}
+void SCE_Rectangle3_Initl (SCE_SLongRect3 *r)
 {
     r->p1[0] = r->p1[1] = r->p1[2] = r->p2[0] = r->p2[1] = r->p2[2] = 0;
 }
@@ -85,6 +89,12 @@ void SCE_Rectangle3_Setv (SCE_SIntRect3 *r, const int *p1, const int *p2)
     r->p1[0] = p1[0]; r->p1[1] = p1[1]; r->p1[2] = p1[2];
     r->p2[0] = p2[0]; r->p2[1] = p2[1]; r->p2[2] = p2[2];
 }
+void SCE_Rectangle3_Setl (SCE_SLongRect3 *r, long x1, long y1, long z1,
+                          long x2, long y2, long z2)
+{
+    r->p1[0] = x1; r->p1[1] = y1; r->p1[2] = z1;
+    r->p2[0] = x2; r->p2[1] = y2; r->p2[2] = z2;
+}
 /**
  * \brief Defines a rectangle
  * \param r the rectangle to define
@@ -114,6 +124,13 @@ void SCE_Rectangle_SetFromOrigin (SCE_SIntRect *r, int x, int y,
 {
     r->p1[0] = x;     r->p1[1] = y;
     r->p2[0] = x + w; r->p2[1] = y + h;
+}
+void SCE_Rectangle3_SetFromOriginl (SCE_SLongRect3 *r, long x, long y, long z,
+                                    unsigned long w, unsigned long h,
+                                    unsigned long d)
+{
+    r->p1[0] = x;     r->p1[1] = y;     r->p1[2] = z;
+    r->p2[0] = x + w; r->p2[1] = y + h; r->p2[2] = z + d;
 }
 /**
  * \brief Defines the origin and the dimensions at once
@@ -188,6 +205,12 @@ void SCE_Rectangle_Move (SCE_SIntRect *r, int x, int y)
  * \see SCE_Rectangle_Move()
  */
 void SCE_Rectangle3_Move (SCE_SIntRect3 *r, int x, int y, int z)
+{
+    r->p1[0] += x; r->p2[0] += x;
+    r->p1[1] += y; r->p2[1] += y;
+    r->p1[2] += z; r->p2[2] += z;
+}
+void SCE_Rectangle3_Movel (SCE_SLongRect3 *r, long x, long y, long z)
 {
     r->p1[0] += x; r->p2[0] += x;
     r->p1[1] += y; r->p2[1] += y;
@@ -288,6 +311,10 @@ int SCE_Rectangle3_GetArea (const SCE_SIntRect3 *r)
 {
     return (r->p2[0]-r->p1[0]) * (r->p2[1]-r->p1[1]) * (r->p2[2]-r->p1[2]);
 }
+long SCE_Rectangle3_GetAreal (const SCE_SLongRect3 *r)
+{
+    return (r->p2[0]-r->p1[0]) * (r->p2[1]-r->p1[1]) * (r->p2[2]-r->p1[2]);
+}
 /**
  * \brief Gets the rectangle area
  * \param r a rectangle
@@ -354,6 +381,37 @@ int SCE_Rectangle3_GetDepth (const SCE_SIntRect3 *r)
 /**
  * \brief Gets the rectangle width
  * \param r a rectangle
+ * \return rectangle's width
+ * \see SCE_Rectangle3_GetHeightl(), SCE_Rectangle_GetWidthl()
+ */
+long SCE_Rectangle3_GetWidthl (const SCE_SLongRect3 *r)
+{
+    return r->p2[0] - r->p1[0];
+}
+/**
+ * \brief Gets the rectangle height
+ * \param r a rectangle
+ * \return rectangle's height
+ * \see SCE_Rectangle3_GetWidthl(), SCE_Rectangle_GetWidthl()
+ */
+long SCE_Rectangle3_GetHeightl (const SCE_SLongRect3 *r)
+{
+    return r->p2[1] - r->p1[1];
+}
+/**
+ * \brief Gets the rectangle depth
+ * \param r a rectangle
+ * \return rectangle's depth
+ * \see SCE_Rectangle3_GetWidthl(), SCE_Rectangle_GetWidthl()
+ */
+long SCE_Rectangle3_GetDepthl (const SCE_SLongRect3 *r)
+{
+    return r->p2[2] - r->p1[2];
+}
+
+/**
+ * \brief Gets the rectangle width
+ * \param r a rectangle
  * \return the rectangle width
  * \see SCE_Rectangle_GetWidth(), SCE_Rectangle_GetHeightf()
  */
@@ -383,6 +441,11 @@ void SCE_Rectangle_GetPointsv (const SCE_SIntRect *r, int *p1, int *p2)
     p1[0] = r->p1[0]; p1[1] = r->p1[1]; p2[0] = r->p2[0]; p2[1] = r->p2[1];
 }
 void SCE_Rectangle3_GetPointsv (const SCE_SIntRect3 *r, int *p1, int *p2)
+{
+    p1[0] = r->p1[0]; p1[1] = r->p1[1]; p1[2] = r->p1[2];
+    p2[0] = r->p2[0]; p2[1] = r->p2[1]; p2[2] = r->p2[2];
+}
+void SCE_Rectangle3_GetPointslv (const SCE_SLongRect3 *r, long *p1, long *p2)
 {
     p1[0] = r->p1[0]; p1[1] = r->p1[1]; p1[2] = r->p1[2];
     p2[0] = r->p2[0]; p2[1] = r->p2[1]; p2[2] = r->p2[2];
@@ -661,5 +724,53 @@ int SCE_Rectangle3_IsInside (const SCE_SIntRect3 *r1, const SCE_SIntRect3 *r2)
            r1->p2[1] >= r2->p2[1] &&
            r1->p2[2] >= r2->p2[2];
 }
+
+
+
+void SCE_Rectangle3_Unionl (const SCE_SLongRect3 *r1, const SCE_SLongRect3 *r2,
+                           SCE_SLongRect3 *r)
+{
+    r->p1[0] = MIN (r1->p1[0], r2->p1[0]);
+    r->p1[1] = MIN (r1->p1[1], r2->p1[1]);
+    r->p1[2] = MIN (r1->p1[2], r2->p1[2]);
+
+    r->p2[0] = MAX (r1->p2[0], r2->p2[0]);
+    r->p2[1] = MAX (r1->p2[1], r2->p2[1]);
+    r->p2[2] = MAX (r1->p2[2], r2->p2[2]);
+}
+
+int SCE_Rectangle3_Intersectionl (const SCE_SLongRect3 *r1,
+                                  const SCE_SLongRect3 *r2, SCE_SLongRect3 *r)
+{
+    r->p1[0] = MAX (r1->p1[0], r2->p1[0]);
+    r->p1[1] = MAX (r1->p1[1], r2->p1[1]);
+    r->p1[2] = MAX (r1->p1[2], r2->p1[2]);
+
+    r->p2[0] = MIN (r1->p2[0], r2->p2[0]);
+    r->p2[1] = MIN (r1->p2[1], r2->p2[1]);
+    r->p2[2] = MIN (r1->p2[2], r2->p2[2]);
+
+    return r->p2[0] > r->p1[0] &&
+           r->p2[1] > r->p1[1] &&
+           r->p2[2] > r->p1[2];
+}
+
+/**
+ * \brief Checks whether a rectangle is inside another
+ * \param r1 a rectangle
+ * \param r2 another one.
+ * \returns SCE_TRUE if \p r2 is inside or perfectly match \p r1,
+ * SCE_FALSE otherwise
+ */
+int SCE_Rectangle3_IsInsidel (const SCE_SLongRect3 *r1, const SCE_SLongRect3 *r2)
+{
+    return r1->p1[0] <= r2->p1[0] &&
+           r1->p1[1] <= r2->p1[1] &&
+           r1->p1[2] <= r2->p1[2] &&
+           r1->p2[0] >= r2->p2[0] &&
+           r1->p2[1] >= r2->p2[1] &&
+           r1->p2[2] >= r2->p2[2];
+}
+
 
 /** @} */

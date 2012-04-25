@@ -49,17 +49,26 @@ struct sce_sintrect3 {
     int p1[3], p2[3];
 };
 
+typedef struct sce_slongrect3 SCE_SLongRect3;
+struct sce_slongrect3 {
+    long p1[3], p2[3];
+};
+
 void SCE_Rectangle_Init (SCE_SIntRect*);
 void SCE_Rectangle3_Init (SCE_SIntRect3*);
+void SCE_Rectangle3_Initl (SCE_SLongRect3*);
 void SCE_Rectangle_Initf (SCE_SFloatRect*);
 
 void SCE_Rectangle_Set (SCE_SIntRect*, int, int, int, int);
 void SCE_Rectangle3_Set (SCE_SIntRect3*, int, int, int, int, int, int);
 void SCE_Rectangle3_Setv (SCE_SIntRect3*, const int*, const int*);
+void SCE_Rectangle3_Setl (SCE_SLongRect3*, long, long, long, long, long, long);
 void SCE_Rectangle_Setf (SCE_SFloatRect*, float, float, float, float);
 
 void SCE_Rectangle_SetFromOrigin (SCE_SIntRect*, int, int,
                                   unsigned int, unsigned int);
+void SCE_Rectangle3_SetFromOriginl (SCE_SLongRect3*, long, long, long,
+                                    unsigned long, unsigned long,unsigned long);
 void SCE_Rectangle_SetFromOriginf (SCE_SFloatRect*, float, float, float, float);
 void SCE_Rectangle_SetFromCenter (SCE_SIntRect*, int, int,
                                   unsigned int, unsigned int);
@@ -69,6 +78,7 @@ void SCE_Rectangle_SetFromCenterfv (SCE_SFloatRect*, SCE_TVector2,
 
 void SCE_Rectangle_Move (SCE_SIntRect*, int, int);
 void SCE_Rectangle3_Move (SCE_SIntRect3*, int, int, int);
+void SCE_Rectangle3_Movel (SCE_SLongRect3*, long, long, long);
 void SCE_Rectangle_Movef (SCE_SFloatRect*, float, float);
 void SCE_Rectangle_Movev (SCE_SIntRect*, int*);
 void SCE_Rectangle_Movefv (SCE_SFloatRect*, SCE_TVector2);
@@ -79,6 +89,7 @@ void SCE_Rectangle_Addf (SCE_SFloatRect*, float, float);
 
 int SCE_Rectangle_GetArea (const SCE_SIntRect*);
 int SCE_Rectangle3_GetArea (const SCE_SIntRect3*);
+long SCE_Rectangle3_GetAreal (const SCE_SLongRect3*);
 float SCE_Rectangle_GetAreaf (const SCE_SFloatRect*);
 
 int SCE_Rectangle_GetWidth (const SCE_SIntRect*);
@@ -86,12 +97,16 @@ int SCE_Rectangle_GetHeight (const SCE_SIntRect*);
 int SCE_Rectangle3_GetWidth (const SCE_SIntRect3*);
 int SCE_Rectangle3_GetHeight (const SCE_SIntRect3*);
 int SCE_Rectangle3_GetDepth (const SCE_SIntRect3*);
+long SCE_Rectangle3_GetWidthl (const SCE_SLongRect3*);
+long SCE_Rectangle3_GetHeightl (const SCE_SLongRect3*);
+long SCE_Rectangle3_GetDepthl (const SCE_SLongRect3*);
 float SCE_Rectangle_GetWidthf (const SCE_SFloatRect*);
 float SCE_Rectangle_GetHeightf (const SCE_SFloatRect*);
 
 void SCE_Rectangle_GetPoints (const SCE_SIntRect*, int*, int*, int*, int*);
 void SCE_Rectangle_GetPointsv (const SCE_SIntRect*, int*, int*);
 void SCE_Rectangle3_GetPointsv (const SCE_SIntRect3*, int*, int*);
+void SCE_Rectangle3_GetPointslv (const SCE_SLongRect3*, long*, long*);
 void SCE_Rectangle_GetPointsf (const SCE_SIntRect*, float*, float*,
                                float*, float*);
 void SCE_Rectangle_GetPointsfv (const SCE_SIntRect*, float*, float*);
@@ -125,6 +140,13 @@ int SCE_Rectangle3_Intersection (const SCE_SIntRect3*, const SCE_SIntRect3*,
                                  SCE_SIntRect3*);
 
 int SCE_Rectangle3_IsInside (const SCE_SIntRect3*, const SCE_SIntRect3*);
+
+void SCE_Rectangle3_Unionl (const SCE_SLongRect3*, const SCE_SLongRect3*,
+                           SCE_SLongRect3*);
+int SCE_Rectangle3_Intersectionl (const SCE_SLongRect3*, const SCE_SLongRect3*,
+                                 SCE_SLongRect3*);
+
+int SCE_Rectangle3_IsInsidel (const SCE_SLongRect3*, const SCE_SLongRect3*);
 
 #ifdef __cplusplus
 } /* extern "C" */
