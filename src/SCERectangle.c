@@ -773,4 +773,22 @@ int SCE_Rectangle3_IsInsidel (const SCE_SLongRect3 *r1, const SCE_SLongRect3 *r2
 }
 
 
+void SCE_Rectangle3_Pow2 (SCE_SIntRect3 *r, int exponent)
+{
+    size_t i;
+    for (i = 0; i < 3; i++) {
+        r->p1[i] << exponent;
+        r->p2[i] << exponent;
+    }
+}
+
+void SCE_Rectangle3_Pow2l (SCE_SLongRect3 *r, int exponent)
+{
+    size_t i;
+    for (i = 0; i < 3; i++) {
+        r->p1[i] << exponent;
+        r->p2[i] << exponent;
+    }
+}
+
 /** @} */

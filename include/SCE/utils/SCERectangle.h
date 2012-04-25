@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 24/03/2012 */
+   updated: 25/04/2012 */
 
 #ifndef SCERECTANGLE_H
 #define SCERECTANGLE_H
@@ -147,6 +147,9 @@ int SCE_Rectangle3_Intersectionl (const SCE_SLongRect3*, const SCE_SLongRect3*,
                                  SCE_SLongRect3*);
 
 int SCE_Rectangle3_IsInsidel (const SCE_SLongRect3*, const SCE_SLongRect3*);
+
+void SCE_Rectangle3_Pow2 (SCE_SIntRect3*, int);
+void SCE_Rectangle3_Pow2l (SCE_SLongRect3*, int);
 
 #ifdef __cplusplus
 } /* extern "C" */
