@@ -24,7 +24,7 @@
 #include "SCE/utils/SCEMemory.h"
 #include "SCE/utils/SCEType.h"
 
-static size_t type_sizes[SCE_NUM_TYPES] = {
+static const size_t type_sizes[SCE_NUM_TYPES] = {
     0,
     sizeof (SCEbyte),
     sizeof (SCEubyte),
