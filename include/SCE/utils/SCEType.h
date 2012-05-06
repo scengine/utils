@@ -76,6 +76,8 @@ typedef char            SCEchar;          /* wat */
 typedef float           SCEfloat;         /* single precision float */
 typedef double          SCEdouble;        /* double precision float */
 
+typedef unsigned long   SCEulong;         /* bonus */
+
 size_t SCE_Type_Sizeof (SCE_EType);
 
 void SCE_Type_Convert (int, void*, int, const void*, size_t);
