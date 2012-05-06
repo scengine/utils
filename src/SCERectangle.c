@@ -259,6 +259,18 @@ void SCE_Rectangle_Resize (SCE_SIntRect *r, int w, int h)
     r->p2[0] = r->p1[0] + w;
     r->p2[1] = r->p1[1] + h;
 }
+void SCE_Rectangle3_Resize (SCE_SIntRect3 *r, int w, int h, int d)
+{
+    r->p2[0] = r->p1[0] + w;
+    r->p2[1] = r->p1[1] + h;
+    r->p2[2] = r->p1[2] + d;
+}
+void SCE_Rectangle3_Resizel (SCE_SLongRect3 *r, long w, long h, long d)
+{
+    r->p2[0] = r->p1[0] + w;
+    r->p2[1] = r->p1[1] + h;
+    r->p2[2] = r->p1[2] + d;
+}
 /**
  * \brief Defines new dimensions
  * \param r A floating-point rectangle
@@ -290,6 +302,12 @@ void SCE_Rectangle_Addf (SCE_SFloatRect *r, float w, float h)
     r->p2[0] += w;
     r->p2[1] += h;
 }
+
+void SCE_Rectangle3_SubOriginl (SCE_SLongRect3 *r1, const SCE_SLongRect3 *r2)
+{
+    SCE_Rectangle3_Movel (r1, -r2->p1[0], -r2->p1[1], -r2->p1[2]);
+}
+
 
 /**
  * \brief Gets the rectangle area

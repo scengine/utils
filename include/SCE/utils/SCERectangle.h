@@ -83,9 +83,12 @@ void SCE_Rectangle_Movef (SCE_SFloatRect*, float, float);
 void SCE_Rectangle_Movev (SCE_SIntRect*, int*);
 void SCE_Rectangle_Movefv (SCE_SFloatRect*, SCE_TVector2);
 void SCE_Rectangle_Resize (SCE_SIntRect*, int, int);
+void SCE_Rectangle3_Resize (SCE_SIntRect3*, int, int, int);
+void SCE_Rectangle3_Resizel (SCE_SLongRect3*, long, long, long);
 void SCE_Rectangle_Resizef (SCE_SFloatRect*, float, float);
 void SCE_Rectangle_Add (SCE_SIntRect*, int, int);
 void SCE_Rectangle_Addf (SCE_SFloatRect*, float, float);
+void SCE_Rectangle3_SubOriginl (SCE_SLongRect3*, const SCE_SLongRect3*);
 
 int SCE_Rectangle_GetArea (const SCE_SIntRect*);
 int SCE_Rectangle3_GetArea (const SCE_SIntRect3*);
@@ -142,9 +145,9 @@ int SCE_Rectangle3_Intersection (const SCE_SIntRect3*, const SCE_SIntRect3*,
 int SCE_Rectangle3_IsInside (const SCE_SIntRect3*, const SCE_SIntRect3*);
 
 void SCE_Rectangle3_Unionl (const SCE_SLongRect3*, const SCE_SLongRect3*,
-                           SCE_SLongRect3*);
+                            SCE_SLongRect3*);
 int SCE_Rectangle3_Intersectionl (const SCE_SLongRect3*, const SCE_SLongRect3*,
-                                 SCE_SLongRect3*);
+                                  SCE_SLongRect3*);
 
 int SCE_Rectangle3_IsInsidel (const SCE_SLongRect3*, const SCE_SLongRect3*);
 
