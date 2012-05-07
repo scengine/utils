@@ -66,6 +66,9 @@ void SCE_Rectangle3_Setv (SCE_SIntRect3*, const int*, const int*);
 void SCE_Rectangle3_Setl (SCE_SLongRect3*, long, long, long, long, long, long);
 void SCE_Rectangle_Setf (SCE_SFloatRect*, float, float, float, float);
 
+void SCE_Rectangle3_IntFromLong (SCE_SIntRect3*, const SCE_SLongRect3*);
+void SCE_Rectangle3_LongFromInt (SCE_SLongRect3*, const SCE_SIntRect3*);
+
 void SCE_Rectangle_SetFromOrigin (SCE_SIntRect*, int, int,
                                   unsigned int, unsigned int);
 void SCE_Rectangle3_SetFromOrigin (SCE_SIntRect3*, int, int, int,

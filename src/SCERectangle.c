@@ -113,6 +113,27 @@ void SCE_Rectangle_Setf (SCE_SFloatRect *r, float x1, float y1,
     r->p1[0] = x1; r->p2[0] = x2; r->p1[1] = y1; r->p2[1] = y2;
 }
 
+
+void SCE_Rectangle3_IntFromLong (SCE_SIntRect3 *dst, const SCE_SLongRect3 *src)
+{
+    dst->p1[0] = (int)src->p1[0];
+    dst->p1[1] = (int)src->p1[1];
+    dst->p1[2] = (int)src->p1[2];
+    dst->p2[0] = (int)src->p2[0];
+    dst->p2[1] = (int)src->p2[1];
+    dst->p2[2] = (int)src->p2[2];
+}
+void SCE_Rectangle3_LongFromInt (SCE_SLongRect3 *dst, const SCE_SIntRect3 *src)
+{
+    dst->p1[0] = (long)src->p1[0];
+    dst->p1[1] = (long)src->p1[1];
+    dst->p1[2] = (long)src->p1[2];
+    dst->p2[0] = (long)src->p2[0];
+    dst->p2[1] = (long)src->p2[1];
+    dst->p2[2] = (long)src->p2[2];
+}
+
+
 /**
  * \brief Defines the origin and the dimensions at once
  * \param r An integer rectangle
