@@ -17,8 +17,9 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 25/04/2012 */
+   updated: 07/05/2012 */
 
+#include "SCE/utils/SCEType.h"
 #include "SCE/utils/SCEVector.h"
 
 #include "SCE/utils/SCERectangle.h"
@@ -125,9 +126,14 @@ void SCE_Rectangle_SetFromOrigin (SCE_SIntRect *r, int x, int y,
     r->p1[0] = x;     r->p1[1] = y;
     r->p2[0] = x + w; r->p2[1] = y + h;
 }
+void SCE_Rectangle3_SetFromOrigin (SCE_SIntRect3 *r, int x, int y, int z,
+                                   SCEuint w, SCEuint h, SCEuint d)
+{
+    r->p1[0] = x;     r->p1[1] = y;     r->p1[2] = z;
+    r->p2[0] = x + w; r->p2[1] = y + h; r->p2[2] = z + d;
+}
 void SCE_Rectangle3_SetFromOriginl (SCE_SLongRect3 *r, long x, long y, long z,
-                                    unsigned long w, unsigned long h,
-                                    unsigned long d)
+                                    SCEulong w, SCEulong h, SCEulong d)
 {
     r->p1[0] = x;     r->p1[1] = y;     r->p1[2] = z;
     r->p2[0] = x + w; r->p2[1] = y + h; r->p2[2] = z + d;

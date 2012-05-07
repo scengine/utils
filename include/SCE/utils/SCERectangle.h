@@ -17,13 +17,14 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 25/04/2012 */
+   updated: 07/05/2012 */
 
 #ifndef SCERECTANGLE_H
 #define SCERECTANGLE_H
 
-#include <SCE/utils/SCEVector.h>
-#include <SCE/utils/SCELine.h>
+#include "SCE/utils/SCEType.h"
+#include "SCE/utils/SCEVector.h"
+#include "SCE/utils/SCELine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,8 +68,10 @@ void SCE_Rectangle_Setf (SCE_SFloatRect*, float, float, float, float);
 
 void SCE_Rectangle_SetFromOrigin (SCE_SIntRect*, int, int,
                                   unsigned int, unsigned int);
+void SCE_Rectangle3_SetFromOrigin (SCE_SIntRect3*, int, int, int,
+                                   SCEuint, SCEuint, SCEuint);
 void SCE_Rectangle3_SetFromOriginl (SCE_SLongRect3*, long, long, long,
-                                    unsigned long, unsigned long,unsigned long);
+                                    SCEulong, SCEulong, SCEulong);
 void SCE_Rectangle_SetFromOriginf (SCE_SFloatRect*, float, float, float, float);
 void SCE_Rectangle_SetFromCenter (SCE_SIntRect*, int, int,
                                   unsigned int, unsigned int);
