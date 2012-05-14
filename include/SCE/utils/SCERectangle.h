@@ -161,6 +161,24 @@ int SCE_Rectangle3_IsInsidel (const SCE_SLongRect3*, const SCE_SLongRect3*);
 void SCE_Rectangle3_Pow2 (SCE_SIntRect3*, int);
 void SCE_Rectangle3_Pow2l (SCE_SLongRect3*, int);
 
+void SCE_Rectangle3_SplitWidth (const SCE_SIntRect3*, SCEuint, SCE_SIntRect3*,
+                                SCE_SIntRect3*);
+void SCE_Rectangle3_SplitHeight (const SCE_SIntRect3*, SCEuint, SCE_SIntRect3*,
+                                 SCE_SIntRect3*);
+void SCE_Rectangle3_SplitDepth (const SCE_SIntRect3*, SCEuint, SCE_SIntRect3*,
+                                SCE_SIntRect3*);
+void SCE_Rectangle3_SplitMax (const SCE_SIntRect3*, SCE_SIntRect3*,
+                              SCE_SIntRect3*);
+
+void SCE_Rectangle3_SplitWidthl (const SCE_SLongRect3*, SCEulong,
+                                 SCE_SLongRect3*, SCE_SLongRect3*);
+void SCE_Rectangle3_SplitHeightl (const SCE_SLongRect3*, SCEulong,
+                                  SCE_SLongRect3*, SCE_SLongRect3*);
+void SCE_Rectangle3_SplitDepthl (const SCE_SLongRect3*, SCEulong,
+                                 SCE_SLongRect3*, SCE_SLongRect3*);
+void SCE_Rectangle3_SplitMaxl (const SCE_SLongRect3*,
+                               SCE_SLongRect3*, SCE_SLongRect3*);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

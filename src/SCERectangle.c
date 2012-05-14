@@ -847,4 +847,129 @@ void SCE_Rectangle3_Pow2l (SCE_SLongRect3 *r, int exponent)
     }
 }
 
+
+/**
+ * \brief Splits a rectangle into two subrectangles
+ * \param r a rectangle
+ * \param s split offset, must be less than SCE_Rectangle3_GetWidth()
+ * \param a inferior part
+ * \param b superior part
+ */
+void SCE_Rectangle3_SplitWidth (const SCE_SIntRect3 *r, SCEuint s,
+                                SCE_SIntRect3 *a, SCE_SIntRect3 *b)
+{
+    *a = *r;
+    *b = *r;
+    a->p2[0] -= s;
+    b->p1[0] += s;
+}
+/**
+ * \brief Splits a rectangle into two subrectangles
+ * \param r a rectangle
+ * \param s split offset, must be less than SCE_Rectangle3_GetHeight()
+ * \param a inferior part
+ * \param b superior part
+ */
+void SCE_Rectangle3_SplitHeight (const SCE_SIntRect3 *r, SCEuint s,
+                                 SCE_SIntRect3 *a, SCE_SIntRect3 *b)
+{
+    *a = *r;
+    *b = *r;
+    a->p2[1] -= s;
+    b->p1[1] += s;
+}
+/**
+ * \brief Splits a rectangle into two subrectangles
+ * \param r a rectangle
+ * \param s split offset, must be less than SCE_Rectangle3_GetDepth()
+ * \param a inferior part
+ * \param b superior part
+ */
+void SCE_Rectangle3_SplitDepth (const SCE_SIntRect3 *r, SCEuint s,
+                                SCE_SIntRect3 *a, SCE_SIntRect3 *b)
+{
+    *a = *r;
+    *b = *r;
+    a->p2[2] -= s;
+    b->p1[2] += s;
+}
+
+void SCE_Rectangle3_SplitMax (const SCE_SIntRect3 *r, SCE_SIntRect3 *a,
+                              SCE_SIntRect3 *b)
+{
+    SCEulong w, h, d;
+    w = SCE_Rectangle3_GetWidth (r);
+    h = SCE_Rectangle3_GetHeight (r);
+    d = SCE_Rectangle3_GetDepth (r);
+    if (w >= h && w >= d)
+        SCE_Rectangle3_SplitWidth (r, w / 2, a, b);
+    else if (h >= w && h >= d)
+        SCE_Rectangle3_SplitHeight (r, h / 2, a, b);
+    else
+        SCE_Rectangle3_SplitDepth (r, d / 2, a, b);
+}
+
+
+/**
+ * \brief Splits a rectangle into two subrectangles
+ * \param r a rectangle
+ * \param s split offset, must be less than SCE_Rectangle3_GetWidthl()
+ * \param a inferior part
+ * \param b superior part
+ */
+void SCE_Rectangle3_SplitWidthl (const SCE_SLongRect3 *r, SCEulong s,
+                                 SCE_SLongRect3 *a, SCE_SLongRect3 *b)
+{
+    *a = *r;
+    *b = *r;
+    a->p2[0] -= s;
+    b->p1[0] += s;
+}
+/**
+ * \brief Splits a rectangle into two subrectangles
+ * \param r a rectangle
+ * \param s split offset, must be less than SCE_Rectangle3_GetHeightl()
+ * \param a inferior part
+ * \param b superior part
+ */
+void SCE_Rectangle3_SplitHeightl (const SCE_SLongRect3 *r, SCEulong s,
+                                  SCE_SLongRect3 *a, SCE_SLongRect3 *b)
+{
+    *a = *r;
+    *b = *r;
+    a->p2[1] -= s;
+    b->p1[1] += s;
+}
+/**
+ * \brief Splits a rectangle into two subrectangles
+ * \param r a rectangle
+ * \param s split offset, must be less than SCE_Rectangle3_GetDepthl()
+ * \param a inferior part
+ * \param b superior part
+ */
+void SCE_Rectangle3_SplitDepthl (const SCE_SLongRect3 *r, SCEulong s,
+                                 SCE_SLongRect3 *a, SCE_SLongRect3 *b)
+{
+    *a = *r;
+    *b = *r;
+    a->p2[2] -= s;
+    b->p1[2] += s;
+}
+
+void SCE_Rectangle3_SplitMaxl (const SCE_SLongRect3 *r,
+                               SCE_SLongRect3 *a, SCE_SLongRect3 *b)
+{
+    SCEulong w, h, d;
+    w = SCE_Rectangle3_GetWidthl (r);
+    h = SCE_Rectangle3_GetHeightl (r);
+    d = SCE_Rectangle3_GetDepthl (r);
+    if (w >= h && w >= d)
+        SCE_Rectangle3_SplitWidthl (r, w / 2, a, b);
+    else if (h >= w && h >= d)
+        SCE_Rectangle3_SplitHeightl (r, h / 2, a, b);
+    else
+        SCE_Rectangle3_SplitDepthl (r, d / 2, a, b);
+}
+
+
 /** @} */
