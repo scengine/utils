@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,48 +16,53 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-/* created: 13/02/2009
-   updated: 17/04/2010 */
+/* created: 17/05/2012
+   updated: 17/05/2012 */
 
-#ifndef SCEUTILS_H
-#define SCEUTILS_H
-
-/* external dependencies */
-#include <stdio.h>
-
-/* internal dependencies */
-#include "SCE/utils/SCEMacros.h"
-#include "SCE/utils/SCEBacktracer.h"
+#include <stdlib.h>
+#include <string.h>
 #include "SCE/utils/SCEError.h"
 #include "SCE/utils/SCEMemory.h"
 #include "SCE/utils/SCEArray.h"
-#include "SCE/utils/SCETime.h"
-#include "SCE/utils/SCEType.h"
 
-#include "SCE/utils/SCEMath.h"
-#include "SCE/utils/SCEVector.h"
-#include "SCE/utils/SCEQuaternion.h"
-#include "SCE/utils/SCEMatrix.h"
-#include "SCE/utils/SCELine.h"
-#include "SCE/utils/SCERectangle.h"
-#include "SCE/utils/SCEPlane.h"
+void SCE_Array_Init (SCE_SArray *a)
+{
+    a->ptr = NULL;
+    a->size = 0;
+    a->allocated = 0;
+}
+void SCE_Array_Clear (SCE_SArray *a)
+{
+    SCE_free (a->ptr);
+}
 
-#include "SCE/utils/SCEInert.h"
-#include "SCE/utils/SCEMedia.h"
-#include "SCE/utils/SCEResource.h"
-#include "SCE/utils/SCEList.h"
-#include "SCE/utils/SCEListFastForeach.h"
-#include "SCE/utils/SCEString.h"
+int SCE_Array_Append (SCE_SArray *a, void *data, size_t size)
+{
+    size_t offset;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    offset = a->size;
+    a->size += size;
+    if (a->size > a->allocated) {
+        if (a->allocated == 0)
+            a->allocated = 1;
+        do
+            a->allocated *= 2;
+        while (a->size > a->allocated);
+        if (!(a->ptr = SCE_realloc (a->ptr, a->allocated))) {
+            SCEE_LogSrc ();
+            return SCE_ERROR;
+        }
+    }
+    memcpy (&a->ptr[offset], data, size);
+    return SCE_OK;
+}
 
-int SCE_Init_Utils (FILE*);
-void SCE_Quit_Utils (void);
+void* SCE_Array_Get (const SCE_SArray *a)
+{
+    return a->ptr;
+}
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
-
-#endif /* guard */
+size_t SCE_Array_GetSize (const SCE_SArray *a)
+{
+    return a->size;
+}

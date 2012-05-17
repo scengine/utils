@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,45 +16,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-/* created: 13/02/2009
-   updated: 17/04/2010 */
+/* created: 17/05/2012
+   updated: 17/05/2012 */
 
-#ifndef SCEUTILS_H
-#define SCEUTILS_H
-
-/* external dependencies */
-#include <stdio.h>
-
-/* internal dependencies */
-#include "SCE/utils/SCEMacros.h"
-#include "SCE/utils/SCEBacktracer.h"
-#include "SCE/utils/SCEError.h"
-#include "SCE/utils/SCEMemory.h"
-#include "SCE/utils/SCEArray.h"
-#include "SCE/utils/SCETime.h"
-#include "SCE/utils/SCEType.h"
-
-#include "SCE/utils/SCEMath.h"
-#include "SCE/utils/SCEVector.h"
-#include "SCE/utils/SCEQuaternion.h"
-#include "SCE/utils/SCEMatrix.h"
-#include "SCE/utils/SCELine.h"
-#include "SCE/utils/SCERectangle.h"
-#include "SCE/utils/SCEPlane.h"
-
-#include "SCE/utils/SCEInert.h"
-#include "SCE/utils/SCEMedia.h"
-#include "SCE/utils/SCEResource.h"
-#include "SCE/utils/SCEList.h"
-#include "SCE/utils/SCEListFastForeach.h"
-#include "SCE/utils/SCEString.h"
+#ifndef SCEARRAY_H
+#define SCEARRAY_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int SCE_Init_Utils (FILE*);
-void SCE_Quit_Utils (void);
+typedef struct sce_sarray SCE_SArray;
+struct sce_sarray {
+    unsigned char *ptr;
+    size_t size;
+    size_t allocated;
+};
+
+void SCE_Array_Init (SCE_SArray*);
+void SCE_Array_Clear (SCE_SArray*);
+
+int SCE_Array_Append (SCE_SArray*, void*, size_t);
+void* SCE_Array_Get (const SCE_SArray*);
+size_t SCE_Array_GetSize (const SCE_SArray*);
 
 #ifdef __cplusplus
 } /* extern "C" */

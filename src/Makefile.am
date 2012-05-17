@@ -9,6 +9,7 @@ libsceutils_la_LDFLAGS  = -version-info @SCE_UTILS_LTVERSION@
 libsceutils_la_SOURCES  = SCELine.c \
                           SCEVector.c \
                           SCEMemory.c \
+                          SCEArray.c \
                           SCEUtils.c \
                           SCEInert.c \
                           SCEError.c \

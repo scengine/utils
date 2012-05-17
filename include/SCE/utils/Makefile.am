@@ -1,5 +1,6 @@
-sce_include_utils_HEADERS = SCEBacktracer.h \
-                            SCEError.h \
+sce_include_utils_HEADERS = SCEError.h \
+                            SCEMemory.h \
+                            SCEArray.h \
                             SCEInert.h \
                             SCELine.h \
                             SCEListFastForeach.h \
@@ -8,7 +9,6 @@ sce_include_utils_HEADERS = SCEBacktracer.h \
                             SCEMath.h \
                             SCEMatrix.h \
                             SCEMedia.h \
-                            SCEMemory.h \
                             SCEPlane.h \
                             SCEQuaternion.h \
                             SCERectangle.h \
