@@ -463,6 +463,13 @@ void* SCE_Mem_Realloc (const char *file, unsigned int line, void *p, size_t s)
             SCEE_Log (SCE_OUT_OF_MEMORY);
             return NULL;
         }
+        if (mem->prev)
+            mem->prev->next = mem;
+        if (mem->next)
+            mem->next->prev = mem;
+        mem->size = s;
+        mem->line = line;
+        mem->file = file;
     }
 
     return SCE_Mem_GetAllocAddress (mem);
