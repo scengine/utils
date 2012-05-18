@@ -29,6 +29,7 @@ extern "C" {
 typedef struct sce_sarray SCE_SArray;
 struct sce_sarray {
     unsigned char *ptr;
+    size_t removed;
     size_t size;
     size_t allocated;
 };
@@ -37,6 +38,7 @@ void SCE_Array_Init (SCE_SArray*);
 void SCE_Array_Clear (SCE_SArray*);
 
 int SCE_Array_Append (SCE_SArray*, void*, size_t);
+int SCE_Array_Pop (SCE_SArray*, size_t);
 void* SCE_Array_Get (const SCE_SArray*);
 size_t SCE_Array_GetSize (const SCE_SArray*);
 

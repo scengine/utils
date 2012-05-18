@@ -17,10 +17,11 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 17/05/2012
-   updated: 17/05/2012 */
+   updated: 18/05/2012 */
 
 #include <stdlib.h>
 #include <string.h>
+#include "SCE/utils/SCEMath.h"
 #include "SCE/utils/SCEError.h"
 #include "SCE/utils/SCEMemory.h"
 #include "SCE/utils/SCEArray.h"
@@ -28,6 +29,7 @@
 void SCE_Array_Init (SCE_SArray *a)
 {
     a->ptr = NULL;
+    a->removed = 0;
     a->size = 0;
     a->allocated = 0;
 }
@@ -36,19 +38,42 @@ void SCE_Array_Clear (SCE_SArray *a)
     SCE_free (a->ptr);
 }
 
+static int SCE_Array_Realloc (SCE_SArray *a, size_t size)
+{
+    unsigned char *ptr = NULL;
+    size_t pot = SCE_Math_NextPowerOfTwo (SCE_Array_GetSize (a));
+
+    if (a->allocated >= pot && a->allocated < 2 * pot) {
+        memmove (a->ptr, SCE_Array_Get (a), size);
+    } else {
+        a->allocated = pot;
+        if (!(ptr = SCE_malloc (a->allocated))) {
+            SCEE_LogSrc ();
+            return SCE_ERROR;
+        }
+        if (a->ptr) {
+            memcpy (ptr, SCE_Array_Get (a), size);
+            SCE_free (a->ptr);
+        }
+        a->ptr = ptr;
+    }
+
+    a->size -= a->removed;
+    a->removed = 0;
+    return SCE_OK;
+}
+
 int SCE_Array_Append (SCE_SArray *a, void *data, size_t size)
 {
     size_t offset;
+    size_t old_size;
 
+    old_size = SCE_Array_GetSize (a);
     offset = a->size;
     a->size += size;
     if (a->size > a->allocated) {
-        if (a->allocated == 0)
-            a->allocated = 1;
-        do
-            a->allocated *= 2;
-        while (a->size > a->allocated);
-        if (!(a->ptr = SCE_realloc (a->ptr, a->allocated))) {
+        offset -= a->removed;
+        if (SCE_Array_Realloc (a, old_size) < 0) {
             SCEE_LogSrc ();
             return SCE_ERROR;
         }
@@ -57,12 +82,27 @@ int SCE_Array_Append (SCE_SArray *a, void *data, size_t size)
     return SCE_OK;
 }
 
+int SCE_Array_Pop (SCE_SArray *a, size_t size)
+{
+    size_t old_size;
+
+    a->removed += size;
+    old_size = SCE_Array_GetSize (a);
+    if (old_size * 2 < a->allocated) {
+        if (SCE_Array_Realloc (a, old_size) < 0) {
+            SCEE_LogSrc ();
+            return SCE_ERROR;
+        }
+    }
+    return SCE_OK;
+}
+
 void* SCE_Array_Get (const SCE_SArray *a)
 {
-    return a->ptr;
+    return &a->ptr[a->removed];
 }
 
 size_t SCE_Array_GetSize (const SCE_SArray *a)
 {
-    return a->size;
+    return a->size - a->removed;
 }
