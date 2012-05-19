@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 07/05/2012 */
+   updated: 20/05/2012 */
 
 #ifndef SCERECTANGLE_H
 #define SCERECTANGLE_H
@@ -131,6 +131,8 @@ int SCE_Rectangle_Equalf (SCE_SFloatRect*, SCE_SFloatRect*);
 
 int SCE_Rectangle_IsIn (SCE_SIntRect*, int, int);
 int SCE_Rectangle_IsInf (SCE_SFloatRect*, float, float);
+int SCE_Rectangle3_IsIn (SCE_SIntRect3*, int, int, int);
+int SCE_Rectangle3_IsInl (SCE_SLongRect3*, long, long, long);
 int SCE_Rectangle_IsInv (SCE_SIntRect*, int*);
 int SCE_Rectangle_IsInfv (SCE_SFloatRect*, float*);
 

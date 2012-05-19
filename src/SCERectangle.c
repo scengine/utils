@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 07/05/2012 */
+   updated: 20/05/2012 */
 
 #include "SCE/utils/SCEType.h"
 #include "SCE/utils/SCEVector.h"
@@ -566,7 +566,8 @@ int SCE_Rectangle_Equalf (SCE_SFloatRect *a, SCE_SFloatRect *b)
  */
 int SCE_Rectangle_IsIn (SCE_SIntRect *r, int x, int y)
 {
-    return (x > r->p1[0] && x < r->p2[0] && y > r->p1[1] && x < r->p2[1]);
+    return (x >= r->p1[0] && x < r->p2[0] &&
+            y >= r->p1[1] && y < r->p2[1]);
 }
 /**
  * \brief Check if a point is inside a rectangle
@@ -579,7 +580,20 @@ int SCE_Rectangle_IsIn (SCE_SIntRect *r, int x, int y)
  */
 int SCE_Rectangle_IsInf (SCE_SFloatRect *r, float x, float y)
 {
-    return (x > r->p1[0] && x < r->p2[0] && y > r->p1[1] && x < r->p2[1]);
+    return (x >= r->p1[0] && x < r->p2[0] &&
+            y >= r->p1[1] && y < r->p2[1]);
+}
+int SCE_Rectangle3_IsIn (SCE_SIntRect3 *r, int x, int y, int z)
+{
+    return (x >= r->p1[0] && x < r->p2[0] &&
+            y >= r->p1[1] && y < r->p2[1] &&
+            z >= r->p1[2] && z < r->p2[2]);
+}
+int SCE_Rectangle3_IsInl (SCE_SLongRect3 *r, long x, long y, long z)
+{
+    return (x >= r->p1[0] && x < r->p2[0] &&
+            y >= r->p1[1] && y < r->p2[1] &&
+            z >= r->p1[2] && z < r->p2[2]);
 }
 /**
  * \brief Check if a point is inside a rectangle
