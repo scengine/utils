@@ -334,6 +334,18 @@ void SCE_Rectangle_Addf (SCE_SFloatRect *r, float w, float h)
     r->p2[0] += w;
     r->p2[1] += h;
 }
+void SCE_Rectangle3_Div (SCE_SIntRect3 *r, int x, int y, int z)
+{
+    r->p1[0] /= x; r->p2[0] /= x;
+    r->p1[1] /= y; r->p2[1] /= y;
+    r->p1[2] /= z; r->p2[2] /= z;
+}
+void SCE_Rectangle3_Divl (SCE_SLongRect3 *r, long x, long y, long z)
+{
+    r->p1[0] /= x; r->p2[0] /= x;
+    r->p1[1] /= y; r->p2[1] /= y;
+    r->p1[2] /= z; r->p2[2] /= z;
+}
 
 void SCE_Rectangle3_SubOriginl (SCE_SLongRect3 *r1, const SCE_SLongRect3 *r2)
 {
