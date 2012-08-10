@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 13/02/2009
-   updated: 10/04/2010 */
+   updated: 09/08/2012 */
 
 #include <stdio.h>
 #include <pthread.h>
@@ -60,6 +60,9 @@ int SCE_Init_Utils (FILE *outlog)
         if (SCE_Init_Mem () < 0) {
             SCEE_LogSrc ();
             SCEE_LogSrcMsg ("can't initialize memory manager");
+        } else if (SCE_Init_File () < 0) {
+            SCEE_LogSrc ();
+            SCEE_LogSrcMsg ("can't initialize file manager");
         } else if (SCE_Init_Matrix () < 0) {
             SCEE_LogSrc ();
             SCEE_LogSrcMsg ("can't initialize matrices manager");
@@ -98,6 +101,7 @@ void SCE_Quit_Utils (void)
             SCE_Quit_Media ();
             SCE_Quit_FastList ();
             /*SCE_Quit_Matrix ();*/
+            SCE_Quit_File ();
             /*SCE_Quit_Error ();*/
             SCE_Quit_Mem ();
         }

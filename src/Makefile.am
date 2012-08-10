@@ -14,6 +14,7 @@ libsceutils_la_SOURCES  = SCELine.c \
                           SCEInert.c \
                           SCEError.c \
                           SCEString.c \
+                          SCEFile.c \
                           SCEResource.c \
                           SCEMatrix.c \
                           SCEListFastForeach.c \

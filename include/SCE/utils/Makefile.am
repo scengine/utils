@@ -1,6 +1,7 @@
 sce_include_utils_HEADERS = SCEError.h \
                             SCEMemory.h \
                             SCEArray.h \
+                            SCEFile.h \
                             SCEInert.h \
                             SCELine.h \
                             SCEListFastForeach.h \
