@@ -27,7 +27,6 @@
 
 /* internal dependencies */
 #include "SCE/utils/SCEMacros.h"
-#include "SCE/utils/SCEBacktracer.h"
 #include "SCE/utils/SCEError.h"
 #include "SCE/utils/SCEMemory.h"
 #include "SCE/utils/SCEArray.h"
