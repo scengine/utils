@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 09/08/2012
-   updated: 09/08/2012 */
+   updated: 10/08/2012 */
 
 #ifndef SCEFILE_H
 #define SCEFILE_H
@@ -36,6 +36,7 @@ typedef size_t (*SCE_FWriteFunc)(void*, size_t, size_t, void*);
 typedef int (*SCE_FSeekFunc)(void*, long, int);
 typedef long (*SCE_FTellFunc)(void*);
 typedef void (*SCE_FRewindFunc)(void*);
+typedef int (*SCE_FFlushFunc)(void*);
 
 struct sce_sfilesystem {
     void *udata;
@@ -46,6 +47,7 @@ struct sce_sfilesystem {
     SCE_FSeekFunc xseek;
     SCE_FTellFunc xtell;
     SCE_FRewindFunc xrewind;
+    SCE_FFlushFunc xflush;
 };
 
 struct sce_sfile {
@@ -69,6 +71,8 @@ size_t SCE_File_Write (void*, size_t, size_t, SCE_SFile*);
 int SCE_File_Seek (SCE_SFile*, long, int);
 long SCE_File_Tell (SCE_SFile*);
 void SCE_File_Rewind (SCE_SFile*);
+
+int SCE_File_Flush (SCE_SFile*);
 
 #ifdef __cplusplus
 } /* extern "C" */

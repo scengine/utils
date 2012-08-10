@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 09/08/2012
-   updated: 09/08/2012 */
+   updated: 10/08/2012 */
 
 #include "SCE/utils/SCEError.h"
 #include "SCE/utils/SCEFile.h"
@@ -45,6 +45,7 @@ int SCE_Init_File (void)
     sce_cfs.xseek = (SCE_FSeekFunc)fseek;
     sce_cfs.xtell = (SCE_FTellFunc)ftell;
     sce_cfs.xrewind = (SCE_FRewindFunc)rewind;
+    sce_cfs.xflush = (SCE_FFlushFunc)fflush;
     return SCE_OK;
 }
 void SCE_Quit_File (void)
@@ -100,4 +101,9 @@ long SCE_File_Tell (SCE_SFile *fp)
 void SCE_File_Rewind (SCE_SFile *fp)
 {
     fp->fs->xrewind (fp->file);
+}
+
+int SCE_File_Flush (SCE_SFile *fp)
+{
+    return fp->fs->xflush (fp->file);
 }
