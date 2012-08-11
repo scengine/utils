@@ -55,6 +55,7 @@ AC_DEFINE([SCE_UTILS_VERSION_STRING], [VERSION], [Version of the SCEngine])
 dnl check for libs & headers
 
 SCE_CHECK_PTHREAD
+SCE_CHECK_ZLIB
 dnl we need math.h and -lm
 SCE_REQUIRE_HEADER([math.h])
 SCE_REQUIRE_LIB([m], [acos])

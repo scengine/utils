@@ -2,9 +2,10 @@ lib_LTLIBRARIES = libsceutils.la
 
 libsceutils_la_CPPFLAGS = -I$(srcdir)/../include
 libsceutils_la_CFLAGS   = @PTHREAD_CFLAGS@ \
+                          @ZLIB_CFLAGS@ \
                           @SCE_DEBUG_CFLAGS@ \
                           @SCE_DEBUG_CFLAGS_EXPORT@
-libsceutils_la_LIBADD   = @PTHREAD_LIBS@
+libsceutils_la_LIBADD   = @PTHREAD_LIBS@ @ZLIB_LIBS@
 libsceutils_la_LDFLAGS  = -version-info @SCE_UTILS_LTVERSION@
 libsceutils_la_SOURCES  = SCELine.c \
                           SCEVector.c \
@@ -15,6 +16,7 @@ libsceutils_la_SOURCES  = SCELine.c \
                           SCEError.c \
                           SCEString.c \
                           SCEFile.c \
+                          SCEGZFile.c \
                           SCEResource.c \
                           SCEMatrix.c \
                           SCEListFastForeach.c \
