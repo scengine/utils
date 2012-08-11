@@ -19,4 +19,5 @@ sce_include_utils_HEADERS = SCEError.h \
                             SCETime.h \
                             SCEUtils.h \
                             SCEType.h \
+                            SCEEncode.h \
                             SCEVector.h

@@ -28,3 +28,4 @@ libsceutils_la_SOURCES  = SCELine.c \
                           SCETime.c \
                           SCEList.c \
                           SCEType.c \
+                          SCEEncode.c

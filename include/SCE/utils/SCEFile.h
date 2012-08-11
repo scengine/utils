@@ -26,10 +26,14 @@
 extern "C" {
 #endif
 
+#define SCE_FILE_READ     (1 << 0)
+#define SCE_FILE_WRITE    (1 << 1)
+#define SCE_FILE_CREATE   (1 << 2)
+
 typedef struct sce_sfile SCE_SFile;
 typedef struct sce_sfilesystem SCE_SFileSystem;
 
-typedef void* (*SCE_FOpenFunc)(const char*, const char*);
+typedef void* (*SCE_FOpenFunc)(const char*, int);
 typedef int (*SCE_FCloseFunc)(void*);
 typedef size_t (*SCE_FReadFunc)(void*, size_t, size_t, void*);
 typedef size_t (*SCE_FWriteFunc)(void*, size_t, size_t, void*);
@@ -51,8 +55,8 @@ struct sce_sfilesystem {
 };
 
 struct sce_sfile {
-    void *file;
     SCE_SFileSystem *fs;
+    void *file;
 };
 
 extern SCE_SFileSystem sce_cfs;
@@ -62,7 +66,7 @@ void SCE_Quit_File (void);
 
 void SCE_File_Init (SCE_SFile*);
 
-int SCE_File_Open (SCE_SFile*, SCE_SFileSystem*, const char*, const char*);
+int SCE_File_Open (SCE_SFile*, SCE_SFileSystem*, const char*, int);
 int SCE_File_Close (SCE_SFile*);
 
 size_t SCE_File_Read (void*, size_t, size_t, SCE_SFile*);

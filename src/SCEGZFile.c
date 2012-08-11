@@ -37,6 +37,8 @@ struct xfile {
     SCE_SArray data;
     size_t pos;
     int is_sync;
+    int readable;
+    int writable;
 };
 
 static void xfile_init (xfile *fp)
@@ -45,6 +47,8 @@ static void xfile_init (xfile *fp)
     SCE_Array_Init (&fp->data);
     fp->pos = 0;
     fp->is_sync = SCE_TRUE;
+    fp->readable = SCE_FALSE;
+    fp->writable = SCE_FALSE;
 }
 static void xfile_clear (xfile *fp)
 {
@@ -90,29 +94,42 @@ static const char* xstrerr (int code)
 }
 
 
-static void* xopen (const char *fname, const char *mode)
+static void* xopen (const char *fname, int flags)
 {
     xfile *file = NULL;
     FILE *fd = NULL;
 
-    (void)mode;
-
     if (!(file = xfile_create (fname)))
         goto fail;
 
-    if (!(fd = fopen (fname, "rb"))) {
-        if (!(fd = fopen (fname, "wb"))) {
-            SCEE_LogErrno (fname);
-            return NULL;
+    fd = fopen (fname, "rb");
+    if (flags & SCE_FILE_CREATE) {
+        if (!fd) {
+            if (!(fd = fopen (fname, "wb"))) {
+                SCEE_LogErrno (fname);
+                goto fail;
+            }
+            fclose (fd);
+            fd = NULL;
         }
-    } else {
+    } else if (!fd) {
+        SCEE_LogErrno (fname);
+        goto fail;
+    }
+
+    if (flags & SCE_FILE_WRITE)
+        file->writable = SCE_TRUE;
+    if (flags & SCE_FILE_READ)
+        file->readable = SCE_TRUE;
+
+    if (flags & SCE_FILE_READ && fd) {
 #define CHUNK_SIZE 32768
 
         z_stream strm;
         int ret;
         unsigned char in[CHUNK_SIZE];
         unsigned char out[CHUNK_SIZE];
-        
+
         strm.zalloc = Z_NULL;
         strm.zfree = Z_NULL;
         strm.opaque = Z_NULL;
@@ -166,7 +183,8 @@ static void* xopen (const char *fname, const char *mode)
         }
     }
 
-    fclose (fd);
+    if (fd)
+        fclose (fd);
 
     return file;
 fail:
@@ -186,8 +204,10 @@ static int xflush (void *f)
     size_t size;
     xfile *file = f;
         
-    if (file->is_sync)
+    if (file->is_sync || !file->writable)
         return 0;
+    /* flushing an input stream should actually fail, but since we use xflush()
+       in xclose(), we'll be kind. */
 
     if (!(fd = fopen (file->fname, "wb"))) {
         SCEE_LogErrno (file->fname);
@@ -251,6 +271,9 @@ static size_t xread (void *data, size_t size, size_t nmemb, void *fd)
     unsigned char *ptr = NULL;
     xfile *file = fd;
 
+    if (!file->readable)
+        return 0;
+
     s = MIN (size * nmemb, SCE_Array_GetSize (&file->data) - file->pos);
     ptr = SCE_Array_Get (&file->data);
     memcpy (data, &ptr[file->pos], s);
@@ -264,6 +287,9 @@ static size_t xwrite (void *data, size_t size, size_t nmemb, void *fd)
     size_t remaining, s;
     unsigned char *ptr = NULL;
     xfile *file = fd;
+
+    if (!file->writable)
+        return 0;
 
     remaining = SCE_Array_GetSize (&file->data) - file->pos;
     s = MIN (remaining, size * nmemb);

@@ -17,21 +17,49 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 09/08/2012
-   updated: 10/08/2012 */
+   updated: 11/08/2012 */
 
+#include <string.h>
 #include "SCE/utils/SCEError.h"
 #include "SCE/utils/SCEFile.h"
 
 /* standard C functions */
 SCE_SFileSystem sce_cfs;
 
-static void* my_fopen (const char *fname, const char *mode)
+static void* my_fopen (const char *fname, int flags)
 {
     FILE *fp = NULL;
+    char mode[4] = {0};
+
+    if (flags & SCE_FILE_CREATE) {
+        if (!(fp = fopen (fname, "r"))) {
+            if (!(fp = fopen (fname, "w"))) {
+                SCEE_LogErrno (fname);
+                return NULL;
+            }
+        }
+        fclose (fp);
+        fp = NULL;
+    }
+
+    if (flags & (SCE_FILE_READ | SCE_FILE_WRITE))
+        strcpy (mode, "r+");
+    else if (flags & SCE_FILE_READ)
+        strcpy (mode, "r");
+    else if (flags & SCE_FILE_WRITE)
+        strcpy (mode, "w");
+    else {
+        /* wtf? */
+        SCEE_Log (42);
+        SCEE_LogMsg ("invalid flags parameter");
+        return NULL;
+    }
+
     if (!(fp = fopen (fname, mode))) {
         SCEE_LogErrno (fname);
         return NULL;
     }
+
     return fp;
 }
 
@@ -60,12 +88,12 @@ void SCE_File_Init (SCE_SFile *fp)
 }
 
 int SCE_File_Open (SCE_SFile *fp, SCE_SFileSystem *fs, const char *fname,
-                   const char *mode)
+                   int flags)
 {
     if (!fs)
         fs = &sce_cfs;
     fp->fs = fs;
-    fp->file = fs->xopen (fname, mode);
+    fp->file = fs->xopen (fname, flags);
     if (fp->file)
         return SCE_OK;
     else {
