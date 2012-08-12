@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 10/08/2012
-   updated: 11/08/2012 */
+   updated: 13/08/2012 */
 
 #include <stdio.h>
 #include "zlib.h"
@@ -26,6 +26,7 @@
 #include "SCE/utils/SCEMath.h"  /* MIN() */
 #include "SCE/utils/SCEString.h"
 #include "SCE/utils/SCEArray.h"
+#include "SCE/utils/SCEList.h"
 #include "SCE/utils/SCEFile.h"
 #include "SCE/utils/SCEGZFile.h"
 
@@ -35,47 +36,57 @@ typedef struct xfile xfile;
 struct xfile {
     char *fname;
     SCE_SArray data;
+    size_t size;
     size_t pos;
     int is_sync;
     int readable;
     int writable;
+    int cached;       /* whether \c data needs to be reloaded from the HDD */
+    SCE_SGZFileCache *cache;
+    SCE_SListIterator it;
 };
 
-static void xfile_init (xfile *fp)
+static void xfile_init (xfile *file)
 {
-    fp->fname = NULL;
-    SCE_Array_Init (&fp->data);
-    fp->pos = 0;
-    fp->is_sync = SCE_TRUE;
-    fp->readable = SCE_FALSE;
-    fp->writable = SCE_FALSE;
+    file->fname = NULL;
+    SCE_Array_Init (&file->data);
+    file->size = 0;
+    file->pos = 0;
+    file->is_sync = SCE_TRUE;
+    file->readable = SCE_FALSE;
+    file->writable = SCE_FALSE;
+    file->cached = SCE_TRUE;
+    file->cache = NULL;
+    SCE_List_InitIt (&file->it);
+    SCE_List_SetData (&file->it, file);
 }
-static void xfile_clear (xfile *fp)
+static void xfile_clear (xfile *file)
 {
-    SCE_free (fp->fname);
-    SCE_Array_Clear (&fp->data);
+    SCE_free (file->fname);
+    SCE_Array_Clear (&file->data);
+    SCE_List_Remove (&file->it);
 }
 
 static xfile* xfile_create (const char *fname)
 {
-    xfile *fp = NULL;
-    if (!(fp = SCE_malloc (sizeof *fp)))
+    xfile *file = NULL;
+    if (!(file = SCE_malloc (sizeof *file)))
         SCEE_LogSrc ();
     else {
-        xfile_init (fp);
-        if (!(fp->fname = SCE_String_Dup (fname))) {
+        xfile_init (file);
+        if (!(file->fname = SCE_String_Dup (fname))) {
             SCEE_LogSrc ();
-            SCE_free (fp);
+            SCE_free (file);
             return NULL;
         }
     }
-    return fp;
+    return file;
 }
-static void xfile_delete (xfile *fp)
+static void xfile_delete (xfile *file)
 {
-    if (fp) {
-        xfile_clear (fp);
-        SCE_free (fp);
+    if (file) {
+        xfile_clear (file);
+        SCE_free (file);
     }
 }
 
@@ -91,6 +102,76 @@ static const char* xstrerr (int code)
     case Z_VERSION_ERROR: return "version error";
     default: return "unknown error code";
     }
+}
+
+static int xdecomp (xfile *file, FILE *fd)
+{
+#define CHUNK_SIZE 32768
+
+    z_stream strm;
+    int ret;
+    unsigned char in[CHUNK_SIZE];
+    unsigned char out[CHUNK_SIZE];
+
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    strm.avail_in = 0;
+    strm.next_in = Z_NULL;
+    ret = inflateInit (&strm);
+    if (ret != Z_OK) {
+        SCEE_Log (ret);
+        SCEE_LogMsg ("zlib inflateInit() error: %s", xstrerr (ret));
+        goto fail;
+    }
+
+    do {
+        strm.avail_in = fread (in, 1, CHUNK_SIZE, fd);
+        if (ferror (fd)) {
+            inflateEnd (&strm);
+            SCEE_LogErrno (file->fname);
+            goto fail;
+        }
+        if (strm.avail_in == 0)
+            break;
+        strm.next_in = in;
+
+        do {
+            size_t size;
+
+            strm.avail_out = CHUNK_SIZE;
+            strm.next_out = out;
+            ret = inflate (&strm, Z_NO_FLUSH);
+            if (ret == Z_STREAM_ERROR || ret == Z_MEM_ERROR ||
+                ret == Z_DATA_ERROR || ret == Z_NEED_DICT) {
+                inflateEnd (&strm);
+                SCEE_Log (ret);
+                SCEE_LogMsg ("zlib inflate() error: %s", xstrerr (ret));
+                goto fail;
+            }
+            size = CHUNK_SIZE - strm.avail_out;
+            if (SCE_Array_Append (&file->data, out, size) < 0) {
+                inflateEnd (&strm);
+                goto fail;
+            }
+        } while (strm.avail_out == 0);
+
+    } while (ret != Z_STREAM_END);
+
+    inflateEnd (&strm);
+    if (ret != Z_STREAM_END) {
+        SCEE_Log (876);
+        SCEE_LogMsg ("%s: compressed file seem incomplete", file->fname);
+        goto fail;
+    }
+
+    file->size = SCE_Array_GetSize (&file->data);
+    file->cached = SCE_TRUE;
+
+    return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    return SCE_ERROR;
 }
 
 
@@ -123,64 +204,8 @@ static void* xopen (const char *fname, int flags)
         file->readable = SCE_TRUE;
 
     if (flags & SCE_FILE_READ && fd) {
-#define CHUNK_SIZE 32768
-
-        z_stream strm;
-        int ret;
-        unsigned char in[CHUNK_SIZE];
-        unsigned char out[CHUNK_SIZE];
-
-        strm.zalloc = Z_NULL;
-        strm.zfree = Z_NULL;
-        strm.opaque = Z_NULL;
-        strm.avail_in = 0;
-        strm.next_in = Z_NULL;
-        ret = inflateInit (&strm);
-        if (ret != Z_OK) {
-            SCEE_Log (ret);
-            SCEE_LogMsg ("zlib inflateInit() error: %s", xstrerr (ret));
+        if (xdecomp (file, fd) < 0)
             goto fail;
-        }
-
-        do {
-            strm.avail_in = fread (in, 1, CHUNK_SIZE, fd);
-            if (ferror (fd)) {
-                inflateEnd (&strm);
-                SCEE_LogErrno (fname);
-                goto fail;
-            }
-            if (strm.avail_in == 0)
-                break;
-            strm.next_in = in;
-
-            do {
-                size_t size;
-
-                strm.avail_out = CHUNK_SIZE;
-                strm.next_out = out;
-                ret = inflate (&strm, Z_NO_FLUSH);
-                if (ret == Z_STREAM_ERROR || ret == Z_MEM_ERROR ||
-                    ret == Z_DATA_ERROR || ret == Z_NEED_DICT) {
-                    inflateEnd (&strm);
-                    SCEE_Log (ret);
-                    SCEE_LogMsg ("zlib inflate() error: %s", xstrerr (ret));
-                    goto fail;
-                }
-                size = CHUNK_SIZE - strm.avail_out;
-                if (SCE_Array_Append (&file->data, out, size) < 0) {
-                    inflateEnd (&strm);
-                    goto fail;
-                }
-            } while (strm.avail_out == 0);
-
-        } while (ret != Z_STREAM_END);
-
-        inflateEnd (&strm);
-        if (ret != Z_STREAM_END) {
-            SCEE_Log (876);
-            SCEE_LogMsg ("%s: compressed file seem incomplete", file->fname);
-            goto fail;
-        }
     }
 
     if (fd)
@@ -255,14 +280,44 @@ fail:
     return EOF;
 }
 
+static void SCE_GZFile_UncacheGZFile (xfile*);
 static int xclose (void *fd)
 {
-    if (xflush (fd) != 0) {
+    xfile *file = fd;
+    if (xflush (file) != 0) {
         SCEE_LogSrc ();
         return EOF;
     }
-    xfile_delete (fd);
+    if (file->cache)
+        SCE_GZFile_UncacheGZFile (file);
+    xfile_delete (file);
     return 0;
+}
+
+static void SCE_GZFile_Cache (SCE_SGZFileCache*, xfile*);
+
+static int xreload (xfile *file)
+{
+    FILE *fp = NULL;
+
+    if (!(fp = fopen (file->fname, "rb"))) {
+        SCEE_LogErrno (file->fname);
+        goto fail;
+    }
+    if (xdecomp (file, fp) < 0)
+        goto fail;
+
+    fclose (fp);
+
+    /* put it on top of the cache */
+    if (file->cache)
+        SCE_GZFile_Cache (file->cache, file);
+
+    return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    SCEE_LogSrcMsg ("reloading of cached GZFile failed");
+    return SCE_ERROR;
 }
 
 static size_t xread (void *data, size_t size, size_t nmemb, void *fd)
@@ -273,8 +328,12 @@ static size_t xread (void *data, size_t size, size_t nmemb, void *fd)
 
     if (!file->readable)
         return 0;
+    if (!file->cached) {
+        if (xreload (file) < 0)
+            return 0;
+    }
 
-    s = MIN (size * nmemb, SCE_Array_GetSize (&file->data) - file->pos);
+    s = MIN (size * nmemb, file->size - file->pos);
     ptr = SCE_Array_Get (&file->data);
     memcpy (data, &ptr[file->pos], s);
     file->pos += s;
@@ -290,8 +349,12 @@ static size_t xwrite (void *data, size_t size, size_t nmemb, void *fd)
 
     if (!file->writable)
         return 0;
+    if (!file->cached) {
+        if (xreload (file) < 0)
+            return 0;
+    }
 
-    remaining = SCE_Array_GetSize (&file->data) - file->pos;
+    remaining = file->size - file->pos;
     s = MIN (remaining, size * nmemb);
     ptr = SCE_Array_Get (&file->data);
     memcpy (&ptr[file->pos], data, s);
@@ -308,6 +371,7 @@ static size_t xwrite (void *data, size_t size, size_t nmemb, void *fd)
     }
 
     file->pos += size * nmemb;
+    file->size = SCE_Array_GetSize (&file->data);
 
     return size * nmemb;
 }
@@ -319,7 +383,7 @@ static int xseek (void *fd, long offset, int whence)
     xfile *file = fd;
 
     new = file->pos;
-    size = SCE_Array_GetSize (&file->data);
+    size = file->size;
 
     switch (whence) {
     case SEEK_SET: new = offset; break;
@@ -365,4 +429,79 @@ int SCE_Init_GZFile (void)
 }
 void SCE_Quit_GZFile (void)
 {
+}
+
+
+void SCE_GZFile_InitCache (SCE_SGZFileCache *fc)
+{
+    fc->max_cached = 1;
+    fc->n_cached = 0;
+    SCE_List_Init (&fc->cached);
+    pthread_mutex_init (&fc->cached_mutex, NULL);
+}
+void SCE_GZFile_ClearCache (SCE_SGZFileCache *fc)
+{
+    SCE_List_Clear (&fc->cached);
+    pthread_mutex_destroy (&fc->cached_mutex);
+}
+
+void SCE_GZFile_SetMaxCachedFiles (SCE_SGZFileCache *fc, unsigned int m)
+{
+    fc->max_cached = m;
+}
+unsigned int SCE_GZFile_GetNumCachedFiles (SCE_SGZFileCache *fc)
+{
+    return fc->n_cached;
+}
+
+static void SCE_GZFile_Cache (SCE_SGZFileCache *fc, xfile *file)
+{
+    pthread_mutex_lock (&fc->cached_mutex);
+    SCE_List_Remove (&file->it);
+    SCE_List_Appendl (&fc->cached, &file->it);
+    fc->n_cached++;
+    pthread_mutex_unlock (&fc->cached_mutex);
+    SCEE_SendMsg ("cached %s\n", file->fname);
+}
+
+static void SCE_GZFile_Uncache (SCE_SGZFileCache *fc, xfile *file)
+{
+    pthread_mutex_lock (&fc->cached_mutex);
+    SCE_List_Remove (&file->it);
+    fc->n_cached--;
+    pthread_mutex_unlock (&fc->cached_mutex);
+    xflush (file);
+    SCE_Array_Clear (&file->data);
+    SCE_Array_Init (&file->data);
+    file->cached = SCE_FALSE;
+    SCEE_SendMsg ("uncached %s\n", file->fname);
+}
+
+
+void SCE_GZFile_CacheFile (SCE_SGZFileCache *fc, SCE_SFile *fd)
+{
+    xfile *file = SCE_File_Get (fd);
+    SCE_GZFile_Cache (fc, file);
+    file->cache = fc;
+}
+static void SCE_GZFile_UncacheGZFile (xfile *file)
+{
+    pthread_mutex_lock (&file->cache->cached_mutex);
+    SCE_List_Remove (&file->it);
+    file->cache->n_cached--;
+    pthread_mutex_unlock (&file->cache->cached_mutex);
+    file->cache = NULL;
+}
+void SCE_GZFile_UncacheFile (SCE_SFile *fd)
+{
+    SCE_GZFile_UncacheGZFile (SCE_File_Get (fd));
+}
+
+
+void SCE_GZFile_UpdateCache (SCE_SGZFileCache *fc)
+{
+    while (fc->n_cached > fc->max_cached) {
+        xfile *file = SCE_List_GetData (SCE_List_GetFirst (&fc->cached));
+        SCE_GZFile_Uncache (fc, file);
+    }
 }
