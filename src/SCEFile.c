@@ -86,6 +86,10 @@ void SCE_File_Init (SCE_SFile *fp)
     fp->file = NULL;
     fp->fs = NULL;
 }
+void* SCE_File_Get (SCE_SFile *fp)
+{
+    return fp->file;
+}
 
 int SCE_File_Open (SCE_SFile *fp, SCE_SFileSystem *fs, const char *fname,
                    int flags)

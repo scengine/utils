@@ -65,6 +65,7 @@ int SCE_Init_File (void);
 void SCE_Quit_File (void);
 
 void SCE_File_Init (SCE_SFile*);
+void* SCE_File_Get (SCE_SFile*);
 
 int SCE_File_Open (SCE_SFile*, SCE_SFileSystem*, const char*, int);
 int SCE_File_Close (SCE_SFile*);
