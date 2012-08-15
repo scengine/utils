@@ -461,7 +461,6 @@ static void SCE_GZFile_Cache (SCE_SGZFileCache *fc, xfile *file)
     SCE_List_Appendl (&fc->cached, &file->it);
     fc->n_cached++;
     pthread_mutex_unlock (&fc->cached_mutex);
-    SCEE_SendMsg ("cached %s\n", file->fname);
 }
 
 static void SCE_GZFile_Uncache (SCE_SGZFileCache *fc, xfile *file)
@@ -474,7 +473,6 @@ static void SCE_GZFile_Uncache (SCE_SGZFileCache *fc, xfile *file)
     SCE_Array_Clear (&file->data);
     SCE_Array_Init (&file->data);
     file->cached = SCE_FALSE;
-    SCEE_SendMsg ("uncached %s\n", file->fname);
 }
 
 
