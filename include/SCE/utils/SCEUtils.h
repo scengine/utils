@@ -41,6 +41,7 @@
 #include "SCE/utils/SCELine.h"
 #include "SCE/utils/SCERectangle.h"
 #include "SCE/utils/SCEPlane.h"
+#include "SCE/utils/SCESha1.h"
 
 #include "SCE/utils/SCEZlib.h"
 #include "SCE/utils/SCEFileCache.h"

@@ -18,6 +18,8 @@ libsceutils_la_SOURCES  = SCELine.c \
                           SCEFile.c \
                           SCEFileCache.c \
                           SCEZlib.c \
+                          polarssl-sha1.c \
+                          SCESha1.c \
                           SCEResource.c \
                           SCEMatrix.c \
                           SCEListFastForeach.c \

@@ -11,6 +11,8 @@ sce_include_utils_HEADERS = SCEError.h \
                             SCEMacros.h \
                             SCEMath.h \
                             SCEMatrix.h \
+                            polarssl-sha1.h \
+                            SCESha1.h \
                             SCEMedia.h \
                             SCEPlane.h \
                             SCEQuaternion.h \
