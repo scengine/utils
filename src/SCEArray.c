@@ -29,7 +29,8 @@
 void SCE_Array_Init (SCE_SArray *a)
 {
     a->ptr = NULL;
-    a->removed = 0;
+    a->removed_front = 0;
+    a->removed_back = 0;
     a->size = 0;
     a->allocated = 0;
 }
@@ -58,8 +59,8 @@ static int SCE_Array_Realloc (SCE_SArray *a, size_t size)
         a->ptr = ptr;
     }
 
-    a->size -= a->removed;
-    a->removed = 0;
+    a->size -= a->removed_front + a->removed_back;
+    a->removed_front = a->removed_back = 0;
     return SCE_OK;
 }
 
@@ -69,10 +70,10 @@ int SCE_Array_Append (SCE_SArray *a, void *data, size_t size)
     size_t old_size;
 
     old_size = SCE_Array_GetSize (a);
-    offset = a->size;
+    offset = a->size - a->removed_back;
     a->size += size;
     if (a->size > a->allocated) {
-        offset -= a->removed;
+        offset -= a->removed_front;
         if (SCE_Array_Realloc (a, old_size) < 0) {
             SCEE_LogSrc ();
             return SCE_ERROR;
@@ -85,11 +86,25 @@ int SCE_Array_Append (SCE_SArray *a, void *data, size_t size)
     return SCE_OK;
 }
 
-int SCE_Array_Pop (SCE_SArray *a, size_t size)
+int SCE_Array_PopFront (SCE_SArray *a, size_t size)
 {
     size_t old_size;
 
-    a->removed += size;
+    a->removed_front += size;
+    old_size = SCE_Array_GetSize (a);
+    if (old_size * 2 < a->allocated) {
+        if (SCE_Array_Realloc (a, old_size) < 0) {
+            SCEE_LogSrc ();
+            return SCE_ERROR;
+        }
+    }
+    return SCE_OK;
+}
+int SCE_Array_PopBack (SCE_SArray *a, size_t size)
+{
+    size_t old_size;
+
+    a->removed_back += size;
     old_size = SCE_Array_GetSize (a);
     if (old_size * 2 < a->allocated) {
         if (SCE_Array_Realloc (a, old_size) < 0) {
@@ -102,10 +117,10 @@ int SCE_Array_Pop (SCE_SArray *a, size_t size)
 
 void* SCE_Array_Get (const SCE_SArray *a)
 {
-    return &a->ptr[a->removed];
+    return &a->ptr[a->removed_front];
 }
 
 size_t SCE_Array_GetSize (const SCE_SArray *a)
 {
-    return a->size - a->removed;
+    return a->size - a->removed_front - a->removed_back;
 }
