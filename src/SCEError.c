@@ -269,6 +269,10 @@ void SCE_Error_LogSrc (const char *file, const char *func, unsigned int line)
         strncpy (error->file, file, SCE_MAX_ERROR_INFO_LEN);
         if (func)
             strncpy (error->func, func, SCE_MAX_ERROR_INFO_LEN);
+    } else {
+        SCEE_SendMsg ("logging too much source: %s:%d in %s\n",
+                      file, line, func);
+        l->current--;
     }
 }
 
