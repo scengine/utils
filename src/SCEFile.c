@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 09/08/2012
-   updated: 11/08/2012 */
+   updated: 16/08/2012 */
 
 #include <string.h>
 #include "SCE/utils/SCEError.h"
@@ -26,7 +26,7 @@
 /* standard C functions */
 SCE_SFileSystem sce_cfs;
 
-static void* my_fopen (const char *fname, int flags)
+static void* my_fopen (SCE_SFileSystem *fs, const char *fname, int flags)
 {
     FILE *fp = NULL;
     char mode[4] = {0};
@@ -66,6 +66,7 @@ static void* my_fopen (const char *fname, int flags)
 int SCE_Init_File (void)
 {
     sce_cfs.udata = NULL;
+    sce_cfs.subfs = NULL;
     sce_cfs.xopen = my_fopen;
     sce_cfs.xclose = (SCE_FCloseFunc)fclose;
     sce_cfs.xread = (SCE_FReadFunc)fread;
@@ -97,7 +98,7 @@ int SCE_File_Open (SCE_SFile *fp, SCE_SFileSystem *fs, const char *fname,
     if (!fs)
         fs = &sce_cfs;
     fp->fs = fs;
-    fp->file = fs->xopen (fname, flags);
+    fp->file = fs->xopen (fs->subfs, fname, flags);
     if (fp->file)
         return SCE_OK;
     else {

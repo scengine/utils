@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 09/08/2012
-   updated: 10/08/2012 */
+   updated: 19/08/2012 */
 
 #ifndef SCEFILE_H
 #define SCEFILE_H
@@ -33,7 +33,7 @@ extern "C" {
 typedef struct sce_sfile SCE_SFile;
 typedef struct sce_sfilesystem SCE_SFileSystem;
 
-typedef void* (*SCE_FOpenFunc)(const char*, int);
+typedef void* (*SCE_FOpenFunc)(SCE_SFileSystem*, const char*, int);
 typedef int (*SCE_FCloseFunc)(void*);
 typedef size_t (*SCE_FReadFunc)(void*, size_t, size_t, void*);
 typedef size_t (*SCE_FWriteFunc)(void*, size_t, size_t, void*);
@@ -44,6 +44,7 @@ typedef int (*SCE_FFlushFunc)(void*);
 
 struct sce_sfilesystem {
     void *udata;
+    SCE_SFileSystem *subfs; /* fs to be used by files opened with this fs */
     SCE_FOpenFunc xopen;
     SCE_FCloseFunc xclose;
     SCE_FReadFunc xread;
