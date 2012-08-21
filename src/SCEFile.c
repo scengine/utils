@@ -66,6 +66,13 @@ static void* my_fopen (SCE_SFileSystem *fs, const char *fname, int flags)
     return fp;
 }
 
+static int my_truncate (SCE_SFile *fp, size_t length)
+{
+    SCEE_Log (42);
+    SCEE_LogMsg ("truncate to arbitrary length not supported");
+    return SCE_ERROR;
+}
+
 static size_t my_length (const void *f)
 {
     long pos, size;
@@ -94,6 +101,7 @@ int SCE_Init_File (void)
     sce_cfs.xtell = (SCE_FTellFunc)ftell;
     sce_cfs.xrewind = (SCE_FRewindFunc)rewind;
     sce_cfs.xflush = (SCE_FFlushFunc)fflush;
+    sce_cfs.xtruncate = my_truncate;
     sce_cfs.xlength = my_length;
     return SCE_OK;
 }
@@ -159,6 +167,11 @@ void SCE_File_Rewind (SCE_SFile *fp)
 int SCE_File_Flush (SCE_SFile *fp)
 {
     return fp->fs->xflush (fp->file);
+}
+
+int SCE_File_Truncate (SCE_SFile *fp, size_t length)
+{
+    return fp->fs->xtruncate (fp, length);
 }
 
 size_t SCE_File_Length (const SCE_SFile *fp)
