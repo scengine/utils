@@ -63,6 +63,22 @@ static void* my_fopen (SCE_SFileSystem *fs, const char *fname, int flags)
     return fp;
 }
 
+static size_t my_length (const void *f)
+{
+    long pos, size;
+    FILE *fp = f;
+
+    pos = ftell (fp);
+    fseek (fp, 0, SEEK_END);
+    size = ftell (fp);
+    if (size < 0) {
+        SCEE_LogErrno ("ftell()");
+        return 0;               /* hihi. */
+    }
+    fseek (fp, pos, SEEK_SET);
+    return (size_t)size;                /* ugly cast */
+}
+
 int SCE_Init_File (void)
 {
     sce_cfs.udata = NULL;
@@ -75,6 +91,7 @@ int SCE_Init_File (void)
     sce_cfs.xtell = (SCE_FTellFunc)ftell;
     sce_cfs.xrewind = (SCE_FRewindFunc)rewind;
     sce_cfs.xflush = (SCE_FFlushFunc)fflush;
+    sce_cfs.xlength = my_length;
     return SCE_OK;
 }
 void SCE_Quit_File (void)
@@ -139,4 +156,9 @@ void SCE_File_Rewind (SCE_SFile *fp)
 int SCE_File_Flush (SCE_SFile *fp)
 {
     return fp->fs->xflush (fp->file);
+}
+
+size_t SCE_File_Length (const SCE_SFile *fp)
+{
+    return fp->fs->xlength (fp->file);
 }

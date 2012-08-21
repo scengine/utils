@@ -41,6 +41,7 @@ typedef int (*SCE_FSeekFunc)(void*, long, int);
 typedef long (*SCE_FTellFunc)(void*);
 typedef void (*SCE_FRewindFunc)(void*);
 typedef int (*SCE_FFlushFunc)(void*);
+typedef size_t (*SCE_FLengthFunc)(const void*);
 
 struct sce_sfilesystem {
     void *udata;
@@ -53,6 +54,7 @@ struct sce_sfilesystem {
     SCE_FTellFunc xtell;
     SCE_FRewindFunc xrewind;
     SCE_FFlushFunc xflush;
+    SCE_FLengthFunc xlength;
 };
 
 struct sce_sfile {
@@ -79,6 +81,7 @@ long SCE_File_Tell (SCE_SFile*);
 void SCE_File_Rewind (SCE_SFile*);
 
 int SCE_File_Flush (SCE_SFile*);
+size_t SCE_File_Length (const SCE_SFile*);
 
 #ifdef __cplusplus
 } /* extern "C" */
