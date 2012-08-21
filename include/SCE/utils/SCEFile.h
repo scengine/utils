@@ -34,6 +34,7 @@ extern "C" {
 typedef struct sce_sfile SCE_SFile;
 typedef struct sce_sfilesystem SCE_SFileSystem;
 
+typedef int (*SCE_FInitFunc)(SCE_SFileSystem*, SCE_SFile*);
 typedef void* (*SCE_FOpenFunc)(SCE_SFileSystem*, const char*, int);
 typedef int (*SCE_FCloseFunc)(void*);
 typedef size_t (*SCE_FReadFunc)(void*, size_t, size_t, void*);
@@ -48,6 +49,7 @@ typedef size_t (*SCE_FLengthFunc)(const void*);
 struct sce_sfilesystem {
     void *udata;
     SCE_SFileSystem *subfs; /* fs to be used by files opened with this fs */
+    SCE_FInitFunc xinit;
     SCE_FOpenFunc xopen;
     SCE_FCloseFunc xclose;
     SCE_FReadFunc xread;

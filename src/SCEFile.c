@@ -93,6 +93,7 @@ int SCE_Init_File (void)
 {
     sce_cfs.udata = NULL;
     sce_cfs.subfs = NULL;
+    sce_cfs.xinit = NULL;
     sce_cfs.xopen = my_fopen;
     sce_cfs.xclose = (SCE_FCloseFunc)fclose;
     sce_cfs.xread = (SCE_FReadFunc)fread;
@@ -126,13 +127,15 @@ int SCE_File_Open (SCE_SFile *fp, SCE_SFileSystem *fs, const char *fname,
     if (!fs)
         fs = &sce_cfs;
     fp->fs = fs;
-    fp->file = fs->xopen (fs->subfs, fname, flags);
-    if (fp->file)
-        return SCE_OK;
-    else {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
-    }
+    if (!(fp->file = fs->xopen (fs->subfs, fname, flags)))
+        goto fail;
+    /* call the user-defined initializing function, if any */
+    if (fs->xinit && fs->xinit (fs, fp) < 0)
+        goto fail;
+    return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    return SCE_ERROR;
 }
 int SCE_File_Close (SCE_SFile *fp)
 {

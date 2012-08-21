@@ -63,9 +63,6 @@ int SCE_Init_Utils (FILE *outlog)
         } else if (SCE_Init_File () < 0) {
             SCEE_LogSrc ();
             SCEE_LogSrcMsg ("can't initialize file manager");
-        } else if (SCE_Init_GZFile () < 0) {
-            SCEE_LogSrc ();
-            SCEE_LogSrcMsg ("can't initialize GZ file manager");
         } else if (SCE_Init_Matrix () < 0) {
             SCEE_LogSrc ();
             SCEE_LogSrcMsg ("can't initialize matrices manager");
@@ -104,7 +101,6 @@ void SCE_Quit_Utils (void)
             SCE_Quit_Media ();
             SCE_Quit_FastList ();
             /*SCE_Quit_Matrix ();*/
-            SCE_Quit_GZFile ();
             SCE_Quit_File ();
             /*SCE_Quit_Error ();*/
             SCE_Quit_Mem ();
