@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 13/02/2009
-   updated: 10/08/2012 */
+   updated: 19/08/2012 */
 
 #ifndef SCEUTILS_H
 #define SCEUTILS_H
@@ -42,8 +42,8 @@
 #include "SCE/utils/SCERectangle.h"
 #include "SCE/utils/SCEPlane.h"
 
+#include "SCE/utils/SCEZlib.h"
 #include "SCE/utils/SCEInert.h"
-#include "SCE/utils/SCEGZFile.h"
 #include "SCE/utils/SCEMedia.h"
 #include "SCE/utils/SCEResource.h"
 #include "SCE/utils/SCEList.h"
