@@ -16,47 +16,46 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-/* created: 13/02/2009
-   updated: 19/08/2012 */
+/* created: 15/08/2012
+   updated: 21/08/2012 */
 
-#ifndef SCEUTILS_H
-#define SCEUTILS_H
+#ifndef SCEFILECACHE_H
+#define SCEFILECACHE_H
 
-/* external dependencies */
-#include <stdio.h>
-
-/* internal dependencies */
-#include "SCE/utils/SCEMacros.h"
-#include "SCE/utils/SCEError.h"
-#include "SCE/utils/SCEMemory.h"
-#include "SCE/utils/SCEArray.h"
-#include "SCE/utils/SCETime.h"
-#include "SCE/utils/SCEType.h"
-#include "SCE/utils/SCEFile.h"
-
-#include "SCE/utils/SCEMath.h"
-#include "SCE/utils/SCEVector.h"
-#include "SCE/utils/SCEQuaternion.h"
-#include "SCE/utils/SCEMatrix.h"
-#include "SCE/utils/SCELine.h"
-#include "SCE/utils/SCERectangle.h"
-#include "SCE/utils/SCEPlane.h"
-
-#include "SCE/utils/SCEZlib.h"
-#include "SCE/utils/SCEFileCache.h"
-#include "SCE/utils/SCEInert.h"
-#include "SCE/utils/SCEMedia.h"
-#include "SCE/utils/SCEResource.h"
+#include <pthread.h>
 #include "SCE/utils/SCEList.h"
-#include "SCE/utils/SCEListFastForeach.h"
-#include "SCE/utils/SCEString.h"
+#include "SCE/utils/SCEFile.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int SCE_Init_Utils (FILE*);
-void SCE_Quit_Utils (void);
+typedef struct sce_sfilecache SCE_SFileCache;
+struct sce_sfilecache {
+    unsigned int max_cached;
+    unsigned int n_cached;
+    SCE_SList cached;
+    pthread_mutex_t cached_mutex;
+};
+
+extern SCE_SFileSystem sce_cachefs;
+
+int SCE_Init_FileCache (void);
+void SCE_Quit_FileCache (void);
+
+void* SCE_FileCache_GetRaw (SCE_SFile*);
+
+void SCE_FileCache_InitCache (SCE_SFileCache*);
+void SCE_FileCache_ClearCache (SCE_SFileCache*);
+
+void SCE_FileCache_SetMaxCachedFiles (SCE_SFileCache*, unsigned int);
+unsigned int SCE_FileCache_GetNumCachedFiles (SCE_SFileCache*);
+
+void SCE_FileCache_CacheFile (SCE_SFileCache*, SCE_SFile*);
+void SCE_FileCache_UncacheFile (SCE_SFile*);
+
+void SCE_FileCache_Update (SCE_SFileCache*);
+int SCE_FileCache_Sync (SCE_SFileCache*);
 
 #ifdef __cplusplus
 } /* extern "C" */
