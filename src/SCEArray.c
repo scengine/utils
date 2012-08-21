@@ -78,7 +78,10 @@ int SCE_Array_Append (SCE_SArray *a, void *data, size_t size)
             return SCE_ERROR;
         }
     }
-    memcpy (&a->ptr[offset], data, size);
+    if (data)
+        memcpy (&a->ptr[offset], data, size);
+    else
+        memset (&a->ptr[offset], 0, size);
     return SCE_OK;
 }
 
