@@ -42,9 +42,12 @@ static void* my_fopen (SCE_SFileSystem *fs, const char *fname, int flags)
         fp = NULL;
     }
 
-    if (flags & (SCE_FILE_READ | SCE_FILE_WRITE))
-        strcpy (mode, "r+");
-    else if (flags & SCE_FILE_READ)
+    if (flags & (SCE_FILE_READ | SCE_FILE_WRITE)) {
+        if (flags & SCE_FILE_TRUNCATE)
+            strcpy (mode, "w+");
+        else
+            strcpy (mode, "r+");
+    } else if (flags & SCE_FILE_READ)
         strcpy (mode, "r");
     else if (flags & SCE_FILE_WRITE)
         strcpy (mode, "w");

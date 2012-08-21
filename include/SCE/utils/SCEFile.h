@@ -29,6 +29,7 @@ extern "C" {
 #define SCE_FILE_READ     (1 << 0)
 #define SCE_FILE_WRITE    (1 << 1)
 #define SCE_FILE_CREATE   (1 << 2)
+#define SCE_FILE_TRUNCATE (1 << 3)
 
 typedef struct sce_sfile SCE_SFile;
 typedef struct sce_sfilesystem SCE_SFileSystem;
