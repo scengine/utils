@@ -142,6 +142,7 @@ static int xinit (SCE_SFileSystem *fs, SCE_SFile *file)
 {
     if (fs->udata)
         SCE_FileCache_CacheFile (fs->udata, file);
+    return SCE_OK;
 }
 
 static void* xopen (SCE_SFileSystem *fs, const char *fname, int flags)
