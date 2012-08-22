@@ -325,6 +325,18 @@ void SCE_Decode_Floats (float *floats, size_t n_floats, int se,
         floats[i] = SCE_Encode_ReadFloat (&in, se, ne, nm, &off);
 }
 
+#if 0
+size_t SCE_Encode_StreamFloats (const float *f, size_t n, int se,
+                                unsigned char ne,
+                                unsigned char nm, SCE_SFile *fp)
+{
+    unsigned char buffer[256] = {0};
+}
+void SCE_Decode_StreamFloats (float*, size_t, int, unsigned char,
+                              unsigned char, SCE_SFile*);
+#endif
+
+
 void SCE_Encode_Long (long id, unsigned char *data)
 {
     data[0] = 0xFF & (unsigned char)id;
@@ -341,4 +353,19 @@ long SCE_Decode_Long (const unsigned char *data)
     id |= ((unsigned char)data[2] << 16);
     id |= ((unsigned char)data[3] << 24);
     return id;
+}
+
+void SCE_Encode_StreamLong (long l, SCE_SFile *fp)
+{
+    unsigned char buffer[4] = {0};
+    SCE_Encode_Long (l, buffer);
+    SCE_File_Write (buffer, 1, 4, fp);
+    /* we should check write() return value */
+}
+long SCE_Decode_StreamLong (SCE_SFile *fp)
+{
+    unsigned char buffer[4] = {0};
+    SCE_File_Read (buffer, 1, 4, fp);
+    /* we should check read() return value */
+    return SCE_Decode_Long (buffer);
 }
