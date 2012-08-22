@@ -149,7 +149,8 @@ size_t SCE_File_Read (void *ptr, size_t size, size_t nmemb, SCE_SFile *fp)
 {
     return fp->fs->xread (ptr, size, nmemb, fp->file);
 }
-size_t SCE_File_Write (void *ptr, size_t size, size_t nmemb, SCE_SFile *fp)
+size_t SCE_File_Write (const void *ptr, size_t size, size_t nmemb,
+                       SCE_SFile *fp)
 {
     return fp->fs->xwrite (ptr, size, nmemb, fp->file);
 }

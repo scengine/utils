@@ -38,7 +38,7 @@ typedef int (*SCE_FInitFunc)(SCE_SFileSystem*, SCE_SFile*);
 typedef void* (*SCE_FOpenFunc)(SCE_SFileSystem*, const char*, int);
 typedef int (*SCE_FCloseFunc)(void*);
 typedef size_t (*SCE_FReadFunc)(void*, size_t, size_t, void*);
-typedef size_t (*SCE_FWriteFunc)(void*, size_t, size_t, void*);
+typedef size_t (*SCE_FWriteFunc)(const void*, size_t, size_t, void*);
 typedef int (*SCE_FSeekFunc)(void*, long, int);
 typedef long (*SCE_FTellFunc)(void*);
 typedef void (*SCE_FRewindFunc)(void*);
@@ -79,7 +79,7 @@ int SCE_File_Open (SCE_SFile*, SCE_SFileSystem*, const char*, int);
 int SCE_File_Close (SCE_SFile*);
 
 size_t SCE_File_Read (void*, size_t, size_t, SCE_SFile*);
-size_t SCE_File_Write (void*, size_t, size_t, SCE_SFile*);
+size_t SCE_File_Write (const void*, size_t, size_t, SCE_SFile*);
 
 int SCE_File_Seek (SCE_SFile*, long, int);
 long SCE_File_Tell (SCE_SFile*);

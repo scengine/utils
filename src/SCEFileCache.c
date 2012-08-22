@@ -264,10 +264,11 @@ static size_t xread (void *data, size_t size, size_t nmemb, void *fd)
     return s;
 }
 
-static size_t xwrite (void *data, size_t size, size_t nmemb, void *fd)
+static size_t xwrite (const void *data, size_t size, size_t nmemb, void *fd)
 {
     size_t remaining, s;
     unsigned char *ptr = NULL;
+    const unsigned char *cptr = NULL;
     xfile *file = fd;
 
     if (!file->writable)
@@ -285,8 +286,8 @@ static size_t xwrite (void *data, size_t size, size_t nmemb, void *fd)
     file->is_sync = SCE_FALSE;
 
     if (remaining < size * nmemb) {
-        ptr = data;
-        if (SCE_Array_Append (&file->data, &ptr[remaining],
+        cptr = data;
+        if (SCE_Array_Append (&file->data, (void*)&cptr[remaining],
                               size * nmemb - remaining) < 0) {
             SCEE_LogSrc ();
             return 0;
