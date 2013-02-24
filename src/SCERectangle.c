@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/02/2008
-   updated: 20/05/2012 */
+   updated: 24/02/2013 */
 
 #include "SCE/utils/SCEType.h"
 #include "SCE/utils/SCEVector.h"
@@ -215,6 +215,35 @@ void SCE_Rectangle_SetFromCenterfv (SCE_SFloatRect *r, SCE_TVector2 c,
 {
     SCE_Rectangle_SetFromCenterf (r, c[0], c[1], w, h);
 }
+/**
+ * \brief Defines a rectangle from its center and dimensions
+ * \param r an integer rectangle
+ * \param x,y center of the rectangle
+ * \param w,h dimensions of the rectangle
+ */
+void SCE_Rectangle3_SetFromCenter (SCE_SIntRect3 *r, int x, int y, int z,
+                                   unsigned int w, unsigned int h,
+                                   unsigned int d)
+{
+    int w2 = w / 2, h2 = h / 2, d2 = d / 2;
+    r->p1[0] = x - w2; r->p1[1] = y - h2; r->p1[2] = z - d2;
+    r->p2[0] = x + w2; r->p2[1] = y + h2; r->p2[2] = z + d2;
+}
+/**
+ * \brief Defines a rectangle from its center and dimensions
+ * \param r an integer rectangle
+ * \param x,y center of the rectangle
+ * \param w,h dimensions of the rectangle
+ */
+void SCE_Rectangle3_SetFromCenterl (SCE_SLongRect3 *r, long x, long y, long z,
+                                    unsigned long w, unsigned long h,
+                                    unsigned long d)
+{
+    long w2 = w / 2, h2 = h / 2, d2 = d / 2;
+    r->p1[0] = x - w2; r->p1[1] = y - h2; r->p1[2] = z - d2;
+    r->p2[0] = x + w2; r->p2[1] = y + h2; r->p2[2] = z + d2;
+}
+
 
 /**
  * \brief Moves a rectangle
