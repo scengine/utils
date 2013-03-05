@@ -122,6 +122,7 @@ long SCE_Rectangle3_GetDepthl (const SCE_SLongRect3*);
 float SCE_Rectangle_GetWidthf (const SCE_SFloatRect*);
 float SCE_Rectangle_GetHeightf (const SCE_SFloatRect*);
 
+void SCE_Rectangle3_GetOriginlv (const SCE_SLongRect3*, long*, long*, long*);
 void SCE_Rectangle_GetPoints (const SCE_SIntRect*, int*, int*, int*, int*);
 void SCE_Rectangle_GetPointsv (const SCE_SIntRect*, int*, int*);
 void SCE_Rectangle3_GetPointsv (const SCE_SIntRect3*, int*, int*);

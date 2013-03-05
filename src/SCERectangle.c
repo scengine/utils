@@ -534,6 +534,11 @@ float SCE_Rectangle_GetHeightf (const SCE_SFloatRect *r)
 }
 
 
+void SCE_Rectangle3_GetOriginlv (const SCE_SLongRect3 *r,
+                                 long *x, long *y, long *z)
+{
+    *x = r->p1[0]; *y = r->p1[1]; *z = r->p1[2];
+}
 void SCE_Rectangle_GetPoints (const SCE_SIntRect *r, int *x1, int *y1,
                               int *x2, int *y2)
 {
