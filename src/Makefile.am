@@ -16,6 +16,7 @@ libsceutils_la_SOURCES  = SCELine.c \
                           SCEError.c \
                           SCEString.c \
                           SCEFile.c \
+                          SCENullFileSystem.c \
                           SCEFileCache.c \
                           SCEZlib.c \
                           polarssl-sha1.c \

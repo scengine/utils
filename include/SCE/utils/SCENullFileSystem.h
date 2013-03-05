@@ -16,50 +16,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-/* created: 13/02/2009
-   updated: 26/02/2013 */
+/* created: 22/02/2013
+   updated: 22/02/2013 */
 
-#ifndef SCEUTILS_H
-#define SCEUTILS_H
+#ifndef SCENULLFILESYSTEM_H
+#define SCENULLFILESYSTEM_H
 
-/* external dependencies */
-#include <stdio.h>
-
-/* internal dependencies */
-#include "SCE/utils/SCEMacros.h"
-#include "SCE/utils/SCEError.h"
-#include "SCE/utils/SCEMemory.h"
-#include "SCE/utils/SCEArray.h"
-#include "SCE/utils/SCETime.h"
-#include "SCE/utils/SCEType.h"
-#include "SCE/utils/SCEEncode.h"
 #include "SCE/utils/SCEFile.h"
-#include "SCE/utils/SCENullFileSystem.h"
-
-#include "SCE/utils/SCEMath.h"
-#include "SCE/utils/SCEVector.h"
-#include "SCE/utils/SCEQuaternion.h"
-#include "SCE/utils/SCEMatrix.h"
-#include "SCE/utils/SCELine.h"
-#include "SCE/utils/SCERectangle.h"
-#include "SCE/utils/SCEPlane.h"
-#include "SCE/utils/SCESha1.h"
-
-#include "SCE/utils/SCEZlib.h"
-#include "SCE/utils/SCEFileCache.h"
-#include "SCE/utils/SCEInert.h"
-#include "SCE/utils/SCEMedia.h"
-#include "SCE/utils/SCEResource.h"
-#include "SCE/utils/SCEList.h"
-#include "SCE/utils/SCEListFastForeach.h"
-#include "SCE/utils/SCEString.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int SCE_Init_Utils (FILE*);
-void SCE_Quit_Utils (void);
+extern SCE_SFileSystem sce_nullfs;
+
+int SCE_Init_NullFS (void);
+void SCE_Quit_NullFS (void);
 
 #ifdef __cplusplus
 } /* extern "C" */

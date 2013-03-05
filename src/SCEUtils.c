@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
 
 /* created: 13/02/2009
-   updated: 10/08/2012 */
+   updated: 26/02/2013 */
 
 #include <stdio.h>
 #include <pthread.h>
@@ -63,6 +63,9 @@ int SCE_Init_Utils (FILE *outlog)
         } else if (SCE_Init_File () < 0) {
             SCEE_LogSrc ();
             SCEE_LogSrcMsg ("can't initialize file manager");
+        } else if (SCE_Init_NullFS () < 0) {
+            SCEE_LogSrc ();
+            SCEE_LogSrcMsg ("can't initialize file manager");
         } else if (SCE_Init_FileCache () < 0) {
             SCEE_LogSrc ();
             SCEE_LogSrcMsg ("can't initialize cache file manager");
@@ -105,6 +108,7 @@ void SCE_Quit_Utils (void)
             SCE_Quit_FastList ();
             /*SCE_Quit_Matrix ();*/
             SCE_Quit_FileCache ();
+            SCE_Quit_NullFS ();
             SCE_Quit_File ();
             /*SCE_Quit_Error ();*/
             SCE_Quit_Mem ();
