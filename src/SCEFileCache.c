@@ -149,6 +149,7 @@ static void* xopen (SCE_SFileSystem *fs, const char *fname, int flags)
 {
     xfile *file = NULL;
     SCE_SFile f;
+    int file_created = SCE_FALSE;
 
     if (!(file = xfile_create (fname)))
         goto fail;
@@ -158,6 +159,7 @@ static void* xopen (SCE_SFileSystem *fs, const char *fname, int flags)
 
     if (SCE_File_Open (&f, fs, fname, flags) < 0)
         goto fail;
+    file_created = SCE_TRUE;
 
     if (flags & SCE_FILE_WRITE)
         file->writable = SCE_TRUE;
@@ -173,7 +175,8 @@ static void* xopen (SCE_SFileSystem *fs, const char *fname, int flags)
 
     return file;
 fail:
-    SCE_File_Close (&f);
+    if (file_created)
+        SCE_File_Close (&f);
     xfile_delete (file);
     SCEE_LogSrc ();
     return NULL;
