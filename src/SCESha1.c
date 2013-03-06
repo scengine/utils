@@ -43,7 +43,7 @@ int SCE_Sha1_StreamSum (SCE_TSha1 sum, SCE_SFile *fp)
     size_t        n;
     int           save_errno;
     
-    SCE_File_Rewind (fp);
+    SCE_File_Rewind (fp);       /* TODO: do we really want to do that? */
     sha1_starts (&ctx);
     while ((n = SCE_File_Read (buf, sizeof *buf, sizeof buf, fp)) > 0)
         sha1_update (&ctx, buf, n);
@@ -135,7 +135,7 @@ void SCE_Sha1_ToString (char *str, SCE_TSha1 sum)
 {
     char b[] = {"0123456789abcdef"};
     size_t i;
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i < SCE_SHA1_SIZE; i++) {
         str[i * 2]     = b[(sum[i] >> 4) & 0x0f];
         str[i * 2 + 1] = b[sum[i] & 0x0f];
     }
@@ -149,7 +149,7 @@ void SCE_Sha1_ToString (char *str, SCE_TSha1 sum)
 int SCE_Sha1_Equal (SCE_TSha1 s1, SCE_TSha1 s2)
 {
     size_t i;
-    for (i = 0; i < sizeof (SCE_TSha1); i++) {
+    for (i = 0; i < SCE_SHA1_SIZE; i++) {
         if (s1[i] != s2[i])
             return SCE_FALSE;
     }

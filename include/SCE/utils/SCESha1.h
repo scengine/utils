@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,8 +23,9 @@
 #include <stdio.h>
 
 #define SCE_SHA1_STRING_SIZE 41
+#define SCE_SHA1_SIZE 20
 
-typedef unsigned char SCE_TSha1[20];
+typedef unsigned char SCE_TSha1[SCE_SHA1_SIZE];
 
 void SCE_Sha1_Init (SCE_TSha1 sum);
 
