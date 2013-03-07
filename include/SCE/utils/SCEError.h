@@ -59,6 +59,7 @@ extern "C" {
 #define SCEE_LogMsg SCE_Error_LogMsg
 #define SCEE_LogSrcMsg SCE_Error_LogSrcMsg
 #define SCEE_SendMsg SCE_Error_SendMsg
+#define SCEE_GetCode() SCE_Error_GetCode()
 #define SCEE_GetCodeMsg(code) SCE_Error_GetCodeMsg(code)
 #define SCEE_HaveError() SCE_Error_HaveError()
 #define SCEE_Out() SCE_Error_Out()
