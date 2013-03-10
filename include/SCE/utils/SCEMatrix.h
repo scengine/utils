@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 11/01/2012 */
+   updated: 10/03/2013 */
 
 #ifndef SCEMATRIX_H
 #define SCEMATRIX_H
@@ -153,12 +153,12 @@ void SCE_Matrix4_TransposeCopy (SCE_TMatrix4);
 void SCE_Matrix3_Transpose (const SCE_TMatrix3, SCE_TMatrix3);
 void SCE_Matrix3_TransposeCopy (SCE_TMatrix3);
 
-void SCE_Matrix4_Inverse (const SCE_TMatrix4, SCE_TMatrix4);
-void SCE_Matrix4_InverseCopy (SCE_TMatrix4);
-void SCE_Matrix3_Inverse (const SCE_TMatrix3, SCE_TMatrix3);
-void SCE_Matrix3_InverseCopy (SCE_TMatrix3);
-void SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3, SCE_TMatrix4x3);
-void SCE_Matrix4x3_InverseCopy (SCE_TMatrix4x3);
+int SCE_Matrix4_Inverse (const SCE_TMatrix4, SCE_TMatrix4);
+int SCE_Matrix4_InverseCopy (SCE_TMatrix4);
+int SCE_Matrix3_Inverse (const SCE_TMatrix3, SCE_TMatrix3);
+int SCE_Matrix3_InverseCopy (SCE_TMatrix3);
+int SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3, SCE_TMatrix4x3);
+int SCE_Matrix4x3_InverseCopy (SCE_TMatrix4x3);
 
 void SCE_Matrix4_Interpolate (const SCE_TMatrix4, const SCE_TMatrix4, float,
                               SCE_TMatrix4);

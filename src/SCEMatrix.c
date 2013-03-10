@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 11/01/2012 */
+   updated: 10/03/2013 */
 
 #include <string.h>
 
@@ -293,7 +293,7 @@ void SCE_Matrix3_TransposeCopy (SCE_TMatrix3 m)
     t = m[5]; m[5] = m[7]; m[7] = t;
 }
 
-void SCE_Matrix4_Inverse (const SCE_TMatrix4 m, SCE_TMatrix4 inv)
+int SCE_Matrix4_Inverse (const SCE_TMatrix4 m, SCE_TMatrix4 inv)
 {
     /* this code comes from the mesa implementation of GLU */
     float det;
@@ -308,8 +308,8 @@ void SCE_Matrix4_Inverse (const SCE_TMatrix4 m, SCE_TMatrix4 inv)
         - m[8]*m[6]*m[13] - m[12]*m[5]*m[10] + m[12]*m[6]*m[9];
 
     det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[12];
-    if (det == 0.0)
-        return;
+    if (det < SCE_EPSILONF)
+        return SCE_FALSE;
 
     inv[1] =  -m[1]*m[10]*m[15] + m[1]*m[11]*m[14] + m[9]*m[2]*m[15]
         - m[9]*m[3]*m[14] - m[13]*m[2]*m[11] + m[13]*m[3]*m[10];
@@ -342,15 +342,19 @@ void SCE_Matrix4_Inverse (const SCE_TMatrix4 m, SCE_TMatrix4 inv)
     inv[4] *= det; inv[5] *= det; inv[6] *= det; inv[7] *= det;
     inv[8] *= det; inv[9] *= det; inv[10] *= det; inv[11] *= det;
     inv[12] *= det; inv[13] *= det; inv[14] *= det; inv[15] *= det;
+
+    return SCE_TRUE;
 }
-void SCE_Matrix4_InverseCopy (SCE_TMatrix4 m)
+int SCE_Matrix4_InverseCopy (SCE_TMatrix4 m)
 {
     SCE_TMatrix4 tm;
-    SCE_Matrix4_Inverse (m, tm);
+    int r;
+    r = SCE_Matrix4_Inverse (m, tm);
     SCE_Matrix4_Copy (m, tm);
+    return r;
 }
 
-void SCE_Matrix3_Inverse (const SCE_TMatrix3 m, SCE_TMatrix3 inv)
+int SCE_Matrix3_Inverse (const SCE_TMatrix3 m, SCE_TMatrix3 inv)
 {
     float det;
 
@@ -359,8 +363,8 @@ void SCE_Matrix3_Inverse (const SCE_TMatrix3 m, SCE_TMatrix3 inv)
     inv[6] =  m[3]*m[7] - m[6]*m[4];
 
     det = m[0]*inv[0] + m[1]*inv[3] + m[2]*inv[6];
-    if (det == 0.0)
-        return;
+    if (det < SCE_EPSILONF)
+        return SCE_FALSE;
 
     inv[1] = -m[1]*m[8] + m[7]*m[2];
     inv[4] =  m[0]*m[8] - m[6]*m[2];
@@ -374,15 +378,19 @@ void SCE_Matrix3_Inverse (const SCE_TMatrix3 m, SCE_TMatrix3 inv)
     inv[0] *= det; inv[1] *= det; inv[2] *= det;
     inv[3] *= det; inv[4] *= det; inv[5] *= det;
     inv[6] *= det; inv[7] *= det; inv[8] *= det;
+
+    return SCE_TRUE;
 }
-void SCE_Matrix3_InverseCopy (SCE_TMatrix3 m)
+int SCE_Matrix3_InverseCopy (SCE_TMatrix3 m)
 {
     SCE_TMatrix3 tm;
-    SCE_Matrix3_Inverse (m, tm);
+    int r;
+    r = SCE_Matrix3_Inverse (m, tm);
     SCE_Matrix3_Copy (m, tm);
+    return r;
 }
 
-void SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3 m, SCE_TMatrix4x3 inv)
+int SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3 m, SCE_TMatrix4x3 inv)
 {
     float det;
 
@@ -396,8 +404,8 @@ void SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3 m, SCE_TMatrix4x3 inv)
         - m[8]*m[6]*0 - 0*m[5]*m[10] + 0*m[6]*m[9];
 
     det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[1];
-    if (det == 0.0)
-        return;
+    if (det < SCE_EPSILONF)
+        return SCE_FALSE;
 
     inv[1] =  -m[1]*m[10] + m[9]*m[2];
     inv[5] =   m[0]*m[10] - m[8]*m[2];
@@ -417,12 +425,16 @@ void SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3 m, SCE_TMatrix4x3 inv)
     inv[0] *= det; inv[1] *= det; inv[2] *= det; inv[3] *= det;
     inv[4] *= det; inv[5] *= det; inv[6] *= det; inv[7] *= det;
     inv[8] *= det; inv[9] *= det; inv[10] *= det; inv[11] *= det;
+
+    return SCE_TRUE;
 }
-void SCE_Matrix4x3_InverseCopy (SCE_TMatrix4x3 m)
+int SCE_Matrix4x3_InverseCopy (SCE_TMatrix4x3 m)
 {
     SCE_TMatrix4x3 tm;
-    SCE_Matrix4x3_Inverse (m, tm);
+    int r;
+    r = SCE_Matrix4x3_Inverse (m, tm);
     SCE_Matrix4x3_Copy (m, tm);
+    return r;
 }
 
 
