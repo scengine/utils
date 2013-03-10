@@ -95,7 +95,7 @@ void SCE_Matrix3_CopyM4x3 (SCE_TMatrix3 m, const SCE_TMatrix4x3 n)
     m[6] = n[8]; m[7] = n[9]; m[8] = n[10];
 }
 
-void SCE_Matrix4x3_CopyM3 (SCE_TMatrix4 m, const SCE_TMatrix3 n)
+void SCE_Matrix4x3_CopyM3 (SCE_TMatrix4x3 m, const SCE_TMatrix3 n)
 {
     m[0] = n[0]; m[1] = n[1]; m[2] = n[2];
     m[4] = n[3]; m[5] = n[4]; m[6] = n[5];
