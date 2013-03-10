@@ -114,6 +114,10 @@ void SCE_Matrix4_Identity (SCE_TMatrix4);
 void SCE_Matrix3_Identity (SCE_TMatrix3);
 void SCE_Matrix4x3_Identity (SCE_TMatrix4x3);
 
+void SCE_Matrix4_Null (SCE_TMatrix4);
+void SCE_Matrix3_Null (SCE_TMatrix3);
+void SCE_Matrix4x3_Null (SCE_TMatrix4x3);
+
 void SCE_Matrix4_CopyM3 (SCE_TMatrix4, const SCE_TMatrix3);
 void SCE_Matrix3_CopyM4 (SCE_TMatrix3, const SCE_TMatrix4);
 void SCE_Matrix3_CopyM4x3 (SCE_TMatrix3, const SCE_TMatrix4x3);

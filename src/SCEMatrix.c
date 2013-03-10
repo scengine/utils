@@ -55,6 +55,25 @@ void SCE_Matrix4x3_Identity (SCE_TMatrix4x3 m)
     m[1] = m[2] = m[3] = m[4] = m[6] = m[7] = m[8] =
     m[9] = m[11] = 0.0f;
 }
+void SCE_Matrix4_Null (SCE_TMatrix4 m)
+{
+    size_t i;
+    for (i = 0; i < 16; i++)
+        m[i] = 0.0f;
+}
+void SCE_Matrix3_Null (SCE_TMatrix3 m)
+{
+    size_t i;
+    for (i = 0; i < 9; i++)
+        m[i] = 0.0f;
+}
+void SCE_Matrix4x3_Null (SCE_TMatrix4x3 m)
+{
+    size_t i;
+    for (i = 0; i < 12; i++)
+        m[i] = 0.0f;
+}
+
 
 void SCE_Matrix4_CopyM3 (SCE_TMatrix4 m, const SCE_TMatrix3 n)
 {
