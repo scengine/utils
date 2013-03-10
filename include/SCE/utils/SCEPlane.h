@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 17/10/2011 */
+   updated: 10/03/2013 */
 
 #ifndef SCEPLANE_H
 #define SCEPLANE_H
@@ -51,6 +51,9 @@ void SCE_Plane_SetFromTriangle (SCE_SPlane*, const SCE_TVector3,
 void SCE_Plane_Copy (SCE_SPlane*, const SCE_SPlane*);
 
 void SCE_Plane_Normalize (SCE_SPlane*, int);
+
+void SCE_Plane_GetNormalv (SCE_SPlane*, SCE_TVector3);
+float SCE_Plane_GetDistance (SCE_SPlane*);
 
 float SCE_Plane_DistanceToPoint (const SCE_SPlane*, float, float, float);
 float SCE_Plane_DistanceToPointv (const SCE_SPlane*, const SCE_TVector3);

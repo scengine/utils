@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 28/02/2008
-   updated: 16/11/2011 */
+   updated: 10/03/2013 */
 
 #include "SCE/utils/SCEVector.h"
 #include "SCE/utils/SCELine.h"
@@ -126,12 +126,21 @@ void SCE_Plane_Normalize (SCE_SPlane *p, int normalize_distance)
     if (!normalize_distance)
         SCE_Vector3_Normalize (p->n);
     else {
-        float a = SCE_Vector3_Length (p->n);
-        SCE_Vector3_Operator1 (p->n, /=, a);
-        p->d /= a;
+        float a = 1.0 / SCE_Vector3_Length (p->n);
+        SCE_Vector3_Operator1 (p->n, *=, a);
+        p->d *= a;
     }
 }
 
+void SCE_Plane_GetNormalv (SCE_SPlane *p, SCE_TVector3 n)
+{
+    SCE_Vector3_Copy (n, p->n);
+}
+
+float SCE_Plane_GetDistance (SCE_SPlane *p)
+{
+    return p->d;
+}
 
 /**
  * \brief Gets the shorter distance from a plane to a point
