@@ -144,7 +144,8 @@ float* SCE_Matrix4x3_Mul (const SCE_TMatrix4x3, const SCE_TMatrix4x3,
                           SCE_TMatrix4x3);
 float* SCE_Matrix4x3_MulCopy (SCE_TMatrix4x3, const SCE_TMatrix4x3);
 
-void SCE_Matrix4_Add (SCE_TMatrix4, const SCE_TMatrix4);
+void SCE_Matrix4_Add (const SCE_TMatrix4, const SCE_TMatrix4, SCE_TMatrix4);
+void SCE_Matrix4_AddCopy (SCE_TMatrix4, const SCE_TMatrix4);
 void SCE_Matrix4_Sub (SCE_TMatrix4, const SCE_TMatrix4);
 
 void SCE_Matrix4_Transpose (const SCE_TMatrix4, SCE_TMatrix4);

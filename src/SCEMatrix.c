@@ -233,7 +233,15 @@ float* SCE_Matrix4x3_MulCopy (SCE_TMatrix4x3 m, const SCE_TMatrix4x3 n)
 }
 
 
-void SCE_Matrix4_Add (SCE_TMatrix4 a, const SCE_TMatrix4 b)
+void SCE_Matrix4_Add (const SCE_TMatrix4 a, const SCE_TMatrix4 b,
+                      SCE_TMatrix4 r)
+{
+    size_t i;
+    /* and we sure hope the compiler will unroll this */
+    for (i = 0; i < 16; i++)
+        r[i] = a[i] + b[i];
+}
+void SCE_Matrix4_AddCopy (SCE_TMatrix4 a, const SCE_TMatrix4 b)
 {
     a[0] += b[0]; a[1] += b[1]; a[2] += b[2]; a[3] += b[3];
     a[4] += b[4]; a[5] += b[5]; a[6] += b[6]; a[7] += b[7];
