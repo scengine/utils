@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 30/10/2010 */
+   updated: 10/03/2013 */
 
 #ifndef SCEVECTOR_H
 #define SCEVECTOR_H
@@ -66,11 +66,17 @@ typedef float SCE_TVector2[2];
     (((v1)[0]*(v2)[0])+((v1)[1]*(v2)[1])+((v1)[2]*(v2)[2]))
 #define SCE_Vector2_Dot(v1, v2)\
     (((v1)[0]*(v2)[0])+((v1)[1]*(v2)[1]))
+#define SCE_Vector4_Dot(v1, v2)\
+    (((v1)[0]*(v2)[0])+((v1)[1]*(v2)[1])+((v1)[2]*(v2)[2])+((v1)[3]*(v2)[3]))
 
 #define SCE_Vector3_Cross(v1, v2, v3) do {\
     (v1)[0] = (v2)[1]*(v3)[2] - (v2)[2]*(v3)[1];\
     (v1)[1] = (v2)[2]*(v3)[0] - (v2)[0]*(v3)[2];\
     (v1)[2] = (v2)[0]*(v3)[1] - (v2)[1]*(v3)[0];} while (0)
+
+#define SCE_Vector3_IsNull(v)                                   \
+    (SCE_Math_Fabsf ((v)[0]) + SCE_Math_Fabsf ((v)[1]) +        \
+     SCE_Math_Fabsf ((v)[2]) < SCE_EPSILONF)
 
 #define SCE_Vector2_Operator1(v, o, n) do {\
         (v)[0] o (n), (v)[1] o (n);} while (0)
@@ -118,6 +124,33 @@ typedef float SCE_TVector2[2];
 
 #define SCE_Vector4_Operator1(v, o, n) do {\
         (v)[0] o (n); (v)[1] o (n); (v)[2] o (n); (v)[3] o (n);} while (0)
+#define SCE_Vector4_Operator1v(v1, o, v2) do {\
+    (v1)[0] o (v2)[0];\
+    (v1)[1] o (v2)[1];\
+    (v1)[2] o (v2)[2];\
+    (v1)[3] o (v2)[3];} while (0)
+
+#define SCE_Vector4_Operator2(v, o1, v2, o2, n) do {\
+    (v)[0] o1 (v2)[0] o2 (n);\
+    (v)[1] o1 (v2)[1] o2 (n);\
+    (v)[2] o1 (v2)[2] o2 (n);\
+    (v)[3] o1 (v2)[3] o2 (n);} while (0)
+#define SCE_Vector4_Operator2v(v1, o1, v2, o2, v3) do { \
+    (v1)[0] o1 (v2)[0] o2 (v3)[0];\
+    (v1)[1] o1 (v2)[1] o2 (v3)[1];\
+    (v1)[2] o1 (v2)[2] o2 (v3)[2];\
+    (v1)[3] o1 (v2)[3] o2 (v3)[3];} while (0)
+
+#define SCE_Vector4_Operator3(v1, o1, v2, o2, v3, o3, n) do {\
+    (v1)[0] o1 (v2)[0] o2 (v3)[0] o3 (n);\
+    (v1)[1] o1 (v2)[1] o2 (v3)[1] o3 (n);\
+    (v1)[2] o1 (v2)[2] o2 (v3)[2] o3 (n);\
+    (v1)[3] o1 (v2)[3] o2 (v3)[3] o3 (n);} while (0)
+#define SCE_Vector4_Operator3v(v1, o1, v2, o2, v3, o3, v4) do {\
+    (v1)[0] o1 (v2)[0] o2 (v3)[0] o3 (v4)[0];\
+    (v1)[1] o1 (v2)[1] o2 (v3)[1] o3 (v4)[1];\
+    (v1)[2] o1 (v2)[2] o2 (v3)[2] o3 (v4)[2];\
+    (v1)[3] o1 (v2)[3] o2 (v3)[3] o3 (v4)[3];} while (0)
 
 
 void SCE_Vector3_Normalize (SCE_TVector3);
