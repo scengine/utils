@@ -308,7 +308,7 @@ int SCE_Matrix4_Inverse (const SCE_TMatrix4 m, SCE_TMatrix4 inv)
         - m[8]*m[6]*m[13] - m[12]*m[5]*m[10] + m[12]*m[6]*m[9];
 
     det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[12];
-    if (det < SCE_EPSILONF)
+    if (SCE_Math_IsZero (det))
         return SCE_FALSE;
 
     inv[1] =  -m[1]*m[10]*m[15] + m[1]*m[11]*m[14] + m[9]*m[2]*m[15]
@@ -363,7 +363,7 @@ int SCE_Matrix3_Inverse (const SCE_TMatrix3 m, SCE_TMatrix3 inv)
     inv[6] =  m[3]*m[7] - m[6]*m[4];
 
     det = m[0]*inv[0] + m[1]*inv[3] + m[2]*inv[6];
-    if (det < SCE_EPSILONF)
+    if (SCE_Math_IsZero (det))
         return SCE_FALSE;
 
     inv[1] = -m[1]*m[8] + m[7]*m[2];
@@ -404,7 +404,7 @@ int SCE_Matrix4x3_Inverse (const SCE_TMatrix4x3 m, SCE_TMatrix4x3 inv)
         - m[8]*m[6]*0 - 0*m[5]*m[10] + 0*m[6]*m[9];
 
     det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[1];
-    if (det < SCE_EPSILONF)
+    if (SCE_Math_IsZero (det))
         return SCE_FALSE;
 
     inv[1] =  -m[1]*m[10] + m[9]*m[2];
