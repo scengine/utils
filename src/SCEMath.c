@@ -163,8 +163,8 @@ int SCE_Math_PowerOfTwo (unsigned int n)
 /**
  * \brief Nearest upper power of two of a number
  * \param n a number
- * \return \p n if \p n is a power of two, the nearest upper power of
- * two otherwise
+ * \return \p n if \p n is either 0 or a power of two, the nearest upper power
+ * of two otherwise.
  */
 unsigned int SCE_Math_NextPowerOfTwo (unsigned int n)
 {
