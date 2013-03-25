@@ -29,6 +29,8 @@
 extern "C" {
 #endif
 
+#define SCE_ENCODE_LONG_SIZE 4
+
 size_t SCE_Encode_Floats (const float*, size_t, int, unsigned char,
                           unsigned char, unsigned char*);
 void SCE_Decode_Floats (float*, size_t, int, unsigned char,
