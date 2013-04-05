@@ -234,9 +234,8 @@ static SCEulong SCE_Encode_Read (const unsigned char **field, int *off, int n)
  * The number of bits written in \p out at \p offset is 1+ne+nm
  */
 /* you're limited to 256 bits for each field! harhar */
-static int
-SCE_Encode_WriteFloat (float a, int se, unsigned char ne, unsigned char nm,
-                       int *offset, unsigned char **out)
+int SCE_Encode_Float (float a, int se, unsigned char ne, unsigned char nm,
+                      int *offset, unsigned char **out)
 {
     unsigned int s;
     int e;
@@ -278,9 +277,8 @@ SCE_Encode_WriteFloat (float a, int se, unsigned char ne, unsigned char nm,
  * \param offset offset (in bits) where start reading
  * \returns the read value
  */
-static float
-SCE_Encode_ReadFloat (const unsigned char **field, int se, unsigned char ne,
-                      unsigned char nm, int *offset)
+float SCE_Decode_Float (const unsigned char **field, int se, unsigned char ne,
+                        unsigned char nm, int *offset)
 {
     unsigned int s;
     int e;
@@ -305,7 +303,7 @@ size_t SCE_Encode_Floats (const float *floats, size_t n_floats, int se,
     int off = 0;
 
     for (i = 0; i < n_floats; i++)
-        SCE_Encode_WriteFloat (floats[i], se, ne, nm, &off, &out);
+        SCE_Encode_Float (floats[i], se, ne, nm, &off, &out);
 
     n_bits = se ? 1 : 0;
     n_bits += ne + nm;
@@ -322,7 +320,7 @@ void SCE_Decode_Floats (float *floats, size_t n_floats, int se,
     int off = 0;
 
     for (i = 0; i < n_floats; i++)
-        floats[i] = SCE_Encode_ReadFloat (&in, se, ne, nm, &off);
+        floats[i] = SCE_Decode_Float (&in, se, ne, nm, &off);
 }
 
 #if 0

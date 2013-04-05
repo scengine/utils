@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,6 +30,11 @@ extern "C" {
 #endif
 
 #define SCE_ENCODE_LONG_SIZE 4
+
+int SCE_Encode_Float (float, int, unsigned char, unsigned char, int*,
+                      unsigned char**);
+float SCE_Decode_Float (const unsigned char**, int, unsigned char,
+                        unsigned char, int*);
 
 size_t SCE_Encode_Floats (const float*, size_t, int, unsigned char,
                           unsigned char, unsigned char*);
