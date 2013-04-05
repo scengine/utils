@@ -38,6 +38,12 @@
 
 /** @{ */
 
+int SCE_Vector3_IsZero (SCE_TVector3 v)
+{
+    return SCE_Math_IsZero (v[0]) && SCE_Math_IsZero (v[1]) &&
+           SCE_Math_IsZero (v[2]);
+}
+
 /**
  * \brief Normalizes a vector
  */
