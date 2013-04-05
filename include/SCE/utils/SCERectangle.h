@@ -99,6 +99,7 @@ void SCE_Rectangle3_Resize (SCE_SIntRect3*, int, int, int);
 void SCE_Rectangle3_Resizel (SCE_SLongRect3*, long, long, long);
 void SCE_Rectangle_Resizef (SCE_SFloatRect*, float, float);
 void SCE_Rectangle_Add (SCE_SIntRect*, int, int);
+void SCE_Rectangle3_Addl (SCE_SLongRect3*, long, long, long);
 void SCE_Rectangle_Addf (SCE_SFloatRect*, float, float);
 void SCE_Rectangle3_Mul (SCE_SIntRect3*, int, int, int);
 void SCE_Rectangle3_Mull (SCE_SLongRect3*, long, long, long);

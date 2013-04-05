@@ -353,6 +353,12 @@ void SCE_Rectangle_Add (SCE_SIntRect *r, int w, int h)
     r->p2[0] += w;
     r->p2[1] += h;
 }
+void SCE_Rectangle3_Addl (SCE_SLongRect3 *r, long w, long h, long d)
+{
+    r->p2[0] += w;
+    r->p2[1] += h;
+    r->p2[2] += d;
+}
 /**
  * \brief Adds an offset to the current dimensions
  * \param r A floating-point rectangle
