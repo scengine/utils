@@ -164,6 +164,8 @@ void SCE_Vector3_RotateZ (SCE_TVector3, float, float);
 
 void SCE_Vector3_GetMin (SCE_TVector3, const SCE_TVector3, const SCE_TVector3);
 void SCE_Vector3_GetMax (SCE_TVector3, const SCE_TVector3, const SCE_TVector3);
+void SCE_Vector3_AbsMin (SCE_TVector3, const SCE_TVector3, const SCE_TVector3);
+void SCE_Vector3_AbsMax (SCE_TVector3, const SCE_TVector3, const SCE_TVector3);
 
 void SCE_Vector3_Interpolate (SCE_TVector3, SCE_TVector3, float, SCE_TVector3);
 

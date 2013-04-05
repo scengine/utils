@@ -144,6 +144,35 @@ void SCE_Vector3_GetMax (SCE_TVector3 newv, const SCE_TVector3 v1,
 }
 
 /**
+ * \brief Constructs a vector with the minimal absolute values of each
+ * other's ones (resulting vector doesn't contain the absolute values though)
+ * \param newv the new vector (can be \p v1 or \p v2)
+ * \param v1 first vector
+ * \param v2 second vector
+ */
+void SCE_Vector3_AbsMin (SCE_TVector3 newv, const SCE_TVector3 v1,
+                         const SCE_TVector3 v2)
+{
+    newv[0] = SCE_Math_Fabsf (v1[0]) < SCE_Math_Fabsf (v2[0]) ? v1[0] : v2[0];
+    newv[1] = SCE_Math_Fabsf (v1[1]) < SCE_Math_Fabsf (v2[1]) ? v1[1] : v2[1];
+    newv[2] = SCE_Math_Fabsf (v1[2]) < SCE_Math_Fabsf (v2[2]) ? v1[2] : v2[2];
+}
+/**
+ * \brief Constructs a vector with the maximum absolute values of each
+ * other's ones (resulting vector doesn't contain the absolute values though)
+ * \param newv the new vector (can be \p v1 or \p v2)
+ * \param v1 first vector
+ * \param v2 second vector
+ */
+void SCE_Vector3_AbsMax (SCE_TVector3 newv, const SCE_TVector3 v1,
+                         const SCE_TVector3 v2)
+{
+    newv[0] = SCE_Math_Fabsf (v1[0]) > SCE_Math_Fabsf (v2[0]) ? v1[0] : v2[0];
+    newv[1] = SCE_Math_Fabsf (v1[1]) > SCE_Math_Fabsf (v2[1]) ? v1[1] : v2[1];
+    newv[2] = SCE_Math_Fabsf (v1[2]) > SCE_Math_Fabsf (v2[2]) ? v1[2] : v2[2];
+}
+
+/**
  * \brief Linear interpolation between two vectors
  */
 void SCE_Vector3_Interpolate (SCE_TVector3 a, SCE_TVector3 b, float w,
