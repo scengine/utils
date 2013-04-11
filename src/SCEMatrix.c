@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 10/03/2013 */
+   updated: 10/04/2013 */
 
 #include <string.h>
 
@@ -805,6 +805,62 @@ void SCE_Matrix3_MulRotatev (SCE_TMatrix3 m, float a, const SCE_TVector3 v)
     SCE_Matrix3_MulCopy (m, tm);
 }
 
+void SCE_Matrix4_Rotation (SCE_TMatrix4 m, const SCE_TVector3 a,
+                           const SCE_TVector3 b)
+{
+    SCE_TVector3 c;
+    float angle;
+
+    SCE_Vector3_Cross (c, a, b);
+    SCE_Vector3_Normalize (c);  /* TODO: ? :> */
+    /* NOTE: that's kinda silly since we're gonna call cos() on angle anyway */
+    angle = acos (SCE_Vector3_Dot (a, b));
+    SCE_Matrix4_Rotatev (m, angle, c);
+}
+void SCE_Matrix3_Rotation (SCE_TMatrix3 m, const SCE_TVector3 a,
+                           const SCE_TVector3 b)
+{
+    SCE_TVector3 c;
+    float angle;
+
+    SCE_Vector3_Cross (c, a, b);
+    SCE_Vector3_Normalize (c);
+    angle = acos (SCE_Vector3_Dot (a, b));
+    SCE_Matrix3_Rotatev (m, angle, c);
+}
+void SCE_Matrix4x3_Rotation (SCE_TMatrix4x3 m, const SCE_TVector3 a,
+                             const SCE_TVector3 b)
+{
+    SCE_TVector3 c;
+    float angle;
+
+    SCE_Vector3_Cross (c, a, b);
+    SCE_Vector3_Normalize (c);
+    angle = acos (SCE_Vector3_Dot (a, b));
+    SCE_Matrix4x3_Rotatev (m, angle, c);
+}
+
+void SCE_Matrix4_MulRotation (SCE_TMatrix4 m, const SCE_TVector3 a,
+                              const SCE_TVector3 b)
+{
+    SCE_TMatrix4 tm;
+    SCE_Matrix4_Rotation (tm, a, b);
+    SCE_Matrix4_MulCopy (m, tm);
+}
+void SCE_Matrix3_MulRotation (SCE_TMatrix3 m, const SCE_TVector3 a,
+                              const SCE_TVector3 b)
+{
+    SCE_TMatrix3 tm;
+    SCE_Matrix3_Rotation (tm, a, b);
+    SCE_Matrix3_MulCopy (m, tm);
+}
+void SCE_Matrix4x3_MulRotation (SCE_TMatrix4x3 m, const SCE_TVector3 a,
+                                const SCE_TVector3 b)
+{
+    SCE_TMatrix4x3 tm;
+    SCE_Matrix4x3_Rotation (tm, a, b);
+    SCE_Matrix4x3_MulCopy (m, tm);
+}
 
 void SCE_Matrix4_GetRotationv (SCE_TMatrix4 m, float *a, SCE_TVector3 axe)
 {

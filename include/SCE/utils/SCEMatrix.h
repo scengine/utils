@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 21/12/2006
-   updated: 10/03/2013 */
+   updated: 10/04/2013 */
 
 #ifndef SCEMATRIX_H
 #define SCEMATRIX_H
@@ -212,6 +212,20 @@ void SCE_Matrix4_MulRotate (SCE_TMatrix4, float, float, float, float);
 void SCE_Matrix4_MulRotatev(SCE_TMatrix4, float, const SCE_TVector3);
 void SCE_Matrix3_MulRotate (SCE_TMatrix3, float, float, float, float);
 void SCE_Matrix3_MulRotatev(SCE_TMatrix3, float, const SCE_TVector3);
+
+void SCE_Matrix4_Rotation (SCE_TMatrix4, const SCE_TVector3,
+                           const SCE_TVector3);
+void SCE_Matrix3_Rotation (SCE_TMatrix3, const SCE_TVector3,
+                           const SCE_TVector3);
+void SCE_Matrix4x3_Rotation (SCE_TMatrix4x3, const SCE_TVector3,
+                             const SCE_TVector3);
+
+void SCE_Matrix4_MulRotation (SCE_TMatrix4, const SCE_TVector3,
+                              const SCE_TVector3);
+void SCE_Matrix3_MulRotation (SCE_TMatrix3, const SCE_TVector3,
+                              const SCE_TVector3);
+void SCE_Matrix4x3_MulRotation (SCE_TMatrix4x3, const SCE_TVector3,
+                                const SCE_TVector3);
 
 void SCE_Matrix4_GetRotationv (SCE_TMatrix4, float*, SCE_TVector3);
 void SCE_Matrix3_GetRotationv (SCE_TMatrix3, float*, SCE_TVector3);
