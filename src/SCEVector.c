@@ -38,10 +38,14 @@
 
 /** @{ */
 
-int SCE_Vector3_IsZero (SCE_TVector3 v)
+int SCE_Vector3_IsZero (const SCE_TVector3 v)
 {
     return SCE_Math_IsZero (v[0]) && SCE_Math_IsZero (v[1]) &&
            SCE_Math_IsZero (v[2]);
+}
+int SCE_Vector3_Collinear (const SCE_TVector3 a, const SCE_TVector3 b)
+{
+    return SCE_Math_IsZero (SCE_Math_Fabsf (SCE_Vector3_Dot (a, b)) - 1.0);
 }
 
 /**

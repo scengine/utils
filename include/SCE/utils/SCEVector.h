@@ -153,7 +153,8 @@ typedef float SCE_TVector2[2];
     (v1)[3] o1 (v2)[3] o2 (v3)[3] o3 (v4)[3];} while (0)
 
 
-int SCE_Vector3_IsZero (SCE_TVector3);
+int SCE_Vector3_IsZero (const SCE_TVector3);
+int SCE_Vector3_Collinear (const SCE_TVector3, const SCE_TVector3);
 
 void SCE_Vector3_Normalize (SCE_TVector3);
 void SCE_Vector2_Normalize (SCE_TVector2);
