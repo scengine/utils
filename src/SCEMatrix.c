@@ -484,6 +484,18 @@ void SCE_Matrix4_Translatev (SCE_TMatrix4 m, const SCE_TVector3 v)
     m[1] = m[2] = m[4]  = m[6] = m[14] =
     m[8] = m[9] = m[12] = m[13] = 0.0f;
 }
+void SCE_Matrix4x3_Translate (SCE_TMatrix4x3 m, float x, float y, float z)
+{
+    m[3] = x; m[7] = y; m[11] = z;
+    m[0] = m[5] = m[10] = 1.0f;
+    m[1] = m[2] = m[4] = m[6] = m[8] = m[9] = 0.0f;
+}
+void SCE_Matrix4x3_Translatev (SCE_TMatrix4x3 m, const SCE_TVector3 v)
+{
+    m[3] = v[0]; m[7] = v[1]; m[11] = v[2];
+    m[0] = m[5] = m[10] = 1.0f;
+    m[1] = m[2] = m[4] = m[6] = m[8] = m[9] = 0.0f;
+}
 
 void SCE_Matrix4_MulTranslate (SCE_TMatrix4 m, float x, float y, float z)
 {
@@ -499,6 +511,21 @@ void SCE_Matrix4_MulTranslatev (SCE_TMatrix4 m, const SCE_TVector3 v)
     SCE_Matrix4_Copy (tm2, m);
     SCE_Matrix4_Translatev (tm, v);
     SCE_Matrix4_Mul (tm2, tm, m);
+}
+void SCE_Matrix4x3_MulTranslate (SCE_TMatrix4x3 m, float x, float y, float z)
+{
+    SCE_TMatrix4x3 tm, tm2;
+    SCE_Matrix4x3_Copy (tm2, m);
+    SCE_Matrix4x3_Translate (tm, x, y, z);
+    SCE_Matrix4x3_Mul (tm2, tm, m);
+}
+
+void SCE_Matrix4x3_MulTranslatev (SCE_TMatrix4x3 m, const SCE_TVector3 v)
+{
+    SCE_TMatrix4x3 tm, tm2;
+    SCE_Matrix4x3_Copy (tm2, m);
+    SCE_Matrix4x3_Translatev (tm, v);
+    SCE_Matrix4x3_Mul (tm2, tm, m);
 }
 
 
