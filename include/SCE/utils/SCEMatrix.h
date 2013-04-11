@@ -203,6 +203,8 @@ void SCE_Matrix4x3_MulRotZ (SCE_TMatrix4x3, float);
 
 void SCE_Matrix4_Rotate (SCE_TMatrix4, float, float, float, float);
 void SCE_Matrix4_Rotatev (SCE_TMatrix4, float, const SCE_TVector3);
+void SCE_Matrix4x3_Rotate (SCE_TMatrix4x3, float, float, float, float);
+void SCE_Matrix4x3_Rotatev (SCE_TMatrix4x3, float, const SCE_TVector3);
 void SCE_Matrix3_Rotate (SCE_TMatrix3, float, float, float, float);
 void SCE_Matrix3_Rotatev (SCE_TMatrix3, float, const SCE_TVector3);
 

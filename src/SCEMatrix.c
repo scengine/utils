@@ -694,8 +694,19 @@ void SCE_Matrix4x3_MulRotZ (SCE_TMatrix4x3 m, float a)
 }
 
 
-void SCE_Matrix4_Rotate (SCE_TMatrix4 m, float a, float x, float y, float z){
+void SCE_Matrix4_Rotate (SCE_TMatrix4 m, float a, float x, float y, float z)
+{
+    SCE_Matrix4x3_Rotate (m, a, x, y, z);
+    m[12] = m[13] = m[14] = 0.0f;
+    m[15] = 1.0f;
+}
+void SCE_Matrix4_Rotatev (SCE_TMatrix4 m, float a, const SCE_TVector3 axe)
+{
+    SCE_Matrix4_Rotate (m, a, axe[0], axe[1], axe[2]);
+}
 
+void SCE_Matrix4x3_Rotate (SCE_TMatrix4x3 m, float a, float x, float y, float z)
+{
 #define UN_COS 0
 #define XSIN 1
 #define YSIN 2
@@ -725,12 +736,11 @@ void SCE_Matrix4_Rotate (SCE_TMatrix4 m, float a, float x, float y, float z){
     m[9] = (yz*val[UN_COS]) + val[XSIN];
     m[10]= (z*z*val[UN_COS]) + cosinus;
 
-    m[3] = m[7] = m[11] = m[12] = m[13] = m[14] = 0.0f;
-    m[15] = 1.0f;
+    m[3] = m[7] = m[11] = 0.0f;
 }
-void SCE_Matrix4_Rotatev (SCE_TMatrix4 m, float a, const SCE_TVector3 axe)
+void SCE_Matrix4x3_Rotatev (SCE_TMatrix4x3 m, float a, const SCE_TVector3 axe)
 {
-    SCE_Matrix4_Rotate (m, a, axe[0], axe[1], axe[2]);
+    SCE_Matrix4x3_Rotate (m, a, axe[0], axe[1], axe[2]);
 }
 
 void SCE_Matrix3_Rotate (SCE_TMatrix3 m, float a, float x, float y, float z)
