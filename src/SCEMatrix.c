@@ -794,13 +794,13 @@ void SCE_Matrix4_MulRotatev (SCE_TMatrix4 m, float a, const SCE_TVector3 v)
 
 void SCE_Matrix3_MulRotate (SCE_TMatrix3 m, float a, float x, float y, float z)
 {
-    SCE_TMatrix4 tm;
+    SCE_TMatrix3 tm;
     SCE_Matrix3_Rotate (tm, a, x, y, z);
     SCE_Matrix3_MulCopy (m, tm);
 }
 void SCE_Matrix3_MulRotatev (SCE_TMatrix3 m, float a, const SCE_TVector3 v)
 {
-    SCE_TMatrix4 tm;
+    SCE_TMatrix3 tm;
     SCE_Matrix3_Rotatev (tm, a, v);
     SCE_Matrix3_MulCopy (m, tm);
 }
