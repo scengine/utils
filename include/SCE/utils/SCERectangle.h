@@ -128,9 +128,10 @@ void SCE_Rectangle_GetPoints (const SCE_SIntRect*, int*, int*, int*, int*);
 void SCE_Rectangle_GetPointsv (const SCE_SIntRect*, int*, int*);
 void SCE_Rectangle3_GetPointsv (const SCE_SIntRect3*, int*, int*);
 void SCE_Rectangle3_GetPointslv (const SCE_SLongRect3*, long*, long*);
-void SCE_Rectangle_GetPointsf (const SCE_SIntRect*, float*, float*,
+void SCE_Rectangle_GetPointsf (const SCE_SFloatRect*, float*, float*,
                                float*, float*);
-void SCE_Rectangle_GetPointsfv (const SCE_SIntRect*, float*, float*);
+void SCE_Rectangle_GetPointsfv (const SCE_SFloatRect*, SCE_TVector2,
+                                SCE_TVector2);
 
 int* SCE_Rectangle_GetBottomLeftPoint (SCE_SIntRect*);
 int* SCE_Rectangle_GetTopRightPoint (SCE_SIntRect*);

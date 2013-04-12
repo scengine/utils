@@ -564,12 +564,12 @@ void SCE_Rectangle3_GetPointslv (const SCE_SLongRect3 *r, long *p1, long *p2)
     p1[0] = r->p1[0]; p1[1] = r->p1[1]; p1[2] = r->p1[2];
     p2[0] = r->p2[0]; p2[1] = r->p2[1]; p2[2] = r->p2[2];
 }
-void SCE_Rectangle_GetPointsf (const SCE_SIntRect *r, float *x1, float *y1,
+void SCE_Rectangle_GetPointsf (const SCE_SFloatRect *r, float *x1, float *y1,
                                float *x2, float *y2)
 {
     *x1 = r->p1[0]; *y1 = r->p1[1]; *x2 = r->p2[0]; *y2 = r->p2[1];
 }
-void SCE_Rectangle_GetPointsfv (const SCE_SIntRect *r, SCE_TVector2 p1,
+void SCE_Rectangle_GetPointsfv (const SCE_SFloatRect *r, SCE_TVector2 p1,
                                 SCE_TVector2 p2)
 {
     p1[0] = r->p1[0]; p1[1] = r->p1[1]; p2[0] = r->p2[0]; p2[1] = r->p2[1];
