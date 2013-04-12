@@ -51,6 +51,10 @@ void SCE_Rectangle3_Init (SCE_SIntRect3 *r)
 {
     r->p1[0] = r->p1[1] = r->p1[2] = r->p2[0] = r->p2[1] = r->p2[2] = 0;
 }
+void SCE_Rectangle3_Initf (SCE_SFloatRect3 *r)
+{
+    r->p1[0] = r->p1[1] = r->p1[2] = r->p2[0] = r->p2[1] = r->p2[2] = 0.0;
+}
 void SCE_Rectangle3_Initl (SCE_SLongRect3 *r)
 {
     r->p1[0] = r->p1[1] = r->p1[2] = r->p2[0] = r->p2[1] = r->p2[2] = 0;
@@ -129,6 +133,26 @@ void SCE_Rectangle3_IntFromLong (SCE_SIntRect3 *dst, const SCE_SLongRect3 *src)
     dst->p2[2] = (int)src->p2[2];
 }
 void SCE_Rectangle3_LongFromInt (SCE_SLongRect3 *dst, const SCE_SIntRect3 *src)
+{
+    dst->p1[0] = (long)src->p1[0];
+    dst->p1[1] = (long)src->p1[1];
+    dst->p1[2] = (long)src->p1[2];
+    dst->p2[0] = (long)src->p2[0];
+    dst->p2[1] = (long)src->p2[1];
+    dst->p2[2] = (long)src->p2[2];
+}
+void SCE_Rectangle3_FloatFromLong (SCE_SFloatRect3 *dst,
+                                   const SCE_SLongRect3 *src)
+{
+    dst->p1[0] = (float)src->p1[0];
+    dst->p1[1] = (float)src->p1[1];
+    dst->p1[2] = (float)src->p1[2];
+    dst->p2[0] = (float)src->p2[0];
+    dst->p2[1] = (float)src->p2[1];
+    dst->p2[2] = (float)src->p2[2];
+}
+void SCE_Rectangle3_LongFromFloat (SCE_SLongRect3 *dst,
+                                   const SCE_SFloatRect3 *src)
 {
     dst->p1[0] = (long)src->p1[0];
     dst->p1[1] = (long)src->p1[1];
@@ -375,6 +399,12 @@ void SCE_Rectangle3_Mul (SCE_SIntRect3 *r, int x, int y, int z)
     r->p1[1] *= y; r->p2[1] *= y;
     r->p1[2] *= z; r->p2[2] *= z;
 }
+void SCE_Rectangle3_Mulf (SCE_SFloatRect3 *r, float x, float y, float z)
+{
+    r->p1[0] *= x; r->p2[0] *= x;
+    r->p1[1] *= y; r->p2[1] *= y;
+    r->p1[2] *= z; r->p2[2] *= z;
+}
 void SCE_Rectangle3_Mull (SCE_SLongRect3 *r, long x, long y, long z)
 {
     r->p1[0] *= x; r->p2[0] *= x;
@@ -573,6 +603,12 @@ void SCE_Rectangle_GetPointsfv (const SCE_SFloatRect *r, SCE_TVector2 p1,
                                 SCE_TVector2 p2)
 {
     p1[0] = r->p1[0]; p1[1] = r->p1[1]; p2[0] = r->p2[0]; p2[1] = r->p2[1];
+}
+void SCE_Rectangle3_GetPointsfv (const SCE_SFloatRect3 *r, SCE_TVector3 p1,
+                                 SCE_TVector3 p2)
+{
+    p1[0] = r->p1[0]; p1[1] = r->p1[1]; p1[2] = r->p1[2];
+    p2[0] = r->p2[0]; p2[1] = r->p2[1]; p2[2] = r->p2[2];
 }
 
 int* SCE_Rectangle_GetBottomLeftPoint (SCE_SIntRect *r)

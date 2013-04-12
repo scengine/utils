@@ -40,6 +40,11 @@ struct sce_sfloatrect {
     SCE_TVector2 p1, p2;
 };
 
+typedef struct sce_sfloatrect3 SCE_SFloatRect3;
+struct sce_sfloatrect3 {
+    SCE_TVector3 p1, p2;
+};
+
 typedef struct sce_sintrect SCE_SIntRect;
 struct sce_sintrect {
     int p1[2], p2[2];
@@ -57,6 +62,7 @@ struct sce_slongrect3 {
 
 void SCE_Rectangle_Init (SCE_SIntRect*);
 void SCE_Rectangle3_Init (SCE_SIntRect3*);
+void SCE_Rectangle3_Initf (SCE_SFloatRect3*);
 void SCE_Rectangle3_Initl (SCE_SLongRect3*);
 void SCE_Rectangle_Initf (SCE_SFloatRect*);
 
@@ -69,6 +75,8 @@ void SCE_Rectangle_Setf (SCE_SFloatRect*, float, float, float, float);
 
 void SCE_Rectangle3_IntFromLong (SCE_SIntRect3*, const SCE_SLongRect3*);
 void SCE_Rectangle3_LongFromInt (SCE_SLongRect3*, const SCE_SIntRect3*);
+void SCE_Rectangle3_FloatFromLong (SCE_SFloatRect3*, const SCE_SLongRect3*);
+void SCE_Rectangle3_LongFromFloat (SCE_SLongRect3*, const SCE_SFloatRect3*);
 
 void SCE_Rectangle_SetFromOrigin (SCE_SIntRect*, int, int,
                                   unsigned int, unsigned int);
@@ -102,6 +110,7 @@ void SCE_Rectangle_Add (SCE_SIntRect*, int, int);
 void SCE_Rectangle3_Addl (SCE_SLongRect3*, long, long, long);
 void SCE_Rectangle_Addf (SCE_SFloatRect*, float, float);
 void SCE_Rectangle3_Mul (SCE_SIntRect3*, int, int, int);
+void SCE_Rectangle3_Mulf (SCE_SFloatRect3*, float, float, float);
 void SCE_Rectangle3_Mull (SCE_SLongRect3*, long, long, long);
 void SCE_Rectangle3_Div (SCE_SIntRect3*, int, int, int);
 void SCE_Rectangle3_Divl (SCE_SLongRect3*, long, long, long);
@@ -132,6 +141,9 @@ void SCE_Rectangle_GetPointsf (const SCE_SFloatRect*, float*, float*,
                                float*, float*);
 void SCE_Rectangle_GetPointsfv (const SCE_SFloatRect*, SCE_TVector2,
                                 SCE_TVector2);
+void SCE_Rectangle3_GetPointsfv (const SCE_SFloatRect3*, SCE_TVector3,
+                                 SCE_TVector3);
+
 
 int* SCE_Rectangle_GetBottomLeftPoint (SCE_SIntRect*);
 int* SCE_Rectangle_GetTopRightPoint (SCE_SIntRect*);
