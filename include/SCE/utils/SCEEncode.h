@@ -41,12 +41,14 @@ size_t SCE_Encode_Floats (const float*, size_t, int, unsigned char,
 void SCE_Decode_Floats (float*, size_t, int, unsigned char,
                         unsigned char, const unsigned char*);
 
-#if 0
+size_t SCE_Encode_StreamFloat (float, int, unsigned char, unsigned char,
+                               SCE_SFile*);
+float SCE_Decode_StreamFloat (int, unsigned char, unsigned char, SCE_SFile*);
+
 size_t SCE_Encode_StreamFloats (const float*, size_t, int, unsigned char,
                                 unsigned char, SCE_SFile*);
 void SCE_Decode_StreamFloats (float*, size_t, int, unsigned char,
                               unsigned char, SCE_SFile*);
-#endif
 
 void SCE_Encode_Long (long, unsigned char*);
 long SCE_Decode_Long (const unsigned char*);

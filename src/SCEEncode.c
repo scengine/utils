@@ -20,6 +20,8 @@
    updated: 22/08/2012 */
 
 #include <stdlib.h>
+#include <string.h>
+#include "SCE/utils/SCEMath.h"
 #include "SCE/utils/SCEType.h"
 #include "SCE/utils/SCEError.h"
 #include "SCE/utils/SCEEncode.h"
@@ -295,6 +297,11 @@ float SCE_Decode_Float (const unsigned char **field, int se, unsigned char ne,
 }
 
 
+static size_t sce_bitstobytes (size_t n_bits)
+{
+    return n_bits / 8 + (n_bits % 8 ? 1 : 0);
+}
+
 size_t SCE_Encode_Floats (const float *floats, size_t n_floats, int se,
                           unsigned char ne, unsigned char nm,
                           unsigned char *out)
@@ -309,7 +316,7 @@ size_t SCE_Encode_Floats (const float *floats, size_t n_floats, int se,
     n_bits += ne + nm;
     n_bits *= n_floats;
 
-    return n_bits / 8 + (n_bits % 8 ? 1 : 0);
+    return sce_bitstobytes (n_bits);
 }
 
 void SCE_Decode_Floats (float *floats, size_t n_floats, int se,
@@ -323,16 +330,120 @@ void SCE_Decode_Floats (float *floats, size_t n_floats, int se,
         floats[i] = SCE_Decode_Float (&in, se, ne, nm, &off);
 }
 
-#if 0
-size_t SCE_Encode_StreamFloats (const float *f, size_t n, int se,
-                                unsigned char ne,
-                                unsigned char nm, SCE_SFile *fp)
+
+size_t SCE_Encode_StreamFloat (float f, int se, unsigned char ne,
+                               unsigned char nm, SCE_SFile *fp)
 {
-    unsigned char buffer[256] = {0};
-}
-void SCE_Decode_StreamFloats (float*, size_t, int, unsigned char,
-                              unsigned char, SCE_SFile*);
+    unsigned char buf[8];
+    unsigned char *ptr = NULL;
+    int off = 0;
+    size_t size;
+
+    size = sce_bitstobytes ((se ? 1 : 0) + ne + nm);
+
+#ifdef SCE_DEBUG
+    if (size > 8) {
+        SCEE_SendMsg ("SCE_Encode_StreamFloat(): streaming of floats more "
+                      "than 64 bits wide is unsupported\n");
+        return 0;
+    }
 #endif
+
+    ptr = buf;
+    SCE_Encode_Float (f, se, ne, nm, &off, &ptr);
+    SCE_File_Write (buf, 1, size, fp);
+    /* TODO: we should check the return value of File_Write() */
+    return size;
+}
+float SCE_Decode_StreamFloat (int se, unsigned char ne, unsigned char nm,
+                              SCE_SFile *fp)
+{
+    unsigned char buf[8];
+    unsigned char *ptr = NULL;
+    int off = 0;
+    size_t size;
+
+    size = sce_bitstobytes ((se ? 1 : 0) + ne + nm);
+
+#ifdef SCE_DEBUG
+    if (size > 8) {
+        SCEE_SendMsg ("SCE_Decode_StreamFloat(): streaming of floats more "
+                      "than 64 bits wide is unsupported\n");
+        return 0;
+    }
+#endif
+
+    SCE_File_Read (buf, 1, size, fp);
+    ptr = buf;
+    return SCE_Decode_Float (&ptr, se, ne, nm, &off);
+}
+
+size_t SCE_Encode_StreamFloats (const float *f, size_t n, int se,
+                                unsigned char ne, unsigned char nm,
+                                SCE_SFile *fp)
+{
+    /* stream sets of bits which are multiple of 8,
+       in the limit of 8 bytes per float */
+    unsigned char buf[8 * 8];
+    size_t size, total;
+
+    size = sce_bitstobytes ((se ? 1 : 0) + ne + nm);
+
+#ifdef SCE_DEBUG
+    if (size > 8) {
+        SCEE_SendMsg ("SCE_Encode_StreamFloats(): streaming of floats more "
+                      "than 64 bits wide is unsupported\n");
+        return 0;
+    }
+#endif
+
+    total = 0;
+    while (n) {
+        size_t num = MIN (n, 8);
+
+        memset (buf, sizeof buf, 0);
+        size = 0;
+        size += SCE_Encode_Floats (f, num, se, ne, nm, buf);
+        SCE_File_Write (buf, 1, size, fp);
+        total += size;
+
+        n -= num;
+        f = &f[num];
+    }
+
+    return total;
+}
+void SCE_Decode_StreamFloats (float *f, size_t n, int se, unsigned char ne,
+                              unsigned char nm, SCE_SFile *fp)
+{
+    /* stream sets of bits which are multiple of 8,
+       in the limit of 8 bytes per float */
+    unsigned char buf[8 * 8];
+    size_t size, n_bits;
+
+    n_bits = (se ? 1 : 0) + ne + nm;
+    size = sce_bitstobytes (n_bits);
+
+#ifdef SCE_DEBUG
+    if (size > 8) {
+        SCEE_SendMsg ("SCE_Encode_StreamFloats(): streaming of floats more "
+                      "than 64 bits wide is unsupported\n");
+        return 0;
+    }
+#endif
+
+    while (n) {
+        size_t num = MIN (n, 8);
+
+        memset (buf, sizeof buf, 0);
+        size = sce_bitstobytes (num * n_bits);
+        SCE_File_Read (buf, 1, size, fp);
+        SCE_Decode_Floats (f, num, se, ne, nm, buf);
+
+        n -= num;
+        f = &f[num];
+    }
+}
 
 
 void SCE_Encode_Long (long id, unsigned char *data)
