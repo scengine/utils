@@ -173,20 +173,20 @@ void SCE_Rectangle3_LongFromFloat (SCE_SLongRect3 *dst,
 void SCE_Rectangle_SetFromOrigin (SCE_SIntRect *r, int x, int y,
                                   unsigned int w, unsigned int h)
 {
-    r->p1[0] = x;     r->p1[1] = y;
-    r->p2[0] = x + w; r->p2[1] = y + h;
+    r->p1[0] = x;          r->p1[1] = y;
+    r->p2[0] = x + (int)w; r->p2[1] = y + (int)h;
 }
 void SCE_Rectangle3_SetFromOrigin (SCE_SIntRect3 *r, int x, int y, int z,
                                    SCEuint w, SCEuint h, SCEuint d)
 {
-    r->p1[0] = x;     r->p1[1] = y;     r->p1[2] = z;
-    r->p2[0] = x + w; r->p2[1] = y + h; r->p2[2] = z + d;
+    r->p1[0] = x;          r->p1[1] = y;          r->p1[2] = z;
+    r->p2[0] = x + (int)w; r->p2[1] = y + (int)h; r->p2[2] = z + (int)d;
 }
 void SCE_Rectangle3_SetFromOriginl (SCE_SLongRect3 *r, long x, long y, long z,
                                     SCEulong w, SCEulong h, SCEulong d)
 {
-    r->p1[0] = x;     r->p1[1] = y;     r->p1[2] = z;
-    r->p2[0] = x + w; r->p2[1] = y + h; r->p2[2] = z + d;
+    r->p1[0] = x;           r->p1[1] = y;           r->p1[2] = z;
+    r->p2[0] = x + (long)w; r->p2[1] = y + (long)h; r->p2[2] = z + (long)d;
 }
 /**
  * \brief Defines the origin and the dimensions at once
@@ -211,7 +211,7 @@ void SCE_Rectangle_SetFromOriginf (SCE_SFloatRect *r, float x, float y,
 void SCE_Rectangle_SetFromCenter (SCE_SIntRect *r, int x, int y,
                                   unsigned int w, unsigned int h)
 {
-    int w2 = w / 2, h2 = h / 2;
+    int w2 = (int)w / 2, h2 = (int)h / 2;
     r->p1[0] = x - w2; r->p1[1] = y - h2;
     r->p2[0] = x + w2; r->p2[1] = y + h2;
 }
@@ -249,7 +249,7 @@ void SCE_Rectangle3_SetFromCenter (SCE_SIntRect3 *r, int x, int y, int z,
                                    unsigned int w, unsigned int h,
                                    unsigned int d)
 {
-    int w2 = w / 2, h2 = h / 2, d2 = d / 2;
+    int w2 = (int)w / 2, h2 = (int)h / 2, d2 = (int)d / 2;
     r->p1[0] = x - w2; r->p1[1] = y - h2; r->p1[2] = z - d2;
     r->p2[0] = x + w2; r->p2[1] = y + h2; r->p2[2] = z + d2;
 }
@@ -263,7 +263,7 @@ void SCE_Rectangle3_SetFromCenterl (SCE_SLongRect3 *r, long x, long y, long z,
                                     unsigned long w, unsigned long h,
                                     unsigned long d)
 {
-    long w2 = w / 2, h2 = h / 2, d2 = d / 2;
+    long w2 = (long)w / 2, h2 = (long)h / 2, d2 = (long)d / 2;
     r->p1[0] = x - w2; r->p1[1] = y - h2; r->p1[2] = z - d2;
     r->p2[0] = x + w2; r->p2[1] = y + h2; r->p2[2] = z + d2;
 }
@@ -339,6 +339,7 @@ void SCE_Rectangle_Movefv (SCE_SFloatRect *r, SCE_TVector2 v)
  * \param r An integer rectangle
  * \param w,h new dimensions of the rectangle
  */
+/* NOTE: no unsigned types? */
 void SCE_Rectangle_Resize (SCE_SIntRect *r, int w, int h)
 {
     r->p2[0] = r->p1[0] + w;
@@ -974,8 +975,8 @@ void SCE_Rectangle3_SplitWidth (const SCE_SIntRect3 *r, SCEuint s,
 {
     *a = *r;
     *b = *r;
-    a->p2[0] -= s;
-    b->p1[0] += s;
+    a->p2[0] -= (int)s;
+    b->p1[0] += (int)s;
 }
 /**
  * \brief Splits a rectangle into two subrectangles
@@ -989,8 +990,8 @@ void SCE_Rectangle3_SplitHeight (const SCE_SIntRect3 *r, SCEuint s,
 {
     *a = *r;
     *b = *r;
-    a->p2[1] -= s;
-    b->p1[1] += s;
+    a->p2[1] -= (int)s;
+    b->p1[1] += (int)s;
 }
 /**
  * \brief Splits a rectangle into two subrectangles
@@ -1004,8 +1005,8 @@ void SCE_Rectangle3_SplitDepth (const SCE_SIntRect3 *r, SCEuint s,
 {
     *a = *r;
     *b = *r;
-    a->p2[2] -= s;
-    b->p1[2] += s;
+    a->p2[2] -= (int)s;
+    b->p1[2] += (int)s;
 }
 
 void SCE_Rectangle3_SplitMax (const SCE_SIntRect3 *r, SCE_SIntRect3 *a,
@@ -1036,8 +1037,8 @@ void SCE_Rectangle3_SplitWidthl (const SCE_SLongRect3 *r, SCEulong s,
 {
     *a = *r;
     *b = *r;
-    a->p2[0] -= s;
-    b->p1[0] += s;
+    a->p2[0] -= (long)s;
+    b->p1[0] += (long)s;
 }
 /**
  * \brief Splits a rectangle into two subrectangles
@@ -1051,8 +1052,8 @@ void SCE_Rectangle3_SplitHeightl (const SCE_SLongRect3 *r, SCEulong s,
 {
     *a = *r;
     *b = *r;
-    a->p2[1] -= s;
-    b->p1[1] += s;
+    a->p2[1] -= (long)s;
+    b->p1[1] += (long)s;
 }
 /**
  * \brief Splits a rectangle into two subrectangles
@@ -1066,8 +1067,8 @@ void SCE_Rectangle3_SplitDepthl (const SCE_SLongRect3 *r, SCEulong s,
 {
     *a = *r;
     *b = *r;
-    a->p2[2] -= s;
-    b->p1[2] += s;
+    a->p2[2] -= (long)s;
+    b->p1[2] += (long)s;
 }
 
 void SCE_Rectangle3_SplitMaxl (const SCE_SLongRect3 *r,
