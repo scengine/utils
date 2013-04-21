@@ -490,7 +490,7 @@ int SCE_FileCache_Sync (SCE_SFileCache *fc)
 {
     SCE_SListIterator *it = NULL;
     SCE_List_ForEach (it, &fc->cached) {
-        xfile *file = SCE_List_GetData (SCE_List_GetFirst (&fc->cached));
+        xfile *file = SCE_List_GetData (it);
         if (xflush (file) == EOF) {
             SCEE_LogSrc ();
             return SCE_ERROR;
