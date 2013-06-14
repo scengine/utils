@@ -30,6 +30,7 @@
 #include "SCE/utils/SCEError.h"
 #include "SCE/utils/SCEMemory.h"
 #include "SCE/utils/SCEArray.h"
+#include "SCE/utils/SCEArray2D.h"
 #include "SCE/utils/SCETime.h"
 #include "SCE/utils/SCEType.h"
 #include "SCE/utils/SCEEncode.h"

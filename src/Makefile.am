@@ -11,6 +11,7 @@ libsceutils_la_SOURCES  = SCELine.c \
                           SCEVector.c \
                           SCEMemory.c \
                           SCEArray.c \
+                          SCEArray2D.c \
                           SCEUtils.c \
                           SCEInert.c \
                           SCEError.c \

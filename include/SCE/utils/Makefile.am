@@ -1,6 +1,7 @@
 sce_include_utils_HEADERS = SCEError.h \
                             SCEMemory.h \
                             SCEArray.h \
+                            SCEArray2D.h \
                             SCEFile.h \
                             SCENullFileSystem.h \
                             SCEFileCache.h \
