@@ -42,11 +42,11 @@ extern "C" {
 
 
 #ifndef MAX
- #define MAX(a, b) (a > b ? a : b)
+ #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
 #ifndef MIN
- #define MIN(a, b) (a < b ? a : b)
+ #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
 #define SCE_EPSILONF (0.000001f)
