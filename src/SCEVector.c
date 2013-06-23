@@ -22,6 +22,8 @@
 #include "SCE/utils/SCEMath.h"
 #include "SCE/utils/SCEVector.h"
 
+#include "SCE/utils/SCEPlane.h" /* :DDD */
+
 
 /**
  * \file SCEVector.c
@@ -184,6 +186,22 @@ void SCE_Vector3_Interpolate (SCE_TVector3 a, SCE_TVector3 b, float w,
 {
     float w1 = 1.0f - w;
     SCE_Vector3_Operator2v (r, = w1 *, a, + w *, b);
+}
+
+
+/**
+ * \brief Gets a vector \p b such that \p a dot \p b = 0
+ * \param a a vector
+ * \param b result
+ */
+void SCE_Vector3_Perpendicular (const SCE_TVector3 a, SCE_TVector3 b)
+{
+    SCE_SPlane p;
+    b[0] = a[2];
+    b[1] = a[0];
+    b[2] = a[1];
+    SCE_Plane_Setv (&p, a, 0.0);
+    SCE_Plane_Project (&p, b);
 }
 
 /** @} */

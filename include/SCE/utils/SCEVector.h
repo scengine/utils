@@ -170,6 +170,8 @@ void SCE_Vector3_AbsMax (SCE_TVector3, const SCE_TVector3, const SCE_TVector3);
 
 void SCE_Vector3_Interpolate (SCE_TVector3, SCE_TVector3, float, SCE_TVector3);
 
+void SCE_Vector3_Perpendicular (const SCE_TVector3, SCE_TVector3);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
