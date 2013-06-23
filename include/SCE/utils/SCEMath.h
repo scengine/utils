@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 17/03/2012 */
+   updated: 15/04/2013 */
 
 #ifndef SCEMATH_H
 #define SCEMATH_H
@@ -109,6 +109,9 @@ float SCE_Math_Clampf (float, float, float) SCE_GNUC_PURE;
 float SCE_Math_Fractf (float);
 
 int SCE_Math_Ring (int, int);
+
+int SCE_Math_RandRange (int, int);
+float SCE_Math_RandRangef (float, float);
 
 #ifdef __cplusplus
 } /* extern "C" */

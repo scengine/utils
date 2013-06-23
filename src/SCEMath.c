@@ -17,9 +17,10 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 22/12/2006
-   updated: 17/03/2012 */
+   updated: 15/04/2013 */
 
 #include <math.h>
+#include <stdlib.h>
 
 #include "SCE/utils/SCEMath.h"
 
@@ -221,5 +222,19 @@ int SCE_Math_Ring (int x, int n)
     return ((x % n) + n) % n;
 }
 
+int SCE_Math_RandRange (int a, int b)
+{
+    float r = rand () / RAND_MAX;
+    r *= (b - a);
+    r += a;
+    return r + 0.5;
+}
+float SCE_Math_RandRangef (float a, float b)
+{
+    float r = rand () / (float)RAND_MAX;
+    r *= (b - a);
+    r += a;
+    return r;
+}
 
 /** @} */
