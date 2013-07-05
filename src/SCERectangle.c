@@ -975,8 +975,8 @@ void SCE_Rectangle3_SplitWidth (const SCE_SIntRect3 *r, SCEuint s,
 {
     *a = *r;
     *b = *r;
-    a->p2[0] -= (int)s;
     b->p1[0] += (int)s;
+    a->p2[0] = b->p1[0];
 }
 /**
  * \brief Splits a rectangle into two subrectangles
@@ -990,8 +990,8 @@ void SCE_Rectangle3_SplitHeight (const SCE_SIntRect3 *r, SCEuint s,
 {
     *a = *r;
     *b = *r;
-    a->p2[1] -= (int)s;
     b->p1[1] += (int)s;
+    a->p2[1] = b->p1[1];
 }
 /**
  * \brief Splits a rectangle into two subrectangles
@@ -1005,8 +1005,8 @@ void SCE_Rectangle3_SplitDepth (const SCE_SIntRect3 *r, SCEuint s,
 {
     *a = *r;
     *b = *r;
-    a->p2[2] -= (int)s;
     b->p1[2] += (int)s;
+    a->p2[2] = b->p1[2];
 }
 
 void SCE_Rectangle3_SplitMax (const SCE_SIntRect3 *r, SCE_SIntRect3 *a,
@@ -1037,8 +1037,8 @@ void SCE_Rectangle3_SplitWidthl (const SCE_SLongRect3 *r, SCEulong s,
 {
     *a = *r;
     *b = *r;
-    a->p2[0] -= (long)s;
     b->p1[0] += (long)s;
+    a->p2[0] = b->p1[0];
 }
 /**
  * \brief Splits a rectangle into two subrectangles
@@ -1052,8 +1052,8 @@ void SCE_Rectangle3_SplitHeightl (const SCE_SLongRect3 *r, SCEulong s,
 {
     *a = *r;
     *b = *r;
-    a->p2[1] -= (long)s;
     b->p1[1] += (long)s;
+    a->p2[1] = b->p1[1];
 }
 /**
  * \brief Splits a rectangle into two subrectangles
@@ -1067,8 +1067,8 @@ void SCE_Rectangle3_SplitDepthl (const SCE_SLongRect3 *r, SCEulong s,
 {
     *a = *r;
     *b = *r;
-    a->p2[2] -= (long)s;
     b->p1[2] += (long)s;
+    a->p2[2] = b->p1[2];
 }
 
 void SCE_Rectangle3_SplitMaxl (const SCE_SLongRect3 *r,
