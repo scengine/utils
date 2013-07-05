@@ -226,14 +226,15 @@ static void SCE_FileCache_Cache (SCE_SFileCache*, xfile*);
 static int xreload (xfile *file)
 {
     SCE_SFile f;
+    int r;
 
     SCE_File_Init (&f);
     if (SCE_File_Open (&f, file->subfs, file->fname, SCE_FILE_READ) < 0)
         goto fail;
-    if (xload (file, &f) < 0)
-        goto fail;
-
+    r = xload (file, &f);
     SCE_File_Close (&f);
+    if (r < 0)
+        goto fail;
 
     /* put it on top of the cache */
     if (file->cache)
@@ -241,7 +242,6 @@ static int xreload (xfile *file)
 
     return SCE_OK;
 fail:
-    SCE_File_Close (&f);
     SCEE_LogSrc ();
     SCEE_LogSrcMsg ("reloading of cached file failed");
     return SCE_ERROR;
