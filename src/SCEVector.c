@@ -189,6 +189,35 @@ void SCE_Vector3_Interpolate (SCE_TVector3 a, SCE_TVector3 b, float w,
 }
 
 
+float SCE_Vector3_Trilinear1 (SCE_TVector3 w, float v[8])
+{
+    float a, b, c, d, e, f;
+
+#define lerp(t, a, b) ( a + t * (b - a) )
+    a = v[0];
+    b = v[1];
+    c = lerp (w[0], a, b);
+
+    a = v[2];
+    b = v[3];
+    d = lerp (w[0], a, b);
+    e = lerp (w[1], c, d);
+
+
+    a = v[4];
+    b = v[5];
+    c = lerp (w[0], a, b);
+
+    a = v[6];
+    b = v[7];
+    d = lerp (w[0], a, b);
+    f = lerp (w[1], c, d);
+
+    return lerp (w[2], e, f);
+
+}
+
+
 /**
  * \brief Gets a vector \p b such that \p a dot \p b = 0
  * \param a a vector
